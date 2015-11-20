@@ -30,7 +30,7 @@
 
 %type <expression> expression assignment_expression
 				   primary_expression postfix_expression
-				   function_expression
+				   function_expression additive_expression
 %type <assignable> assignable_expression
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
@@ -61,10 +61,19 @@ assignable_expression
 	}
 
 assignment_expression
-	: postfix_expression
-	| postfix_expression TASSIGN assignment_expression
+	: additive_expression
+	| additive_expression TASSIGN assignment_expression
 	{
 		$$ = new Ink_AssignmentExpression($1, $3);
+	}
+
+additive_expression
+	: postfix_expression
+	| additive_expression TADD postfix_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("+")), arg);
 	}
 
 argument_list
@@ -105,9 +114,9 @@ param_list
 		$$ = new Ink_ParamList();
 		$$->push_back($1);
 	}
-	| param_list TIDENTIFIER
+	| param_list TCOMMA TIDENTIFIER
 	{
-		$1->push_back($2);
+		$1->push_back($3);
 		$$ = $1;
 	}
 
@@ -161,6 +170,10 @@ primary_expression
 	| TNULL
 	{
 		$$ = new Ink_NullConstant();
+	}
+	| TLPAREN expression TRPAREN
+	{
+		$$ = $2;
 	}
 
 

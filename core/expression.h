@@ -58,14 +58,11 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
-		Ink_Object *lval_ret = lval->eval(context_chain);
 		Ink_Object *rval_ret = rval->eval(context_chain);
-
-		if (rval_ret->type != INK_FUNCTION)
-			rval_ret = rval_ret->clone();
+		Ink_Object *lval_ret = lval->eval(context_chain);
 
 		if (lval_ret->address) {
-			return *lval_ret->address = rval_ret;
+			return *lval_ret->address = rval_ret->clone();
 		}
 
 		// TODO: Fatal Error: Assigning unassignable expression
@@ -92,8 +89,12 @@ public:
 	{
 		Ink_Object *base_obj = base->eval(context_chain);
 		Ink_HashTable *hash = base_obj->getSlotMapping(slot_id->c_str());
+
 		if (!hash) hash = base_obj->setSlot(slot_id->c_str(), new Ink_Object());
 		hash->value->address = &hash->value;
+
+		hash->value->setSlot("base", base_obj);
+
 		return hash->value;
 	}
 
@@ -141,6 +142,7 @@ public:
 		int i;
 		Ink_Object **argv = NULL;
 		Ink_Object *ret_val;
+		bool is_function_call_origin;
 
 		if (arg_list.size()) {
 			argv = (Ink_Object **)malloc(arg_list.size() * sizeof(Ink_Object *));

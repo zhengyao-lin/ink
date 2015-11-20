@@ -2,6 +2,7 @@ TARGET=test
 REQUIRE=\
 	syntax/syntax.o \
 	core/core.o \
+	msg/msg.o \
 	test.o
 
 CC=g++
@@ -17,6 +18,9 @@ core/core.o:
 
 syntax/syntax.o:
 	cd syntax; $(MAKE)
+
+msg/msg.o:
+	cd msg; $(MAKE)
 
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS)

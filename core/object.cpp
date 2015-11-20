@@ -85,19 +85,25 @@ Ink_Object *Ink_Integer::clone()
 
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, int argc, Ink_Object **argv)
 {
-	if (is_native) return native(context, argc, argv);
 	int argi, j;
 	Ink_HashTable *i;
 	Ink_ContextObject *local = new Ink_ContextObject(); // new local context
 	Ink_Object *ret_val = NULL;
 
 	context->addContext(local); // add to context chain
-	for (i = arguments, argi = 0; i && argi < argc; i = i->next, argi++) {
-		local->setSlot(i->key, argv[argi]->type != INK_FUNCTION ? argv[argi]->clone() : argv[argi]); // initiate local argument
-	}
 
-	for (j = 0; j < exp_list.size(); j++) {
-		ret_val = exp_list[j]->eval(context); // eval each expression
+	local->setSlot("base", getSlot("base"));
+	local->setSlot("this", this);
+
+	if (is_native) ret_val = native(context, argc, argv);
+	else {
+		for (i = arguments, argi = 0; i && argi < argc; i = i->next, argi++) {
+			local->setSlot(i->key, argv[argi]->clone()); // initiate local argument
+		}
+
+		for (j = 0; j < exp_list.size(); j++) {
+			ret_val = exp_list[j]->eval(context); // eval each expression
+		}
 	}
 
 	context->removeLast(); // delete the local environment

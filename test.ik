@@ -33,3 +33,22 @@ i.p = 20;
 a = i;
 
 p(a.p);
+
+a = 1000;
+a.b = 20;
+a.b.d = 10;
+a.b.c = () {
+	base.d = 20;
+	val = 100;
+	val.c = this;
+	base.base.b = val;
+};
+
+p(a.b);
+p(a.b.d);
+a.b.c();
+p(a.b.d);
+p(a.b);
+a.b.c();
+
+p(a.b.'+'(2));

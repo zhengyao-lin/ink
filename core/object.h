@@ -36,6 +36,7 @@ public:
 	Ink_HashTable *hash_table;
 
 	Ink_Object **address;
+	Ink_Object *base;
 
 	Ink_Object()
 	{
@@ -88,6 +89,11 @@ public:
 	{
 		type = INK_CONTEXT;
 	}
+	Ink_ContextObject(Ink_HashTable *hash)
+	{
+		type = INK_CONTEXT;
+		hash_table = hash;
+	}
 };
 
 typedef Ink_Object *(*Ink_NativeFunction)(Ink_ContextChain *context, int argc, Ink_Object **argv);
@@ -132,8 +138,7 @@ public:
 	virtual Ink_Object *clone()
 	{
 		//return new Ink_FunctionObject(arguments, exp_list);
-		// TODO: Fatal Error: Cannot clone function object
-		abort();
+		return this; // TODO
 	}
 
 	virtual ~Ink_FunctionObject()
@@ -148,7 +153,12 @@ public:
 
 	Ink_Integer(int value = 0)
 	: value(value)
-	{ type = INK_INTEGER; }
+	{
+		type = INK_INTEGER;
+		Ink_IntegerMethodInit();
+	}
+
+	void Ink_IntegerMethodInit();
 
 	virtual Ink_Object *clone();
 };

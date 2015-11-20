@@ -1,13 +1,14 @@
 #include "context.h"
 
-void Ink_ContextChain::addContext(Ink_ContextObject *c)
+Ink_ContextChain *Ink_ContextChain::addContext(Ink_ContextObject *c)
 {
 	Ink_ContextChain *new_context = new Ink_ContextChain(c);
 	Ink_ContextChain *local = getLocal();
 
 	local->inner = new_context;
 	new_context->outer = local;
-	return;
+
+	return new_context;
 }
 
 void Ink_ContextChain::removeLast()
@@ -60,4 +61,21 @@ Ink_HashTable *Ink_ContextChain::searchSlotMapping(const char *slot_id)
 	}
 
 	return ret;
+}
+
+void Ink_ContextChain::disposeContextChain(Ink_ContextChain *head)
+{
+	Ink_ContextChain *i, *tmp;
+
+	if (head && head->outer) {
+		head->outer = NULL;
+	}
+
+	for (i = head; i;) {
+		tmp = i;
+		i = i->inner;
+		delete tmp;
+	}
+
+	return;
 }

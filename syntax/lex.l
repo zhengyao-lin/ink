@@ -24,16 +24,16 @@ SPS				({SP})+
 #define LINE_NUMBER_INC()	(current_line_number++)
 
 int current_line_number = 1;
+string *id_literal = NULL;
 %}
 
 %option noyywrap
-%start C_COMMENT CC_COMMENT
+%start C_COMMENT CC_COMMENT ID_LITERAL
 
 %%
 
 <INITIAL>"var"						return TOKEN(TVAR);
 <INITIAL>"null"						return TOKEN(TNULL);
-
 
 <INITIAL>","						return TOKEN(TCOMMA);
 <INITIAL>";"						return TOKEN(TSEMICOLON);
@@ -98,6 +98,44 @@ int current_line_number = 1;
 }
 <CC_COMMENT><<EOF>>	BEGIN INITIAL;
 <CC_COMMENT>.			;
+
+ /* ID Literal */
+<INITIAL>\' {
+	id_literal = new std::string("", 0);
+    BEGIN ID_LITERAL;
+}
+<ID_LITERAL>\' {
+	yylval.string = id_literal;
+	id_literal = NULL;
+	BEGIN INITIAL;
+	return TIDENTIFIER;
+}
+<ID_LITERAL>\\{OCT}{1,3} {
+	int letter;
+	sscanf(&yytext[1], "%o", &letter);
+    *id_literal += letter;
+}
+<ID_LITERAL>\\[xX]{HEX}{1,2} {
+	int letter;
+	sscanf(&yytext[2], "%x", &letter);
+    *id_literal += letter;
+}
+<ID_LITERAL>{NEWLINE}        {
+	*id_literal += yytext[0];
+    LINE_NUMBER_INC();
+}
+<ID_LITERAL>\\\"      *id_literal += '"';
+<ID_LITERAL>\\'       *id_literal += '\'';
+<ID_LITERAL>\\n       *id_literal += '\n';
+<ID_LITERAL>\\t       *id_literal += '\t';
+<ID_LITERAL>\\\\      *id_literal += '\\';
+<ID_LITERAL><<EOF>>   {
+	printf("EOF in string literal\n");
+	yyterminate();
+}
+<ID_LITERAL>.         {
+    *id_literal += yytext[0];
+}
 
 . {
 	printf("Unknown token\n");
