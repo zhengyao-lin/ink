@@ -27,34 +27,6 @@ Ink_Expression *Ink_IntegerConstant::parse(string *str, bool if_delete)
 	return NULL;
 }
 
-Ink_HashTable *Ink_Assignable::emitHashTable(Ink_ContextChain *context_chain)
-{
-	Ink_HashTable *ret = NULL;
-	Ink_ContextChain *local;
-
-	if (base) {
-		Ink_HashTable *hash = base->emitHashTable(context_chain);
-		Ink_Object *value;
-
-		if (hash->value) value = hash->value;
-		else value = hash->value = new Ink_Object();
-
-		if (!(ret = value->getSlotMapping(slot_id->c_str()))) {
-			ret = value->setSlot(slot_id->c_str(), NULL);
-		}
-	} else {
-		local = context_chain = context_chain->getLocal();
-		while (context_chain && !(ret = context_chain->context->getSlotMapping(slot_id->c_str()))) {
-			context_chain = context_chain->outer;
-		}
-		if (!ret) { // no slot found in the whole context chain
-			ret = local->context->setSlot(slot_id->c_str(), NULL);
-		}
-	}
-
-	return ret;
-}
-
 Ink_Object *Ink_FunctionExpression::eval(Ink_ContextChain *context_chain)
 {
 	// TODO: Copy context chain

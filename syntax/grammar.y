@@ -14,7 +14,6 @@
 
 %union {
 	Ink_Expression *expression;
-	Ink_Assignable *assignable;
 	Ink_ParamList *parameter;
 	Ink_ExpressionList *expression_list;
 	std::string *string;
@@ -32,7 +31,6 @@
 				   primary_expression postfix_expression
 				   function_expression additive_expression
 				   return_expression
-%type <assignable> assignable_expression
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
@@ -60,16 +58,6 @@ return_expression
 	| TRETURN assignment_expression
 	{
 		$$ = new Ink_ReturnExpression($2);
-	}
-
-assignable_expression
-	: TIDENTIFIER
-	{
-		$$ = new Ink_Assignable($1);
-	}
-	| assignable_expression TDOT TIDENTIFIER
-	{
-		$$ = new Ink_Assignable($1, $3);
 	}
 
 assignment_expression

@@ -28,28 +28,6 @@ public:
 	virtual ~Ink_Expression() { }
 };
 
-class Ink_Assignable {
-public:
-	string *slot_id;
-	Ink_Assignable *base;
-
-	Ink_Assignable(string *slot_id)
-	: base(NULL), slot_id(slot_id)
-	{ }
-
-	Ink_Assignable(Ink_Assignable *base, string *slot_id)
-	: base(base), slot_id(slot_id)
-	{ }
-
-	Ink_HashTable *emitHashTable(Ink_ContextChain *context_chain);
-
-	virtual ~Ink_Assignable()
-	{
-		delete slot_id;
-		if (base) delete base;
-	}
-};
-
 class Ink_ReturnExpression: public Ink_Expression {
 public:
 	Ink_Expression *ret_val;

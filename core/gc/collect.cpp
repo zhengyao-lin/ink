@@ -71,6 +71,16 @@ void doMark(Ink_Object *obj)
 		doMark(i->value);
 	}
 
+	if (obj->type == INK_FUNCTION) {
+		Ink_FunctionObject *func = as<Ink_FunctionObject>(obj);
+		Ink_ContextChain *global = func->closure_context->getGlobal();
+		Ink_ContextChain *j;
+
+		for (j = global; j; j = j->inner) {
+			doMark(j->context);
+		}
+	}
+
 	return;
 }
 
@@ -91,7 +101,6 @@ void IGC_collectGarbage(Ink_ContextChain *context, bool delete_all, bool if_clea
 {
 	Ink_ContextChain *global = context->getGlobal();
 	Ink_ContextChain *i;
-	Ink_HashTable *j;
 
 	// printf("==========GC START=========\n");
 
