@@ -79,3 +79,16 @@ void Ink_ContextChain::disposeContextChain(Ink_ContextChain *head)
 
 	return;
 }
+
+Ink_ContextChain *Ink_ContextChain::copyContextChain()
+{
+	Ink_ContextChain *head = getGlobal();
+	Ink_ContextChain *i, *new_chain;
+
+	new_chain = new Ink_ContextChain(head->context);
+	for (i = head->inner; i; i = i->inner) {
+		new_chain->addContext(i->context);
+	}
+
+	return new_chain;
+}

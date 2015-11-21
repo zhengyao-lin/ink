@@ -106,6 +106,8 @@ public:
 	Ink_HashTable *arguments = NULL;
 	Ink_ExpressionList exp_list;
 
+	Ink_ContextChain *closure_context = NULL;
+
 	Ink_FunctionObject(Ink_NativeFunction native)
 	: is_native(true), native(native), exp_list(Ink_ExpressionList())
 	{ }
@@ -114,8 +116,8 @@ public:
 	: arguments(arguments), exp_list(exp_list)
 	{ }
 
-	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list)
-	: exp_list(exp_list)
+	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL)
+	: exp_list(exp_list), closure_context(closure_context)
 	{
 		int i;
 		Ink_HashTable *tmp;
@@ -141,10 +143,7 @@ public:
 		return this; // TODO
 	}
 
-	virtual ~Ink_FunctionObject()
-	{
-		cleanHashTable(arguments);
-	}
+	virtual ~Ink_FunctionObject();
 };
 
 class Ink_Integer: public Ink_Object {

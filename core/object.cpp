@@ -90,6 +90,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, int argc, Ink_Ob
 	Ink_ContextObject *local = new Ink_ContextObject(); // new local context
 	Ink_Object *ret_val = NULL;
 
+	if (closure_context) context = closure_context;
+
 	context->addContext(local); // add to context chain
 
 	local->setSlot("base", getSlot("base"));
@@ -109,4 +111,10 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, int argc, Ink_Ob
 	context->removeLast(); // delete the local environment
 
 	return ret_val ? ret_val : new Ink_NullObject(); // return the last expression
+}
+
+Ink_FunctionObject::~Ink_FunctionObject()
+{
+	if (closure_context) Ink_ContextChain::disposeContextChain(closure_context);
+	cleanHashTable(arguments);
 }

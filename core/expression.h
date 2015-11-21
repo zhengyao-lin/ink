@@ -142,7 +142,6 @@ public:
 		int i;
 		Ink_Object **argv = NULL;
 		Ink_Object *ret_val;
-		bool is_function_call_origin;
 
 		if (arg_list.size()) {
 			argv = (Ink_Object **)malloc(arg_list.size() * sizeof(Ink_Object *));

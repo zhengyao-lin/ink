@@ -34,6 +34,7 @@ string *id_literal = NULL;
 
 <INITIAL>"var"						return TOKEN(TVAR);
 <INITIAL>"null"						return TOKEN(TNULL);
+<INITIAL>"return"					return TOKEN(TNULL);
 
 <INITIAL>","						return TOKEN(TCOMMA);
 <INITIAL>";"						return TOKEN(TSEMICOLON);

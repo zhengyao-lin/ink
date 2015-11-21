@@ -55,5 +55,6 @@ Ink_HashTable *Ink_Assignable::emitHashTable(Ink_ContextChain *context_chain)
 
 Ink_Object *Ink_FunctionExpression::eval(Ink_ContextChain *context_chain)
 {
-	return new Ink_FunctionObject(param, exp_list);
+	// TODO: Copy context chain
+	return new Ink_FunctionObject(param, exp_list, context_chain->copyContextChain());
 }
