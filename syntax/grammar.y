@@ -23,7 +23,7 @@
 
 %token <string> TIDENTIFIER TINTEGER TFLOAT
 
-%token <token> TVAR TNULL
+%token <token> TVAR TNULL TRETURN
 %token <token> TCOMMA TSEMICOLON TASSIGN
 %token <token> TADD TSUB TMUL TDIV TMOD TDOT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
@@ -31,6 +31,7 @@
 %type <expression> expression assignment_expression
 				   primary_expression postfix_expression
 				   function_expression additive_expression
+				   return_expression
 %type <assignable> assignable_expression
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
@@ -48,7 +49,18 @@ compile_unit
 	}
 
 expression
+	: return_expression
+
+return_expression
 	: assignment_expression
+	| TRETURN
+	{
+		$$ = new Ink_ReturnExpression(NULL);
+	}
+	| TRETURN assignment_expression
+	{
+		$$ = new Ink_ReturnExpression($2);
+	}
 
 assignable_expression
 	: TIDENTIFIER

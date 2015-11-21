@@ -2,6 +2,8 @@
 #include <string.h>
 #include "expression.h"
 
+bool CGC_if_return = false;
+
 Ink_Expression *Ink_IntegerConstant::parse(string *str, bool if_delete)
 {
 	int val = 0, flag = 1;

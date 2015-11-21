@@ -1,7 +1,9 @@
 #ifndef _COLLECT_H_
 #define _COLLECT_H_
 
-#include "core/object.h"
+#include "../object.h"
+
+#define IGC_COLLECT_TRESHOLD (100)
 
 class IGC_CollectUnit {
 public:
@@ -18,8 +20,16 @@ public:
 
 	~IGC_CollectUnit()
 	{
+		if (prev)
+			prev->next = next;
+		if (next)
+			next->prev = prev;
 		delete obj;
 	}
 };
+
+void IGC_initGC(Ink_ContextChain *context);
+void IGC_addObject(Ink_Object *obj);
+void IGC_collectGarbage(Ink_ContextChain *context, bool delete_all = false, bool if_clean_mark = true);
 
 #endif

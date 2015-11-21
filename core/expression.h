@@ -10,6 +10,8 @@ using namespace std;
 
 class Ink_Expression;
 
+extern bool CGC_if_return;
+
 typedef vector<Ink_Expression *> Ink_ExpressionList;
 typedef vector<string *> Ink_ParamList;
 
@@ -44,6 +46,27 @@ public:
 	{
 		delete slot_id;
 		if (base) delete base;
+	}
+};
+
+class Ink_ReturnExpression: public Ink_Expression {
+public:
+	Ink_Expression *ret_val;
+
+	Ink_ReturnExpression(Ink_Expression *ret_val)
+	: ret_val(ret_val)
+	{ }
+
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	{
+		CGC_if_return = true;
+		return ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
+	}
+
+	~Ink_ReturnExpression()
+	{
+		if (ret_val)
+			delete ret_val;
 	}
 };
 

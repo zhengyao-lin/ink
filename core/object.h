@@ -23,6 +23,8 @@ enum Ink_TypeTag {
 
 void IGC_addObject(Ink_Object *obj);
 
+extern bool CGC_if_return;
+
 class Ink_Expression;
 class Ink_ContextChain;
 typedef vector<Ink_Expression *> Ink_ExpressionList;
@@ -107,6 +109,7 @@ public:
 	Ink_ExpressionList exp_list;
 
 	Ink_ContextChain *closure_context = NULL;
+	bool is_inline = false;
 
 	Ink_FunctionObject(Ink_NativeFunction native)
 	: is_native(true), native(native), exp_list(Ink_ExpressionList())

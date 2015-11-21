@@ -2,12 +2,12 @@
 #include "core/hash.h"
 #include "core/object.h"
 #include "core/expression.h"
+#include "core/gc/collect.h"
 
 Ink_ExpressionList exp_list = Ink_ExpressionList();
 
 extern int yyparse();
 extern int yylex_destroy();
-void IGC_collectGarbage(Ink_ContextChain *context, bool delete_all = false);
 
 void cleanContext(Ink_ContextChain *context)
 {
@@ -67,9 +67,11 @@ int main()
 
 	context->context->setSlot("p", new Ink_FunctionObject(print));
 
+	IGC_initGC(context);
+
 	for (i = 0; i < exp_list.size(); i++) {
 		Ink_Object *ret_val = exp_list[i]->eval(context);
-		//IGC_collectGarbage(context);
+		IGC_collectGarbage(context);
 	}
 
 	// func=(){global=120;};

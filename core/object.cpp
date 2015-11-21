@@ -105,6 +105,11 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, int argc, Ink_Ob
 
 		for (j = 0; j < exp_list.size(); j++) {
 			ret_val = exp_list[j]->eval(context); // eval each expression
+			if (CGC_if_return) {
+				if (!is_inline)
+					CGC_if_return = false;
+				break;
+			}
 		}
 	}
 
@@ -116,5 +121,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, int argc, Ink_Ob
 Ink_FunctionObject::~Ink_FunctionObject()
 {
 	if (closure_context) Ink_ContextChain::disposeContextChain(closure_context);
+	cleanHashTable();
 	cleanHashTable(arguments);
 }
