@@ -49,6 +49,16 @@ void Ink_Integer::Ink_IntegerMethodInit()
 	setSlot("+", new Ink_FunctionObject(add));
 }
 
+void cleanAll(Ink_ContextChain *context)
+{
+	int i;
+	for (i = 0; i < exp_list.size(); i++) {
+		delete exp_list[i];
+	}
+	IGC_collectGarbage(context, true);
+	cleanContext(context);
+}
+
 int main()
 {
 	yyparse();
@@ -80,13 +90,7 @@ int main()
 	// if (defined(out) && out->type == INK_INTEGER)
 	// 	printf("global: %d\n", as<Ink_Integer>(out)->value);
 
-	for (i = 0; i < exp_list.size(); i++) {
-		delete exp_list[i];
-	}
-
-	IGC_collectGarbage(context, true);
-
-	cleanContext(context);
+	cleanAll(context);
 
 	return 0;
 }

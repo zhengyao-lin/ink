@@ -118,6 +118,8 @@ public:
 	tmpWarning(string msg);
 	static void
 	tmpNote(string msg);
+	static void
+	popMessage(ErrorInfo *info);
 };
 
 #endif

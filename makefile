@@ -28,4 +28,5 @@ msg/msg.o:
 clean:
 	cd core; $(MAKE) clean
 	cd syntax; $(MAKE) clean
+	cd msg; $(MAKE) clean
 	$(RM) *.o $(TARGET)

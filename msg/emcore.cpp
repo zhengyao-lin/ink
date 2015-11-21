@@ -209,6 +209,13 @@ ErrorMessage::newMessage(ErrorInfo *info)
 }
 
 void
+ErrorMessage::popMessage(ErrorInfo *info)
+{
+	info->doPrint(cerr);
+	return;
+}
+
+void
 ErrorMessage::popAll(ostream& strm)
 {
 	while (Buffer.size() > 0)

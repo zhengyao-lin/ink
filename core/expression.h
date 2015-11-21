@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include "object.h"
 #include "context.h"
+#include "error.h"
 using namespace std;
 
 class Ink_Expression;
@@ -88,7 +89,7 @@ public:
 			return *lval_ret->address = rval_ret->clone();
 		}
 
-		// TODO: Fatal Error: Assigning unassignable expression
+		InkErr_Assigning_Unassignable_Expression(context_chain);
 		abort();
 	}
 
@@ -113,7 +114,10 @@ public:
 		Ink_Object *base_obj = base->eval(context_chain);
 		Ink_HashTable *hash = base_obj->getSlotMapping(slot_id->c_str());
 
-		if (!hash) hash = base_obj->setSlot(slot_id->c_str(), new Ink_Object());
+		if (!hash) {
+			InkWarn_Hash_not_found(slot_id->c_str());
+			hash = base_obj->setSlot(slot_id->c_str(), new Ink_Object());
+		}
 		hash->value->address = &hash->value;
 
 		hash->value->setSlot("base", base_obj);

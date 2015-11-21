@@ -93,7 +93,7 @@ void IGC_collectGarbage(Ink_ContextChain *context, bool delete_all, bool if_clea
 	Ink_ContextChain *i;
 	Ink_HashTable *j;
 
-	printf("==========GC START=========\n");
+	// printf("==========GC START=========\n");
 
 	if (if_clean_mark)
 		cleanMark();

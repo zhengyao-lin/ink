@@ -26,3 +26,6 @@
 *.exe
 *.out
 *.app
+
+upload.sh
+upload.log
