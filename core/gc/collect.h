@@ -3,7 +3,7 @@
 
 #include "../object.h"
 
-#define IGC_COLLECT_TRESHOLD (100)
+#define IGC_COLLECT_TRESHOLD (256)
 
 class IGC_CollectUnit {
 public:
@@ -29,6 +29,7 @@ public:
 };
 
 void IGC_initGC(Ink_ContextChain *context);
+void IGC_checkGC();
 void IGC_addObject(Ink_Object *obj);
 void IGC_collectGarbage(Ink_ContextChain *context, bool delete_all = false, bool if_clean_mark = true);
 

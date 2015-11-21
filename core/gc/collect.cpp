@@ -4,7 +4,8 @@
 
 static long igc_object_count = 0;
 static long igc_collect_treshold = IGC_COLLECT_TRESHOLD;
-static IGC_CollectUnit *igc_object_chain;
+static IGC_CollectUnit *igc_object_chain = NULL;
+static IGC_CollectUnit *igc_object_buffer = NULL;
 static Ink_ContextChain *igc_global_context = NULL;
 
 void IGC_initGC(Ink_ContextChain *context)
@@ -13,27 +14,55 @@ void IGC_initGC(Ink_ContextChain *context)
 	return;
 }
 
-void cleanMark();
-void IGC_addObject(Ink_Object *obj)
+void IGC_addBuffer(IGC_CollectUnit *unit)
 {
-	IGC_CollectUnit *new_unit;
 	IGC_CollectUnit *i;
+	if (igc_object_buffer) {
+		for (i = igc_object_buffer; i && i->next; i = i->next) ;
+		i->next = unit;
+		unit->prev = i;
+	} else {
+		igc_object_buffer = unit;
+	}
 
-	/*if (igc_object_count >= igc_collect_treshold) {
+	return;
+}
+
+void IGC_flushBuffer()
+{
+	IGC_CollectUnit *i;
+	if (igc_object_chain) {
+		for (i = igc_object_chain; i && i->next; i = i->next) ;
+		i->next = igc_object_buffer;
+		if (igc_object_buffer)
+			igc_object_buffer->prev = i;
+	} else {
+		igc_object_chain = igc_object_buffer;
+	}
+	igc_object_buffer = NULL;
+	return;
+}
+
+void IGC_checkGC()
+{
+	if (igc_object_count >= igc_collect_treshold) {
 		IGC_collectGarbage(igc_global_context, false);
 		if (igc_object_count >= igc_collect_treshold) {
 			igc_collect_treshold += igc_object_count;
 		}
-	}*/
+		IGC_flushBuffer();
+	}
+	return;
+}
+
+void IGC_addObject(Ink_Object *obj)
+{
+	IGC_CollectUnit *new_unit;
 
 	new_unit = new IGC_CollectUnit(obj);
-	if (igc_object_chain) {
-		for (i = igc_object_chain; i && i->next; i = i->next) ;
-		i->next = new_unit;
-		new_unit->prev = i;
-	} else {
-		igc_object_chain = new_unit;
-	}
+	IGC_addBuffer(new_unit);
+
+	IGC_checkGC();
 
 	igc_object_count++;
 
@@ -102,7 +131,7 @@ void IGC_collectGarbage(Ink_ContextChain *context, bool delete_all, bool if_clea
 	Ink_ContextChain *global = context->getGlobal();
 	Ink_ContextChain *i;
 
-	// printf("==========GC START=========\n");
+	printf("========== GC INTERRUPT =========\n");
 
 	if (if_clean_mark)
 		cleanMark();
@@ -112,8 +141,6 @@ void IGC_collectGarbage(Ink_ContextChain *context, bool delete_all, bool if_clea
 		}
 	}
 	doCollect();
-
-	// printf("===========GC END==========\n");
 
 	return;
 }

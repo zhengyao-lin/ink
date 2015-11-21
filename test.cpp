@@ -73,7 +73,7 @@ int main()
 
 	for (i = 0; i < exp_list.size(); i++) {
 		Ink_Object *ret_val = exp_list[i]->eval(context);
-		IGC_collectGarbage(context);
+		// IGC_collectGarbage(context);
 	}
 
 	// func=(){global=120;};
