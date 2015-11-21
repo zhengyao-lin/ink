@@ -103,6 +103,10 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, int argc, Ink_Ob
 			local->setSlot(i->key, argv[argi]->clone()); // initiate local argument
 		}
 
+		if (i || argi < argc) {
+			InkWarn_Unfit_Argument();
+		}
+
 		for (j = 0; j < exp_list.size(); j++) {
 			ret_val = exp_list[j]->eval(context); // eval each expression
 			if (CGC_if_return) {

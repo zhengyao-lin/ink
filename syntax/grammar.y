@@ -30,10 +30,12 @@
 %type <expression> expression assignment_expression
 				   primary_expression postfix_expression
 				   function_expression additive_expression
-				   return_expression
+				   return_expression multiplicative_expression
+				   unary_expression
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
+						block
 
 %start compile_unit
 
@@ -45,9 +47,11 @@ compile_unit
 		exp_list = *$1;
 		delete $1;
 	}
+	;
 
 expression
 	: return_expression
+	;
 
 return_expression
 	: assignment_expression
@@ -59,6 +63,7 @@ return_expression
 	{
 		$$ = new Ink_ReturnExpression($2);
 	}
+	;
 
 assignment_expression
 	: additive_expression
@@ -66,15 +71,39 @@ assignment_expression
 	{
 		$$ = new Ink_AssignmentExpression($1, $3);
 	}
+	;
 
 additive_expression
-	: postfix_expression
-	| additive_expression TADD postfix_expression
+	: multiplicative_expression
+	| additive_expression TADD multiplicative_expression
 	{
 		Ink_ExpressionList arg = Ink_ExpressionList();
 		arg.push_back($3);
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("+")), arg);
 	}
+	| additive_expression TSUB multiplicative_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("-")), arg);
+	}
+	;
+
+multiplicative_expression
+	: unary_expression
+	| multiplicative_expression TMUL unary_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("*")), arg);
+	}
+	| multiplicative_expression TDIV unary_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("/")), arg);
+	}
+	;
 
 argument_list
 	: expression
@@ -87,6 +116,7 @@ argument_list
 		$1->push_back($3);
 		$$ = $1;
 	}
+	;
 
 argument_list_opt
 	: /* empty */
@@ -94,6 +124,28 @@ argument_list_opt
 		$$ = new Ink_ExpressionList();
 	}
 	| argument_list
+	;
+
+block
+	: TLBRACE expression_list_opt TRBRACE
+	{
+		$$ = $2;
+	}
+	;
+
+unary_expression
+	: postfix_expression
+	| TADD unary_expression
+	{
+		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("+u")),
+									Ink_ExpressionList());
+	}
+	| TSUB unary_expression
+	{
+		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("-u")),
+									Ink_ExpressionList());
+	}
+	;
 
 postfix_expression
 	: function_expression
@@ -107,6 +159,14 @@ postfix_expression
 		$$ = new Ink_CallExpression($1, *$3);
 		delete $3;
 	}
+	| postfix_expression block
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back(new Ink_FunctionExpression(Ink_ParamList(), *$2, true));
+		$$ = new Ink_CallExpression($1, arg);
+		delete $2;
+	}
+	;
 
 param_list
 	: TIDENTIFIER
@@ -119,6 +179,7 @@ param_list
 		$1->push_back($3);
 		$$ = $1;
 	}
+	;
 
 param_opt
 	: /* empty */
@@ -126,6 +187,7 @@ param_opt
 		$$ = new Ink_ParamList();
 	}
 	| param_list
+	;
 
 expression_list
 	: expression TSEMICOLON
@@ -138,6 +200,7 @@ expression_list
 		$1->push_back($2);
 		$$ = $1;
 	}
+	;
 
 expression_list_opt
 	: /* empty */
@@ -145,21 +208,23 @@ expression_list_opt
 		$$ = new Ink_ExpressionList();
 	}
 	| expression_list
+	;
 
 function_expression
 	: primary_expression
-	| TLPAREN param_opt TRPAREN TLBRACE expression_list_opt TRBRACE
+	| TLPAREN param_opt TRPAREN block
 	{
-		$$ = new Ink_FunctionExpression(*$2, *$5);
+		$$ = new Ink_FunctionExpression(*$2, *$4);
 		delete $2;
-		delete $5;
+		delete $4;
 	}
+	;
 
 primary_expression
 	: TINTEGER
 	{
 		// printf("integer: %s\n", $1->c_str());
-		$$ = Ink_IntegerConstant::parse($1, true);
+		$$ = Ink_IntegerConstant::parse(*$1);
 		delete $1;
 	}
 	| TIDENTIFIER
@@ -175,6 +240,6 @@ primary_expression
 	{
 		$$ = $2;
 	}
-
+	;
 
 %%

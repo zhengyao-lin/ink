@@ -8,6 +8,7 @@
 #include <malloc.h>
 #include "inttype.h"
 #include "hash.h"
+#include "error.h"
 using namespace std;
 
 enum Ink_TypeTag {
@@ -59,7 +60,7 @@ public:
 	virtual Ink_Object *clone();
 	virtual Ink_Object *call(Ink_ContextChain *context, int argc, Ink_Object **argv)
 	{
-		// TODO: Fatal Error: Calling non-function object
+		InkErr_Calling_Non_Function_Object(context);
 		abort();
 	}
 
@@ -119,8 +120,8 @@ public:
 	: arguments(arguments), exp_list(exp_list)
 	{ }
 
-	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL)
-	: exp_list(exp_list), closure_context(closure_context)
+	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL, bool is_inline = false)
+	: exp_list(exp_list), closure_context(closure_context), is_inline(is_inline)
 	{
 		int i;
 		Ink_HashTable *tmp;
@@ -143,7 +144,7 @@ public:
 	virtual Ink_Object *clone()
 	{
 		//return new Ink_FunctionObject(arguments, exp_list);
-		return this; // TODO
+		return this;
 	}
 
 	virtual ~Ink_FunctionObject();

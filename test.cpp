@@ -5,6 +5,7 @@
 #include "core/gc/collect.h"
 
 Ink_ExpressionList exp_list = Ink_ExpressionList();
+Ink_ExpressionList native_exp_list = Ink_ExpressionList();
 
 extern int yyparse();
 extern int yylex_destroy();
@@ -34,30 +35,20 @@ Ink_Object *print(Ink_ContextChain *context, int argc, Ink_Object **argv)
 	return new Ink_NullObject();
 }
 
-Ink_Object *add(Ink_ContextChain *context, int argc, Ink_Object **argv)
-{
-	Ink_Object *base = context->searchSlot("base");
-	if (base->type == INK_INTEGER && argv[0]->type == INK_INTEGER) {
-		return new Ink_Integer(as<Ink_Integer>(base)->value + as<Ink_Integer>(argv[0])->value);
-	}
-
-	return new Ink_NullObject();
-}
-
-void Ink_Integer::Ink_IntegerMethodInit()
-{
-	setSlot("+", new Ink_FunctionObject(add));
-}
-
 void cleanAll(Ink_ContextChain *context)
 {
 	int i;
 	for (i = 0; i < exp_list.size(); i++) {
 		delete exp_list[i];
 	}
+	for (i = 0; i < native_exp_list.size(); i++) {
+		delete native_exp_list[i];
+	}
 	IGC_collectGarbage(context, true);
 	cleanContext(context);
 }
+
+void Ink_GlobalMethodInit(Ink_ContextChain *context);
 
 int main()
 {
@@ -76,6 +67,7 @@ int main()
 	Ink_ContextChain *context = new Ink_ContextChain(new Ink_ContextObject());
 
 	context->context->setSlot("p", new Ink_FunctionObject(print));
+	Ink_GlobalMethodInit(context);
 
 	IGC_initGC(context);
 

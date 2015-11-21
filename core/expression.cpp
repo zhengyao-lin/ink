@@ -4,10 +4,9 @@
 
 bool CGC_if_return = false;
 
-Ink_Expression *Ink_IntegerConstant::parse(string *str, bool if_delete)
+Ink_Expression *Ink_IntegerConstant::parse(string code)
 {
 	int val = 0, flag = 1;
-	string code = string(str->c_str());
 
 	if (code[0] == '-') {
 		flag = -1;
@@ -20,15 +19,11 @@ Ink_Expression *Ink_IntegerConstant::parse(string *str, bool if_delete)
 		|| sscanf(code.c_str(), "%d", &val) > 0)
 		return new Ink_IntegerConstant(val * flag);
 
-	if (if_delete) {
-		delete str;
-	}
-
 	return NULL;
 }
 
 Ink_Object *Ink_FunctionExpression::eval(Ink_ContextChain *context_chain)
 {
 	// TODO: Copy context chain
-	return new Ink_FunctionObject(param, exp_list, context_chain->copyContextChain());
+	return new Ink_FunctionObject(param, exp_list, context_chain->copyContextChain(), is_inline);
 }

@@ -93,7 +93,7 @@ public:
 		Ink_HashTable *hash = base_obj->getSlotMapping(slot_id->c_str());
 
 		if (!hash) {
-			InkWarn_Hash_not_found(slot_id->c_str());
+			// InkWarn_Hash_not_found(slot_id->c_str());
 			hash = base_obj->setSlot(slot_id->c_str(), new Ink_Object());
 		}
 		hash->value->address = &hash->value;
@@ -114,9 +114,10 @@ class Ink_FunctionExpression: public Ink_Expression {
 public:
 	Ink_ParamList param;
 	Ink_ExpressionList exp_list;
+	bool is_inline;
 
-	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list)
-	: param(param), exp_list(exp_list)
+	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, bool is_inline = false)
+	: param(param), exp_list(exp_list), is_inline(is_inline)
 	{ }
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain);
@@ -215,7 +216,7 @@ public:
 		return new Ink_Integer(value);
 	}
 
-	static Ink_Expression *parse(string *str, bool if_delete = false);
+	static Ink_Expression *parse(string code);
 	virtual ~Ink_IntegerConstant() { }
 };
 

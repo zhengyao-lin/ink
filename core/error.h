@@ -51,9 +51,23 @@ InkErr_Assigning_Unassignable_Expression(Ink_ContextChain *context)
 }
 
 inline void
+InkErr_Calling_Non_Function_Object(Ink_ContextChain *context)
+{
+	InkErr_doPrintError(context, "Calling non-function object");
+	return;
+}
+
+inline void
 InkWarn_Hash_not_found(const char *index)
 {
 	InkWarn_doPrintWarning("Creating undefined slot \'$(index)\'", index);
+	return;
+}
+
+inline void
+InkWarn_Unfit_Argument()
+{
+	InkWarn_doPrintWarning("Unfit argument(s)");
 	return;
 }
 

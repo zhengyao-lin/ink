@@ -51,8 +51,6 @@ p(a.b.d);
 p(a.b);
 a.b.c();
 
-p(a.b.'+'(2));
-
 a = 10;
 func = () {
 	b = 123456;
@@ -78,3 +76,35 @@ func =
 } () ();
 
 func(10010);
+
+a = 10;
+b = 20;
+
+p((a + b) * 2 + 20);
+
+func = () {
+	(block) { p(block() * 2); };
+};
+
+func () {
+	12;
+};
+
+func1 = () {
+	return 100;
+};
+
+func = (bool) {
+	func1();
+	if (bool) {
+		if (bool + 1) {
+			return 1;
+		}.else {
+			return 2;
+		};
+		p(1111);
+	};
+	return 0;
+};
+
+p(func(-1));

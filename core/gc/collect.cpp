@@ -19,12 +19,12 @@ void IGC_addObject(Ink_Object *obj)
 	IGC_CollectUnit *new_unit;
 	IGC_CollectUnit *i;
 
-	if (igc_object_count >= igc_collect_treshold) {
+	/*if (igc_object_count >= igc_collect_treshold) {
 		IGC_collectGarbage(igc_global_context, false);
 		if (igc_object_count >= igc_collect_treshold) {
 			igc_collect_treshold += igc_object_count;
 		}
-	}
+	}*/
 
 	new_unit = new IGC_CollectUnit(obj);
 	if (igc_object_chain) {
