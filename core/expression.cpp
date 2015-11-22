@@ -6,7 +6,7 @@ bool CGC_if_return = false;
 
 Ink_Expression *Ink_IntegerConstant::parse(string code)
 {
-	int val = 0, flag = 1;
+	unsigned int val = 0, flag = 1;
 
 	if (code[0] == '-') {
 		flag = -1;
@@ -16,7 +16,7 @@ Ink_Expression *Ink_IntegerConstant::parse(string code)
 	if (sscanf(code.c_str(), "0x%x", &val) > 0
 		|| sscanf(code.c_str(), "0X%X", &val) > 0
 		|| sscanf(code.c_str(), "0%o", &val) > 0
-		|| sscanf(code.c_str(), "%d", &val) > 0)
+		|| sscanf(code.c_str(), "%u", &val) > 0)
 		return new Ink_IntegerConstant(val * flag);
 
 	return NULL;

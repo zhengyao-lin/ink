@@ -21,8 +21,8 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 
 Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value)
 {
-	Ink_HashTable *slot;
-	if (slot = getSlotMapping(key)) {
+	Ink_HashTable *slot = getSlotMapping(key);
+	if (slot) {
 		slot->value = value;
 	} else {
 		slot = new Ink_HashTable(key, value);
@@ -83,9 +83,18 @@ Ink_Object *Ink_Integer::clone()
 	return new_obj;
 }
 
-Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, int argc, Ink_Object **argv)
+Ink_Object *Ink_String::clone()
 {
-	int argi, j;
+	Ink_Object *new_obj = new Ink_String(value);
+
+	cloneHashTable(this, new_obj);
+
+	return new_obj;
+}
+
+Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	unsigned int argi, j;
 	Ink_HashTable *i;
 	Ink_ContextObject *local = new Ink_ContextObject(); // new local context
 	Ink_Object *ret_val = NULL;

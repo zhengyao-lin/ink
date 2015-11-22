@@ -25,15 +25,17 @@ SPS				({SP})+
 
 int current_line_number = 1;
 string *id_literal = NULL;
+string *string_literal = NULL;
 %}
 
 %option noyywrap
-%start C_COMMENT CC_COMMENT ID_LITERAL
+%start C_COMMENT CC_COMMENT ID_LITERAL STRING_LITERAL
 
 %%
 
 <INITIAL>"var"						return TOKEN(TVAR);
 <INITIAL>"null"						return TOKEN(TNULL);
+<INITIAL>"undefined"				return TOKEN(TUNDEFINED);
 <INITIAL>"return"					return TOKEN(TRETURN);
 
 <INITIAL>","						return TOKEN(TCOMMA);
@@ -112,12 +114,12 @@ string *id_literal = NULL;
 	return TIDENTIFIER;
 }
 <ID_LITERAL>\\{OCT}{1,3} {
-	int letter;
+	unsigned int letter;
 	sscanf(&yytext[1], "%o", &letter);
     *id_literal += letter;
 }
 <ID_LITERAL>\\[xX]{HEX}{1,2} {
-	int letter;
+	unsigned int letter;
 	sscanf(&yytext[2], "%x", &letter);
     *id_literal += letter;
 }
@@ -131,11 +133,49 @@ string *id_literal = NULL;
 <ID_LITERAL>\\t       *id_literal += '\t';
 <ID_LITERAL>\\\\      *id_literal += '\\';
 <ID_LITERAL><<EOF>>   {
-	printf("EOF in string literal\n");
+	printf("EOF in id literal\n");
 	yyterminate();
 }
 <ID_LITERAL>.         {
     *id_literal += yytext[0];
+}
+
+ /* String Literal */
+<INITIAL>\" {
+	string_literal = new std::string("", 0);
+    BEGIN STRING_LITERAL;
+}
+<STRING_LITERAL>\" {
+	yylval.string = string_literal;
+	string_literal = NULL;
+	BEGIN INITIAL;
+	return TSTRING;
+}
+<STRING_LITERAL>\\{OCT}{1,3} {
+	unsigned int letter;
+	sscanf(&yytext[1], "%o", &letter);
+    *string_literal += letter;
+}
+<STRING_LITERAL>\\[xX]{HEX}{1,2} {
+	unsigned int letter;
+	sscanf(&yytext[2], "%x", &letter);
+    *string_literal += letter;
+}
+<STRING_LITERAL>{NEWLINE}        {
+	*string_literal += yytext[0];
+    LINE_NUMBER_INC();
+}
+<STRING_LITERAL>\\\"      *string_literal += '"';
+<STRING_LITERAL>\\'       *string_literal += '\'';
+<STRING_LITERAL>\\n       *string_literal += '\n';
+<STRING_LITERAL>\\t       *string_literal += '\t';
+<STRING_LITERAL>\\\\      *string_literal += '\\';
+<STRING_LITERAL><<EOF>>   {
+	printf("EOF in string literal\n");
+	yyterminate();
+}
+<STRING_LITERAL>.         {
+    *string_literal += yytext[0];
 }
 
 . {

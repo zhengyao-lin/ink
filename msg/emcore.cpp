@@ -46,7 +46,7 @@ ErrorInfo::setMessageStyle(string message, Prefix prefix, bool is_bold)
 string
 ErrorInfo::createFormatMessage(string message, va_list args)
 {
-	int i, length;
+	unsigned int i, length;
 
 	for (i = 0; i < message.size() && message.c_str()[i] != '\0'; i++)
 	{

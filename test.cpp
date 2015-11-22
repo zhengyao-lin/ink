@@ -27,17 +27,21 @@ bool defined(Ink_Object *obj)
 	return obj->type != INK_UNDEFINED;
 }
 
-Ink_Object *print(Ink_ContextChain *context, int argc, Ink_Object **argv)
+Ink_Object *print(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
 	if (argv[0]->type == INK_INTEGER)
 		printf("print(integer): %d\n", as<Ink_Integer>(argv[0])->value);
+	else if (argv[0]->type == INK_STRING)
+		printf("%s\n", as<Ink_String>(argv[0])->value.c_str());
+	else
+		printf("print: non-printable type\n");
 
 	return new Ink_NullObject();
 }
 
 void cleanAll(Ink_ContextChain *context)
 {
-	int i;
+	unsigned int i;
 	for (i = 0; i < exp_list.size(); i++) {
 		delete exp_list[i];
 	}
@@ -63,7 +67,7 @@ int main()
 	delete obj;
 	delete slot_val;*/
 
-	int i;
+	unsigned int i;
 	Ink_ContextChain *context = new Ink_ContextChain(new Ink_ContextObject());
 
 	context->context->setSlot("p", new Ink_FunctionObject(print));
@@ -72,7 +76,7 @@ int main()
 	IGC_initGC(context);
 
 	for (i = 0; i < exp_list.size(); i++) {
-		Ink_Object *ret_val = exp_list[i]->eval(context);
+		exp_list[i]->eval(context);
 		// IGC_collectGarbage(context);
 	}
 
@@ -83,6 +87,7 @@ int main()
 	// 	printf("global: %d\n", as<Ink_Integer>(out)->value);
 
 	cleanAll(context);
+	yylex_destroy();
 
 	return 0;
 }

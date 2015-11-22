@@ -110,4 +110,14 @@ pop = inline {
 	return 100;
 };
 
-p(func(-1));
+p("result: " + func(null));
+p("hello, world");
+
+str = "hello, world";
+p(str);
+
+if (nullobj) {
+	p("wow, it turns to object!");	
+}.else {
+	p("it's still false");
+};

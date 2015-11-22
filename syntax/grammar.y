@@ -20,9 +20,9 @@
 	int token;
 }
 
-%token <string> TIDENTIFIER TINTEGER TFLOAT
+%token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
 
-%token <token> TVAR TNULL TRETURN
+%token <token> TVAR TNULL TUNDEFINED TRETURN
 %token <token> TCOMMA TSEMICOLON TASSIGN
 %token <token> TADD TSUB TMUL TDIV TMOD TDOT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
@@ -110,12 +110,12 @@ multiplicative_expression
 	;
 
 argument_list
-	: expression
+	: nestable_expression
 	{
 		$$ = new Ink_ExpressionList();
 		$$->push_back($1);
 	}
-	| argument_list TCOMMA expression
+	| argument_list TCOMMA nestable_expression
 	{
 		$1->push_back($3);
 		$$ = $1;
@@ -162,6 +162,12 @@ postfix_expression
 	{
 		$$ = new Ink_CallExpression($1, *$3);
 		delete $3;
+	}
+	| postfix_expression TLBRAKT nestable_expression TRBRAKT
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("[]")), arg);
 	}
 	| postfix_expression block
 	{
@@ -231,6 +237,10 @@ primary_expression
 		$$ = Ink_IntegerConstant::parse(*$1);
 		delete $1;
 	}
+	| TSTRING
+	{
+		$$ = new Ink_StringConstant($1);
+	}
 	| TIDENTIFIER
 	{
 		$$ = new Ink_IdentifierExpression(new string($1->c_str()));
@@ -239,6 +249,10 @@ primary_expression
 	| TNULL
 	{
 		$$ = new Ink_NullConstant();
+	}
+	| TUNDEFINED
+	{
+		$$ = new Ink_UndefinedConstant();
 	}
 	| TLPAREN nestable_expression TRPAREN
 	{

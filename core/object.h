@@ -17,6 +17,7 @@ enum Ink_TypeTag {
 
 	INK_OBJECT,
 	INK_INTEGER,
+	INK_STRING,
 	INK_FLOAT,
 	INK_CONTEXT,
 	INK_FUNCTION
@@ -33,7 +34,7 @@ typedef vector<string *> Ink_ParamList;
 
 class Ink_Object {
 public:
-	bool marked = false;
+	bool marked;
 	Ink_TypeTag type;
 
 	Ink_HashTable *hash_table;
@@ -43,6 +44,7 @@ public:
 
 	Ink_Object()
 	{
+		marked = false;
 		type = INK_OBJECT;
 		hash_table = NULL;
 		address = NULL;
@@ -58,10 +60,10 @@ public:
 	void cloneHashTable(Ink_Object *src, Ink_Object *dest);
 
 	virtual Ink_Object *clone();
-	virtual Ink_Object *call(Ink_ContextChain *context, int argc, Ink_Object **argv)
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 	{
 		InkErr_Calling_Non_Function_Object(context);
-		abort();
+		return NULL;
 	}
 
 	virtual ~Ink_Object()
@@ -76,6 +78,15 @@ public:
 	{
 		type = INK_UNDEFINED;
 	}
+
+	virtual Ink_Object *clone()
+	{ return this; }
+
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+	{
+		InkErr_Calling_Undefined_Object(context);
+		return NULL;
+	}
 };
 
 class Ink_NullObject: public Ink_Object {
@@ -84,6 +95,9 @@ public:
 	{
 		type = INK_NULL;
 	}
+
+	virtual Ink_Object *clone()
+	{ return this; }
 };
 
 class Ink_ContextObject: public Ink_Object {
@@ -99,29 +113,29 @@ public:
 	}
 };
 
-typedef Ink_Object *(*Ink_NativeFunction)(Ink_ContextChain *context, int argc, Ink_Object **argv);
+typedef Ink_Object *(*Ink_NativeFunction)(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 
 class Ink_FunctionObject: public Ink_Object {
 public:
-	bool is_native = false;
-	Ink_NativeFunction native = NULL;
+	bool is_native;
+	Ink_NativeFunction native;
 
-	Ink_HashTable *arguments = NULL;
+	Ink_HashTable *arguments;
 	Ink_ExpressionList exp_list;
 
-	Ink_ContextChain *closure_context = NULL;
-	bool is_inline = false;
+	Ink_ContextChain *closure_context;
+	bool is_inline;
 
 	Ink_FunctionObject(Ink_NativeFunction native)
-	: is_native(true), native(native), exp_list(Ink_ExpressionList())
+	: is_native(true), native(native), arguments(NULL), exp_list(Ink_ExpressionList()), closure_context(NULL), is_inline(false)
 	{ }
 
 	Ink_FunctionObject(Ink_HashTable *arguments, Ink_ExpressionList exp_list)
-	: arguments(arguments), exp_list(exp_list)
+	: is_native(false), native(NULL), arguments(arguments), exp_list(exp_list), closure_context(NULL), is_inline(false)
 	{ }
 
 	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL, bool is_inline = false)
-	: exp_list(exp_list), closure_context(closure_context), is_inline(is_inline)
+	: is_native(false), native(NULL), exp_list(exp_list), closure_context(closure_context), is_inline(is_inline)
 	{
 		int i;
 		Ink_HashTable *tmp;
@@ -129,7 +143,7 @@ public:
 		type = INK_FUNCTION;
 		arguments = NULL;
 
-		for (i = 0; i < param.size(); i++) {
+		for (i = 0; i < (int)param.size(); i++) {
 			if (arguments) {
 				if (!tmp) tmp = arguments;
 				tmp->next = new Ink_HashTable(param[i]->c_str(), NULL);
@@ -140,7 +154,7 @@ public:
 		}
 	}
 
-	virtual Ink_Object *call(Ink_ContextChain *context, int argc, Ink_Object **argv);
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 	virtual Ink_Object *clone()
 	{
 		//return new Ink_FunctionObject(arguments, exp_list);
@@ -162,6 +176,22 @@ public:
 	}
 
 	void Ink_IntegerMethodInit();
+
+	virtual Ink_Object *clone();
+};
+
+class Ink_String: public Ink_Object {
+public:
+	string value;
+
+	Ink_String(string value)
+	: value(value)
+	{
+		type = INK_STRING;
+		Ink_StringMethodInit();
+	}
+
+	void Ink_StringMethodInit();
 
 	virtual Ink_Object *clone();
 };

@@ -1,7 +1,8 @@
 TARGET=native.o
 REQUIRE=\
 	math.o \
-	branch.o
+	branch.o \
+	string.o
 
 CC=g++
 LD=ld

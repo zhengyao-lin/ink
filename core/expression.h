@@ -92,9 +92,13 @@ public:
 		Ink_Object *base_obj = base->eval(context_chain);
 		Ink_HashTable *hash = base_obj->getSlotMapping(slot_id->c_str());
 
+		if (base_obj->type == INK_NULL || base_obj->type == INK_UNDEFINED) {
+			// InkWarn_Get_Null_Hash();
+		}
+
 		if (!hash) {
 			// InkWarn_Hash_not_found(slot_id->c_str());
-			hash = base_obj->setSlot(slot_id->c_str(), new Ink_Object());
+			hash = base_obj->setSlot(slot_id->c_str(), new Ink_Undefined());
 		}
 		hash->value->address = &hash->value;
 
@@ -124,7 +128,7 @@ public:
 
 	virtual ~Ink_FunctionExpression()
 	{
-		int i;
+		unsigned int i;
 		for (i = 0; i < param.size(); i++) {
 			delete param[i];
 		}
@@ -145,7 +149,7 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
-		int i;
+		unsigned int i;
 		Ink_Object **argv = NULL;
 		Ink_Object *ret_val;
 
@@ -164,7 +168,7 @@ public:
 
 	virtual ~Ink_CallExpression()
 	{
-		int i;
+		unsigned int i;
 		delete callee;
 		for (i = 0; i < arg_list.size(); i++) {
 			delete arg_list[i];
@@ -183,7 +187,7 @@ public:
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
 		Ink_HashTable *hash = context_chain->searchSlotMapping(id->c_str());
-		if (!hash) hash = context_chain->getLocal()->context->setSlot(id->c_str(), new Ink_Object());
+		if (!hash) hash = context_chain->getLocal()->context->setSlot(id->c_str(), new Ink_Undefined());
 		hash->value->address = &hash->value;
 		return hash->value;
 	}
@@ -203,6 +207,15 @@ public:
 	}
 };
 
+class Ink_UndefinedConstant: public Ink_Expression {
+public:
+	Ink_UndefinedConstant() { }
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	{
+		return new Ink_Undefined();
+	}
+};
+
 class Ink_IntegerConstant: public Ink_Expression {
 public:
 	int value;
@@ -218,6 +231,25 @@ public:
 
 	static Ink_Expression *parse(string code);
 	virtual ~Ink_IntegerConstant() { }
+};
+
+class Ink_StringConstant: public Ink_Expression {
+public:
+	string *value;
+
+	Ink_StringConstant(string *value)
+	: value(value)
+	{ }
+
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	{
+		return new Ink_String(*value);
+	}
+
+	virtual ~Ink_StringConstant()
+	{
+		delete value;
+	}
 };
 
 class Ink_FloatConstant: public Ink_Expression {

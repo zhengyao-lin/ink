@@ -58,6 +58,13 @@ InkErr_Calling_Non_Function_Object(Ink_ContextChain *context)
 }
 
 inline void
+InkErr_Calling_Undefined_Object(Ink_ContextChain *context)
+{
+	InkErr_doPrintError(context, "Calling undefined object");
+	return;
+}
+
+inline void
 InkWarn_Hash_not_found(const char *index)
 {
 	InkWarn_doPrintWarning("Creating undefined slot \'$(index)\'", index);
@@ -68,6 +75,13 @@ inline void
 InkWarn_Unfit_Argument()
 {
 	InkWarn_doPrintWarning("Unfit argument(s)");
+	return;
+}
+
+inline void
+InkWarn_Get_Null_Hash()
+{
+	InkWarn_doPrintWarning("Getting the hash of null or undefined(cast to normal object)");
 	return;
 }
 
