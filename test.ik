@@ -117,7 +117,7 @@ str = "hello, world";
 p(str);
 
 if (nullobj) {
-	p("wow, it turns to object");	
+	p("wow, it turns to object!");	
 }.else {
-	p("it's still false");
+	p("it's still false!");
 };
