@@ -90,19 +90,24 @@ public:
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
 		Ink_Object *base_obj = base->eval(context_chain);
-		Ink_HashTable *hash = base_obj->getSlotMapping(slot_id->c_str());
+		return getSlot(base_obj, slot_id->c_str());
+	}
 
-		if (base_obj->type == INK_NULL || base_obj->type == INK_UNDEFINED) {
+	static Ink_Object *getSlot(Ink_Object *obj, const char *id)
+	{
+		Ink_HashTable *hash = obj->getSlotMapping(id);
+
+		if (obj->type == INK_NULL || obj->type == INK_UNDEFINED) {
 			// InkWarn_Get_Null_Hash();
 		}
 
 		if (!hash) {
 			// InkWarn_Hash_not_found(slot_id->c_str());
-			hash = base_obj->setSlot(slot_id->c_str(), new Ink_Undefined());
+			hash = obj->setSlot(id, new Ink_Object(true));
 		}
 		hash->value->address = &hash->value;
 
-		hash->value->setSlot("base", base_obj);
+		hash->value->setSlot("base", obj);
 
 		return hash->value;
 	}
@@ -187,7 +192,7 @@ public:
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
 		Ink_HashTable *hash = context_chain->searchSlotMapping(id->c_str());
-		if (!hash) hash = context_chain->getLocal()->context->setSlot(id->c_str(), new Ink_Undefined());
+		if (!hash) hash = context_chain->getLocal()->context->setSlot(id->c_str(), new Ink_Object(true));
 		hash->value->address = &hash->value;
 		return hash->value;
 	}

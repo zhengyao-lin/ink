@@ -163,11 +163,10 @@ postfix_expression
 		$$ = new Ink_CallExpression($1, *$3);
 		delete $3;
 	}
-	| postfix_expression TLBRAKT nestable_expression TRBRAKT
+	| postfix_expression TLBRAKT argument_list TRBRAKT
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($3);
-		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("[]")), arg);
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("[]")), *$3);
+		delete $3;
 	}
 	| postfix_expression block
 	{

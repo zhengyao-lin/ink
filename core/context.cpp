@@ -26,14 +26,14 @@ void Ink_ContextChain::removeLast()
 Ink_ContextChain *Ink_ContextChain::getGlobal()
 {
 	Ink_ContextChain *i;
-	for (i = this; i->outer; i = i->outer) ;
+	for (i = this; i && i->outer; i = i->outer) ;
 	return i;
 }
 
 Ink_ContextChain *Ink_ContextChain::getLocal()
 {
 	Ink_ContextChain *i;
-	for (i = this; i->inner; i = i->inner) ;
+	for (i = this; i && i->inner; i = i->inner) ;
 	return i;
 }
 

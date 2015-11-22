@@ -42,7 +42,7 @@ public:
 	Ink_Object **address;
 	Ink_Object *base;
 
-	Ink_Object()
+	Ink_Object(bool if_init_method = false)
 	{
 		marked = false;
 		type = INK_OBJECT;
@@ -50,6 +50,15 @@ public:
 		address = NULL;
 
 		IGC_addObject(this);
+		if (if_init_method) initMethod();
+	}
+
+	void Ink_ObjectMethodInit();
+	virtual void derivedMethodInit() { }
+	void initMethod()
+	{
+		Ink_ObjectMethodInit();
+		derivedMethodInit();
 	}
 
 	Ink_Object *getSlot(const char *key);
@@ -105,11 +114,13 @@ public:
 	Ink_ContextObject()
 	{
 		type = INK_CONTEXT;
+		initMethod();
 	}
 	Ink_ContextObject(Ink_HashTable *hash)
 	{
 		type = INK_CONTEXT;
 		hash_table = hash;
+		initMethod();
 	}
 };
 
@@ -132,13 +143,13 @@ public:
 
 	Ink_FunctionObject(Ink_HashTable *arguments, Ink_ExpressionList exp_list)
 	: is_native(false), native(NULL), arguments(arguments), exp_list(exp_list), closure_context(NULL), is_inline(false)
-	{ }
+	{ initMethod(); }
 
 	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL, bool is_inline = false)
 	: is_native(false), native(NULL), exp_list(exp_list), closure_context(closure_context), is_inline(is_inline)
 	{
 		int i;
-		Ink_HashTable *tmp;
+		Ink_HashTable *tmp = NULL;
 
 		type = INK_FUNCTION;
 		arguments = NULL;
@@ -152,6 +163,7 @@ public:
 				arguments = new Ink_HashTable(param[i]->c_str(), NULL);
 			}
 		}
+		initMethod();
 	}
 
 	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
@@ -172,9 +184,13 @@ public:
 	: value(value)
 	{
 		type = INK_INTEGER;
-		Ink_IntegerMethodInit();
+		initMethod();
 	}
 
+	virtual void derivedMethodInit()
+	{
+		Ink_IntegerMethodInit();
+	}
 	void Ink_IntegerMethodInit();
 
 	virtual Ink_Object *clone();
@@ -188,21 +204,16 @@ public:
 	: value(value)
 	{
 		type = INK_STRING;
-		Ink_StringMethodInit();
+		initMethod();
 	}
 
+	virtual void derivedMethodInit()
+	{
+		Ink_StringMethodInit();
+	}
 	void Ink_StringMethodInit();
 
 	virtual Ink_Object *clone();
-};
-
-class Ink_Float: public Ink_Object {
-public:
-	double value;
-
-	Ink_Float(double value = 0.0)
-	: value(value)
-	{ type = INK_FLOAT; }
 };
 
 template <class T> T *as(Ink_Object *obj)

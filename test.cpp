@@ -33,8 +33,12 @@ Ink_Object *print(Ink_ContextChain *context, unsigned int argc, Ink_Object **arg
 		printf("print(integer): %d\n", as<Ink_Integer>(argv[0])->value);
 	else if (argv[0]->type == INK_STRING)
 		printf("%s\n", as<Ink_String>(argv[0])->value.c_str());
+	else if (argv[0]->type == INK_NULL)
+		printf("(null)\n");
+	else if (argv[0]->type == INK_UNDEFINED)
+		printf("(undefined)\n");
 	else
-		printf("print: non-printable type\n");
+		printf("print: non-printable type: %d\n", argv[0]->type);
 
 	return new Ink_NullObject();
 }

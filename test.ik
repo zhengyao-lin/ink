@@ -121,3 +121,38 @@ if (nullobj) {
 }.else {
 	p("it's still false!");
 };
+
+a = 10;
+b = 20;
+c = a + b;
+d = null;
+e = undefined;
+
+p(a + b + c);
+
+a.b = "I'm a.b";
+hash = "b";
+
+p("hello"[0]);
+p(a[hash]);
+
+Object.setLocal = (name, value) {
+	base[name] = value;
+};
+
+a = Object;
+a.setLocal("val1", "halo!");
+p(a.val1);
+
+// Closure
+func = () {
+	// a = 110;
+	() { p(a); };
+};
+
+func2 = () {
+	a = 220;
+	func()();
+};
+
+func2();
