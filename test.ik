@@ -1,6 +1,4 @@
-func = (a) {
-	a;
-};
+func = (a) { a; };
 
 func2 = () {};
 
@@ -41,7 +39,7 @@ a.b.c = () {
 	base.d = 20;
 	val = 100;
 	val.c = this;
-	base.base.b = val;
+	base = val;
 };
 
 p(a.b);
@@ -105,6 +103,11 @@ func = (bool) {
 		p(1111);
 	};
 	return 0;
+};
+
+inline = (block) { block; };
+pop = inline {
+	return 100;
 };
 
 p(func(-1));

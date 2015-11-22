@@ -31,7 +31,7 @@
 				   primary_expression postfix_expression
 				   function_expression additive_expression
 				   return_expression multiplicative_expression
-				   unary_expression
+				   unary_expression nestable_expression
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
@@ -50,16 +50,20 @@ compile_unit
 	;
 
 expression
-	: return_expression
+	: nestable_expression
+	| return_expression
+	;
+
+nestable_expression
+	: assignment_expression
 	;
 
 return_expression
-	: assignment_expression
-	| TRETURN
+	: TRETURN
 	{
 		$$ = new Ink_ReturnExpression(NULL);
 	}
-	| TRETURN assignment_expression
+	| TRETURN nestable_expression
 	{
 		$$ = new Ink_ReturnExpression($2);
 	}
@@ -236,7 +240,7 @@ primary_expression
 	{
 		$$ = new Ink_NullConstant();
 	}
-	| TLPAREN expression TRPAREN
+	| TLPAREN nestable_expression TRPAREN
 	{
 		$$ = $2;
 	}
