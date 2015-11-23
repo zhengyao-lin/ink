@@ -109,7 +109,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	if (is_native) ret_val = native(context, argc, argv);
 	else {
 		for (i = arguments, argi = 0; i && argi < argc; i = i->next, argi++) {
-			local->setSlot(i->key, argv[argi]->clone()); // initiate local argument
+			local->setSlot(i->key, argv[argi]); // initiate local argument
 		}
 
 		if (i || argi < argc) {

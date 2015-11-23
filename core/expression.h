@@ -64,7 +64,7 @@ public:
 		Ink_Object *lval_ret = lval->eval(context_chain);
 
 		if (lval_ret->address) {
-			return *lval_ret->address = rval_ret->clone();
+			return *lval_ret->address = rval_ret;
 		}
 
 		InkErr_Assigning_Unassignable_Expression(context_chain);

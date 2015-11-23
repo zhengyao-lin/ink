@@ -75,6 +75,7 @@ int main()
 	Ink_ContextChain *context = new Ink_ContextChain(new Ink_ContextObject());
 
 	context->context->setSlot("p", new Ink_FunctionObject(print));
+	context->context->setSlot("this", context->context);
 	Ink_GlobalMethodInit(context);
 
 	IGC_initGC(context);
