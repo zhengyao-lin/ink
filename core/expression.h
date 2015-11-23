@@ -108,6 +108,7 @@ public:
 		hash->value->address = &hash->value;
 
 		hash->value->setSlot("base", obj);
+		//hash->value->setSlot("this", hash->value);
 
 		return hash->value;
 	}
@@ -148,8 +149,10 @@ public:
 	Ink_Expression *callee;
 	Ink_ExpressionList arg_list;
 
-	Ink_CallExpression(Ink_Expression *callee, Ink_ExpressionList arg_list)
-	: callee(callee), arg_list(arg_list)
+	bool is_new;
+
+	Ink_CallExpression(Ink_Expression *callee, Ink_ExpressionList arg_list, bool is_new = false)
+	: callee(callee), arg_list(arg_list), is_new(is_new)
 	{ }
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
@@ -166,6 +169,7 @@ public:
 		}
 
 		ret_val = callee->eval(context_chain)->call(context_chain, arg_list.size(), argv);
+
 		free(argv);
 
 		return ret_val;
@@ -192,8 +196,11 @@ public:
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
 		Ink_HashTable *hash = context_chain->searchSlotMapping(id->c_str());
+
 		if (!hash) hash = context_chain->getLocal()->context->setSlot(id->c_str(), new Ink_Object(true));
 		hash->value->address = &hash->value;
+		//hash->value->setSlot("this", hash->value);
+
 		return hash->value;
 	}
 

@@ -22,7 +22,7 @@
 
 %token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
 
-%token <token> TVAR TNULL TUNDEFINED TRETURN
+%token <token> TVAR TNULL TUNDEFINED TRETURN TNEW TCLONE
 %token <token> TCOMMA TSEMICOLON TASSIGN
 %token <token> TADD TSUB TMUL TDIV TMOD TDOT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
@@ -139,6 +139,17 @@ block
 
 unary_expression
 	: postfix_expression
+	| TNEW postfix_expression TLPAREN argument_list_opt TRPAREN
+	{
+		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("new")),
+									*$4, true);
+		delete $4;
+	}
+	| TCLONE unary_expression
+	{
+		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("clone")),
+									Ink_ExpressionList());
+	}
 	| TADD unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("+u")),

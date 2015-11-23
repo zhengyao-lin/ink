@@ -64,12 +64,13 @@ public:
 	Ink_Object *getSlot(const char *key);
 	Ink_HashTable *getSlotMapping(const char *key);
 	Ink_HashTable *setSlot(const char *key, Ink_Object *value);
+	void deleteSlot(const char *key);
 	void cleanHashTable();
 	void cleanHashTable(Ink_HashTable *table);
-	void cloneHashTable(Ink_Object *src, Ink_Object *dest);
+	static void cloneHashTable(Ink_Object *src, Ink_Object *dest);
 
 	virtual Ink_Object *clone();
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this = false)
 	{
 		InkErr_Calling_Non_Function_Object(context);
 		return NULL;
@@ -86,12 +87,13 @@ public:
 	Ink_Undefined()
 	{
 		type = INK_UNDEFINED;
+		initMethod();
 	}
 
 	virtual Ink_Object *clone()
 	{ return this; }
 
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this = false)
 	{
 		InkErr_Calling_Undefined_Object(context);
 		return NULL;
@@ -103,6 +105,7 @@ public:
 	Ink_NullObject()
 	{
 		type = INK_NULL;
+		initMethod();
 	}
 
 	virtual Ink_Object *clone()
@@ -166,7 +169,7 @@ public:
 		initMethod();
 	}
 
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this = false);
 	virtual Ink_Object *clone()
 	{
 		//return new Ink_FunctionObject(arguments, exp_list);

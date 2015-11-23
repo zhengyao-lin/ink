@@ -37,6 +37,8 @@ string *string_literal = NULL;
 <INITIAL>"null"						return TOKEN(TNULL);
 <INITIAL>"undefined"				return TOKEN(TUNDEFINED);
 <INITIAL>"return"					return TOKEN(TRETURN);
+<INITIAL>"new"						return TOKEN(TNEW);
+<INITIAL>"clone"					return TOKEN(TCLONE);
 
 <INITIAL>","						return TOKEN(TCOMMA);
 <INITIAL>";"						return TOKEN(TSEMICOLON);

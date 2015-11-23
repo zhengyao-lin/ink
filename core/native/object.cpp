@@ -32,14 +32,39 @@ Ink_Object *InkNative_Object_Index(Ink_ContextChain *context, unsigned int argc,
 	return new Ink_NullObject();
 }
 
+Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	Ink_Object *obj = base;
+	Ink_Object *ret;
+
+	if (base->type == INK_FUNCTION) {
+		obj = base->call(context, argc, argv, true);
+		ret = new Ink_Object(true);
+		Ink_Object::cloneHashTable(obj, ret);
+		return ret;
+	}
+
+	return obj->clone();
+}
+
 Ink_Object *InkNative_Object_Clone(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
 	Ink_Object *base = context->searchSlot("base");
+	Ink_Object *ret;
+
+	if (base->type == INK_FUNCTION) {
+		ret = new Ink_Object(true);
+		Ink_Object::cloneHashTable(base, ret);
+		return ret;
+	}
+
 	return base->clone();
 }
 
 void Ink_Object::Ink_ObjectMethodInit()
 {
 	setSlot("[]", new Ink_FunctionObject(InkNative_Object_Index));
+	setSlot("new", new Ink_FunctionObject(InkNative_Object_New));
 	setSlot("clone", new Ink_FunctionObject(InkNative_Object_Clone));
 }

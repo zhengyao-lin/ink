@@ -160,8 +160,24 @@ func2();
 a[0] = 20;
 p(a[0]);
 
-a = 10;
-a.p = 20;
-b = a.clone();
-a.p = 10;
-p(this.b.p);
+TypeA = () {
+	this.value = 1001;
+};
+
+TypeB = () {
+	this = new TypeA();
+
+	this.value = 10;
+};
+
+a = new TypeB();
+
+p(a.value);
+
+Object = () { };
+
+b = new Object();
+b.p = 10;
+a = clone b;
+b.p = 20;
+p(a.p);

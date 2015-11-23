@@ -35,6 +35,26 @@ Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value)
 	return slot;
 }
 
+void Ink_Object::deleteSlot(const char *key)
+{
+	Ink_HashTable *i, *prev;
+
+	for (i = hash_table, prev = NULL; i; prev = i, i = i->next) {
+		if (!strcmp(i->key, key)) {
+			if (prev) {
+				prev->next = i->next;
+				delete i;
+				return;
+			} else {
+				hash_table = i->next;
+				delete i;
+			}
+		}
+	}
+
+	return;
+}
+
 void Ink_Object::cleanHashTable()
 {
 	cleanHashTable(hash_table);
@@ -59,7 +79,7 @@ void Ink_Object::cloneHashTable(Ink_Object *src, Ink_Object *dest)
 {
 	Ink_HashTable *i;
 	for (i = src->hash_table; i; i = i->next) {
-		dest->setSlot(i->key, i->value->type != INK_FUNCTION ? i->value->clone() : i->value);
+		dest->setSlot(i->key, i->value);
 	}
 
 	return;
@@ -92,7 +112,7 @@ Ink_Object *Ink_String::clone()
 	return new_obj;
 }
 
-Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this)
 {
 	unsigned int argi, j;
 	Ink_HashTable *i;
@@ -124,6 +144,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 				break;
 			}
 		}
+
+		if (return_this) ret_val = local->getSlot("this");
 	}
 
 	context->removeLast(); // delete the local environment
