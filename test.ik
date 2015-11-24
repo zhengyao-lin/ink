@@ -201,8 +201,25 @@ car = new Ferarri();
 p(car.max_speed);
 car.drive();
 
+p("\n---------lazy expression---------\n");
+
 a = 5;
 lazy = <a = 1 + 2 + 3>;
-lazy << 20;
+lazy << <20>;
 p(lazy());
 p(a);
+
+Builder = () {
+	TypeC = () { };
+	TypeC << () {
+		this.a = "hello";
+		this.b = 20;
+	};
+	TypeC;
+};
+
+a = new () {
+	this.a = "hello";
+	this.b = 20;
+} ();
+p(a.a);

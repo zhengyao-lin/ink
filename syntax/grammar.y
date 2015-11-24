@@ -64,11 +64,8 @@ insert_expression
 	: assignment_expression
 	| insert_expression TINS assignment_expression
 	{
-		Ink_ExpressionList exp_list = Ink_ExpressionList();
 		Ink_ExpressionList arg = Ink_ExpressionList();
-
-		exp_list.push_back($3);
-		arg.push_back(new Ink_FunctionExpression(Ink_ParamList(), exp_list));
+		arg.push_back($3);
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<<")), arg);
 	}
