@@ -232,3 +232,11 @@ func = (b) {
 };
 
 p(func("hi"));
+
+func = () {
+	this.a = 100;
+	lazy_exp = <this>;	
+	p(lazy_exp().a);
+};
+
+func();

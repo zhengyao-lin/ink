@@ -284,7 +284,7 @@ primary_expression
 	{
 		Ink_ExpressionList exp_list = Ink_ExpressionList();
 		exp_list.push_back($2);
-		$$ = new Ink_FunctionExpression(Ink_ParamList(), exp_list);
+		$$ = new Ink_FunctionExpression(Ink_ParamList(), exp_list, true);
 	}
 	;
 
