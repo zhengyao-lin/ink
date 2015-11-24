@@ -204,10 +204,11 @@ car.drive();
 p("\n---------lazy expression---------\n");
 
 a = 5;
-lazy = <a = 1 + 2 + 3>;
-lazy << <20>;
-p(lazy());
-p(a);
+lazy = [a = 1 + 2 + 3];
+lazy << [20];
+p("5? : " + a);
+p("20? : " + lazy());
+p("6? : " + a);
 
 Builder = () {
 	TypeC = () { };
@@ -222,7 +223,7 @@ a = new () {
 	this.a = "hello";
 	this.b = 20;
 } ();
-p(a.a);
+p("hello? : " + a.a);
 
 func = (b) {
 	if (b) {
@@ -231,12 +232,20 @@ func = (b) {
 	return "false";
 };
 
-p(func("hi"));
+p("true? : " + func("hi"));
 
 func = () {
 	this.a = 100;
-	lazy_exp = <this>;	
-	p(lazy_exp().a);
+	lazy_exp = [this];
+	p("100? : " + lazy_exp().a);
 };
 
 func();
+
+//for (i = 0, i < 10)
+a = 10;
+b = [a];
+//p(a[a]);
+a = 20;
+
+[p("20? : " + b())]();

@@ -280,7 +280,7 @@ primary_expression
 	{
 		$$ = $2;
 	}
-	| TCLT nestable_expression TCGT
+	| TLBRAKT nestable_expression TRBRAKT
 	{
 		Ink_ExpressionList exp_list = Ink_ExpressionList();
 		exp_list.push_back($2);
