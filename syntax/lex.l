@@ -42,6 +42,7 @@ string *string_literal = NULL;
 
 <INITIAL>","						return TOKEN(TCOMMA);
 <INITIAL>";"						return TOKEN(TSEMICOLON);
+<INITIAL>":"						return TOKEN(TCOLON);
 <INITIAL>"."						return TOKEN(TDOT);
 
 <INITIAL>"<<"						return TOKEN(TINS);

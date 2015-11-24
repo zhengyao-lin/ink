@@ -23,7 +23,7 @@
 %token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
 
 %token <token> TVAR TNULL TUNDEFINED TRETURN TNEW TCLONE
-%token <token> TCOMMA TSEMICOLON TASSIGN
+%token <token> TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TADD TSUB TMUL TDIV TMOD TDOT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
 %token <token> TINS TCLT TCGT
@@ -33,7 +33,7 @@
 				   function_expression additive_expression
 				   return_expression multiplicative_expression
 				   unary_expression nestable_expression
-				   insert_expression
+				   insert_expression field_expression
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
@@ -57,8 +57,19 @@ expression
 	;
 
 nestable_expression
-	: insert_expression
+	: field_expression
 	;
+
+field_expression
+	: insert_expression
+	| TIDENTIFIER TCOLON field_expression
+	{
+		$$ = new Ink_AssignmentExpression(
+				 new Ink_HashExpression(
+				 	 new Ink_IdentifierExpression(new string("this")),
+				 	 $1),
+				 $3);
+	}
 
 insert_expression
 	: assignment_expression
@@ -69,6 +80,7 @@ insert_expression
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<<")), arg);
 	}
+	;
 
 return_expression
 	: TRETURN
