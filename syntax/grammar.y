@@ -26,12 +26,14 @@
 %token <token> TCOMMA TSEMICOLON TASSIGN
 %token <token> TADD TSUB TMUL TDIV TMOD TDOT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
+%token <token> TINS TCLT TCGT
 
 %type <expression> expression assignment_expression
 				   primary_expression postfix_expression
 				   function_expression additive_expression
 				   return_expression multiplicative_expression
 				   unary_expression nestable_expression
+				   insert_expression
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
@@ -55,8 +57,21 @@ expression
 	;
 
 nestable_expression
-	: assignment_expression
+	: insert_expression
 	;
+
+insert_expression
+	: assignment_expression
+	| insert_expression TINS assignment_expression
+	{
+		Ink_ExpressionList exp_list = Ink_ExpressionList();
+		Ink_ExpressionList arg = Ink_ExpressionList();
+
+		exp_list.push_back($3);
+		arg.push_back(new Ink_FunctionExpression(Ink_ParamList(), exp_list));
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<<")), arg);
+	}
 
 return_expression
 	: TRETURN
@@ -267,6 +282,12 @@ primary_expression
 	| TLPAREN nestable_expression TRPAREN
 	{
 		$$ = $2;
+	}
+	| TCLT nestable_expression TCGT
+	{
+		Ink_ExpressionList exp_list = Ink_ExpressionList();
+		exp_list.push_back($2);
+		$$ = new Ink_FunctionExpression(Ink_ParamList(), exp_list);
 	}
 	;
 

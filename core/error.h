@@ -85,4 +85,11 @@ InkWarn_Get_Null_Hash()
 	return;
 }
 
+inline void
+InkWarn_Insert_Non_Function_Object()
+{
+	InkWarn_doPrintWarning("Inserting non-function object or with a non-lazy-expression argument");
+	return;
+}
+
 #endif

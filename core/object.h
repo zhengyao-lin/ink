@@ -169,6 +169,12 @@ public:
 		initMethod();
 	}
 
+	virtual void derivedMethodInit()
+	{
+		Ink_FunctionMethodInit();
+	}
+	void Ink_FunctionMethodInit();
+
 	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this = false);
 	virtual Ink_Object *clone()
 	{

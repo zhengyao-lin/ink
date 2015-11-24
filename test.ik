@@ -170,7 +170,7 @@ TypeB = () {
 	this.value = 10;
 };
 
-a = new TypeB();
+a = TypeB.'new'();
 
 p(a.value);
 
@@ -181,3 +181,28 @@ b.p = 10;
 a = clone b;
 b.p = 20;
 p(a.p);
+
+Car = () {
+	this.max_speed = 100;
+	this.drive = () {
+		p("hu---");
+	};
+};
+
+Ferarri = () {
+	this = new Car();
+	this.max_speed = 300;
+	this.drive = () {
+		p("su---");
+	};
+};
+
+car = new Ferarri();
+p(car.max_speed);
+car.drive();
+
+a = 5;
+lazy = <a = 1 + 2 + 3>;
+lazy << 20;
+p(lazy());
+p(a);

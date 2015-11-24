@@ -3,7 +3,8 @@ REQUIRE=\
 	math.o \
 	branch.o \
 	string.o \
-	object.o
+	object.o \
+	function.o
 
 CC=g++
 LD=ld
