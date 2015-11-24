@@ -116,15 +116,17 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 {
 	unsigned int argi, j;
 	Ink_HashTable *i;
-	Ink_ContextObject *local = new Ink_ContextObject(); // new local context
+	Ink_ContextObject *local; // new local context
 	Ink_Object *ret_val = NULL;
 
-	if (closure_context) context = closure_context;
+	if (!is_inline) { // if not inline function, set local context
+		local = new Ink_ContextObject();
+		if (closure_context) context = closure_context;
+		context->addContext(local);
 
-	context->addContext(local); // add to context chain
-
-	local->setSlot("base", getSlot("base"));
-	local->setSlot("this", this);
+		local->setSlot("base", getSlot("base"));
+		local->setSlot("this", this);
+	} else local = context->getLocal()->context;
 
 	if (is_native) ret_val = native(context, argc, argv);
 	else {
@@ -148,7 +150,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		if (return_this) ret_val = local->getSlot("this");
 	}
 
-	context->removeLast(); // delete the local environment
+	if (!is_inline)
+		context->removeLast(); // delete the local environment
 
 	return ret_val ? ret_val : new Ink_NullObject(); // return the last expression
 }

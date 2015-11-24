@@ -223,3 +223,12 @@ a = new () {
 	this.b = 20;
 } ();
 p(a.a);
+
+func = (b) {
+	if (b) {
+		return "true";	
+	};
+	return "false";
+};
+
+p(func("hi"));
