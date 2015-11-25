@@ -92,4 +92,32 @@ InkWarn_Insert_Non_Function_Object()
 	return;
 }
 
+inline void
+InkWarn_Index_Exceed()
+{
+	InkWarn_doPrintWarning("Index exceed size of the array");
+	return;
+}
+
+inline void
+InkWarn_Bonding_Failed()
+{
+	InkWarn_doPrintWarning("Failed to bond");
+	return;
+}
+
+inline void
+InkWarn_Self_Bonding()
+{
+	InkWarn_doPrintWarning("Self bonding detected(may cause dead loop)");
+	return;
+}
+
+inline void
+InkWarn_Get_Non_Array_Index()
+{
+	InkWarn_doPrintWarning("Getting element of non-array");
+	return;
+}
+
 #endif

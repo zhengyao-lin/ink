@@ -90,7 +90,28 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 	return ret;
 }
 
+Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_ContextChain *local = context->getLocal();
+	Ink_Object *ret;
+
+	if (argc && argv[0]->type == INK_INTEGER) {
+		ret = new Ink_Array(Ink_ArrayValue(as<Ink_Integer>(argv[0])->value, NULL));
+	} else {
+		ret = new Ink_Array();
+	}
+
+	local->context->setSlot("this", ret);
+
+	return ret;
+}
+
+Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
 	context->context->setSlot("if", new Ink_FunctionObject(Ink_IfExpression));
+
+	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
+	context->context->setSlot("Array", array_cons);
+	array_cons->setSlot("new", new Ink_FunctionObject(InkNative_Object_New));
 }

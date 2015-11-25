@@ -26,7 +26,7 @@
 %token <token> TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TADD TSUB TMUL TDIV TMOD TDOT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
-%token <token> TINS TCLT TCGT
+%token <token> TARR TINS TCLT TCGT
 
 %type <expression> expression assignment_expression
 				   primary_expression postfix_expression
@@ -98,6 +98,13 @@ assignment_expression
 	| additive_expression TASSIGN assignment_expression
 	{
 		$$ = new Ink_AssignmentExpression($1, $3);
+	}
+	| additive_expression TARR assignment_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("->")), arg);
 	}
 	;
 

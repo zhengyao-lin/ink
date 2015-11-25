@@ -13,7 +13,9 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 	Ink_HashTable *i;
 	for (i = hash_table; i; i = i->next) {
 		if (!strcmp(i->key, key)){
-			return i;
+			Ink_HashTable *ret;
+			for (ret = i; ret->bonding; ret = ret->bonding) ;
+			return ret;
 		}
 	}
 	return NULL;
@@ -119,14 +121,14 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	Ink_ContextObject *local; // new local context
 	Ink_Object *ret_val = NULL;
 
+	local = new Ink_ContextObject();
 	if (!is_inline) { // if not inline function, set local context
-		local = new Ink_ContextObject();
 		if (closure_context) context = closure_context;
-		context->addContext(local);
 
 		local->setSlot("base", getSlot("base"));
 		local->setSlot("this", this);
-	} else local = context->getLocal()->context;
+	}
+	context->addContext(local);
 
 	if (is_native) ret_val = native(context, argc, argv);
 	else {
@@ -146,8 +148,9 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 				break;
 			}
 		}
-
-		if (return_this) ret_val = local->getSlot("this");
+		if (return_this) {
+			ret_val = local->getSlot("this");
+		}
 	}
 
 	if (!is_inline)
@@ -161,4 +164,13 @@ Ink_FunctionObject::~Ink_FunctionObject()
 	if (closure_context) Ink_ContextChain::disposeContextChain(closure_context);
 	cleanHashTable();
 	cleanHashTable(arguments);
+}
+
+Ink_Object *Ink_Array::clone()
+{
+	Ink_Object *new_obj = new Ink_Array(value);
+
+	cloneHashTable(this, new_obj);
+
+	return new_obj;
 }

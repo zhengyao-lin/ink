@@ -1,10 +1,11 @@
 TARGET=native.o
 REQUIRE=\
 	math.o \
-	branch.o \
+	global.o \
 	string.o \
 	object.o \
-	function.o
+	function.o \
+	array.o
 
 CC=g++
 LD=ld

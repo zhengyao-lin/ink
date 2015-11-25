@@ -45,6 +45,7 @@ string *string_literal = NULL;
 <INITIAL>":"						return TOKEN(TCOLON);
 <INITIAL>"."						return TOKEN(TDOT);
 
+<INITIAL>"->"						return TOKEN(TARR);
 <INITIAL>"<<"						return TOKEN(TINS);
 <INITIAL>"<"						return TOKEN(TCLT);
 <INITIAL>">"						return TOKEN(TCGT);

@@ -64,7 +64,7 @@ public:
 		Ink_Object *lval_ret = lval->eval(context_chain);
 
 		if (lval_ret->address) {
-			return *lval_ret->address = rval_ret;
+			return lval_ret->address->value = rval_ret;
 		}
 
 		InkErr_Assigning_Unassignable_Expression(context_chain);
@@ -105,7 +105,7 @@ public:
 			// InkWarn_Hash_not_found(slot_id->c_str());
 			hash = obj->setSlot(id, new Ink_Object(true));
 		}
-		hash->value->address = &hash->value;
+		hash->value->address = hash;
 
 		hash->value->setSlot("base", obj);
 		//hash->value->setSlot("this", hash->value);
@@ -198,7 +198,7 @@ public:
 		Ink_HashTable *hash = context_chain->searchSlotMapping(id->c_str());
 
 		if (!hash) hash = context_chain->getLocal()->context->setSlot(id->c_str(), new Ink_Object(true));
-		hash->value->address = &hash->value;
+		hash->value->address = hash;
 		//hash->value->setSlot("this", hash->value);
 
 		return hash->value;

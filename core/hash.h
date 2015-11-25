@@ -11,11 +11,13 @@ public:
 	Ink_Object *value;
 
 	Ink_HashTable *next;
+	Ink_HashTable *bonding;
 
 	Ink_HashTable(const char *key, Ink_Object *value)
 	: key(key), value(value)
 	{
 		next = NULL;
+		bonding = NULL;
 	}
 
 	Ink_HashTable *getEnd();

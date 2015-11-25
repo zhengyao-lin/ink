@@ -157,9 +157,6 @@ func2 = () {
 
 func2();
 
-a[0] = 20;
-p(a[0]);
-
 TypeA = () {
 	this.value = 1001;
 };
@@ -242,10 +239,22 @@ func = () {
 
 func();
 
-//for (i = 0, i < 10)
 a = 10;
 b = [a];
 //p(a[a]);
 a = 20;
 
 [p("20? : " + b())]();
+
+a = 10;
+
+d = b -> a;
+c.efg -> b;
+
+a = 20;
+p("20? : " + c.efg);
+p("10? : " + d);
+
+a = new Array();
+a.push("hello");
+p("hello? : " + a[0]);

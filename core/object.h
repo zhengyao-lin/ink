@@ -20,7 +20,8 @@ enum Ink_TypeTag {
 	INK_STRING,
 	INK_FLOAT,
 	INK_CONTEXT,
-	INK_FUNCTION
+	INK_FUNCTION,
+	INK_ARRAY
 };
 
 void IGC_addObject(Ink_Object *obj);
@@ -39,7 +40,7 @@ public:
 
 	Ink_HashTable *hash_table;
 
-	Ink_Object **address;
+	Ink_HashTable *address;
 	Ink_Object *base;
 
 	Ink_Object(bool if_init_method = false)
@@ -142,11 +143,14 @@ public:
 
 	Ink_FunctionObject(Ink_NativeFunction native)
 	: is_native(true), native(native), arguments(NULL), exp_list(Ink_ExpressionList()), closure_context(NULL), is_inline(false)
-	{ }
+	{ type = INK_FUNCTION; }
 
 	Ink_FunctionObject(Ink_HashTable *arguments, Ink_ExpressionList exp_list)
 	: is_native(false), native(NULL), arguments(arguments), exp_list(exp_list), closure_context(NULL), is_inline(false)
-	{ initMethod(); }
+	{
+		type = INK_FUNCTION;
+		initMethod();
+	}
 
 	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL, bool is_inline = false)
 	: is_native(false), native(NULL), exp_list(exp_list), closure_context(closure_context), is_inline(is_inline)
@@ -223,6 +227,36 @@ public:
 	void Ink_StringMethodInit();
 
 	virtual Ink_Object *clone();
+};
+
+typedef vector<Ink_HashTable *> Ink_ArrayValue;
+
+class Ink_Array: public Ink_Object {
+public:
+	Ink_ArrayValue value;
+
+	Ink_Array(Ink_ArrayValue value = Ink_ArrayValue())
+	: value(value)
+	{
+		type = INK_ARRAY;
+		initMethod();
+	}
+
+	virtual void derivedMethodInit()
+	{
+		Ink_ArrayMethodInit();
+	}
+	void Ink_ArrayMethodInit();
+
+	virtual Ink_Object *clone();
+
+	virtual ~Ink_Array()
+	{
+		unsigned int i;
+		for (i = 0; i < value.size(); i++) {
+			delete value[i];
+		}
+	}
 };
 
 template <class T> T *as(Ink_Object *obj)
