@@ -198,7 +198,7 @@ car = new Ferarri();
 p(car.max_speed);
 car.drive();
 
-p("\n---------lazy expression---------\n");
+p("\n---------Lazy Expression---------\n");
 
 a = 5;
 lazy = [a = 1 + 2 + 3];
@@ -246,6 +246,8 @@ a = 20;
 
 [p("20? : " + b())]();
 
+p("\n---------Array & Bonding---------\n");
+
 a = 10;
 
 d = b -> a;
@@ -255,6 +257,13 @@ a = 20;
 p("20? : " + c.efg);
 p("10? : " + d);
 
-a = new Array();
+a = new Array(1, 2);
 a.push("hello");
-p("hello? : " + a[0]);
+p("hello? : " + b[2]);
+p("3? : " + a.size());
+
+p("2? : " + c.efg[1]);
+
+arr = new Array(1, 2, 3);
+b -> arr;
+p("1? : " + b[0]);

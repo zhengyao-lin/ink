@@ -95,8 +95,17 @@ Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, I
 	Ink_ContextChain *local = context->getLocal();
 	Ink_Object *ret;
 
-	if (argc && argv[0]->type == INK_INTEGER) {
-		ret = new Ink_Array(Ink_ArrayValue(as<Ink_Integer>(argv[0])->value, NULL));
+	if (argc) {
+		if (argv[0]->type == INK_INTEGER && argc == 1) {
+			ret = new Ink_Array(Ink_ArrayValue(as<Ink_Integer>(argv[0])->value, NULL));
+		} else {
+			Ink_ArrayValue val = Ink_ArrayValue();
+			unsigned int i;
+			for (i = 0; i < argc; i++) {
+				val.push_back(new Ink_HashTable("", argv[i]));
+			}
+			ret = new Ink_Array(val);
+		}
 	} else {
 		ret = new Ink_Array();
 	}

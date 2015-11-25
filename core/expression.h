@@ -264,6 +264,35 @@ public:
 	}
 };
 
+class Ink_ArrayLiteral: public Ink_Expression {
+public:
+	Ink_ExpressionList elem_list;
+
+	Ink_ArrayLiteral(Ink_ExpressionList elem_list)
+	: elem_list(elem_list)
+	{ }
+
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	{
+		Ink_ArrayValue val = Ink_ArrayValue();
+		unsigned int i;
+
+		for (i = 0; i < elem_list.size(); i++) {
+			val.push_back(new Ink_HashTable("", elem_list[i]->eval(context_chain)));
+		}
+
+		return new Ink_Array(val);
+	}
+
+	virtual ~Ink_ArrayLiteral()
+	{
+		unsigned int i;
+		for (i = 0; i < elem_list.size(); i++) {
+			delete elem_list[i];
+		}
+	}
+};
+
 class Ink_FloatConstant: public Ink_Expression {
 public:
 	double value;

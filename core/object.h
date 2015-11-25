@@ -247,6 +247,7 @@ public:
 		Ink_ArrayMethodInit();
 	}
 	void Ink_ArrayMethodInit();
+	Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val);
 
 	virtual Ink_Object *clone();
 

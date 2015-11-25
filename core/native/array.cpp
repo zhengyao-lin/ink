@@ -14,12 +14,14 @@ Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, 
 	if (argc && argv[0]->type == INK_INTEGER) {
 		Ink_Array *obj = as<Ink_Array>(base);
 		Ink_Object *ret;
+		Ink_HashTable *hash;
 		unsigned int index = as<Ink_Integer>(argv[0])->value;
 
 		if (index < obj->value.size()) {
 			if (!obj->value[index]) obj->value[index] = new Ink_HashTable("", new Ink_Undefined());
-			ret = obj->value[index]->value;
-			ret->address = obj->value[index];
+			for (hash = obj->value[index]; hash->bonding; hash = hash->bonding) ;
+			ret = hash->value;
+			ret->address = hash;
 		} else {
 			InkWarn_Index_Exceed();
 			return new Ink_Undefined();
@@ -44,8 +46,15 @@ Ink_Object *InkNative_Array_Push(Ink_ContextChain *context, unsigned int argc, I
 	return new Ink_NullObject();
 }
 
+Ink_Object *InkNative_Array_Size(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	return new Ink_Integer(as<Ink_Array>(base)->value.size());
+}
+
 void Ink_Array::Ink_ArrayMethodInit()
 {
 	setSlot("[]", new Ink_FunctionObject(InkNative_Array_Index));
 	setSlot("push", new Ink_FunctionObject(InkNative_Array_Push));
+	setSlot("size", new Ink_FunctionObject(InkNative_Array_Size));
 }

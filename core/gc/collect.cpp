@@ -108,6 +108,13 @@ void doMark(Ink_Object *obj)
 		for (j = global; j; j = j->inner) {
 			doMark(j->context);
 		}
+	} else if (obj->type == INK_ARRAY) {
+		Ink_Array *arr = as<Ink_Array>(obj);
+		unsigned int i;
+		for (i = 0; i < arr->value.size(); i++) {
+			if (arr->value[i])
+				doMark(arr->value[i]->value);
+		}
 	}
 
 	return;

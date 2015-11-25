@@ -166,9 +166,22 @@ Ink_FunctionObject::~Ink_FunctionObject()
 	cleanHashTable(arguments);
 }
 
+Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val)
+{
+	Ink_ArrayValue ret = Ink_ArrayValue();
+	unsigned int i;
+
+	for (i = 0; i < val.size(); i++) {
+		if (val[i])
+			ret.push_back(new Ink_HashTable("", val[i]->value));
+	}
+
+	return ret;
+}
+
 Ink_Object *Ink_Array::clone()
 {
-	Ink_Object *new_obj = new Ink_Array(value);
+	Ink_Object *new_obj = new Ink_Array(cloneArrayValue(value));
 
 	cloneHashTable(this, new_obj);
 
