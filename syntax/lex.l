@@ -40,6 +40,8 @@ string *string_literal = NULL;
 <INITIAL>"new"						return TOKEN(TNEW);
 <INITIAL>"clone"					return TOKEN(TCLONE);
 
+<INITIAL>"!!"						return TOKEN(TDNOT);
+<INITIAL>"!"						return TOKEN(TNOT);
 <INITIAL>","						return TOKEN(TCOMMA);
 <INITIAL>";"						return TOKEN(TSEMICOLON);
 <INITIAL>":"						return TOKEN(TCOLON);

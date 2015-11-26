@@ -267,3 +267,16 @@ p("2? : " + c.efg[1]);
 arr = new Array(1, 2, 3);
 b -> arr;
 p("1? : " + b[0]);
+
+foo = new Array(1, 2, 3);
+bar = new Array("wow");
+bar[0] -> foo;
+p(bar[0][0]);
+
+a = 0;
+index = 10;
+index -> a;
+!! bar[index];
+p(bar[0]);
+!! index;
+p(index);

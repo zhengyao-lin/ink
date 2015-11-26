@@ -3,6 +3,7 @@
 #include "core/object.h"
 
 static long igc_object_count = 0;
+static long igc_buffer_count = 0;
 static long igc_collect_treshold = IGC_COLLECT_TRESHOLD;
 static IGC_CollectUnit *igc_object_chain = NULL;
 static IGC_CollectUnit *igc_object_buffer = NULL;
@@ -24,6 +25,7 @@ void IGC_addBuffer(IGC_CollectUnit *unit)
 	} else {
 		igc_object_buffer = unit;
 	}
+	igc_buffer_count++;
 
 	return;
 }
@@ -40,6 +42,8 @@ void IGC_flushBuffer()
 		igc_object_chain = igc_object_buffer;
 	}
 	igc_object_buffer = NULL;
+	igc_buffer_count = 0;
+
 	return;
 }
 
@@ -62,7 +66,7 @@ void IGC_addObject(Ink_Object *obj)
 	new_unit = new IGC_CollectUnit(obj);
 	IGC_addBuffer(new_unit);
 
-	IGC_checkGC();
+	// IGC_checkGC();
 
 	igc_object_count++;
 

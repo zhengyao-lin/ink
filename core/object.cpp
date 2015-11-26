@@ -1,6 +1,7 @@
 #include "hash.h"
 #include "object.h"
 #include "expression.h"
+#include "gc/collect.h"
 
 Ink_Object *Ink_Object::getSlot(const char *key)
 {
@@ -15,6 +16,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 		if (!strcmp(i->key, key)){
 			Ink_HashTable *ret;
 			for (ret = i; ret->bonding; ret = ret->bonding) ;
+			ret->bondee = i;
 			return ret;
 		}
 	}
@@ -142,6 +144,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 		for (j = 0; j < exp_list.size(); j++) {
 			ret_val = exp_list[j]->eval(context); // eval each expression
+			IGC_checkGC();
 			if (CGC_if_return) {
 				if (!is_inline)
 					CGC_if_return = false;

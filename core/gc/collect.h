@@ -3,7 +3,7 @@
 
 #include "../object.h"
 
-#define IGC_COLLECT_TRESHOLD (256)
+#define IGC_COLLECT_TRESHOLD (512)
 
 class IGC_CollectUnit {
 public:

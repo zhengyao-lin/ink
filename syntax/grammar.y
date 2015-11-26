@@ -23,7 +23,7 @@
 %token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
 
 %token <token> TVAR TNULL TUNDEFINED TRETURN TNEW TCLONE
-%token <token> TCOMMA TSEMICOLON TCOLON TASSIGN
+%token <token> TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TADD TSUB TMUL TDIV TMOD TDOT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
 %token <token> TARR TINS TCLT TCGT
@@ -189,6 +189,11 @@ unary_expression
 	| TSUB unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("-u")),
+									Ink_ExpressionList());
+	}
+	| TDNOT unary_expression
+	{
+		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("!!")),
 									Ink_ExpressionList());
 	}
 	;

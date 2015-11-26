@@ -3,6 +3,7 @@
 #include "expression.h"
 
 bool CGC_if_return = false;
+bool CGC_if_debond = false;
 
 Ink_Expression *Ink_IntegerConstant::parse(string code)
 {

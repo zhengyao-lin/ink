@@ -12,12 +12,14 @@ public:
 
 	Ink_HashTable *next;
 	Ink_HashTable *bonding;
+	Ink_HashTable *bondee;
 
 	Ink_HashTable(const char *key, Ink_Object *value)
 	: key(key), value(value)
 	{
 		next = NULL;
 		bonding = NULL;
+		bondee = NULL;
 	}
 
 	Ink_HashTable *getEnd();

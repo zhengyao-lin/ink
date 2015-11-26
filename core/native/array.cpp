@@ -20,6 +20,7 @@ Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, 
 		if (index < obj->value.size()) {
 			if (!obj->value[index]) obj->value[index] = new Ink_HashTable("", new Ink_Undefined());
 			for (hash = obj->value[index]; hash->bonding; hash = hash->bonding) ;
+			hash->bondee = obj->value[index];
 			ret = hash->value;
 			ret->address = hash;
 		} else {

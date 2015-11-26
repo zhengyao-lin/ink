@@ -12,6 +12,7 @@ using namespace std;
 class Ink_Expression;
 
 extern bool CGC_if_return;
+extern bool CGC_if_debond;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
 typedef vector<string *> Ink_ParamList;

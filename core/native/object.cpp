@@ -20,6 +20,18 @@ Ink_Object *InkNative_Object_Bond(Ink_ContextChain *context, unsigned int argc, 
 	return new Ink_NullObject();
 }
 
+Ink_Object *InkNative_Object_Debond(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+
+	if (base->address && base->address->bondee) {
+		base->address->bondee->bonding = NULL;
+		return base->address->bondee->value;
+	}
+
+	return new Ink_NullObject();
+}
+
 Ink_Object *InkNative_Object_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
 	Ink_Object *base = context->searchSlot("base");
@@ -82,6 +94,7 @@ Ink_Object *InkNative_Object_Clone(Ink_ContextChain *context, unsigned int argc,
 void Ink_Object::Ink_ObjectMethodInit()
 {
 	setSlot("->", new Ink_FunctionObject(InkNative_Object_Bond));
+	setSlot("!!", new Ink_FunctionObject(InkNative_Object_Debond));
 	setSlot("[]", new Ink_FunctionObject(InkNative_Object_Index));
 	setSlot("new", new Ink_FunctionObject(InkNative_Object_New));
 	setSlot("clone", new Ink_FunctionObject(InkNative_Object_Clone));

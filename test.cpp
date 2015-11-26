@@ -83,6 +83,7 @@ int main()
 	for (i = 0; i < exp_list.size(); i++) {
 		exp_list[i]->eval(context);
 		// IGC_collectGarbage(context);
+		IGC_checkGC();
 	}
 
 	// func=(){global=120;};
