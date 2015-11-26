@@ -34,8 +34,7 @@ string *string_literal = NULL;
 %%
 
 <INITIAL>"var"						return TOKEN(TVAR);
-<INITIAL>"null"						return TOKEN(TNULL);
-<INITIAL>"undefined"				return TOKEN(TUNDEFINED);
+<INITIAL>"let"						return TOKEN(TLET);
 <INITIAL>"return"					return TOKEN(TRETURN);
 <INITIAL>"new"						return TOKEN(TNEW);
 <INITIAL>"clone"					return TOKEN(TCLONE);

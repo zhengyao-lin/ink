@@ -54,15 +54,28 @@ class Ink_AssignmentExpression: public Ink_Expression {
 public:
 	Ink_Expression *lval;
 	Ink_Expression *rval;
+	bool is_local;
 
-	Ink_AssignmentExpression(Ink_Expression *lval, Ink_Expression *rval)
-	: lval(lval), rval(rval)
+	Ink_AssignmentExpression(Ink_Expression *lval, Ink_Expression *rval, bool is_local = false)
+	: lval(lval), rval(rval), is_local(is_local)
 	{ }
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
-		Ink_Object *rval_ret = rval->eval(context_chain);
-		Ink_Object *lval_ret = lval->eval(context_chain);
+
+		Ink_Object *rval_ret;
+		Ink_Object *lval_ret;
+
+		rval_ret = rval->eval(context_chain);
+		if (is_local) {
+			Ink_ContextChain *local = context_chain->getLocal();
+			Ink_ContextChain *backup = local->outer;
+			local->outer = NULL;
+			lval_ret = lval->eval(local);
+			local->outer = backup;
+		} else {
+			lval_ret = lval->eval(context_chain);
+		}
 
 		if (lval_ret->address) {
 			return lval_ret->address->value = rval_ret;
@@ -200,7 +213,7 @@ public:
 
 		if (!hash) hash = context_chain->getLocal()->context->setSlot(id->c_str(), new Ink_Object(true));
 		hash->value->address = hash;
-		//hash->value->setSlot("this", hash->value);
+		// hash->value->setSlot("this", hash->value);
 
 		return hash->value;
 	}

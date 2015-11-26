@@ -123,4 +123,7 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);
 	array_cons->setSlot("new", new Ink_FunctionObject(InkNative_Object_New));
+
+	context->context->setSlot("undefined", new Ink_Undefined());
+	context->context->setSlot("null", new Ink_NullObject());
 }

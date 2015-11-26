@@ -22,7 +22,7 @@
 
 %token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
 
-%token <token> TVAR TNULL TUNDEFINED TRETURN TNEW TCLONE
+%token <token> TVAR TLET TRETURN TNEW TCLONE
 %token <token> TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TADD TSUB TMUL TDIV TMOD TDOT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
@@ -98,6 +98,10 @@ assignment_expression
 	| additive_expression TASSIGN assignment_expression
 	{
 		$$ = new Ink_AssignmentExpression($1, $3);
+	}
+	| TLET additive_expression TASSIGN assignment_expression
+	{
+		$$ = new Ink_AssignmentExpression($2, $4, true);
 	}
 	| additive_expression TARR assignment_expression
 	{
@@ -291,14 +295,6 @@ primary_expression
 	{
 		$$ = new Ink_IdentifierExpression(new string($1->c_str()));
 		delete $1;
-	}
-	| TNULL
-	{
-		$$ = new Ink_NullConstant();
-	}
-	| TUNDEFINED
-	{
-		$$ = new Ink_UndefinedConstant();
 	}
 	| TLPAREN nestable_expression TRPAREN
 	{

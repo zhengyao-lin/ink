@@ -280,3 +280,38 @@ index -> a;
 p(bar[0]);
 !! index;
 p(index);
+
+// pointer-like
+val = "before";
+ptr = [val];
+func = (ptr) {
+	ptr() = "after";
+};
+
+func(ptr);
+p(val);
+
+a = 10;
+!! b;
+b -> a;
+func = () {
+	b = 0;	
+};
+
+func();
+p(a);
+
+a = "hello";
+foo = () {
+	let a = 10;
+	bar = () {
+		let a = 0;
+		p(a);
+	};
+
+	p(a);
+	bar;
+};
+
+foo()();
+p(a);
