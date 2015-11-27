@@ -39,8 +39,9 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
 		CGC_if_return = true;
-		return ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
+		return ret;
 	}
 
 	~Ink_ReturnExpression()

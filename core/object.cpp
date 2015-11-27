@@ -124,9 +124,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	Ink_Object *ret_val = NULL;
 
 	local = new Ink_ContextObject();
+	if (closure_context) context = closure_context;
 	if (!is_inline) { // if not inline function, set local context
-		if (closure_context) context = closure_context;
-
 		local->setSlot("base", getSlot("base"));
 		local->setSlot("this", this);
 	}
@@ -144,7 +143,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 		for (j = 0; j < exp_list.size(); j++) {
 			ret_val = exp_list[j]->eval(context); // eval each expression
-			IGC_checkGC();
+			// IGC_checkGC();
 			if (CGC_if_return) {
 				if (!is_inline)
 					CGC_if_return = false;
@@ -156,8 +155,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		}
 	}
 
-	if (!is_inline)
-		context->removeLast(); // delete the local environment
+	context->removeLast(); // delete the local environment
 
 	return ret_val ? ret_val : new Ink_NullObject(); // return the last expression
 }

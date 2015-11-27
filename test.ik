@@ -317,10 +317,20 @@ foo()();
 p("hello? : " + a);
 
 obj = {
-	a : "this is a";
+	a : "this is a",
 	this.func = () {
 		p(base.a);
-	};
+	}
 };
 
 obj.func();
+
+a = 0;
+
+func = () {
+	let a = 10;
+	[a];
+};
+
+p("10? : " + func()());
+

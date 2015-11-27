@@ -21,7 +21,7 @@ Ink_Expression *getEmptyBlockFunction()
 	ret_param = Ink_ParamList();
 	ret_param.push_back(new string("block"));
 
-	return new Ink_FunctionExpression(ret_param, Ink_ExpressionList());
+	return new Ink_FunctionExpression(ret_param, Ink_ExpressionList(), true);
 }
 
 bool isTrue(Ink_Object *cond)
@@ -81,11 +81,10 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 	}
 	ret_body.push_back(new Ink_IdentifierExpression(new string("ret")));
 
-	func_exp = new Ink_FunctionExpression(ret_param, ret_body);
+	func_exp = new Ink_FunctionExpression(ret_param, ret_body, true);
 	native_exp_list.push_back(func_exp);
 
 	ret = func_exp->eval(context);
-	as<Ink_FunctionObject>(ret)->is_inline = true;
 
 	return ret;
 }
@@ -118,7 +117,7 @@ Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, I
 Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
-	context->context->setSlot("if", new Ink_FunctionObject(Ink_IfExpression));
+	context->context->setSlot("if", new Ink_FunctionObject(Ink_IfExpression, true));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);

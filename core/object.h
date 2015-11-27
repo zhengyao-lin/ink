@@ -142,8 +142,8 @@ public:
 	Ink_ContextChain *closure_context;
 	bool is_inline;
 
-	Ink_FunctionObject(Ink_NativeFunction native)
-	: is_native(true), native(native), arguments(NULL), exp_list(Ink_ExpressionList()), closure_context(NULL), is_inline(false)
+	Ink_FunctionObject(Ink_NativeFunction native, bool is_inline = false)
+	: is_native(true), native(native), arguments(NULL), exp_list(Ink_ExpressionList()), closure_context(NULL), is_inline(is_inline)
 	{ type = INK_FUNCTION; }
 
 	Ink_FunctionObject(Ink_HashTable *arguments, Ink_ExpressionList exp_list)
