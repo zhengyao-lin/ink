@@ -303,15 +303,24 @@ p(a);
 
 a = "hello";
 foo = () {
-	let a = 10;
+	let a.b = 10;
 	bar = () {
 		let a = 0;
-		p(a);
+		p("0? : " + a);
 	};
 
-	p(a);
+	p("10? : " + a.b);
 	bar;
 };
 
 foo()();
-p(a);
+p("hello? : " + a);
+
+obj = {
+	a : "this is a";
+	this.func = () {
+		p(base.a);
+	};
+};
+
+obj.func();

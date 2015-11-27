@@ -34,10 +34,11 @@
 				   return_expression multiplicative_expression
 				   unary_expression nestable_expression
 				   insert_expression field_expression
+				   table_expression
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
-						block
+						block element_list element_list_opt
 
 %start compile_unit
 
@@ -173,11 +174,11 @@ block
 	;
 
 unary_expression
-	: postfix_expression
+	: table_expression
 	| TNEW postfix_expression TLPAREN argument_list_opt TRPAREN
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("new")),
-									*$4, true);
+									*$4);
 		delete $4;
 	}
 	| TCLONE unary_expression
@@ -201,6 +202,37 @@ unary_expression
 									Ink_ExpressionList());
 	}
 	;
+
+element_list
+	: nestable_expression
+	{
+		$$ = new Ink_ExpressionList();
+		$$->push_back($1);
+	}
+	| element_list TCOMMA nestable_expression
+	{
+		$1->push_back($3);
+		$$ = $1;
+	}
+	;
+
+element_list_opt
+	: /* empty */
+	{
+		$$ = new Ink_ExpressionList();
+	}
+	| element_list
+
+table_expression
+	: postfix_expression
+	| TLBRACE element_list_opt TRBRACE
+	{
+		$$ = new Ink_CallExpression(new Ink_HashExpression(
+										new Ink_FunctionExpression(Ink_ParamList(), *$2),
+										new string("new")),
+									Ink_ExpressionList());
+		delete $2;
+	}
 
 postfix_expression
 	: function_expression

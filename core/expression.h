@@ -163,10 +163,8 @@ public:
 	Ink_Expression *callee;
 	Ink_ExpressionList arg_list;
 
-	bool is_new;
-
-	Ink_CallExpression(Ink_Expression *callee, Ink_ExpressionList arg_list, bool is_new = false)
-	: callee(callee), arg_list(arg_list), is_new(is_new)
+	Ink_CallExpression(Ink_Expression *callee, Ink_ExpressionList arg_list)
+	: callee(callee), arg_list(arg_list)
 	{ }
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
