@@ -7,6 +7,7 @@ static long igc_buffer_count = 0;
 static long igc_collect_treshold = IGC_COLLECT_TRESHOLD;
 static IGC_CollectUnit *igc_object_chain = NULL;
 static IGC_CollectUnit *igc_object_buffer = NULL;
+static IGC_CollectUnit *igc_object_buffer_last = NULL;
 static Ink_ContextChain *igc_global_context = NULL;
 
 void IGC_initGC(Ink_ContextChain *context)
@@ -17,14 +18,15 @@ void IGC_initGC(Ink_ContextChain *context)
 
 void IGC_addBuffer(IGC_CollectUnit *unit)
 {
-	IGC_CollectUnit *i;
-	if (igc_object_buffer) {
-		for (i = igc_object_buffer; i && i->next; i = i->next) ;
-		i->next = unit;
-		unit->prev = i;
+	// IGC_CollectUnit *i;
+	if (igc_object_buffer_last) {
+		// for (i = igc_object_buffer; i && i->next; i = i->next) ;
+		igc_object_buffer_last->next = unit;
+		unit->prev = igc_object_buffer_last;
 	} else {
 		igc_object_buffer = unit;
 	}
+	igc_object_buffer_last = unit;
 	igc_buffer_count++;
 
 	return;
@@ -41,7 +43,9 @@ void IGC_flushBuffer()
 	} else {
 		igc_object_chain = igc_object_buffer;
 	}
+	igc_object_count += igc_buffer_count;
 	igc_object_buffer = NULL;
+	igc_object_buffer_last = NULL;
 	igc_buffer_count = 0;
 
 	return;

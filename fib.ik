@@ -1,17 +1,13 @@
 fib = (n) {
 	if (n) {
 		if (n - 1) {
-			//p("hi");
-			return (fib(n - 2) + fib(n - 1));
-			//p("no");
+			return fib(n - 2) + fib(n - 1);
 		};
-		//p("wow");
 	};
-	//p("e");
 	1;
 };
 
-p(fib(10));
+p(fib(15));
 
 /*
 func = () {
