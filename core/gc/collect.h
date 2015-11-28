@@ -30,7 +30,6 @@ public:
 
 void IGC_initGC(Ink_ContextChain *context);
 void IGC_checkGC();
-void IGC_flushBuffer();
 void IGC_addObject(Ink_Object *obj);
 void IGC_collectGarbage(Ink_ContextChain *context, bool delete_all = false, bool if_clean_mark = true);
 

@@ -52,7 +52,6 @@ void cleanAll(Ink_ContextChain *context)
 	for (i = 0; i < native_exp_list.size(); i++) {
 		delete native_exp_list[i];
 	}
-	IGC_flushBuffer();
 	IGC_collectGarbage(context, true);
 	cleanContext(context);
 }

@@ -3,11 +3,9 @@
 #include "core/object.h"
 
 static long igc_object_count = 0;
-static long igc_buffer_count = 0;
 static long igc_collect_treshold = IGC_COLLECT_TRESHOLD;
 static IGC_CollectUnit *igc_object_chain = NULL;
-static IGC_CollectUnit *igc_object_buffer = NULL;
-static IGC_CollectUnit *igc_object_buffer_last = NULL;
+static IGC_CollectUnit *igc_object_chain_last = NULL;
 static Ink_ContextChain *igc_global_context = NULL;
 
 void IGC_initGC(Ink_ContextChain *context)
@@ -16,37 +14,16 @@ void IGC_initGC(Ink_ContextChain *context)
 	return;
 }
 
-void IGC_addBuffer(IGC_CollectUnit *unit)
+void IGC_addUnit(IGC_CollectUnit *unit)
 {
-	// IGC_CollectUnit *i;
-	if (igc_object_buffer_last) {
-		// for (i = igc_object_buffer; i && i->next; i = i->next) ;
-		igc_object_buffer_last->next = unit;
-		unit->prev = igc_object_buffer_last;
+	if (igc_object_chain_last) {
+		igc_object_chain_last->next = unit;
+		unit->prev = igc_object_chain_last;
 	} else {
-		igc_object_buffer = unit;
+		igc_object_chain = unit;
 	}
-	igc_object_buffer_last = unit;
-	igc_buffer_count++;
-
-	return;
-}
-
-void IGC_flushBuffer()
-{
-	IGC_CollectUnit *i;
-	if (igc_object_chain) {
-		for (i = igc_object_chain; i && i->next; i = i->next) ;
-		i->next = igc_object_buffer;
-		if (igc_object_buffer)
-			igc_object_buffer->prev = i;
-	} else {
-		igc_object_chain = igc_object_buffer;
-	}
-	igc_object_count += igc_buffer_count;
-	igc_object_buffer = NULL;
-	igc_object_buffer_last = NULL;
-	igc_buffer_count = 0;
+	igc_object_chain_last = unit;
+	igc_object_count++;
 
 	return;
 }
@@ -58,7 +35,6 @@ void IGC_checkGC()
 		if (igc_object_count >= igc_collect_treshold) {
 			igc_collect_treshold += igc_object_count;
 		}
-		IGC_flushBuffer();
 	}
 	return;
 }
@@ -68,18 +44,15 @@ void IGC_addObject(Ink_Object *obj)
 	IGC_CollectUnit *new_unit;
 
 	new_unit = new IGC_CollectUnit(obj);
-	IGC_addBuffer(new_unit);
+	IGC_addUnit(new_unit);
 
 	// IGC_checkGC();
-
-	igc_object_count++;
 
 	return;
 }
 
 void deleteObject(IGC_CollectUnit *unit)
 {
-	// printf("delete: object 0x%x\n", unit->obj);
 	igc_object_count--;
 	delete unit;
 	return;
@@ -135,8 +108,13 @@ void doCollect()
 	for (i = igc_object_chain; i;) {
 		tmp = i;
 		i = i->next;
-		if (!tmp->obj->marked) deleteObject(tmp);
+		if (!tmp->obj->marked) {
+			if (tmp == igc_object_chain) igc_object_chain = i;
+			deleteObject(tmp);
+		}
 	}
+	for (i = igc_object_chain; i && i->next; i = i->next) ;
+	igc_object_chain_last = i;
 
 	return;
 }

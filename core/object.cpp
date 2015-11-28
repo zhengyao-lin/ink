@@ -124,7 +124,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	Ink_Object *ret_val = NULL;
 
 	local = new Ink_ContextObject();
-	if (closure_context) context = closure_context;
+	if (closure_context) context = closure_context->copyContextChain();
 	if (!is_inline) { // if not inline function, set local context
 		local->setSlot("base", getSlot("base"));
 		local->setSlot("this", this);
@@ -155,7 +155,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		}
 	}
 
-	context->removeLast(); // delete the local environment
+	if (closure_context) Ink_ContextChain::disposeContextChain(context);
+	else context->removeLast(); // delete the local environment
 
 	return ret_val ? ret_val : new Ink_NullObject(); // return the last expression
 }
