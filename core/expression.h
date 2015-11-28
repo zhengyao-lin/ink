@@ -7,6 +7,7 @@
 #include "object.h"
 #include "context.h"
 #include "error.h"
+#include "gc/collect.h"
 using namespace std;
 
 class Ink_Expression;

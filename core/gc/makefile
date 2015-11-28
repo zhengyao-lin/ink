@@ -1,6 +1,7 @@
 TARGET=gc.o
 REQUIRE=\
-	collect.o
+	collect.o \
+	engine.o
 
 CC=g++
 LD=ld

@@ -52,7 +52,7 @@ void cleanAll(Ink_ContextChain *context)
 	for (i = 0; i < native_exp_list.size(); i++) {
 		delete native_exp_list[i];
 	}
-	IGC_collectGarbage(context, true);
+	// IGC_collectGarbage(context, true);
 	cleanContext(context);
 }
 
@@ -72,18 +72,20 @@ int main()
 	delete slot_val;*/
 
 	unsigned int i;
+	IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
+	IGC_initGC(gc_engine, true);
+
 	Ink_ContextChain *context = new Ink_ContextChain(new Ink_ContextObject());
+	gc_engine->initContext(context);
 
 	context->context->setSlot("p", new Ink_FunctionObject(print));
 	context->context->setSlot("this", context->context);
 	Ink_GlobalMethodInit(context);
 
-	IGC_initGC(context);
-
 	for (i = 0; i < exp_list.size(); i++) {
 		exp_list[i]->eval(context);
 		// IGC_collectGarbage(context);
-		IGC_checkGC();
+		gc_engine->checkGC();
 	}
 
 	// func=(){global=120;};
@@ -92,6 +94,8 @@ int main()
 	// if (defined(out) && out->type == INK_INTEGER)
 	// 	printf("global: %d\n", as<Ink_Integer>(out)->value);
 
+	gc_engine->collectGarbage(true);
+	delete gc_engine;
 	cleanAll(context);
 	yylex_destroy();
 

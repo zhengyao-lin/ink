@@ -31,12 +31,13 @@ extern bool CGC_if_debond;
 
 class Ink_Expression;
 class Ink_ContextChain;
+class IGC_CollectEngine;
 typedef vector<Ink_Expression *> Ink_ExpressionList;
 typedef vector<string *> Ink_ParamList;
 
 class Ink_Object {
 public:
-	bool marked;
+	int marked;
 	Ink_TypeTag type;
 
 	Ink_HashTable *hash_table;
@@ -46,7 +47,7 @@ public:
 
 	Ink_Object(bool if_init_method = false)
 	{
-		marked = false;
+		marked = 0;
 		type = INK_OBJECT;
 		hash_table = NULL;
 		address = NULL;
@@ -116,6 +117,8 @@ public:
 
 class Ink_ContextObject: public Ink_Object {
 public:
+	IGC_CollectEngine *gc_engine;
+
 	Ink_ContextObject()
 	{
 		type = INK_CONTEXT;

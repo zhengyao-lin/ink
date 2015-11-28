@@ -24,11 +24,47 @@ public:
 			prev->next = next;
 		if (next)
 			next->prev = prev;
-		delete obj;
+		if (obj)
+			delete obj;
 	}
 };
 
-void IGC_initGC(Ink_ContextChain *context);
+class IGC_CollectEngine {
+public:
+	//long object_count;
+	//long collect_treshold;
+	IGC_CollectUnit *object_chain;
+	IGC_CollectUnit *object_chain_last;
+	Ink_ContextChain *local_context;
+
+	IGC_CollectEngine()
+	{
+		object_chain = NULL;
+		object_chain_last = NULL;
+		local_context = NULL;
+	}
+
+	void initContext(Ink_ContextChain *context)
+	{
+		local_context = context;
+	}
+	void addUnit(IGC_CollectUnit *unit);
+	void cleanMark();
+	static void doMark(Ink_Object *obj);
+	static void deleteObject(IGC_CollectUnit *unit);
+
+	void doCollect();
+	void collectGarbage(bool delete_all = false, bool if_clean_mark = true);
+	void checkGC();
+	void link(IGC_CollectEngine *engine);
+
+	~IGC_CollectEngine()
+	{
+		// collectGarbage(true);
+	}
+};
+
+void IGC_initGC(IGC_CollectEngine *engine, bool is_global = false);
 void IGC_checkGC();
 void IGC_addObject(Ink_Object *obj);
 void IGC_collectGarbage(Ink_ContextChain *context, bool delete_all = false, bool if_clean_mark = true);

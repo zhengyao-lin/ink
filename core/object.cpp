@@ -116,12 +116,19 @@ Ink_Object *Ink_String::clone()
 	return new_obj;
 }
 
+extern IGC_CollectEngine *global_engine;
+extern IGC_CollectEngine *current_engine;
+
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this)
 {
 	unsigned int argi, j;
 	Ink_HashTable *i;
 	Ink_ContextObject *local; // new local context
 	Ink_Object *ret_val = NULL;
+	IGC_CollectEngine *engine_backup = current_engine;
+
+	IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
+	IGC_initGC(gc_engine);
 
 	local = new Ink_ContextObject();
 	if (closure_context) context = closure_context->copyContextChain();
@@ -130,6 +137,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		local->setSlot("this", this);
 	}
 	context->addContext(local);
+
+	gc_engine->initContext(context);
 
 	if (is_native) ret_val = native(context, argc, argv);
 	else {
@@ -142,8 +151,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		}
 
 		for (j = 0; j < exp_list.size(); j++) {
+			gc_engine->checkGC();
 			ret_val = exp_list[j]->eval(context); // eval each expression
-			// IGC_checkGC();
 			if (CGC_if_return) {
 				if (!is_inline)
 					CGC_if_return = false;
@@ -155,8 +164,15 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		}
 	}
 
+	//gc_engine->collectGarbage();
 	if (closure_context) Ink_ContextChain::disposeContextChain(context);
 	else context->removeLast(); // delete the local environment
+	//gc_engine->doMark(ret_val);
+	//gc_engine->collectGarbage(false, false);
+	//delete gc_engine;
+	if (engine_backup) engine_backup->link(gc_engine);
+	current_engine = engine_backup;
+	delete gc_engine;
 
 	return ret_val ? ret_val : new Ink_NullObject(); // return the last expression
 }
