@@ -165,10 +165,17 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	}
 
 	//gc_engine->collectGarbage();
+	context->removeLast();
+	
+	if (ret_val)
+		gc_engine->doMark(ret_val);
+	gc_engine->collectGarbage();
+
 	if (closure_context) Ink_ContextChain::disposeContextChain(context);
-	else context->removeLast(); // delete the local environment
+
 	//gc_engine->doMark(ret_val);
-	//gc_engine->collectGarbage(false, false);
+	//gc_engine->collectGarbage();
+
 	//delete gc_engine;
 	if (engine_backup) engine_backup->link(gc_engine);
 	current_engine = engine_backup;
@@ -181,7 +188,7 @@ Ink_FunctionObject::~Ink_FunctionObject()
 {
 	if (closure_context) Ink_ContextChain::disposeContextChain(closure_context);
 	cleanHashTable();
-	cleanHashTable(arguments);
+	if (arguments) cleanHashTable(arguments);
 }
 
 Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val)

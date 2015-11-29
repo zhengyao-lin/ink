@@ -2,6 +2,7 @@
 #include "../object.h"
 #include "../context.h"
 #include "../expression.h"
+#include "native.h"
 
 extern Ink_ExpressionList native_exp_list;
 
@@ -126,3 +127,40 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("undefined", new Ink_Undefined());
 	context->context->setSlot("null", new Ink_NullObject());
 }
+
+int integer_native_method_table_count = 6;
+InkNative_MethodTable integer_native_method_table[] = {
+	{"+", new Ink_FunctionObject(InkNative_Integer_Add)},
+	{"-", new Ink_FunctionObject(InkNative_Integer_Sub)},
+	{"*", new Ink_FunctionObject(InkNative_Integer_Mul)},
+	{"/", new Ink_FunctionObject(InkNative_Integer_Div)},
+	{"+u", new Ink_FunctionObject(InkNative_Integer_Add_Unary)},
+	{"-u", new Ink_FunctionObject(InkNative_Integer_Sub_Unary)}
+};
+
+int string_native_method_table_count = 2;
+InkNative_MethodTable string_native_method_table[] = {
+	{"+", new Ink_FunctionObject(InkNative_String_Add)},
+	{"[]", new Ink_FunctionObject(InkNative_String_Index)}
+};
+
+int object_native_method_table_count = 5;
+InkNative_MethodTable object_native_method_table[] = {
+	{"->", new Ink_FunctionObject(InkNative_Object_Bond)},
+	{"!!", new Ink_FunctionObject(InkNative_Object_Debond)},
+	{"[]", new Ink_FunctionObject(InkNative_Object_Index)},
+	{"new", new Ink_FunctionObject(InkNative_Object_New)},
+	{"clone", new Ink_FunctionObject(InkNative_Object_Clone)}
+};
+
+int array_native_method_table_count = 3;
+InkNative_MethodTable array_native_method_table[] = {
+	{"[]", new Ink_FunctionObject(InkNative_Array_Index)},
+	{"push", new Ink_FunctionObject(InkNative_Array_Push)},
+	{"size", new Ink_FunctionObject(InkNative_Array_Size)}
+};
+
+int function_native_method_table_count = 1;
+InkNative_MethodTable function_native_method_table[] = {
+	{"<<", new Ink_FunctionObject(InkNative_Function_Insert)}
+};

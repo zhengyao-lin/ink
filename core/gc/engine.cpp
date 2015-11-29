@@ -94,12 +94,12 @@ void IGC_CollectEngine::doCollect()
 	return;
 }
 
-void IGC_CollectEngine::collectGarbage(bool delete_all, bool if_clean_mark)
+void IGC_CollectEngine::collectGarbage(bool delete_all)
 {
 	Ink_ContextChain *global = local_context->getGlobal();
 	Ink_ContextChain *i;
 
-	printf("========== GC INTERRUPT =========\n");
+	//printf("========== GC INTERRUPT =========\n");
 
 	//if (if_clean_mark)
 	//	cleanMark();

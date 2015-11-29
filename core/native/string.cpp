@@ -1,6 +1,7 @@
 #include <sstream>
 #include "../object.h"
 #include "../context.h"
+#include "native.h"
 
 Ink_Object *InkNative_String_Add(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
@@ -29,8 +30,15 @@ Ink_Object *InkNative_String_Index(Ink_ContextChain *context, unsigned int argc,
 	return new Ink_NullObject();
 }
 
+extern int string_native_method_table_count;
+extern InkNative_MethodTable string_native_method_table[];
+
 void Ink_String::Ink_StringMethodInit()
 {
-	setSlot("+", new Ink_FunctionObject(InkNative_String_Add));
-	setSlot("[]", new Ink_FunctionObject(InkNative_String_Index));
+	InkNative_MethodTable *table = string_native_method_table;
+	int i, count = string_native_method_table_count;
+
+	for (i = 0; i < count; i++) {
+		setSlot(table[i].name, table[i].func);
+	}
 }

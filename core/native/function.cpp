@@ -2,6 +2,7 @@
 #include "../context.h"
 #include "../expression.h"
 #include "../error.h"
+#include "native.h"
 
 Ink_Object *InkNative_Function_Insert(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
@@ -19,7 +20,15 @@ Ink_Object *InkNative_Function_Insert(Ink_ContextChain *context, unsigned int ar
 	return new Ink_NullObject();
 }
 
+extern int function_native_method_table_count;
+extern InkNative_MethodTable function_native_method_table[];
+
 void Ink_FunctionObject::Ink_FunctionMethodInit()
 {
-	setSlot("<<", new Ink_FunctionObject(InkNative_Function_Insert));
+	InkNative_MethodTable *table = function_native_method_table;
+	int i, count = function_native_method_table_count;
+
+	for (i = 0; i < count; i++) {
+		setSlot(table[i].name, table[i].func);
+	}
 }

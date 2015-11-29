@@ -41,9 +41,7 @@ public:
 	Ink_TypeTag type;
 
 	Ink_HashTable *hash_table;
-
 	Ink_HashTable *address;
-	Ink_Object *base;
 
 	Ink_Object(bool if_init_method = false)
 	{
@@ -117,8 +115,6 @@ public:
 
 class Ink_ContextObject: public Ink_Object {
 public:
-	IGC_CollectEngine *gc_engine;
-
 	Ink_ContextObject()
 	{
 		type = INK_CONTEXT;
@@ -137,27 +133,28 @@ typedef Ink_Object *(*Ink_NativeFunction)(Ink_ContextChain *context, unsigned in
 class Ink_FunctionObject: public Ink_Object {
 public:
 	bool is_native;
+	bool is_inline;
+
 	Ink_NativeFunction native;
 
 	Ink_HashTable *arguments;
 	Ink_ExpressionList exp_list;
 
 	Ink_ContextChain *closure_context;
-	bool is_inline;
 
 	Ink_FunctionObject(Ink_NativeFunction native, bool is_inline = false)
-	: is_native(true), native(native), arguments(NULL), exp_list(Ink_ExpressionList()), closure_context(NULL), is_inline(is_inline)
+	: is_native(true), is_inline(is_inline), native(native), arguments(NULL), exp_list(Ink_ExpressionList()), closure_context(NULL)
 	{ type = INK_FUNCTION; }
 
 	Ink_FunctionObject(Ink_HashTable *arguments, Ink_ExpressionList exp_list)
-	: is_native(false), native(NULL), arguments(arguments), exp_list(exp_list), closure_context(NULL), is_inline(false)
+	: is_native(false), is_inline(false), native(NULL), arguments(arguments), exp_list(exp_list), closure_context(NULL)
 	{
 		type = INK_FUNCTION;
 		initMethod();
 	}
 
 	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL, bool is_inline = false)
-	: is_native(false), native(NULL), exp_list(exp_list), closure_context(closure_context), is_inline(is_inline)
+	: is_native(false), is_inline(is_inline), native(NULL), exp_list(exp_list), closure_context(closure_context)
 	{
 		int i;
 		Ink_HashTable *tmp = NULL;

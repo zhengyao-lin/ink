@@ -2,6 +2,7 @@
 #include "../object.h"
 #include "../context.h"
 #include "../expression.h"
+#include "native.h"
 
 extern Ink_ExpressionList native_exp_list;
 
@@ -91,11 +92,15 @@ Ink_Object *InkNative_Object_Clone(Ink_ContextChain *context, unsigned int argc,
 	return base->clone();
 }
 
+extern int object_native_method_table_count;
+extern InkNative_MethodTable object_native_method_table[];
+
 void Ink_Object::Ink_ObjectMethodInit()
 {
-	setSlot("->", new Ink_FunctionObject(InkNative_Object_Bond));
-	setSlot("!!", new Ink_FunctionObject(InkNative_Object_Debond));
-	setSlot("[]", new Ink_FunctionObject(InkNative_Object_Index));
-	setSlot("new", new Ink_FunctionObject(InkNative_Object_New));
-	setSlot("clone", new Ink_FunctionObject(InkNative_Object_Clone));
+	InkNative_MethodTable *table = object_native_method_table;
+	int i, count = object_native_method_table_count;
+
+	for (i = 0; i < count; i++) {
+		setSlot(table[i].name, table[i].func);
+	}
 }

@@ -1,5 +1,6 @@
 #include "../object.h"
 #include "../context.h"
+#include "native.h"
 
 class Ink_Integer;
 
@@ -63,12 +64,15 @@ Ink_Object *InkNative_Integer_Sub_Unary(Ink_ContextChain *context, unsigned int 
 	return new Ink_NullObject();
 }
 
+extern int integer_native_method_table_count;
+extern InkNative_MethodTable integer_native_method_table[];
+
 void Ink_Integer::Ink_IntegerMethodInit()
 {
-	setSlot("+", new Ink_FunctionObject(InkNative_Integer_Add));
-	setSlot("-", new Ink_FunctionObject(InkNative_Integer_Sub));
-	setSlot("*", new Ink_FunctionObject(InkNative_Integer_Mul));
-	setSlot("/", new Ink_FunctionObject(InkNative_Integer_Div));
-	setSlot("+u", new Ink_FunctionObject(InkNative_Integer_Add_Unary));
-	setSlot("-u", new Ink_FunctionObject(InkNative_Integer_Sub_Unary));
+	InkNative_MethodTable *table = integer_native_method_table;
+	int i, count = integer_native_method_table_count;
+
+	for (i = 0; i < count; i++) {
+		setSlot(table[i].name, table[i].func);
+	}
 }

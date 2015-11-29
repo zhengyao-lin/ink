@@ -15,21 +15,15 @@ void IGC_initGC(IGC_CollectEngine *engine, bool is_global)
 	return;
 }
 
-void IGC_addUnit(IGC_CollectUnit *unit)
-{
-	if (current_engine)
-		current_engine->addUnit(unit);
-
-	return;
-}
-
 
 void IGC_addObject(Ink_Object *obj)
 {
 	IGC_CollectUnit *new_unit;
 
-	new_unit = new IGC_CollectUnit(obj);
-	IGC_addUnit(new_unit);
+	if (current_engine) {
+		new_unit = new IGC_CollectUnit(obj);
+		current_engine->addUnit(new_unit);
+	}
 
 	return;
 }

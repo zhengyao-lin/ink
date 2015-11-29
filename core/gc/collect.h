@@ -54,7 +54,7 @@ public:
 	static void deleteObject(IGC_CollectUnit *unit);
 
 	void doCollect();
-	void collectGarbage(bool delete_all = false, bool if_clean_mark = true);
+	void collectGarbage(bool delete_all = false);
 	void checkGC();
 	void link(IGC_CollectEngine *engine);
 

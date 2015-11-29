@@ -1,6 +1,7 @@
 #include <vector>
 #include "../object.h"
 #include "../context.h"
+#include "native.h"
 
 Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
@@ -53,9 +54,15 @@ Ink_Object *InkNative_Array_Size(Ink_ContextChain *context, unsigned int argc, I
 	return new Ink_Integer(as<Ink_Array>(base)->value.size());
 }
 
+extern int array_native_method_table_count;
+extern InkNative_MethodTable array_native_method_table[];
+
 void Ink_Array::Ink_ArrayMethodInit()
 {
-	setSlot("[]", new Ink_FunctionObject(InkNative_Array_Index));
-	setSlot("push", new Ink_FunctionObject(InkNative_Array_Push));
-	setSlot("size", new Ink_FunctionObject(InkNative_Array_Size));
+	InkNative_MethodTable *table = array_native_method_table;
+	int i, count = array_native_method_table_count;
+
+	for (i = 0; i < count; i++) {
+		setSlot(table[i].name, table[i].func);
+	}
 }

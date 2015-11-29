@@ -70,6 +70,11 @@ int main()
 
 	delete obj;
 	delete slot_val;*/
+	/* printf("IGC_CollectEngine: %d\nInk_ContextObject: %d\nInk_ContextChain: %d\nInk_FunctionObject: %d\n",
+			sizeof(IGC_CollectEngine),
+			sizeof(Ink_ContextObject),
+			sizeof(Ink_ContextChain),
+			sizeof(Ink_FunctionObject)); */
 
 	unsigned int i;
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
