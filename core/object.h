@@ -43,12 +43,15 @@ public:
 	Ink_HashTable *hash_table;
 	Ink_HashTable *address;
 
+	Ink_Object *base;
+
 	Ink_Object(bool if_init_method = false)
 	{
 		marked = 0;
 		type = INK_OBJECT;
 		hash_table = NULL;
 		address = NULL;
+		base = NULL;
 
 		IGC_addObject(this);
 		if (if_init_method) initMethod();
@@ -58,13 +61,13 @@ public:
 	virtual void derivedMethodInit() { }
 	void initMethod()
 	{
-		Ink_ObjectMethodInit();
-		derivedMethodInit();
+		//Ink_ObjectMethodInit();
+		//derivedMethodInit();
 	}
 
 	Ink_Object *getSlot(const char *key);
 	Ink_HashTable *getSlotMapping(const char *key);
-	Ink_HashTable *setSlot(const char *key, Ink_Object *value);
+	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true);
 	void deleteSlot(const char *key);
 	void cleanHashTable();
 	void cleanHashTable(Ink_HashTable *table);

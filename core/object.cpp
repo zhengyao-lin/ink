@@ -2,30 +2,94 @@
 #include "object.h"
 #include "expression.h"
 #include "gc/collect.h"
+#include "native/native.h"
 
-Ink_Object *Ink_Object::getSlot(const char *key)
-{
-	Ink_HashTable *ret;
-	return (ret = getSlotMapping(key)) ? ret->value : new Ink_Undefined();
-}
+extern int integer_native_method_table_count;
+extern InkNative_MethodTable integer_native_method_table[];
+extern int string_native_method_table_count;
+extern InkNative_MethodTable string_native_method_table[];
+extern int object_native_method_table_count;
+extern InkNative_MethodTable object_native_method_table[];
+extern int array_native_method_table_count;
+extern InkNative_MethodTable array_native_method_table[];
+extern int function_native_method_table_count;
+extern InkNative_MethodTable function_native_method_table[];
 
-Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
+Ink_Object *getMethod(const char *name, InkNative_MethodTable *table, int count)
 {
-	Ink_HashTable *i;
-	for (i = hash_table; i; i = i->next) {
-		if (!strcmp(i->key, key)){
-			Ink_HashTable *ret;
-			for (ret = i; ret->bonding; ret = ret->bonding) ;
-			ret->bondee = i;
-			return ret;
+	int i;
+	for (i = 0; i < count; i++) {
+		if (!strcmp(name, table[i].name)) {
+			return new Ink_FunctionObject(as<Ink_FunctionObject>(table[i].func)->native);
 		}
 	}
 	return NULL;
 }
 
-Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value)
+Ink_Object *Ink_Object::getSlot(const char *key)
 {
-	Ink_HashTable *slot = getSlotMapping(key);
+	Ink_HashTable *ret = getSlotMapping(key);
+
+	return ret ? ret->value : new Ink_Undefined();
+}
+
+Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
+{
+	Ink_HashTable *i;
+	Ink_HashTable *ret = NULL;
+	Ink_Object *method = NULL;
+
+	for (i = hash_table; i; i = i->next) {
+		if (!strcmp(i->key, key)){
+			for (ret = i; ret->bonding; ret = ret->bonding) ;
+			ret->bondee = i;
+			return ret;
+		}
+	}
+
+#if 1
+	switch (type) {
+		case INK_INTEGER:
+			if (method = getMethod(key, integer_native_method_table,
+								   integer_native_method_table_count)) {
+				ret = setSlot(key, method, false);
+			}
+			break;
+		case INK_STRING:
+			if (method = getMethod(key, string_native_method_table,
+								   string_native_method_table_count)) {
+				ret = setSlot(key, method, false);
+			}
+			break;
+		case INK_ARRAY:
+			if (method = getMethod(key, array_native_method_table,
+								   array_native_method_table_count)) {
+				ret = setSlot(key, method, false);
+			}
+			break;
+		case INK_FUNCTION:
+			if (method = getMethod(key, function_native_method_table,
+								   function_native_method_table_count)) {
+				ret = setSlot(key, method, false);
+			}
+			break;
+		default: break;
+	}
+	if (!ret && (method = getMethod(key, object_native_method_table,
+									object_native_method_table_count))) {
+		ret = setSlot(key, method, false);
+	}
+#endif
+
+	return ret;
+}
+
+Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_check_exist)
+{
+	Ink_HashTable *slot = NULL;
+
+	if (if_check_exist) slot = getSlotMapping(key);
+
 	if (slot) {
 		slot->value = value;
 	} else {

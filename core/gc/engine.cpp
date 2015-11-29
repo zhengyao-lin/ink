@@ -135,5 +135,6 @@ void IGC_CollectEngine::link(IGC_CollectEngine *engine)
 	} else {
 		object_chain = engine->object_chain;
 	}
-	object_chain_last = engine->object_chain_last;
+	if (engine->object_chain_last)
+		object_chain_last = engine->object_chain_last;
 }
