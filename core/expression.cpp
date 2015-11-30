@@ -24,6 +24,6 @@ Ink_Expression *Ink_IntegerConstant::parse(string code)
 
 Ink_Object *Ink_FunctionExpression::eval(Ink_ContextChain *context_chain)
 {
-	SET_LINE_NO;
+	SET_LINE_NUM;
 	return new Ink_FunctionObject(param, exp_list, context_chain->copyContextChain(), is_inline);
 }
