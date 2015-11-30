@@ -261,6 +261,7 @@ Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val)
 	for (i = 0; i < val.size(); i++) {
 		if (val[i])
 			ret.push_back(new Ink_HashTable("", val[i]->value));
+		else ret.push_back(NULL);
 	}
 
 	return ret;
