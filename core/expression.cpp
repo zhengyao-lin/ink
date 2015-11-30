@@ -3,7 +3,6 @@
 #include "expression.h"
 
 bool CGC_if_return = false;
-bool CGC_if_debond = false;
 
 Ink_Expression *Ink_IntegerConstant::parse(string code)
 {
@@ -25,5 +24,6 @@ Ink_Expression *Ink_IntegerConstant::parse(string code)
 
 Ink_Object *Ink_FunctionExpression::eval(Ink_ContextChain *context_chain)
 {
+	SET_LINE_NO;
 	return new Ink_FunctionObject(param, exp_list, context_chain->copyContextChain(), is_inline);
 }

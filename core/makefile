@@ -5,7 +5,8 @@ REQUIRE=\
 	hash.o \
 	object.o \
 	expression.o \
-	context.o
+	context.o \
+	error.o
 
 CC=g++
 LD=ld

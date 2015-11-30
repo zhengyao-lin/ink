@@ -1,0 +1,1 @@
+int inkerr_current_line_number = -1;

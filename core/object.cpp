@@ -47,39 +47,38 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 		}
 	}
 
-#if 1
 	switch (type) {
 		case INK_INTEGER:
-			if (method = getMethod(key, integer_native_method_table,
-								   integer_native_method_table_count)) {
+			method = getMethod(key, integer_native_method_table, integer_native_method_table_count);
+			if (method) {
 				ret = setSlot(key, method, false);
 			}
 			break;
 		case INK_STRING:
-			if (method = getMethod(key, string_native_method_table,
-								   string_native_method_table_count)) {
+			method = getMethod(key, string_native_method_table, string_native_method_table_count);
+			if (method) {
 				ret = setSlot(key, method, false);
 			}
 			break;
 		case INK_ARRAY:
-			if (method = getMethod(key, array_native_method_table,
-								   array_native_method_table_count)) {
+			method = getMethod(key, array_native_method_table, array_native_method_table_count);
+			if (method) {
 				ret = setSlot(key, method, false);
 			}
 			break;
 		case INK_FUNCTION:
-			if (method = getMethod(key, function_native_method_table,
-								   function_native_method_table_count)) {
+			method = getMethod(key, function_native_method_table, function_native_method_table_count);
+			if (method) {
 				ret = setSlot(key, method, false);
 			}
 			break;
 		default: break;
 	}
-	if (!ret && (method = getMethod(key, object_native_method_table,
-									object_native_method_table_count))) {
+	if (!ret) {
+		method = getMethod(key, object_native_method_table, object_native_method_table_count);
+		if (method)
 		ret = setSlot(key, method, false);
 	}
-#endif
 
 	return ret;
 }

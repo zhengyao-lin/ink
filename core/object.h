@@ -27,7 +27,6 @@ enum Ink_TypeTag {
 void IGC_addObject(Ink_Object *obj);
 
 extern bool CGC_if_return;
-extern bool CGC_if_debond;
 
 class Ink_Expression;
 class Ink_ContextChain;

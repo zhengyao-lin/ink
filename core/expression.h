@@ -8,12 +8,13 @@
 #include "context.h"
 #include "error.h"
 #include "gc/collect.h"
+#define SET_LINE_NO (inkerr_current_line_number = line_number)
 using namespace std;
 
 class Ink_Expression;
 
 extern bool CGC_if_return;
-extern bool CGC_if_debond;
+extern int inkerr_current_line_number;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
 typedef vector<string *> Ink_ParamList;
@@ -25,7 +26,10 @@ template <class T> T *as(Ink_Expression *obj)
 
 class Ink_Expression {
 public:
-	Ink_Expression() { }
+	int line_number;
+	Ink_Expression()
+	: line_number(-1)
+	{ }
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain) { return NULL; }
 	virtual ~Ink_Expression() { }
 };
@@ -40,6 +44,8 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		SET_LINE_NO;
+
 		Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
 		CGC_if_return = true;
 		return ret;
@@ -56,28 +62,20 @@ class Ink_AssignmentExpression: public Ink_Expression {
 public:
 	Ink_Expression *lval;
 	Ink_Expression *rval;
-	bool is_local;
 
-	Ink_AssignmentExpression(Ink_Expression *lval, Ink_Expression *rval, bool is_local = false)
-	: lval(lval), rval(rval), is_local(is_local)
+	Ink_AssignmentExpression(Ink_Expression *lval, Ink_Expression *rval)
+	: lval(lval), rval(rval)
 	{ }
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		SET_LINE_NO;
 
 		Ink_Object *rval_ret;
 		Ink_Object *lval_ret;
 
 		rval_ret = rval->eval(context_chain);
-		if (is_local) {
-			Ink_ContextChain *local = context_chain->getLocal();
-			Ink_ContextChain *backup = local->outer;
-			local->outer = NULL;
-			lval_ret = lval->eval(local);
-			local->outer = backup;
-		} else {
-			lval_ret = lval->eval(context_chain);
-		}
+		lval_ret = lval->eval(context_chain);
 
 		if (lval_ret->address) {
 			return lval_ret->address->value = rval_ret;
@@ -105,6 +103,7 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		SET_LINE_NO;
 		Ink_Object *base_obj = base->eval(context_chain);
 		return getSlot(base_obj, slot_id->c_str());
 	}
@@ -171,6 +170,7 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		SET_LINE_NO;
 		unsigned int i;
 		Ink_Object **argv = NULL;
 		Ink_Object *ret_val;
@@ -199,19 +199,43 @@ public:
 	}
 };
 
+typedef enum {
+	ID_LOCAL,
+	ID_GLOBAL,
+	ID_COMMON
+} IDContextType;
+
 class Ink_IdentifierExpression: public Ink_Expression {
 public:
 	string *id;
+	IDContextType context_type;
 
-	Ink_IdentifierExpression(string *id)
-	: id(id)
+	Ink_IdentifierExpression(string *id, IDContextType context_type = ID_COMMON)
+	: id(id), context_type(context_type)
 	{ }
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
-		Ink_HashTable *hash = context_chain->searchSlotMapping(id->c_str());
+		SET_LINE_NO;
+		Ink_HashTable *hash;
+		Ink_ContextChain *local = context_chain->getLocal();
+		Ink_ContextChain *global = context_chain->getGlobal();
+		Ink_ContextChain *dest_context = local;
 
-		if (!hash) hash = context_chain->getLocal()->context->setSlot(id->c_str(), new Ink_Object(true));
+		switch (context_type){
+			case ID_LOCAL:
+				hash = local->context->getSlotMapping(id->c_str());
+				break;
+			case ID_GLOBAL:
+				hash = global->context->getSlotMapping(id->c_str());
+				dest_context = global;
+				break;
+			default:
+				hash = context_chain->searchSlotMapping(id->c_str());
+				break;
+		}
+
+		if (!hash) hash = dest_context->context->setSlot(id->c_str(), new Ink_Object(true));
 		hash->value->address = hash;
 		// hash->value->setSlot("this", hash->value);
 
@@ -229,6 +253,7 @@ public:
 	Ink_NullConstant() { }
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		SET_LINE_NO;
 		return new Ink_NullObject();
 	}
 };
@@ -238,6 +263,7 @@ public:
 	Ink_UndefinedConstant() { }
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		SET_LINE_NO;
 		return new Ink_Undefined();
 	}
 };
@@ -252,6 +278,7 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		SET_LINE_NO;
 		return new Ink_Integer(value);
 	}
 
@@ -269,6 +296,7 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		SET_LINE_NO;
 		return new Ink_String(*value);
 	}
 
@@ -288,6 +316,7 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		SET_LINE_NO;
 		Ink_ArrayValue val = Ink_ArrayValue();
 		unsigned int i;
 

@@ -33,7 +33,7 @@ string *string_literal = NULL;
 
 %%
 
-<INITIAL>"var"						return TOKEN(TVAR);
+<INITIAL>"global"					return TOKEN(TGLOBAL);
 <INITIAL>"let"						return TOKEN(TLET);
 <INITIAL>"return"					return TOKEN(TRETURN);
 <INITIAL>"new"						return TOKEN(TNEW);

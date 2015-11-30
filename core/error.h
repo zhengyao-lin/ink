@@ -6,29 +6,39 @@
 class Ink_ContextChain;
 
 void cleanAll(Ink_ContextChain *context);
+extern int inkerr_current_line_number;
 
 inline void
 InkErr_doPrintError(Ink_ContextChain *context, const char *msg)
 {
+	stringstream strm;
+	strm << "line " << inkerr_current_line_number << ": " << msg;
+	
 	cleanAll(context);
 	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, ErrorInfo::Exit1,
-										   msg));
+										   strm.str().c_str()));
 	return;
 }
 
 inline void
 InkErr_doPrintError(Ink_ContextChain *context, const char *msg, const char *arg1)
 {
+	stringstream strm;
+	strm << "line " << inkerr_current_line_number << ": " << msg;
+
 	cleanAll(context);
 	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, ErrorInfo::Exit1,
-										   msg, arg1));
+										   strm.str().c_str(), arg1));
 	return;
 }
 
 inline void
 InkWarn_doPrintWarning(const char *msg)
 {
-	ErrorInfo *info = new ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct, msg);
+	stringstream strm;
+	strm << "line " << inkerr_current_line_number << ": " << msg;
+
+	ErrorInfo *info = new ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct, strm.str().c_str());
 	ErrorMessage::popMessage(info);
 	delete info;
 	return;

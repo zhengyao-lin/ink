@@ -16,7 +16,7 @@ func2.p = (a) {
 };
 
 (f) {
-	f.p = () { 0; };
+	f.p = (a) { 0; };
 } (func2);
 
 p(func2.p(120));
@@ -361,6 +361,22 @@ TypeD = () {
 	this.a = 10;	
 };
 
-TypeE = new TypeD();
+TypeE = () {
+	this = new TypeD();
+	this.a = "hello?";
+};
 b = new TypeE();
 p(b.a);
+
+func = () {
+	let b = 10;
+	let a -> b;
+	//!! a;
+	return [global aaa];
+};
+aaa = "wow!";
+p(func()());
+
+func = () {
+	
+};
