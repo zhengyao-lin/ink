@@ -140,40 +140,23 @@ public:
 
 	Ink_NativeFunction native;
 
-	Ink_HashTable *arguments;
+	Ink_ParamList param;
 	Ink_ExpressionList exp_list;
 
 	Ink_ContextChain *closure_context;
 
-	Ink_FunctionObject(Ink_NativeFunction native, bool is_inline = false)
-	: is_native(true), is_inline(is_inline), native(native), arguments(NULL), exp_list(Ink_ExpressionList()), closure_context(NULL)
+	Ink_FunctionObject()
+	: is_native(false), is_inline(false), native(NULL), param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL)
 	{ type = INK_FUNCTION; }
 
-	Ink_FunctionObject(Ink_HashTable *arguments, Ink_ExpressionList exp_list)
-	: is_native(false), is_inline(false), native(NULL), arguments(arguments), exp_list(exp_list), closure_context(NULL)
-	{
-		type = INK_FUNCTION;
-		initMethod();
-	}
+	Ink_FunctionObject(Ink_NativeFunction native, bool is_inline = false)
+	: is_native(true), is_inline(is_inline), native(native), param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL)
+	{ type = INK_FUNCTION; }
 
 	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL, bool is_inline = false)
-	: is_native(false), is_inline(is_inline), native(NULL), exp_list(exp_list), closure_context(closure_context)
+	: is_native(false), is_inline(is_inline), native(NULL), param(param), exp_list(exp_list), closure_context(closure_context)
 	{
-		int i;
-		Ink_HashTable *tmp = NULL;
-
 		type = INK_FUNCTION;
-		arguments = NULL;
-
-		for (i = 0; i < (int)param.size(); i++) {
-			if (arguments) {
-				if (!tmp) tmp = arguments;
-				tmp->next = new Ink_HashTable(param[i]->c_str(), NULL);
-				tmp = tmp->next;
-			} else {
-				arguments = new Ink_HashTable(param[i]->c_str(), NULL);
-			}
-		}
 		initMethod();
 	}
 
@@ -184,11 +167,7 @@ public:
 	void Ink_FunctionMethodInit();
 
 	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this = false);
-	virtual Ink_Object *clone()
-	{
-		//return new Ink_FunctionObject(arguments, exp_list);
-		return this;
-	}
+	virtual Ink_Object *clone();
 
 	virtual ~Ink_FunctionObject();
 };

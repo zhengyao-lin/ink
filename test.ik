@@ -345,3 +345,22 @@ func = () {
 
 p("10? : " + func()());
 
+func = () {
+	10;	
+};
+
+func2 = clone func;
+func2 << () {
+	20;	
+};
+
+p("10? : " + func());
+p("20? : " + func2());
+
+TypeD = () {
+	this.a = 10;	
+};
+
+TypeE = new TypeD();
+b = new TypeE();
+p(b.a);

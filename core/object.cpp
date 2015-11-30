@@ -186,7 +186,7 @@ extern IGC_CollectEngine *current_engine;
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this)
 {
 	unsigned int argi, j;
-	Ink_HashTable *i;
+	// Ink_HashTable *i;
 	Ink_ContextObject *local; // new local context
 	Ink_Object *ret_val = NULL;
 	IGC_CollectEngine *engine_backup = current_engine;
@@ -206,11 +206,11 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 	if (is_native) ret_val = native(context, argc, argv);
 	else {
-		for (i = arguments, argi = 0; i && argi < argc; i = i->next, argi++) {
-			local->setSlot(i->key, argv[argi]); // initiate local argument
+		for (j = 0, argi = 0; j < param.size() && argi < argc; j++, argi++) {
+			local->setSlot(param[j]->c_str(), argv[argi]); // initiate local argument
 		}
 
-		if (i || argi < argc) {
+		if (j < param.size() || argi < argc) {
 			InkWarn_Unfit_Argument();
 		}
 
@@ -252,7 +252,6 @@ Ink_FunctionObject::~Ink_FunctionObject()
 {
 	if (closure_context) Ink_ContextChain::disposeContextChain(closure_context);
 	cleanHashTable();
-	if (arguments) cleanHashTable(arguments);
 }
 
 Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val)
@@ -271,6 +270,23 @@ Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val)
 Ink_Object *Ink_Array::clone()
 {
 	Ink_Object *new_obj = new Ink_Array(cloneArrayValue(value));
+
+	cloneHashTable(this, new_obj);
+
+	return new_obj;
+}
+
+Ink_Object *Ink_FunctionObject::clone()
+{
+	Ink_FunctionObject *new_obj = new Ink_FunctionObject();
+
+	new_obj->is_native = is_native;
+	new_obj->is_inline = is_inline;
+	new_obj->native = native;
+
+	new_obj->param = param;
+	new_obj->exp_list = exp_list;
+	new_obj->closure_context = closure_context->copyContextChain();
 
 	cloneHashTable(this, new_obj);
 

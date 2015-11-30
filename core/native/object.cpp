@@ -68,11 +68,7 @@ Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, I
 
 	if (base->type == INK_FUNCTION) {
 		obj = base->call(context, argc, argv, true);
-		if (obj->type == INK_FUNCTION) {
-			ret = new Ink_Object(true);
-			Ink_Object::cloneHashTable(obj, ret);
-		} else ret = obj->clone();
-		return ret;
+		return ret = obj->clone();
 	}
 
 	return obj->clone();
@@ -81,13 +77,6 @@ Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, I
 Ink_Object *InkNative_Object_Clone(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
 	Ink_Object *base = context->searchSlot("base");
-	Ink_Object *ret;
-
-	if (base->type == INK_FUNCTION) {
-		ret = new Ink_Object(true);
-		Ink_Object::cloneHashTable(base, ret);
-		return ret;
-	}
 
 	return base->clone();
 }
