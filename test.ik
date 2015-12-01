@@ -26,6 +26,7 @@ g1 = 10;
 func = () {
 	g1;
 	p("hi");
+	"III";
 };
 
 func2 = (f) {
@@ -371,7 +372,7 @@ p(b.a);
 func = () {
 	let b = 10;
 	let a -> b;
-	//!! a;
+	!! a;
 	return [global aaa];
 };
 aaa = "wow!";
@@ -380,3 +381,11 @@ p(func()());
 func = () {
 	
 };
+
+
+object = {
+	b: "yes?",
+	a: this.b
+};
+
+p(object.a);

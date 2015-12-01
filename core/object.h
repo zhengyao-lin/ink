@@ -60,8 +60,8 @@ public:
 	virtual void derivedMethodInit() { }
 	void initMethod()
 	{
-		//Ink_ObjectMethodInit();
-		//derivedMethodInit();
+		Ink_ObjectMethodInit();
+		derivedMethodInit();
 	}
 
 	Ink_Object *getSlot(const char *key);
@@ -88,10 +88,7 @@ public:
 class Ink_Undefined: public Ink_Object {
 public:
 	Ink_Undefined()
-	{
-		type = INK_UNDEFINED;
-		initMethod();
-	}
+	{ type = INK_UNDEFINED; }
 
 	virtual Ink_Object *clone()
 	{ return this; }
@@ -106,10 +103,7 @@ public:
 class Ink_NullObject: public Ink_Object {
 public:
 	Ink_NullObject()
-	{
-		type = INK_NULL;
-		initMethod();
-	}
+	{ type = INK_NULL; }
 
 	virtual Ink_Object *clone()
 	{ return this; }
@@ -118,15 +112,11 @@ public:
 class Ink_ContextObject: public Ink_Object {
 public:
 	Ink_ContextObject()
-	{
-		type = INK_CONTEXT;
-		initMethod();
-	}
+	{ type = INK_CONTEXT; }
 	Ink_ContextObject(Ink_HashTable *hash)
 	{
 		type = INK_CONTEXT;
 		hash_table = hash;
-		initMethod();
 	}
 };
 
@@ -154,10 +144,7 @@ public:
 
 	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL, bool is_inline = false)
 	: is_native(false), is_inline(is_inline), native(NULL), param(param), exp_list(exp_list), closure_context(closure_context)
-	{
-		type = INK_FUNCTION;
-		initMethod();
-	}
+	{ type = INK_FUNCTION; }
 
 	virtual void derivedMethodInit()
 	{
@@ -177,10 +164,7 @@ public:
 
 	Ink_Integer(int value = 0)
 	: value(value)
-	{
-		type = INK_INTEGER;
-		initMethod();
-	}
+	{ type = INK_INTEGER; }
 
 	virtual void derivedMethodInit()
 	{
@@ -197,10 +181,7 @@ public:
 
 	Ink_String(string value)
 	: value(value)
-	{
-		type = INK_STRING;
-		initMethod();
-	}
+	{ type = INK_STRING; }
 
 	virtual void derivedMethodInit()
 	{
@@ -219,10 +200,7 @@ public:
 
 	Ink_Array(Ink_ArrayValue value = Ink_ArrayValue())
 	: value(value)
-	{
-		type = INK_ARRAY;
-		initMethod();
-	}
+	{ type = INK_ARRAY; }
 
 	virtual void derivedMethodInit()
 	{
