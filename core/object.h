@@ -73,7 +73,7 @@ public:
 	static void cloneHashTable(Ink_Object *src, Ink_Object *dest);
 
 	virtual Ink_Object *clone();
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this = false)
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, bool return_this = false)
 	{
 		InkErr_Calling_Non_Function_Object(context);
 		return NULL;
@@ -93,7 +93,7 @@ public:
 	virtual Ink_Object *clone()
 	{ return this; }
 
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this = false)
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, bool return_this = false)
 	{
 		InkErr_Calling_Undefined_Object(context);
 		return NULL;
@@ -152,7 +152,7 @@ public:
 	}
 	void Ink_FunctionMethodInit();
 
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this = false);
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, bool return_this = false);
 	virtual Ink_Object *clone();
 
 	virtual ~Ink_FunctionObject();

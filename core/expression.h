@@ -8,7 +8,8 @@
 #include "context.h"
 #include "error.h"
 #include "gc/collect.h"
-#define SET_LINE_NUM (inkerr_current_line_number = line_number)
+#define SET_LINE_NUM (line_num_back = inkerr_current_line_number = line_number)
+#define RESTORE_LINE_NUM (inkerr_current_line_number = line_num_back)
 using namespace std;
 
 class Ink_Expression;
@@ -44,11 +45,14 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		int line_num_back;
 		SET_LINE_NUM;
 
 		Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
 		CGC_if_return = true;
 		return ret;
+
+		RESTORE_LINE_NUM;
 	}
 
 	~Ink_ReturnExpression()
@@ -69,6 +73,7 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		int line_num_back;
 		SET_LINE_NUM;
 
 		Ink_Object *rval_ret;
@@ -83,6 +88,8 @@ public:
 
 		InkErr_Assigning_Unassignable_Expression(context_chain);
 		abort();
+
+		RESTORE_LINE_NUM;
 	}
 
 	virtual ~Ink_AssignmentExpression()
@@ -103,8 +110,12 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		int line_num_back;
 		SET_LINE_NUM;
+
 		Ink_Object *base_obj = base->eval(context_chain);
+
+		RESTORE_LINE_NUM;
 		return getSlot(base_obj, slot_id->c_str());
 	}
 
@@ -185,7 +196,9 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		int line_num_back;
 		SET_LINE_NUM;
+
 		unsigned int i;
 		Ink_Object **argv = NULL;
 		Ink_Object *ret_val;
@@ -201,6 +214,7 @@ public:
 
 		free(argv);
 
+		RESTORE_LINE_NUM;
 		return ret_val;
 	}
 
@@ -232,7 +246,9 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		int line_num_back;
 		SET_LINE_NUM;
+
 		Ink_HashTable *hash;
 		Ink_ContextChain *local = context_chain->getLocal();
 		Ink_ContextChain *global = context_chain->getGlobal();
@@ -255,6 +271,7 @@ public:
 		hash->value->address = hash;
 		// hash->value->setSlot("this", hash->value);
 
+		RESTORE_LINE_NUM;
 		return hash->value;
 	}
 
@@ -269,7 +286,9 @@ public:
 	Ink_NullConstant() { }
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		int line_num_back;
 		SET_LINE_NUM;
+		RESTORE_LINE_NUM;
 		return new Ink_NullObject();
 	}
 };
@@ -279,7 +298,9 @@ public:
 	Ink_UndefinedConstant() { }
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		int line_num_back;
 		SET_LINE_NUM;
+		RESTORE_LINE_NUM;
 		return new Ink_Undefined();
 	}
 };
@@ -294,7 +315,9 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		int line_num_back;
 		SET_LINE_NUM;
+		RESTORE_LINE_NUM;
 		return new Ink_Integer(value);
 	}
 
@@ -312,7 +335,9 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		int line_num_back;
 		SET_LINE_NUM;
+		RESTORE_LINE_NUM;
 		return new Ink_String(*value);
 	}
 
@@ -332,6 +357,7 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
+		int line_num_back;
 		SET_LINE_NUM;
 		Ink_ArrayValue val = Ink_ArrayValue();
 		unsigned int i;
@@ -340,6 +366,7 @@ public:
 			val.push_back(new Ink_HashTable("", elem_list[i]->eval(context_chain)));
 		}
 
+		RESTORE_LINE_NUM;
 		return new Ink_Array(val);
 	}
 

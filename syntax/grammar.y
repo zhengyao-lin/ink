@@ -10,7 +10,7 @@
 
 	extern int yylex();
 	void yyerror(const char *msg) {
-		printf("%s\n", msg);
+		printf("line %d: %s\n", current_line_number, msg);
 	}
 %}
 
@@ -27,7 +27,7 @@
 
 %token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE
 %token <token> TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
-%token <token> TADD TSUB TMUL TDIV TMOD TDOT
+%token <token> TOR TADD TSUB TMUL TDIV TMOD TDOT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
 %token <token> TARR TINS TCLT TCGT
 
@@ -37,11 +37,13 @@
 				   return_expression multiplicative_expression
 				   unary_expression nestable_expression
 				   insert_expression field_expression
-				   table_expression
+				   table_expression functional_block
+				   block
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
-						block element_list element_list_opt
+						element_list element_list_opt
+						block_list
 %type <context_type> id_context_type
 
 %start compile_unit
@@ -179,7 +181,33 @@ argument_list_opt
 block
 	: TLBRACE expression_list_opt TRBRACE
 	{
-		$$ = $2;
+		$$ = new Ink_FunctionExpression(Ink_ParamList(), *$2, true);
+		delete $2;
+		SET_LINE_NO($$);
+	}
+	| functional_block
+	;
+
+functional_block
+	: TLBRACE TOR param_opt TOR expression_list_opt TRBRACE
+	{
+		$$ = new Ink_FunctionExpression(*$3, *$5, true);
+		delete $3;
+		delete $5;
+		SET_LINE_NO($$);
+	}
+	;
+
+block_list
+	: block
+	{
+		$$ = new Ink_ExpressionList();
+		$$->push_back($1);
+	}
+	| block_list block
+	{
+		$1->push_back($2);
+		$$ = $1;
 	}
 	;
 
@@ -264,18 +292,18 @@ postfix_expression
 		delete $3;
 		SET_LINE_NO($$);
 	}
+	| postfix_expression TLPAREN argument_list_opt TRPAREN block_list
+	{
+		$3->insert($3->end(), $5->begin(), $5->end());
+		$$ = new Ink_CallExpression($1, *$3);
+		delete $3;
+		delete $5;
+		SET_LINE_NO($$);
+	}
 	| postfix_expression TLBRAKT argument_list TRBRAKT
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("[]")), *$3);
 		delete $3;
-		SET_LINE_NO($$);
-	}
-	| postfix_expression block
-	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back(new Ink_FunctionExpression(Ink_ParamList(), *$2, true));
-		$$ = new Ink_CallExpression($1, arg);
-		delete $2;
 		SET_LINE_NO($$);
 	}
 	;
@@ -324,13 +352,14 @@ expression_list_opt
 
 function_expression
 	: primary_expression
-	| TLPAREN param_opt TRPAREN block
+	| TLPAREN param_opt TRPAREN TLBRACE expression_list_opt TRBRACE
 	{
-		$$ = new Ink_FunctionExpression(*$2, *$4);
+		$$ = new Ink_FunctionExpression(*$2, *$5);
 		delete $2;
-		delete $4;
+		delete $5;
 		SET_LINE_NO($$);
 	}
+	| functional_block
 	;
 
 id_context_type

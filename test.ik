@@ -92,8 +92,8 @@ b = 20;
 
 p((a + b) * 2 + 20);
 
-func = () {
-	(block) { p(block() * 2); };
+func = (block) {
+	p(block() * 2);
 };
 
 func () {
@@ -109,7 +109,7 @@ func = (bool) {
 	if (bool) {
 		if (bool + 1) {
 			return 1;
-		}.else {
+		} {
 			return 2;
 		};
 		p(1111);
@@ -118,7 +118,7 @@ func = (bool) {
 };
 
 inline = (block) { block; };
-pop = inline {
+pop = inline() {
 	return 100;
 };
 
@@ -130,7 +130,7 @@ p(str);
 
 if (nullobj) {
 	p("wow, it turns to object!");	
-}.else {
+} {
 	p("it's still false!");
 };
 

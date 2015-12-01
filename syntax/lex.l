@@ -60,6 +60,7 @@ string *string_literal = NULL;
 <INITIAL>"{"						return TOKEN(TLBRACE);
 <INITIAL>"}"						return TOKEN(TRBRACE);
 
+<INITIAL>"|"						return TOKEN(TOR);
 <INITIAL>"+"						return TOKEN(TADD);
 <INITIAL>"-"						return TOKEN(TSUB);
 <INITIAL>"*"						return TOKEN(TMUL);

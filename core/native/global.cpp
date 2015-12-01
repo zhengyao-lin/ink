@@ -2,6 +2,7 @@
 #include "../object.h"
 #include "../context.h"
 #include "../expression.h"
+#include "../error.h"
 #include "native.h"
 
 extern Ink_ExpressionList native_exp_list;
@@ -38,57 +39,44 @@ bool isTrue(Ink_Object *cond)
 
 Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
-	Ink_Object *cond = argv[0];
+	Ink_Object *cond;
 	Ink_Object *ret;
-	Ink_ParamList ret_param;
-	Ink_ExpressionList ret_body;
-	Ink_FunctionExpression *func_exp;
 
-	// true block
-	ret_param = Ink_ParamList();
-	ret_param.push_back(new string("true_block"));
-
-	ret_body = Ink_ExpressionList();
-
-	if (isTrue(cond)) { // true
-		ret_body.push_back(new Ink_CallExpression(new Ink_IdentifierExpression(new string("true_block")),
-												  Ink_ExpressionList()));
-
-		ret_body.push_back(new Ink_AssignmentExpression(
-								new Ink_HashExpression(
-									new Ink_IdentifierExpression(new string("ret")),
-									new string("else")
-								),
-								getEmptyBlockFunction()
-							));
-	} else { // false
-		Ink_ParamList ret_param2;
-		Ink_ExpressionList ret_body2;
-
-		ret_param2 = Ink_ParamList();
-		ret_param2.push_back(new string("false_block"));
-
-		ret_body2 = Ink_ExpressionList();
-		ret_body2.push_back(new Ink_CallExpression(new Ink_IdentifierExpression(new string("false_block")),
-												  Ink_ExpressionList()));
-
-		ret_body.push_back(new Ink_AssignmentExpression(
-								new Ink_HashExpression(
-									new Ink_IdentifierExpression(new string("ret")),
-									new string("else")
-								),
-								new Ink_FunctionExpression(ret_param2, ret_body2, true)
-							));
+	if (!argc) {
+		InkWarn_If_Argument_Fault();
+		return new Ink_NullObject();
 	}
-	ret_body.push_back(new Ink_IdentifierExpression(new string("ret")));
 
-	func_exp = new Ink_FunctionExpression(ret_param, ret_body, true);
-	native_exp_list.push_back(func_exp);
-
-	ret = func_exp->eval(context);
+	ret = cond = argv[0];
+	if (isTrue(cond)) {
+		if (argc > 1 && argv[1]->type == INK_FUNCTION) {
+			ret = argv[1]->call(context, 0, NULL);
+		}
+	} else {
+		if (argc > 2 && argv[2]->type == INK_FUNCTION) {
+			ret = argv[2]->call(context);
+		}
+	}
 
 	return ret;
 }
+
+#if 0
+Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *cond = argv[0];
+	Ink_Object *cond_tmp;
+
+	if (cond->type != INK_FUNCTION) {
+		InkWarn_Require_Lazy_Expression();
+		return new Ink_NullObject();
+	}
+
+	while (isTrue(cond->call(context))) {
+
+	}
+}
+#endif
 
 Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
@@ -119,6 +107,7 @@ Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, I
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
 	context->context->setSlot("if", new Ink_FunctionObject(Ink_IfExpression, true));
+	//context->context->setSlot("while", new Ink_FunctionObject(Ink_WhileExpression, true));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);

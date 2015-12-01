@@ -130,4 +130,18 @@ InkWarn_Get_Non_Array_Index()
 	return;
 }
 
+inline void
+InkWarn_Require_Lazy_Expression()
+{
+	InkWarn_doPrintWarning("Loop condition expression requires lazy expression(or equivalent inline function)");
+	return;
+}
+
+inline void
+InkWarn_If_Argument_Fault()
+{
+	InkWarn_doPrintWarning("If function need at least 2 arguments");
+	return;
+}
+
 #endif
