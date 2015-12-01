@@ -19,6 +19,7 @@
 	Ink_ParamList *parameter;
 	Ink_ExpressionList *expression_list;
 	std::string *string;
+	IDContextType context_type;
 	int token;
 }
 
@@ -41,6 +42,7 @@
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
 						block element_list element_list_opt
+%type <context_type> id_context_type
 
 %start compile_unit
 
@@ -331,6 +333,16 @@ function_expression
 	}
 	;
 
+id_context_type
+	: TLET
+	{
+		$$ = ID_LOCAL;
+	}
+	| TGLOBAL
+	{
+		$$ = ID_GLOBAL;
+	}
+
 primary_expression
 	: TINTEGER
 	{
@@ -349,14 +361,19 @@ primary_expression
 		$$ = new Ink_IdentifierExpression($1);
 		SET_LINE_NO($$);
 	}
-	| TLET TIDENTIFIER
+	| TVAR TIDENTIFIER
 	{
-		$$ = new Ink_IdentifierExpression($2, ID_LOCAL);
+		$$ = new Ink_IdentifierExpression($2, ID_COMMON, true);
 		SET_LINE_NO($$);
 	}
-	| TGLOBAL TIDENTIFIER
+	| id_context_type TIDENTIFIER
 	{
-		$$ = new Ink_IdentifierExpression($2, ID_GLOBAL);
+		$$ = new Ink_IdentifierExpression($2, $1);
+		SET_LINE_NO($$);
+	}
+	| TVAR id_context_type TIDENTIFIER
+	{
+		$$ = new Ink_IdentifierExpression($3, $2, true);
 		SET_LINE_NO($$);
 	}
 	| TLPAREN nestable_expression TRPAREN

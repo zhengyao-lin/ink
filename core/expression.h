@@ -224,9 +224,10 @@ class Ink_IdentifierExpression: public Ink_Expression {
 public:
 	string *id;
 	IDContextType context_type;
+	bool if_create_slot;
 
-	Ink_IdentifierExpression(string *id, IDContextType context_type = ID_COMMON)
-	: id(id), context_type(context_type)
+	Ink_IdentifierExpression(string *id, IDContextType context_type = ID_COMMON, bool if_create_slot = false)
+	: id(id), context_type(context_type), if_create_slot(if_create_slot)
 	{ }
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
@@ -250,7 +251,7 @@ public:
 				break;
 		}
 
-		if (!hash) hash = dest_context->context->setSlot(id->c_str(), new Ink_Object(true));
+		if (!hash) hash = dest_context->context->setSlot(id->c_str(), if_create_slot ? new Ink_Object(true) : new Ink_Undefined());
 		hash->value->address = hash;
 		// hash->value->setSlot("this", hash->value);
 
