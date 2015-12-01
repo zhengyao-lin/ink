@@ -389,3 +389,22 @@ object = {
 };
 
 p(object.a);
+
+TypeZ = () {
+	str : "From Type Z";
+};
+
+TypeA = () {
+	this.prototype = new TypeZ();
+	a : "I'm A ";
+};
+
+TypeB = () {
+	this.prototype = new TypeA();
+	this.b = "hi, ";
+};
+
+obj = new TypeB();
+p(obj.b + obj.a + obj.str);
+
+p(ufadss);

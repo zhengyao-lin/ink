@@ -108,9 +108,24 @@ public:
 		return getSlot(base_obj, slot_id->c_str());
 	}
 
-	static Ink_Object *getSlot(Ink_Object *obj, const char *id)
+	static Ink_HashTable *searchPrototype(Ink_Object *obj, const char *id)
 	{
 		Ink_HashTable *hash = obj->getSlotMapping(id);
+		Ink_HashTable *proto;
+
+		if (!hash) {
+			proto = obj->getSlotMapping("prototype");
+			if (proto && proto->value->type != INK_UNDEFINED) {
+				hash = searchPrototype(proto->value, id);
+			}
+		}
+
+		return hash;
+	}
+
+	static Ink_Object *getSlot(Ink_Object *obj, const char *id)
+	{
+		Ink_HashTable *hash = searchPrototype(obj, id);
 
 		if (obj->type == INK_NULL || obj->type == INK_UNDEFINED) {
 			// InkWarn_Get_Null_Hash();
