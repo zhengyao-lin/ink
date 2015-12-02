@@ -38,3 +38,16 @@ func = (bool) {
 
 p("result: " + func(-1));
 p("hello, world");
+
+func = (a, b) {
+	a + b;
+};
+
+range = () {
+	this.range = () {
+		return new Array(new Array(1, 2), new Array(5, 6));
+	};
+};
+
+a = func[new range()];
+p(a[1]);

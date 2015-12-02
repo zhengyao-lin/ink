@@ -45,17 +45,9 @@ Ink_Object *InkNative_Object_Index(Ink_ContextChain *context, unsigned int argc,
 		}
 
 		return Ink_HashExpression::getSlot(base, as<Ink_String>(argv[0])->value.c_str());
-	}/* else if (argc && argv[0]->type == INK_INTEGER) {
-		ostringstream ss;
-		ss << "[" << as<Ink_Integer>(argv[0])->value << "]";
-		if (!base->getSlotMapping(ss.str().c_str())) {
-			Ink_IdentifierExpression *id_exp = new Ink_IdentifierExpression(new string(ss.str().c_str()));
-			native_exp_list.push_back(id_exp);
-			return Ink_HashExpression::getSlot(base, id_exp->id->c_str());
-		}
-
-		return Ink_HashExpression::getSlot(base, ss.str().c_str());
-	}*/
+	} else if (base->type == INK_FUNCTION) {
+		return InkNative_Function_RangeCall(context, argc, argv);
+	}
 
 	return new Ink_NullObject();
 }

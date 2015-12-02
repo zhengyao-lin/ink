@@ -50,7 +50,7 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 	ret = cond = argv[0];
 	if (isTrue(cond)) {
 		if (argc > 1 && argv[1]->type == INK_FUNCTION) {
-			ret = argv[1]->call(context, 0, NULL);
+			ret = argv[1]->call(context);
 		}
 	} else {
 		if (argc > 2 && argv[2]->type == INK_FUNCTION) {

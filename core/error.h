@@ -144,4 +144,25 @@ InkWarn_If_Argument_Fault()
 	return;
 }
 
+inline void
+InkWarn_Function_Range_Call_Argument_Error()
+{
+	InkWarn_doPrintWarning("Function range call requires at least 1 argument");
+	return;
+}
+
+inline void
+InkWarn_Function_Non_Range_Call()
+{
+	InkWarn_doPrintWarning("Function range call requires argument of range type");
+	return;
+}
+
+inline void
+InkWarn_Incorrect_Range_Type()
+{
+	InkWarn_doPrintWarning("Incorrect range type");
+	return;
+}
+
 #endif

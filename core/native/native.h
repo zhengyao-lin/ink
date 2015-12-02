@@ -14,6 +14,7 @@ Ink_Object *InkNative_Array_Push(Ink_ContextChain *context, unsigned int argc, I
 Ink_Object *InkNative_Array_Size(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 
 Ink_Object *InkNative_Function_Insert(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
+Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 
 Ink_Object *InkNative_Integer_Add(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 Ink_Object *InkNative_Integer_Sub(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);

@@ -20,6 +20,69 @@ Ink_Object *InkNative_Function_Insert(Ink_ContextChain *context, unsigned int ar
 	return new Ink_NullObject();
 }
 
+Ink_Object **arrayValueToObject(Ink_ArrayValue val)
+{
+	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * val.size());
+	unsigned int i;
+
+	for (i = 0; i < val.size(); i++) {
+		ret[i] = val[i]->value;
+	}
+
+	return ret;
+}
+
+Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	Ink_Object *range;
+	Ink_ArrayValue range_val, tmp_arr_val;
+	Ink_ArrayValue ret_val;
+	Ink_Object **tmp;
+	unsigned int i;
+
+	printf("hi\n");
+
+	if (!argc) {
+		InkWarn_Function_Range_Call_Argument_Error();
+		return new Ink_NullObject();
+	}
+
+	range = Ink_HashExpression::getSlot(argv[0], "range");
+	if (!range) {
+		InkWarn_Function_Non_Range_Call();
+		return new Ink_NullObject();
+	}
+
+	range = range->call(context);
+	if (range->type != INK_ARRAY) {
+		InkWarn_Incorrect_Range_Type();
+		return new Ink_NullObject();
+	}
+
+	ret_val = Ink_ArrayValue();
+	range_val = as<Ink_Array>(range)->value;
+
+	for (i = 0; i < range_val.size(); i++) {
+		if (range_val[i]) {
+			if (range_val[i]->value->type == INK_ARRAY) {
+				tmp_arr_val = as<Ink_Array>(range_val[i]->value)->value;
+				tmp = arrayValueToObject(tmp_arr_val);
+				ret_val.push_back(new Ink_HashTable("", base->call(context, tmp_arr_val.size(), tmp)));
+				free(tmp);
+			} else {
+				InkWarn_Incorrect_Range_Type();
+				return new Ink_NullObject();
+			}
+		} else {
+			InkWarn_Incorrect_Range_Type();
+			return new Ink_NullObject();
+		}
+	}
+
+	return new Ink_Array(ret_val);
+}
+
 extern int function_native_method_table_count;
 extern InkNative_MethodTable function_native_method_table[];
 
