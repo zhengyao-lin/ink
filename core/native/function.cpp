@@ -62,16 +62,12 @@ Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int
 	range_val = as<Ink_Array>(range)->value;
 
 	for (i = 0; i < range_val.size(); i++) {
-		if (range_val[i]) {
-			if (range_val[i]->value->type == INK_ARRAY) {
-				tmp_arr_val = as<Ink_Array>(range_val[i]->value)->value;
-				tmp = arrayValueToObject(tmp_arr_val);
-				ret_val.push_back(new Ink_HashTable("", base->call(context, tmp_arr_val.size(), tmp)));
-				free(tmp);
-			} else {
-				InkWarn_Incorrect_Range_Type();
-				return new Ink_NullObject();
-			}
+		if (range_val[i]
+			&& range_val[i]->value->type == INK_ARRAY) {
+			tmp_arr_val = as<Ink_Array>(range_val[i]->value)->value;
+			tmp = arrayValueToObject(tmp_arr_val);
+			ret_val.push_back(new Ink_HashTable("", base->call(context, tmp_arr_val.size(), tmp)));
+			free(tmp);
 		} else {
 			InkWarn_Incorrect_Range_Type();
 			return new Ink_NullObject();
