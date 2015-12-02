@@ -62,6 +62,47 @@ public:
 	}
 };
 
+typedef enum {
+	LOGIC_OR,
+	LOGIC_AND
+} LogicType;
+
+bool isTrue(Ink_Object *cond);
+
+class Ink_LogicExpression: public Ink_Expression {
+public:
+	Ink_Expression *lval;
+	Ink_Expression *rval;
+	LogicType type;
+
+	Ink_LogicExpression(Ink_Expression *lval, Ink_Expression *rval, LogicType type)
+	: lval(lval), rval(rval), type(type)
+	{ }
+
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	{
+		int line_num_back;
+		bool ret_val = false;
+		SET_LINE_NUM;
+
+		if (isTrue(lval->eval(context_chain))) {
+			if (type == LOGIC_OR) ret_val = true;
+			else if (isTrue(rval->eval(context_chain))) ret_val = true;
+		} else if (type == LOGIC_OR && isTrue(rval->eval(context_chain)))
+			ret_val = true;
+
+		RESTORE_LINE_NUM;
+
+		return new Ink_Integer(ret_val);
+	}
+
+	virtual ~Ink_LogicExpression()
+	{
+		delete lval;
+		delete rval;
+	}
+};
+
 class Ink_AssignmentExpression: public Ink_Expression {
 public:
 	Ink_Expression *lval;

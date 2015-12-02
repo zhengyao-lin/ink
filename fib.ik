@@ -4,12 +4,11 @@ fib = (n) {
 	/*if (dp[n]) {
 		return dp[n];
 	};*/
-	if (n) {
-		if (n - 1) {
-			return fib(n - 2) + fib(n - 1);
-		};
+	if (n == 0 || n == 1) {
+		return 1;
 	};
-	1;
+	
+	return fib(n - 2) + fib(n - 1);
 };
 
 p(fib(15));

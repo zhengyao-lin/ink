@@ -26,10 +26,11 @@
 %token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
 
 %token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE
-%token <token> TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
+%token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TOR TADD TSUB TMUL TDIV TMOD TDOT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
-%token <token> TARR TINS TCLT TCGT
+%token <token> TARR TINS
+%token <token> TCLE TCLT TCGE TCGT TCEQ TCNE TCAND TCOR
 
 %type <expression> expression assignment_expression
 				   primary_expression postfix_expression
@@ -38,7 +39,9 @@
 				   unary_expression nestable_expression
 				   insert_expression field_expression
 				   table_expression functional_block
-				   block
+				   block equality_expression
+				   relational_expression logical_and_expression
+				   logical_or_expression
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
@@ -80,8 +83,8 @@ field_expression
 	}
 
 insert_expression
-	: assignment_expression
-	| insert_expression TINS assignment_expression
+	: logical_or_expression
+	| insert_expression TINS logical_or_expression
 	{
 		Ink_ExpressionList arg = Ink_ExpressionList();
 		arg.push_back($3);
@@ -104,19 +107,93 @@ return_expression
 	}
 	;
 
+logical_or_expression
+	: logical_and_expression
+	| logical_or_expression TCOR logical_and_expression
+	{
+		$$ = new Ink_LogicExpression($1, $3, LOGIC_OR);
+		SET_LINE_NO($$);
+	}
+	;
+
+logical_and_expression
+	: assignment_expression
+	| logical_and_expression TCAND assignment_expression
+	{
+		$$ = new Ink_LogicExpression($1, $3, LOGIC_AND);
+		SET_LINE_NO($$);
+	}
+	;
+
 assignment_expression
-	: additive_expression
-	| additive_expression TASSIGN assignment_expression
+	: equality_expression
+	| equality_expression TASSIGN assignment_expression
 	{
 		$$ = new Ink_AssignmentExpression($1, $3);
 		SET_LINE_NO($$);
 	}
-	| additive_expression TARR assignment_expression
+	| equality_expression TARR assignment_expression
 	{
 		Ink_ExpressionList arg = Ink_ExpressionList();
 		arg.push_back($3);
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("->")), arg);
+		SET_LINE_NO($$);
+	}
+	;
+
+equality_expression
+	: relational_expression
+	| equality_expression TCEQ relational_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("==")), arg);
+		SET_LINE_NO($$);
+	}
+	| equality_expression TCNE relational_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("!=")), arg);
+		SET_LINE_NO($$);
+	}
+	;
+
+relational_expression
+	: additive_expression
+	| relational_expression TCLT additive_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<")), arg);
+		SET_LINE_NO($$);
+	}
+	| relational_expression TCGT additive_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">")), arg);
+		SET_LINE_NO($$);
+	}
+	| relational_expression TCLE additive_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<=")), arg);
+		SET_LINE_NO($$);
+	}
+	| relational_expression TCGE additive_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">=")), arg);
 		SET_LINE_NO($$);
 	}
 	;
@@ -241,6 +318,12 @@ unary_expression
 	| TDNOT unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("!!")),
+									Ink_ExpressionList());
+		SET_LINE_NO($$);
+	}
+	| TNOT unary_expression
+	{
+		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("!")),
 									Ink_ExpressionList());
 		SET_LINE_NO($$);
 	}

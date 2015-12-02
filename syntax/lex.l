@@ -40,7 +40,12 @@ string *string_literal = NULL;
 <INITIAL>"new"						return TOKEN(TNEW);
 <INITIAL>"clone"					return TOKEN(TCLONE);
 
+<INITIAL>"&&"						return TOKEN(TCAND);
+<INITIAL>"||"						return TOKEN(TCOR);
+
+<INITIAL>"..."						return TOKEN(TECLI);
 <INITIAL>"!!"						return TOKEN(TDNOT);
+<INITIAL>"!="						return TOKEN(TCNE);
 <INITIAL>"!"						return TOKEN(TNOT);
 <INITIAL>","						return TOKEN(TCOMMA);
 <INITIAL>";"						return TOKEN(TSEMICOLON);
@@ -49,8 +54,11 @@ string *string_literal = NULL;
 
 <INITIAL>"->"						return TOKEN(TARR);
 <INITIAL>"<<"						return TOKEN(TINS);
+<INITIAL>"<="						return TOKEN(TCLE);
 <INITIAL>"<"						return TOKEN(TCLT);
+<INITIAL>">="						return TOKEN(TCGE);
 <INITIAL>">"						return TOKEN(TCGT);
+<INITIAL>"=="						return TOKEN(TCEQ);
 <INITIAL>"="						return TOKEN(TASSIGN);
 
 <INITIAL>"("						return TOKEN(TLPAREN);

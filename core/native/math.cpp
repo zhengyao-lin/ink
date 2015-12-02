@@ -44,6 +44,66 @@ Ink_Object *InkNative_Integer_Div(Ink_ContextChain *context, unsigned int argc, 
 	return new Ink_NullObject();
 }
 
+Ink_Object *InkNative_Integer_Equal(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	if (base->type == INK_INTEGER && argc && argv[0]->type == INK_INTEGER) {
+		return new Ink_Integer(as<Ink_Integer>(base)->value == as<Ink_Integer>(argv[0])->value);
+	}
+
+	return new Ink_NullObject();
+}
+
+Ink_Object *InkNative_Integer_NotEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	if (base->type == INK_INTEGER && argc && argv[0]->type == INK_INTEGER) {
+		return new Ink_Integer(as<Ink_Integer>(base)->value != as<Ink_Integer>(argv[0])->value);
+	}
+
+	return new Ink_NullObject();
+}
+
+Ink_Object *InkNative_Integer_Greater(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	if (base->type == INK_INTEGER && argc && argv[0]->type == INK_INTEGER) {
+		return new Ink_Integer(as<Ink_Integer>(base)->value > as<Ink_Integer>(argv[0])->value);
+	}
+
+	return new Ink_NullObject();
+}
+
+Ink_Object *InkNative_Integer_Less(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	if (base->type == INK_INTEGER && argc && argv[0]->type == INK_INTEGER) {
+		return new Ink_Integer(as<Ink_Integer>(base)->value < as<Ink_Integer>(argv[0])->value);
+	}
+
+	return new Ink_NullObject();
+}
+
+Ink_Object *InkNative_Integer_GreaterOrEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	if (base->type == INK_INTEGER && argc && argv[0]->type == INK_INTEGER) {
+		return new Ink_Integer(as<Ink_Integer>(base)->value >= as<Ink_Integer>(argv[0])->value);
+	}
+
+	return new Ink_NullObject();
+}
+
+Ink_Object *InkNative_Integer_LessOrEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	if (base->type == INK_INTEGER && argc && argv[0]->type == INK_INTEGER) {
+		return new Ink_Integer(as<Ink_Integer>(base)->value <= as<Ink_Integer>(argv[0])->value);
+	}
+
+	return new Ink_NullObject();
+}
+
 Ink_Object *InkNative_Integer_Add_Unary(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
 	Ink_Object *base = context->searchSlot("base");

@@ -33,6 +33,12 @@ Ink_Object *InkNative_Object_Debond(Ink_ContextChain *context, unsigned int argc
 	return new Ink_NullObject();
 }
 
+Ink_Object *InkNative_Object_Not(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	return isTrue(base) ? new Ink_Integer(0) : new Ink_Integer(1);
+}
+
 Ink_Object *InkNative_Object_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
 	Ink_Object *base = context->searchSlot("base");

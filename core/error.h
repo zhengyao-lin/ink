@@ -165,4 +165,18 @@ InkWarn_Incorrect_Range_Type()
 	return;
 }
 
+inline void
+InkWarn_While_Argument_Require()
+{
+	InkWarn_doPrintWarning("While function requires at least 2 arguments");
+	return;
+}
+
+inline void
+InkWarn_While_Block_Require()
+{
+	InkWarn_doPrintWarning("While function requires the second argument as a block");
+	return;
+}
+
 #endif

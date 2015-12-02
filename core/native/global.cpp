@@ -6,6 +6,7 @@
 #include "native.h"
 
 extern Ink_ExpressionList native_exp_list;
+extern bool CGC_if_return;
 
 void disposeParamList(Ink_ParamList param)
 {
@@ -61,22 +62,37 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 	return ret;
 }
 
-#if 0
 Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
-	Ink_Object *cond = argv[0];
-	Ink_Object *cond_tmp;
+	Ink_Object *cond;
+	Ink_Object *block;
+	Ink_Object *ret;
 
-	if (cond->type != INK_FUNCTION) {
-		InkWarn_Require_Lazy_Expression();
+	if (argc < 2) {
+		InkWarn_While_Argument_Require();
 		return new Ink_NullObject();
 	}
 
-	while (isTrue(cond->call(context))) {
-
+	cond = argv[0];
+	block = argv[1];
+	if (cond->type != INK_FUNCTION) {
+		InkWarn_Require_Lazy_Expression();
+		return new Ink_NullObject();
+	} else if (block->type != INK_FUNCTION) {
+		InkWarn_While_Block_Require();
+		return new Ink_NullObject();
 	}
+
+	ret = new Ink_NullObject();
+	while (isTrue(cond->call(context))) {
+		ret = block->call(context);
+		if (CGC_if_return) {
+			return ret;
+		}
+	}
+
+	return ret;
 }
-#endif
 
 Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
@@ -107,7 +123,7 @@ Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, I
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
 	context->context->setSlot("if", new Ink_FunctionObject(Ink_IfExpression, true));
-	//context->context->setSlot("while", new Ink_FunctionObject(Ink_WhileExpression, true));
+	context->context->setSlot("while", new Ink_FunctionObject(Ink_WhileExpression, true));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);
@@ -117,12 +133,18 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("null", new Ink_NullObject());
 }
 
-int integer_native_method_table_count = 6;
+int integer_native_method_table_count = 12;
 InkNative_MethodTable integer_native_method_table[] = {
 	{"+", new Ink_FunctionObject(InkNative_Integer_Add)},
 	{"-", new Ink_FunctionObject(InkNative_Integer_Sub)},
 	{"*", new Ink_FunctionObject(InkNative_Integer_Mul)},
 	{"/", new Ink_FunctionObject(InkNative_Integer_Div)},
+	{"==", new Ink_FunctionObject(InkNative_Integer_Equal)},
+	{"!=", new Ink_FunctionObject(InkNative_Integer_NotEqual)},
+	{">", new Ink_FunctionObject(InkNative_Integer_Greater)},
+	{"<", new Ink_FunctionObject(InkNative_Integer_Less)},
+	{">=", new Ink_FunctionObject(InkNative_Integer_GreaterOrEqual)},
+	{"<=", new Ink_FunctionObject(InkNative_Integer_LessOrEqual)},
 	{"+u", new Ink_FunctionObject(InkNative_Integer_Add_Unary)},
 	{"-u", new Ink_FunctionObject(InkNative_Integer_Sub_Unary)}
 };
@@ -133,10 +155,11 @@ InkNative_MethodTable string_native_method_table[] = {
 	{"[]", new Ink_FunctionObject(InkNative_String_Index)}
 };
 
-int object_native_method_table_count = 5;
+int object_native_method_table_count = 6;
 InkNative_MethodTable object_native_method_table[] = {
 	{"->", new Ink_FunctionObject(InkNative_Object_Bond)},
 	{"!!", new Ink_FunctionObject(InkNative_Object_Debond)},
+	{"!", new Ink_FunctionObject(InkNative_Object_Not)},
 	{"[]", new Ink_FunctionObject(InkNative_Object_Index)},
 	{"new", new Ink_FunctionObject(InkNative_Object_New)},
 	{"clone", new Ink_FunctionObject(InkNative_Object_Clone)}

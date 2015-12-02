@@ -9,6 +9,8 @@ typedef struct InkNative_MethodTable_tag {
 	Ink_Object *func;
 } InkNative_MethodTable;
 
+bool isTrue(Ink_Object *cond);
+
 Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 Ink_Object *InkNative_Array_Push(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 Ink_Object *InkNative_Array_Size(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
@@ -20,11 +22,18 @@ Ink_Object *InkNative_Integer_Add(Ink_ContextChain *context, unsigned int argc, 
 Ink_Object *InkNative_Integer_Sub(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 Ink_Object *InkNative_Integer_Mul(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 Ink_Object *InkNative_Integer_Div(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
+Ink_Object *InkNative_Integer_Equal(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
+Ink_Object *InkNative_Integer_NotEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
+Ink_Object *InkNative_Integer_Greater(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
+Ink_Object *InkNative_Integer_Less(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
+Ink_Object *InkNative_Integer_GreaterOrEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
+Ink_Object *InkNative_Integer_LessOrEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 Ink_Object *InkNative_Integer_Add_Unary(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 Ink_Object *InkNative_Integer_Sub_Unary(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 
 Ink_Object *InkNative_Object_Bond(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 Ink_Object *InkNative_Object_Debond(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
+Ink_Object *InkNative_Object_Not(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 Ink_Object *InkNative_Object_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
 Ink_Object *InkNative_Object_Clone(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);

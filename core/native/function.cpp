@@ -41,8 +41,6 @@ Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int
 	Ink_Object **tmp;
 	unsigned int i;
 
-	printf("hi\n");
-
 	if (!argc) {
 		InkWarn_Function_Range_Call_Argument_Error();
 		return new Ink_NullObject();
