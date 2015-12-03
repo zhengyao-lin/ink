@@ -39,6 +39,32 @@ Ink_Object *InkNative_Object_Not(Ink_ContextChain *context, unsigned int argc, I
 	return isTrue(base) ? new Ink_Integer(0) : new Ink_Integer(1);
 }
 
+bool isEqual(Ink_Object *a, Ink_Object *b)
+{
+	if (!(a && b) || a->type != b->type) return false;
+	if (a->type == INK_INTEGER) {
+		return as<Ink_Integer>(a)->value == as<Ink_Integer>(b)->value;
+	}
+	if (a->type == INK_STRING) {
+		return as<Ink_String>(a)->value == as<Ink_String>(b)->value;
+	}
+	if (a->type == INK_UNDEFINED && b->type == INK_UNDEFINED) return true;
+	if (a->type == INK_NULL && b->type == INK_NULL) return true;
+
+	return false;
+}
+
+Ink_Object *InkNative_Object_Equal(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	return new Ink_Integer(isEqual(base, argc ? argv[0] : NULL));
+}
+Ink_Object *InkNative_Object_NotEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	return new Ink_Integer(!isEqual(base, argc ? argv[0] : NULL));
+}
+
 Ink_Object *InkNative_Object_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
 	Ink_Object *base = context->searchSlot("base");

@@ -205,11 +205,11 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 	if (is_native) ret_val = native(context, argc, argv);
 	else {
-		for (j = 0, argi = 0; j < param.size() && argi < argc; j++, argi++) {
-			local->setSlot(param[j]->c_str(), argv[argi]); // initiate local argument
+		for (j = 0, argi = 0; j < param.size(); j++, argi++) {
+			local->setSlot(param[j]->c_str(), argi < argc ? argv[argi] : new Ink_Undefined()); // initiate local argument
 		}
 
-		if (j < param.size() || argi < argc) {
+		if (argi > argc) {
 			InkWarn_Unfit_Argument();
 		}
 

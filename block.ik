@@ -121,3 +121,18 @@ if (i == 0 && i = 1) {
 };
 
 p(i);
+
+func = (a, b) {
+	if (a == undefined) {
+		a = "I'm default. ";
+	};
+	if (b == undefined) {
+		b = "I'm default, too.";
+	};
+
+	a + b;
+};
+
+p(func(undefined, undefined));
+str = "str";
+p("str" == 'str');
