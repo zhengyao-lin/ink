@@ -167,11 +167,12 @@ InkNative_MethodTable object_native_method_table[] = {
 	{"clone", new Ink_FunctionObject(InkNative_Object_Clone)}
 };
 
-int array_native_method_table_count = 4;
+int array_native_method_table_count = 5;
 InkNative_MethodTable array_native_method_table[] = {
 	{"[]", new Ink_FunctionObject(InkNative_Array_Index)},
 	{"push", new Ink_FunctionObject(InkNative_Array_Push)},
 	{"size", new Ink_FunctionObject(InkNative_Array_Size)},
+	{"remove", new Ink_FunctionObject(InkNative_Array_Remove)},
 	{"rebuild", new Ink_FunctionObject(InkNative_Array_Rebuild)}
 };
 

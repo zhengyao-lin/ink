@@ -137,19 +137,23 @@ p(func(undefined, undefined));
 str = "str";
 p("str" == 'str');
 
+str = " haha";
+
 func = () {
-	let a = 10;
-	p("first" + a);
+	let str = 10;
+	p("first: " + str);
 	p("second");
 	//this();
 };
 
 a = func.exp();
 p("size: " + a.size());
-a[0]();
-a[1]();
+
+((){} << a[-3] << a[-2] << a[-1])();
 
 p("=================Function Rebuild===================");
+
+a.remove(-3);
 
 func2 = a.rebuild();
 func2();

@@ -200,4 +200,18 @@ InkWarn_Invalid_Element_For_Rebuild()
 	return;
 }
 
+inline void
+InkWarn_Remove_Argument_Require()
+{
+	InkWarn_doPrintWarning("Remove method need at least one integer argument");
+	return;
+}
+
+inline void
+InkWarn_Too_Huge_Index()
+{
+	InkWarn_doPrintWarning("Index greater than size");
+	return;
+}
+
 #endif

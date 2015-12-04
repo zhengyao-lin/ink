@@ -3,6 +3,12 @@
 #include "../context.h"
 #include "native.h"
 
+unsigned int getRealIndex(int index, int size)
+{
+	while (index < 0) index += size;
+	return index;
+}
+
 Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
 {
 	Ink_Object *base = context->searchSlot("base");
@@ -16,7 +22,7 @@ Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, 
 		Ink_Array *obj = as<Ink_Array>(base);
 		Ink_Object *ret;
 		Ink_HashTable *hash;
-		unsigned int index = as<Ink_Integer>(argv[0])->value;
+		unsigned int index = getRealIndex(as<Ink_Integer>(argv[0])->value, obj->value.size());
 
 		if (index < obj->value.size()) {
 			if (!obj->value[index]) obj->value[index] = new Ink_HashTable("", new Ink_Undefined());
@@ -52,6 +58,59 @@ Ink_Object *InkNative_Array_Size(Ink_ContextChain *context, unsigned int argc, I
 {
 	Ink_Object *base = context->searchSlot("base");
 	return new Ink_Integer(as<Ink_Array>(base)->value.size());
+}
+
+void cleanArrayHashTable(Ink_ArrayValue val, int begin, int end) // assume that begin <= end
+{
+	int index;
+	for (index = begin; index < end; index++) {
+		delete val[index];
+	}
+	return;
+}
+
+Ink_Object *InkNative_Array_Remove(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	// Ink_Object *ret;
+	Ink_Array *tmp;
+	unsigned int index_begin, index_end, tmp_val;
+
+	if (!argc || argv[0]->type != INK_INTEGER) {
+		InkWarn_Remove_Argument_Require();
+		return new Ink_NullObject();
+	}
+
+	tmp = as<Ink_Array>(base);
+	index_begin = getRealIndex(as<Ink_Integer>(argv[0])->value,
+							   tmp->value.size());
+
+	if (argc > 1 && argv[1]->type == INK_INTEGER) {
+		index_end = getRealIndex(as<Ink_Integer>(argv[1])->value,
+								 tmp->value.size());
+	} else index_end = index_begin;
+
+	if (index_end > tmp->value.size() || index_end > tmp->value.size()) {
+		InkWarn_Too_Huge_Index();
+		return new Ink_NullObject();
+	}
+
+	if (index_end != index_begin) {
+		if (index_begin > index_end) {
+			tmp_val = index_begin;
+			index_begin = index_end;
+			index_end = tmp_val;
+		}
+		index_end++;
+		cleanArrayHashTable(tmp->value, index_begin, index_end);
+		tmp->value.erase(tmp->value.begin() + index_begin,
+						 tmp->value.begin() + index_end);
+	} else {
+		delete tmp->value[index_begin];
+		tmp->value.erase(tmp->value.begin() + index_begin);
+	}
+
+	return new Ink_NullObject();
 }
 
 Ink_Object *InkNative_Array_Rebuild(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
