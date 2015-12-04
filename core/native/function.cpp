@@ -94,7 +94,8 @@ Ink_Object *InkNative_Function_GetExp(Ink_ContextChain *context, unsigned int ar
 	for (i = 0; i < tmp->exp_list.size(); i++) {
 		tmp_exp = Ink_ExpressionList();
 		tmp_exp.push_back(tmp->exp_list[i]);
-		ret_val.push_back(new Ink_HashTable("", new Ink_FunctionObject(Ink_ParamList(), tmp_exp, NULL, true)));
+		ret_val.push_back(new Ink_HashTable("", new Ink_FunctionObject(Ink_ParamList(), tmp_exp,
+																	   tmp->closure_context->copyContextChain(), true)));
 	}
 
 	return new Ink_Array(ret_val);
