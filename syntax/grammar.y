@@ -29,7 +29,7 @@
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TOR TADD TSUB TMUL TDIV TMOD TDOT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
-%token <token> TARR TINS
+%token <token> TARR TINS TOUT
 %token <token> TCLE TCLT TCGE TCGT TCEQ TCNE TCAND TCOR
 
 %type <expression> expression assignment_expression
@@ -90,6 +90,14 @@ insert_expression
 		arg.push_back($3);
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<<")), arg);
+		SET_LINE_NO($$);
+	}
+	| insert_expression TOUT logical_or_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($3);
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">>")), arg);
 		SET_LINE_NO($$);
 	}
 	;

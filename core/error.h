@@ -179,4 +179,25 @@ InkWarn_While_Block_Require()
 	return;
 }
 
+inline void
+InkWarn_Get_Non_Function_Exp()
+{
+	InkWarn_doPrintWarning("Getting expressions of non-function object");
+	return;
+}
+
+inline void
+InkWarn_Rebuild_Non_Array()
+{
+	InkWarn_doPrintWarning("Rebuilding non-array object");
+	return;
+}
+
+inline void
+InkWarn_Invalid_Element_For_Rebuild()
+{
+	InkWarn_doPrintWarning("Invalid element for rebuilding");
+	return;
+}
+
 #endif

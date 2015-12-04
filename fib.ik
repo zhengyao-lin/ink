@@ -8,7 +8,7 @@ fib = (n) {
 		return 1;
 	};
 	
-	return fib(n - 2) + fib(n - 1);
+	return this(n - 2) + this(n - 1);
 };
 
 p(fib(15));

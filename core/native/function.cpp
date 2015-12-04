@@ -77,6 +77,29 @@ Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int
 	return new Ink_Array(ret_val);
 }
 
+Ink_Object *InkNative_Function_GetExp(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object *base = context->searchSlot("base");
+	Ink_FunctionObject *tmp;
+	Ink_ExpressionList tmp_exp;
+	Ink_ArrayValue ret_val;
+	unsigned int i;
+
+	if (base->type != INK_FUNCTION) {
+		InkWarn_Get_Non_Function_Exp();
+		return new Ink_NullObject();
+	}
+
+	tmp = as<Ink_FunctionObject>(base);
+	for (i = 0; i < tmp->exp_list.size(); i++) {
+		tmp_exp = Ink_ExpressionList();
+		tmp_exp.push_back(tmp->exp_list[i]);
+		ret_val.push_back(new Ink_HashTable("", new Ink_FunctionObject(Ink_ParamList(), tmp_exp, NULL, true)));
+	}
+
+	return new Ink_Array(ret_val);
+}
+
 extern int function_native_method_table_count;
 extern InkNative_MethodTable function_native_method_table[];
 
