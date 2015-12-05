@@ -23,7 +23,7 @@
 	int token;
 }
 
-%token <string> TIDENTIFIER TINTEGER TFLOAT TSTRING
+%token <string> TIDENTIFIER TNUMERIC TSTRING
 
 %token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
@@ -464,10 +464,10 @@ id_context_type
 	}
 
 primary_expression
-	: TINTEGER
+	: TNUMERIC
 	{
-		// printf("integer: %s\n", $1->c_str());
-		$$ = Ink_IntegerConstant::parse(*$1);
+		// printf("numeric: %s\n", $1->c_str());
+		$$ = Ink_NumericConstant::parse(*$1);
 		delete $1;
 		SET_LINE_NO($$);
 	}

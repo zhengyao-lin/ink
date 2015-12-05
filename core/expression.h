@@ -93,7 +93,7 @@ public:
 
 		RESTORE_LINE_NUM;
 
-		return new Ink_Integer(ret_val);
+		return new Ink_Numeric(ret_val);
 	}
 
 	virtual ~Ink_LogicExpression()
@@ -346,11 +346,11 @@ public:
 	}
 };
 
-class Ink_IntegerConstant: public Ink_Expression {
+class Ink_NumericConstant: public Ink_Expression {
 public:
-	int value;
+	long double value;
 
-	Ink_IntegerConstant(int value)
+	Ink_NumericConstant(long double value)
 	: value(value)
 	{ }
 
@@ -359,11 +359,11 @@ public:
 		int line_num_back;
 		SET_LINE_NUM;
 		RESTORE_LINE_NUM;
-		return new Ink_Integer(value);
+		return new Ink_Numeric(value);
 	}
 
 	static Ink_Expression *parse(string code);
-	virtual ~Ink_IntegerConstant() { }
+	virtual ~Ink_NumericConstant() { }
 };
 
 class Ink_StringConstant: public Ink_Expression {

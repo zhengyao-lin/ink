@@ -16,7 +16,7 @@ enum Ink_TypeTag {
 	INK_UNDEFINED,
 
 	INK_OBJECT,
-	INK_INTEGER,
+	INK_NUMERIC,
 	INK_STRING,
 	INK_FLOAT,
 	INK_CONTEXT,
@@ -73,7 +73,7 @@ public:
 	static void cloneHashTable(Ink_Object *src, Ink_Object *dest);
 
 	virtual Ink_Object *clone();
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, bool return_this = false)
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL)
 	{
 		InkErr_Calling_Non_Function_Object(context);
 		return NULL;
@@ -93,7 +93,7 @@ public:
 	virtual Ink_Object *clone()
 	{ return this; }
 
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, bool return_this = false)
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL)
 	{
 		InkErr_Calling_Undefined_Object(context);
 		return NULL;
@@ -120,7 +120,7 @@ public:
 	}
 };
 
-typedef Ink_Object *(*Ink_NativeFunction)(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
+typedef Ink_Object *(*Ink_NativeFunction)(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p);
 
 class Ink_FunctionObject: public Ink_Object {
 public:
@@ -152,25 +152,25 @@ public:
 	}
 	void Ink_FunctionMethodInit();
 
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, bool return_this = false);
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL);
 	virtual Ink_Object *clone();
 
 	virtual ~Ink_FunctionObject();
 };
 
-class Ink_Integer: public Ink_Object {
+class Ink_Numeric: public Ink_Object {
 public:
-	int value;
+	long double value;
 
-	Ink_Integer(int value = 0)
+	Ink_Numeric(long double value = 0)
 	: value(value)
-	{ type = INK_INTEGER; }
+	{ type = INK_NUMERIC; }
 
 	virtual void derivedMethodInit()
 	{
-		Ink_IntegerMethodInit();
+		Ink_NumericMethodInit();
 	}
-	void Ink_IntegerMethodInit();
+	void Ink_NumericMethodInit();
 
 	virtual Ink_Object *clone();
 };

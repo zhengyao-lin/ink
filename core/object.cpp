@@ -4,8 +4,8 @@
 #include "gc/collect.h"
 #include "native/native.h"
 
-extern int integer_native_method_table_count;
-extern InkNative_MethodTable integer_native_method_table[];
+extern int numeric_native_method_table_count;
+extern InkNative_MethodTable numeric_native_method_table[];
 extern int string_native_method_table_count;
 extern InkNative_MethodTable string_native_method_table[];
 extern int object_native_method_table_count;
@@ -48,8 +48,8 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 	}
 
 	switch (type) {
-		case INK_INTEGER:
-			method = getMethod(key, integer_native_method_table, integer_native_method_table_count);
+		case INK_NUMERIC:
+			method = getMethod(key, numeric_native_method_table, numeric_native_method_table_count);
 			if (method) {
 				ret = setSlot(key, method, false);
 			}
@@ -161,9 +161,9 @@ Ink_Object *Ink_Object::clone()
 	return new_obj;
 }
 
-Ink_Object *Ink_Integer::clone()
+Ink_Object *Ink_Numeric::clone()
 {
-	Ink_Object *new_obj = new Ink_Integer(value);
+	Ink_Object *new_obj = new Ink_Numeric(value);
 
 	cloneHashTable(this, new_obj);
 
@@ -182,7 +182,7 @@ Ink_Object *Ink_String::clone()
 extern IGC_CollectEngine *global_engine;
 extern IGC_CollectEngine *current_engine;
 
-Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, bool return_this)
+Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	unsigned int argi, j;
 	// Ink_HashTable *i;
@@ -197,13 +197,13 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	if (closure_context) context = closure_context->copyContextChain();
 	if (!is_inline) { // if not inline function, set local context
 		local->setSlot("base", getSlot("base"));
-		local->setSlot("this", this);
+		local->setSlot("this", this_p ? this_p : this);
 	}
 	context->addContext(local);
 
 	gc_engine->initContext(context);
 
-	if (is_native) ret_val = native(context, argc, argv);
+	if (is_native) ret_val = native(context, argc, argv, this_p);
 	else {
 		for (j = 0, argi = 0; j < param.size(); j++, argi++) {
 			local->setSlot(param[j]->c_str(), argi < argc ? argv[argi] : new Ink_Undefined()); // initiate local argument
@@ -222,9 +222,9 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 				break;
 			}
 		}
-		if (return_this) {
-			ret_val = local->getSlot("this");
-		}
+	}
+	if (this_p) {
+		ret_val = local->getSlot("this");
 	}
 
 	//gc_engine->collectGarbage();
@@ -286,7 +286,8 @@ Ink_Object *Ink_FunctionObject::clone()
 
 	new_obj->param = param;
 	new_obj->exp_list = exp_list;
-	new_obj->closure_context = closure_context->copyContextChain();
+	if (new_obj->closure_context)
+		new_obj->closure_context = closure_context->copyContextChain();
 
 	cloneHashTable(this, new_obj);
 

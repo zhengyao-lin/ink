@@ -1,4 +1,4 @@
-//dp = new Array(100);
+// dp = new Array(100);
 
 fib = (n) {
 	/*if (dp[n]) {

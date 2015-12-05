@@ -203,7 +203,7 @@ InkWarn_Invalid_Element_For_Rebuild()
 inline void
 InkWarn_Remove_Argument_Require()
 {
-	InkWarn_doPrintWarning("Remove method need at least one integer argument");
+	InkWarn_doPrintWarning("Remove method need at least one numeric argument");
 	return;
 }
 

@@ -29,8 +29,8 @@ Ink_Expression *getEmptyBlockFunction()
 
 bool isTrue(Ink_Object *cond)
 {
-	if (cond->type == INK_INTEGER) {
-		if (as<Ink_Integer>(cond)->value)
+	if (cond->type == INK_NUMERIC) {
+		if (as<Ink_Numeric>(cond)->value)
 			return true;
 		return false;
 	}
@@ -38,7 +38,7 @@ bool isTrue(Ink_Object *cond)
 	return cond->type != INK_NULL && cond->type != INK_UNDEFINED;
 }
 
-Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *cond;
 	Ink_Object *ret;
@@ -62,7 +62,7 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 	return ret;
 }
 
-Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *cond;
 	Ink_Object *block;
@@ -94,14 +94,14 @@ Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, In
 	return ret;
 }
 
-Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_ContextChain *local = context->getLocal();
 	Ink_Object *ret;
 
 	if (argc) {
-		if (argv[0]->type == INK_INTEGER && argc == 1) {
-			ret = new Ink_Array(Ink_ArrayValue(as<Ink_Integer>(argv[0])->value, NULL));
+		if (argv[0]->type == INK_NUMERIC && argc == 1) {
+			ret = new Ink_Array(Ink_ArrayValue(as<Ink_Numeric>(argv[0])->value, NULL));
 		} else {
 			Ink_ArrayValue val = Ink_ArrayValue();
 			unsigned int i;
@@ -119,7 +119,7 @@ Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, I
 	return ret;
 }
 
-Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv);
+Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p);
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
 	context->context->setSlot("if", new Ink_FunctionObject(Ink_IfExpression, true));
@@ -133,20 +133,20 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("null", new Ink_NullObject());
 }
 
-int integer_native_method_table_count = 12;
-InkNative_MethodTable integer_native_method_table[] = {
-	{"+", new Ink_FunctionObject(InkNative_Integer_Add)},
-	{"-", new Ink_FunctionObject(InkNative_Integer_Sub)},
-	{"*", new Ink_FunctionObject(InkNative_Integer_Mul)},
-	{"/", new Ink_FunctionObject(InkNative_Integer_Div)},
-	{"==", new Ink_FunctionObject(InkNative_Integer_Equal)},
-	{"!=", new Ink_FunctionObject(InkNative_Integer_NotEqual)},
-	{">", new Ink_FunctionObject(InkNative_Integer_Greater)},
-	{"<", new Ink_FunctionObject(InkNative_Integer_Less)},
-	{">=", new Ink_FunctionObject(InkNative_Integer_GreaterOrEqual)},
-	{"<=", new Ink_FunctionObject(InkNative_Integer_LessOrEqual)},
-	{"+u", new Ink_FunctionObject(InkNative_Integer_Add_Unary)},
-	{"-u", new Ink_FunctionObject(InkNative_Integer_Sub_Unary)}
+int numeric_native_method_table_count = 12;
+InkNative_MethodTable numeric_native_method_table[] = {
+	{"+", new Ink_FunctionObject(InkNative_Numeric_Add)},
+	{"-", new Ink_FunctionObject(InkNative_Numeric_Sub)},
+	{"*", new Ink_FunctionObject(InkNative_Numeric_Mul)},
+	{"/", new Ink_FunctionObject(InkNative_Numeric_Div)},
+	{"==", new Ink_FunctionObject(InkNative_Numeric_Equal)},
+	{"!=", new Ink_FunctionObject(InkNative_Numeric_NotEqual)},
+	{">", new Ink_FunctionObject(InkNative_Numeric_Greater)},
+	{"<", new Ink_FunctionObject(InkNative_Numeric_Less)},
+	{">=", new Ink_FunctionObject(InkNative_Numeric_GreaterOrEqual)},
+	{"<=", new Ink_FunctionObject(InkNative_Numeric_LessOrEqual)},
+	{"+u", new Ink_FunctionObject(InkNative_Numeric_Add_Unary)},
+	{"-u", new Ink_FunctionObject(InkNative_Numeric_Sub_Unary)}
 };
 
 int string_native_method_table_count = 2;

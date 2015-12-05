@@ -83,7 +83,7 @@ p(!123);
 
 
 func = () {
-	let a = 11;
+	let a = 10.1;
 
 	p("a = " + a);
 
@@ -157,3 +157,5 @@ a.remove(-3);
 
 func2 = a.rebuild();
 func2();
+
+p(0.2 + 0.4);

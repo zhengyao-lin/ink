@@ -27,10 +27,10 @@ bool defined(Ink_Object *obj)
 	return obj->type != INK_UNDEFINED;
 }
 
-Ink_Object *print(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *print(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	if (argv[0]->type == INK_INTEGER)
-		printf("print(integer): %d\n", as<Ink_Integer>(argv[0])->value);
+	if (argv[0]->type == INK_NUMERIC)
+		printf("print(numeric): %llf\n", as<Ink_Numeric>(argv[0])->value);
 	else if (argv[0]->type == INK_STRING)
 		printf("%s\n", as<Ink_String>(argv[0])->value.c_str());
 	else if (argv[0]->type == INK_NULL)
@@ -62,7 +62,7 @@ int main()
 {
 	yyparse();
 	/*Ink_Object *obj = new Ink_Object();
-	Ink_Integer *slot_val = new Ink_Integer(102);
+	Ink_Numeric *slot_val = new Ink_Numeric(102);
 
 	obj->setSlot("hi", slot_val);
 	printf("%d\n", obj->getSlot("hi")->type);
@@ -96,8 +96,8 @@ int main()
 	// func=(){global=120;};
 	// context->searchSlot("func")->call(context, 0, NULL);
 	// Ink_Object *out = context->searchSlot("global");
-	// if (defined(out) && out->type == INK_INTEGER)
-	// 	printf("global: %d\n", as<Ink_Integer>(out)->value);
+	// if (defined(out) && out->type == INK_NUMERIC)
+	// 	printf("global: %d\n", as<Ink_Numeric>(out)->value);
 
 	gc_engine->collectGarbage(true);
 	delete gc_engine;

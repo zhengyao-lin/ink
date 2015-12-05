@@ -154,7 +154,7 @@ Object.setLocal = (name, value) {
 
 a = Object;
 a.setLocal("val1", "halo!");
-p(a.val1);
+p("halo!? : " + a.val1);
 
 // Closure
 func = () {
@@ -199,7 +199,7 @@ Car = () {
 };
 
 Ferarri = () {
-	this = new Car();
+	this.prototype = new Car();
 	max_speed : 300;
 	drive : () {
 		p("su---");
@@ -408,3 +408,5 @@ obj = new TypeB();
 p(obj.b + obj.a + obj.str);
 
 p(ufadss);
+
+p("out: " + 3.3);

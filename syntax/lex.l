@@ -6,8 +6,6 @@ DIGIT			[0-9]
 HEX				[a-fA-F0-9]
 OCT				[0-7]
 LETTER			[a-zA-Z_]
-ISUFFIX			(l|L|s|S|u|U)+
-FSUFFIX			(l|L)
 
 DIGITS			({DIGIT})+
 SPS				({SP})+
@@ -84,21 +82,21 @@ string *string_literal = NULL;
 	SAVE_TOKEN();
 	return TIDENTIFIER;
 }
-<INITIAL>{DIGIT}+\.{DIGIT}+{FSUFFIX}? {
+<INITIAL>{DIGIT}+\.{DIGIT}+ {
 	SAVE_TOKEN();
-	return TFLOAT;
+	return TNUMERIC;
 }
-<INITIAL>"0"{OCT}+{ISUFFIX}? { // oct
+<INITIAL>"0"{OCT}+ { // oct
 	SAVE_TOKEN();
-	return TINTEGER;
+	return TNUMERIC;
 }
-<INITIAL>"0"[xX]{HEX}+{ISUFFIX}? { // hex
+<INITIAL>"0"[xX]{HEX}+ { // hex
 	SAVE_TOKEN();
-	return TINTEGER;
+	return TNUMERIC;
 }
-<INITIAL>{DIGIT}+{ISUFFIX}? { // dec
+<INITIAL>{DIGIT}+ { // dec
 	SAVE_TOKEN();
-	return TINTEGER;
+	return TNUMERIC;
 }
 
  /* Comments */

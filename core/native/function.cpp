@@ -4,7 +4,7 @@
 #include "../error.h"
 #include "native.h"
 
-Ink_Object *InkNative_Function_Insert(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *InkNative_Function_Insert(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
 	Ink_Object *arg = argv[0];
@@ -32,7 +32,7 @@ Ink_Object **arrayValueToObject(Ink_ArrayValue val)
 	return ret;
 }
 
-Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
 	Ink_Object *range;
@@ -77,7 +77,7 @@ Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int
 	return new Ink_Array(ret_val);
 }
 
-Ink_Object *InkNative_Function_GetExp(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *InkNative_Function_GetExp(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
 	Ink_FunctionObject *tmp;

@@ -9,7 +9,7 @@ unsigned int getRealIndex(int index, int size)
 	return index;
 }
 
-Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
 
@@ -18,11 +18,11 @@ Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, 
 		return new Ink_NullObject();
 	}
 
-	if (argc && argv[0]->type == INK_INTEGER) {
+	if (argc && argv[0]->type == INK_NUMERIC) {
 		Ink_Array *obj = as<Ink_Array>(base);
 		Ink_Object *ret;
 		Ink_HashTable *hash;
-		unsigned int index = getRealIndex(as<Ink_Integer>(argv[0])->value, obj->value.size());
+		unsigned int index = getRealIndex(as<Ink_Numeric>(argv[0])->value, obj->value.size());
 
 		if (index < obj->value.size()) {
 			if (!obj->value[index]) obj->value[index] = new Ink_HashTable("", new Ink_Undefined());
@@ -41,7 +41,7 @@ Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, 
 	return new Ink_NullObject();
 }
 
-Ink_Object *InkNative_Array_Push(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *InkNative_Array_Push(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
 
@@ -54,10 +54,10 @@ Ink_Object *InkNative_Array_Push(Ink_ContextChain *context, unsigned int argc, I
 	return new Ink_NullObject();
 }
 
-Ink_Object *InkNative_Array_Size(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *InkNative_Array_Size(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
-	return new Ink_Integer(as<Ink_Array>(base)->value.size());
+	return new Ink_Numeric(as<Ink_Array>(base)->value.size());
 }
 
 void cleanArrayHashTable(Ink_ArrayValue val, int begin, int end) // assume that begin <= end
@@ -69,24 +69,24 @@ void cleanArrayHashTable(Ink_ArrayValue val, int begin, int end) // assume that 
 	return;
 }
 
-Ink_Object *InkNative_Array_Remove(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *InkNative_Array_Remove(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
 	// Ink_Object *ret;
 	Ink_Array *tmp;
 	unsigned int index_begin, index_end, tmp_val;
 
-	if (!argc || argv[0]->type != INK_INTEGER) {
+	if (!argc || argv[0]->type != INK_NUMERIC) {
 		InkWarn_Remove_Argument_Require();
 		return new Ink_NullObject();
 	}
 
 	tmp = as<Ink_Array>(base);
-	index_begin = getRealIndex(as<Ink_Integer>(argv[0])->value,
+	index_begin = getRealIndex(as<Ink_Numeric>(argv[0])->value,
 							   tmp->value.size());
 
-	if (argc > 1 && argv[1]->type == INK_INTEGER) {
-		index_end = getRealIndex(as<Ink_Integer>(argv[1])->value,
+	if (argc > 1 && argv[1]->type == INK_NUMERIC) {
+		index_end = getRealIndex(as<Ink_Numeric>(argv[1])->value,
 								 tmp->value.size());
 	} else index_end = index_begin;
 
@@ -113,7 +113,7 @@ Ink_Object *InkNative_Array_Remove(Ink_ContextChain *context, unsigned int argc,
 	return new Ink_NullObject();
 }
 
-Ink_Object *InkNative_Array_Rebuild(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv)
+Ink_Object *InkNative_Array_Rebuild(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
 	Ink_Array *tmp;

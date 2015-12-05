@@ -4,20 +4,23 @@
 
 bool CGC_if_return = false;
 
-Ink_Expression *Ink_IntegerConstant::parse(string code)
+Ink_Expression *Ink_NumericConstant::parse(string code)
 {
-	unsigned int val = 0, flag = 1;
+	long unsigned int val = 0, flag = 1;
+	long double fval = 0.0;
 
 	if (code[0] == '-') {
 		flag = -1;
 		code = code.substr(1);
 	}
 
-	if (sscanf(code.c_str(), "0x%x", &val) > 0
-		|| sscanf(code.c_str(), "0X%X", &val) > 0
-		|| sscanf(code.c_str(), "0%o", &val) > 0
-		|| sscanf(code.c_str(), "%u", &val) > 0)
-		return new Ink_IntegerConstant(val * flag);
+	if (sscanf(code.c_str(), "%llf", &fval) > 0)
+		return new Ink_NumericConstant(fval * flag);
+	if (sscanf(code.c_str(), "0x%lx", &val) > 0
+		|| sscanf(code.c_str(), "0X%lX", &val) > 0
+		|| sscanf(code.c_str(), "0%lo", &val) > 0
+		|| sscanf(code.c_str(), "%lu", &val) > 0)
+		return new Ink_NumericConstant(val * flag);
 
 	return NULL;
 }
