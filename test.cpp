@@ -30,7 +30,7 @@ bool defined(Ink_Object *obj)
 Ink_Object *print(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (argv[0]->type == INK_NUMERIC)
-		printf("print(numeric): %llf\n", as<Ink_Numeric>(argv[0])->value);
+		printf("print(numeric): %lf\n", as<Ink_Numeric>(argv[0])->value);
 	else if (argv[0]->type == INK_STRING)
 		printf("%s\n", as<Ink_String>(argv[0])->value.c_str());
 	else if (argv[0]->type == INK_NULL)

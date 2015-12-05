@@ -160,9 +160,9 @@ public:
 
 class Ink_Numeric: public Ink_Object {
 public:
-	long double value;
+	double value;
 
-	Ink_Numeric(long double value = 0)
+	Ink_Numeric(double value = 0)
 	: value(value)
 	{ type = INK_NUMERIC; }
 

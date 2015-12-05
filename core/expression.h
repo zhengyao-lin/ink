@@ -348,9 +348,9 @@ public:
 
 class Ink_NumericConstant: public Ink_Expression {
 public:
-	long double value;
+	double value;
 
-	Ink_NumericConstant(long double value)
+	Ink_NumericConstant(double value)
 	: value(value)
 	{ }
 
