@@ -3,6 +3,7 @@ REQUIRE=\
 	syntax/syntax.o \
 	core/core.o \
 	msg/msg.o \
+	interface/interface.o \
 	test.o
 
 CC=g++
@@ -22,6 +23,9 @@ syntax/syntax.o:
 msg/msg.o:
 	cd msg; $(MAKE)
 
+interface/interface.o:
+	cd interface; $(MAKE)
+
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS)
 
@@ -29,4 +33,5 @@ clean:
 	cd core; $(MAKE) clean
 	cd syntax; $(MAKE) clean
 	cd msg; $(MAKE) clean
+	cd interface; $(MAKE) clean
 	$(RM) *.o $(TARGET)

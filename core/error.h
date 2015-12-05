@@ -5,7 +5,7 @@
 
 class Ink_ContextChain;
 
-void cleanAll(Ink_ContextChain *context);
+void cleanAll();
 extern int inkerr_current_line_number;
 
 inline void
@@ -14,7 +14,7 @@ InkErr_doPrintError(Ink_ContextChain *context, const char *msg)
 	stringstream strm;
 	strm << "line " << inkerr_current_line_number << ": " << msg;
 	
-	cleanAll(context);
+	cleanAll();
 	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, ErrorInfo::Exit1,
 										   strm.str().c_str()));
 	return;
@@ -26,7 +26,7 @@ InkErr_doPrintError(Ink_ContextChain *context, const char *msg, const char *arg1
 	stringstream strm;
 	strm << "line " << inkerr_current_line_number << ": " << msg;
 
-	cleanAll(context);
+	cleanAll();
 	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, ErrorInfo::Exit1,
 										   strm.str().c_str(), arg1));
 	return;

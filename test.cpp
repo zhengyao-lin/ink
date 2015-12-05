@@ -3,63 +3,22 @@
 #include "core/object.h"
 #include "core/expression.h"
 #include "core/gc/collect.h"
+#include "interface/engine.h"
 
-Ink_ExpressionList exp_list = Ink_ExpressionList();
 Ink_ExpressionList native_exp_list = Ink_ExpressionList();
+Ink_InterpreteEngine *current_interprete_engine = NULL;
 
-extern int yyparse();
-extern int yylex_destroy();
-
-void cleanContext(Ink_ContextChain *context)
-{
-	Ink_ContextChain *i, *tmp;
-	for (i = context->getGlobal(); i;) {
-		tmp = i;
-		i = i->inner;
-		delete tmp;
-	}
-
-	return;
-}
-
-bool defined(Ink_Object *obj)
-{
-	return obj->type != INK_UNDEFINED;
-}
-
-Ink_Object *print(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
-{
-	if (argv[0]->type == INK_NUMERIC)
-		printf("print(numeric): %lf\n", as<Ink_Numeric>(argv[0])->value);
-	else if (argv[0]->type == INK_STRING)
-		printf("%s\n", as<Ink_String>(argv[0])->value.c_str());
-	else if (argv[0]->type == INK_NULL)
-		printf("(null)\n");
-	else if (argv[0]->type == INK_UNDEFINED)
-		printf("(undefined)\n");
-	else
-		printf("print: non-printable type: %d\n", argv[0]->type);
-
-	return new Ink_NullObject();
-}
-
-void cleanAll(Ink_ContextChain *context)
+void cleanAll()
 {
 	unsigned int i;
-	for (i = 0; i < exp_list.size(); i++) {
-		delete exp_list[i];
-	}
 	for (i = 0; i < native_exp_list.size(); i++) {
 		delete native_exp_list[i];
 	}
-	// IGC_collectGarbage(context, true);
-	cleanContext(context);
 }
-
-void Ink_GlobalMethodInit(Ink_ContextChain *context);
 
 int main()
 {
+#if 0
 	yyparse();
 	/*Ink_Object *obj = new Ink_Object();
 	Ink_Numeric *slot_val = new Ink_Numeric(102);
@@ -89,7 +48,6 @@ int main()
 
 	for (i = 0; i < exp_list.size(); i++) {
 		exp_list[i]->eval(context);
-		// IGC_collectGarbage(context);
 		gc_engine->checkGC();
 	}
 
@@ -101,8 +59,14 @@ int main()
 
 	gc_engine->collectGarbage(true);
 	delete gc_engine;
-	cleanAll(context);
-	yylex_destroy();
+#endif
+
+	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
+	engine->startParse();
+	engine->execute();
+
+	delete engine;
+	cleanAll();
 
 	return 0;
 }

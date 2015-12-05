@@ -3,9 +3,10 @@
     #include <stdlib.h>
 	#include <string.h>
 	#include "core/expression.h"
+	#include "interface/engine.h"
 	#define SET_LINE_NO(exp) (exp->line_number = current_line_number)
 
-	extern Ink_ExpressionList exp_list;
+	extern Ink_InterpreteEngine *current_interprete_engine;
 	extern int current_line_number;
 
 	extern int yylex();
@@ -56,7 +57,7 @@
 compile_unit
 	: expression_list_opt
 	{
-		exp_list = *$1;
+		current_interprete_engine->top_level = *$1;
 		delete $1;
 	}
 	;
@@ -91,6 +92,7 @@ insert_expression
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<<")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| insert_expression TOUT logical_or_expression
 	{
@@ -99,6 +101,7 @@ insert_expression
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">>")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	;
 
@@ -147,6 +150,7 @@ assignment_expression
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("->")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	;
 
@@ -159,6 +163,7 @@ equality_expression
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("==")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| equality_expression TCNE relational_expression
 	{
@@ -167,6 +172,7 @@ equality_expression
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("!=")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	;
 
@@ -179,6 +185,7 @@ relational_expression
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| relational_expression TCGT additive_expression
 	{
@@ -187,6 +194,7 @@ relational_expression
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| relational_expression TCLE additive_expression
 	{
@@ -195,6 +203,7 @@ relational_expression
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<=")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| relational_expression TCGE additive_expression
 	{
@@ -203,6 +212,7 @@ relational_expression
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">=")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	;
 
@@ -214,6 +224,7 @@ additive_expression
 		arg.push_back($3);
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("+")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| additive_expression TSUB multiplicative_expression
 	{
@@ -221,6 +232,7 @@ additive_expression
 		arg.push_back($3);
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("-")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	;
 
@@ -232,6 +244,7 @@ multiplicative_expression
 		arg.push_back($3);
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("*")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| multiplicative_expression TDIV unary_expression
 	{
@@ -239,6 +252,7 @@ multiplicative_expression
 		arg.push_back($3);
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("/")), arg);
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	;
 
@@ -304,36 +318,42 @@ unary_expression
 									*$4);
 		delete $4;
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| TCLONE unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("clone")),
 									Ink_ExpressionList());
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| TADD unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("+u")),
 									Ink_ExpressionList());
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| TSUB unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("-u")),
 									Ink_ExpressionList());
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| TDNOT unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("!!")),
 									Ink_ExpressionList());
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| TNOT unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("!")),
 									Ink_ExpressionList());
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	;
 
@@ -367,6 +387,7 @@ table_expression
 									Ink_ExpressionList());
 		delete $2;
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 
 postfix_expression
@@ -396,6 +417,7 @@ postfix_expression
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("[]")), *$3);
 		delete $3;
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	;
 

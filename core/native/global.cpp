@@ -119,11 +119,33 @@ Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, I
 	return ret;
 }
 
+bool defined(Ink_Object *obj)
+{
+	return obj->type != INK_UNDEFINED;
+}
+
+Ink_Object *Ink_Print(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (argv[0]->type == INK_NUMERIC)
+		printf("print(numeric): %lf\n", as<Ink_Numeric>(argv[0])->value);
+	else if (argv[0]->type == INK_STRING)
+		printf("%s\n", as<Ink_String>(argv[0])->value.c_str());
+	else if (argv[0]->type == INK_NULL)
+		printf("(null)\n");
+	else if (argv[0]->type == INK_UNDEFINED)
+		printf("(undefined)\n");
+	else
+		printf("print: non-printable type: %d\n", argv[0]->type);
+
+	return new Ink_NullObject();
+}
+
 Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p);
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
 	context->context->setSlot("if", new Ink_FunctionObject(Ink_IfExpression, true));
 	context->context->setSlot("while", new Ink_FunctionObject(Ink_WhileExpression, true));
+	context->context->setSlot("p", new Ink_FunctionObject(Ink_Print));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);

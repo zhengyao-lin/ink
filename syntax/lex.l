@@ -15,15 +15,91 @@ SPS				({SP})+
 #include <stdlib.h>
 #include <string>
 #include "core/expression.h"
+#include "interface/engine.h"
 #include "grammar.hpp"
 
+#undef YY_INPUT
+#define YY_INPUT(buf, result, max_size) (result = ink_yyinput(buf, max_size))
 #define SAVE_TOKEN()		(yylval.string = new std::string(yytext, yyleng))
 #define TOKEN(t)			(yylval.token = t)
 #define LINE_NUMBER_INC()	(current_line_number++)
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 int current_line_number = 1;
 string *id_literal = NULL;
 string *string_literal = NULL;
+extern Ink_InterpreteEngine *current_interprete_engine;
+
+int file_input(char *buf, int max_size)
+{
+	int ch;
+	int len;
+
+	if (feof(yyin))
+		return 0;
+
+	for (len = 0; len < max_size; len++) {
+		ch = getc(yyin);
+		if (ch == EOF)
+			break;
+		buf[len] = ch;
+	}
+	return len;
+}
+
+const char **ink_source_string;
+int ink_current_source_line;
+int ink_current_char_index;
+
+void Ink_setStringInput(const char **source)
+{
+	ink_source_string = source;
+	ink_current_source_line = 0;
+	ink_current_char_index = 0;
+}
+
+int string_input(char *buf, int max_size)
+{
+	int len;
+
+	if (ink_source_string[ink_current_source_line] == NULL)
+		return 0;
+
+	while (ink_source_string[ink_current_source_line][ink_current_char_index] == '\0') {
+		ink_current_source_line++;
+		ink_current_char_index = 0;
+		if (ink_source_string[ink_current_source_line] == NULL)
+			return 0;
+	}
+
+	if (ink_source_string[ink_current_source_line] == NULL)
+		return 0;
+
+	len = MIN(strlen(ink_source_string[ink_current_source_line]) - ink_current_char_index,
+			  max_size);
+	strncpy(buf, &ink_source_string[ink_current_source_line][ink_current_char_index], len);
+	ink_current_char_index += len;
+
+	return len;
+}
+
+int ink_yyinput(char *buf, int max_size)
+{
+	int result;
+
+	switch (current_interprete_engine->input_mode) {
+		case INK_STRING_INPUT:
+			result = string_input(buf, max_size);
+			break;
+		case INK_FILE_INPUT:
+		default:
+			result = file_input(buf, max_size);
+			break;
+	}
+
+	return result;
+}
+
 %}
 
 %option noyywrap

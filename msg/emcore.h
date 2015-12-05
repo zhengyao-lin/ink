@@ -8,6 +8,8 @@
 #include <string>
 #include "stdarg.h"
 
+#ifdef __linux__
+
 #define NONE         "\033[m"
 #define BOLD         "\033[1m"
 #define RED          "\033[0;32;31m"
@@ -28,6 +30,31 @@
 #define DEFAULT      "\033[0m"
 #define NEXT_LINE    "\n"
 #define CLOSE_COLOR  "\033[0m\n"
+
+#else
+
+#define NONE         ""
+#define BOLD         ""
+#define RED          ""
+#define LIGHT_RED    ""
+#define GREEN        ""
+#define LIGHT_GREEN  ""
+#define BLUE         ""
+#define LIGHT_BLUE   ""
+#define DARY_GRAY    ""
+#define CYAN         ""
+#define LIGHT_CYAN   ""
+#define PURPLE       ""
+#define LIGHT_PURPLE ""
+#define BROWN        ""
+#define YELLOW       ""
+#define LIGHT_GRAY   ""
+#define WHITE        ""
+#define DEFAULT      ""
+#define NEXT_LINE    ""
+#define CLOSE_COLOR  ""
+
+#endif
 
 using namespace std;
 
