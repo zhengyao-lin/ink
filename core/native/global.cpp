@@ -3,6 +3,7 @@
 #include "../context.h"
 #include "../expression.h"
 #include "../error.h"
+#include "../../interface/engine.h"
 #include "native.h"
 
 extern Ink_ExpressionList native_exp_list;
@@ -119,6 +120,39 @@ Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, I
 	return ret;
 }
 
+extern Ink_InterpreteEngine *current_interprete_engine;
+extern int current_line_number;
+extern int inkerr_current_line_number;
+extern const char *yyerror_prefix;
+
+Ink_Object *Ink_Eval(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *ret = new Ink_NullObject();
+	Ink_ExpressionList top_level_backup;
+	int line_num_backup = current_line_number;
+
+	if (current_interprete_engine && argc && argv[0]->type == INK_STRING) {
+		context->removeLast();
+
+		top_level_backup = current_interprete_engine->top_level;
+
+		current_line_number = inkerr_current_line_number;
+		yyerror_prefix = "from eval: ";
+		current_interprete_engine->startParse(as<Ink_String>(argv[0])->value);
+		ret = current_interprete_engine->execute(context);
+
+		native_exp_list.insert(native_exp_list.end(),
+							   current_interprete_engine->top_level.begin(),
+							   current_interprete_engine->top_level.end());
+		current_interprete_engine->top_level = top_level_backup;
+
+		context->addContext(new Ink_ContextObject());
+	}
+	current_line_number = line_num_backup;
+
+	return ret;
+}
+
 bool defined(Ink_Object *obj)
 {
 	return obj->type != INK_UNDEFINED;
@@ -127,7 +161,7 @@ bool defined(Ink_Object *obj)
 Ink_Object *Ink_Print(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (argv[0]->type == INK_NUMERIC)
-		printf("print(numeric): %lf\n", as<Ink_Numeric>(argv[0])->value);
+		printf("print(numeric): %f\n", as<Ink_Numeric>(argv[0])->value);
 	else if (argv[0]->type == INK_STRING)
 		printf("%s\n", as<Ink_String>(argv[0])->value.c_str());
 	else if (argv[0]->type == INK_NULL)
@@ -146,6 +180,7 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("if", new Ink_FunctionObject(Ink_IfExpression, true));
 	context->context->setSlot("while", new Ink_FunctionObject(Ink_WhileExpression, true));
 	context->context->setSlot("p", new Ink_FunctionObject(Ink_Print));
+	context->context->setSlot("eval", new Ink_FunctionObject(Ink_Eval));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);

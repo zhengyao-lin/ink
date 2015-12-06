@@ -17,6 +17,8 @@ int yyparse();
 int yylex_destroy();
 void Ink_GlobalMethodInit(Ink_ContextChain *context);
 void Ink_setStringInput(const char **source);
+void Ink_setCurrentEngine(Ink_InterpreteEngine *engine);
+Ink_InterpreteEngine *Ink_getCurrentEngine();
 
 typedef enum {
 	INK_FILE_INPUT,
@@ -30,29 +32,48 @@ public:
 	Ink_ContextChain *global_context;
 	Ink_InputMode input_mode;
 
+	long igc_object_count;
+	long igc_collect_treshold;
+	IGC_CollectEngine *current_gc_engine;
+	int igc_mark_period;
+
 	Ink_InterpreteEngine()
 	{
+		Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
+		Ink_setCurrentEngine(this);
+		
+		igc_object_count = 0;
+		igc_collect_treshold = IGC_COLLECT_TRESHOLD;
+		igc_mark_period = 1;
+
 		gc_engine = new IGC_CollectEngine();
-		IGC_initGC(gc_engine, true);
+		current_gc_engine = gc_engine;
 		global_context = new Ink_ContextChain(new Ink_ContextObject());
 		gc_engine->initContext(global_context);
 
 		global_context->context->setSlot("this", global_context->context);
 		Ink_GlobalMethodInit(global_context);
+
+		Ink_setCurrentEngine(backup);
 	}
 
 	void startParse(FILE *input = stdin);
 	void startParse(string code);
-	Ink_Object *execute();
-	void cleanTopLevel();
+	Ink_Object *execute(Ink_ContextChain *context = NULL);
+	static void cleanExpressionList(Ink_ExpressionList exp_list);
 	static void cleanContext(Ink_ContextChain *context);
 
 	~Ink_InterpreteEngine()
 	{
+		Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
+		Ink_setCurrentEngine(this);
+
 		gc_engine->collectGarbage(true);
 		delete gc_engine;
-		cleanTopLevel();
+		cleanExpressionList(top_level);
 		cleanContext(global_context);
+
+		Ink_setCurrentEngine(backup);
 	}
 };
 

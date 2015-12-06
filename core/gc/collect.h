@@ -64,7 +64,7 @@ public:
 	}
 };
 
-void IGC_initGC(IGC_CollectEngine *engine, bool is_global = false);
+void IGC_initGC(IGC_CollectEngine *engine);
 void IGC_checkGC();
 void IGC_addObject(Ink_Object *obj);
 void IGC_collectGarbage(Ink_ContextChain *context, bool delete_all = false, bool if_clean_mark = true);

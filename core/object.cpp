@@ -3,6 +3,7 @@
 #include "expression.h"
 #include "gc/collect.h"
 #include "native/native.h"
+#include "../interface/engine.h"
 
 extern int numeric_native_method_table_count;
 extern InkNative_MethodTable numeric_native_method_table[];
@@ -40,7 +41,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 	Ink_Object *method = NULL;
 
 	for (i = hash_table; i; i = i->next) {
-		if (!strcmp(i->key, key)){
+		if (!strcmp(i->key, key)) {
 			for (ret = i; ret->bonding; ret = ret->bonding) ;
 			ret->bondee = i;
 			return ret;
@@ -179,8 +180,7 @@ Ink_Object *Ink_String::clone()
 	return new_obj;
 }
 
-extern IGC_CollectEngine *global_engine;
-extern IGC_CollectEngine *current_engine;
+extern Ink_InterpreteEngine *current_interprete_engine;
 
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
@@ -188,7 +188,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	// Ink_HashTable *i;
 	Ink_ContextObject *local; // new local context
 	Ink_Object *ret_val = NULL;
-	IGC_CollectEngine *engine_backup = current_engine;
+	IGC_CollectEngine *engine_backup = current_interprete_engine->current_gc_engine;
 
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
 	IGC_initGC(gc_engine);
@@ -241,7 +241,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 	//delete gc_engine;
 	if (engine_backup) engine_backup->link(gc_engine);
-	current_engine = engine_backup;
+	current_interprete_engine->current_gc_engine = engine_backup;
 	delete gc_engine;
 
 	return ret_val ? ret_val : new Ink_NullObject(); // return the last expression

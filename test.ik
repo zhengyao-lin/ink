@@ -148,8 +148,10 @@ hash = "b";
 p("hello"[0]);
 p(a[hash]);
 
-Object.setLocal = (name, value) {
-	base[name] = value;
+Object = {
+	setLocal : (name, value) {
+		base[name] = value;
+	}
 };
 
 a = Object;

@@ -24,7 +24,7 @@ public:
 	}
 
 	Ink_ContextChain *addContext(Ink_ContextObject *c);
-	void removeLast();
+	void removeLast(bool if_delete = true);
 	Ink_ContextChain *getGlobal();
 	Ink_ContextChain *getLocal();
 	Ink_Object *searchSlot(const char *slot_id); // from local

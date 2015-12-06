@@ -1,10 +1,13 @@
 #include "collect.h"
 #include "core/context.h"
 #include "core/object.h"
+#include "interface/engine.h"
 
-extern long igc_object_count;
-extern long igc_collect_treshold;
-extern int igc_mark_period;
+#define CURRENT_OBJECT_COUNT (current_interprete_engine->igc_object_count)
+#define CURRENT_COLLECT_TRESHOLD (current_interprete_engine->igc_collect_treshold)
+#define CURRENT_MARK_PERIOD (current_interprete_engine->igc_mark_period)
+
+extern Ink_InterpreteEngine *current_interprete_engine;
 
 void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
 {
@@ -15,7 +18,7 @@ void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
 		object_chain = unit;
 	}
 	object_chain_last = unit;
-	igc_object_count++;
+	CURRENT_OBJECT_COUNT++;
 
 	return;
 }
@@ -35,7 +38,7 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 {
 	Ink_HashTable *i;
 
-	if (obj->marked != igc_mark_period) obj->marked = igc_mark_period;
+	if (obj->marked != CURRENT_MARK_PERIOD) obj->marked = CURRENT_MARK_PERIOD;
 	else {
 		//printf("========skip!\n");
 		return;
@@ -68,7 +71,7 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 
 void IGC_CollectEngine::deleteObject(IGC_CollectUnit *unit)
 {
-	igc_object_count--;
+	CURRENT_OBJECT_COUNT--;
 	delete unit;
 	return;
 }
@@ -80,7 +83,7 @@ void IGC_CollectEngine::doCollect()
 	for (i = object_chain; i;) {
 		tmp = i;
 		i = i->next;
-		if (tmp->obj->marked != igc_mark_period) {
+		if (tmp->obj->marked != CURRENT_MARK_PERIOD) {
 			// if (tmp == object_chain) object_chain = i;
 			deleteObject(tmp);
 		} else {
@@ -110,17 +113,17 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 		}
 	}
 	doCollect();
-	igc_mark_period++;
+	CURRENT_MARK_PERIOD++;
 
 	return;
 }
 
 void IGC_CollectEngine::checkGC()
 {
-	if (igc_object_count >= igc_collect_treshold) {
+	if (CURRENT_OBJECT_COUNT >= CURRENT_COLLECT_TRESHOLD) {
 		collectGarbage();
-		if (igc_object_count >= igc_collect_treshold) {
-			igc_collect_treshold += igc_object_count;
+		if (CURRENT_OBJECT_COUNT >= CURRENT_COLLECT_TRESHOLD) {
+			CURRENT_COLLECT_TRESHOLD += CURRENT_OBJECT_COUNT;
 		}
 	}
 	return;

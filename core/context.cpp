@@ -11,14 +11,15 @@ Ink_ContextChain *Ink_ContextChain::addContext(Ink_ContextObject *c)
 	return new_context;
 }
 
-void Ink_ContextChain::removeLast()
+void Ink_ContextChain::removeLast(bool if_delete)
 {
 	Ink_ContextChain *last = getLocal();
 
 	if (last->outer)
 		last->outer->inner = NULL;
 
-	delete last;
+	if (if_delete)
+		delete last;
 
 	return;
 }
@@ -56,7 +57,7 @@ Ink_HashTable *Ink_ContextChain::searchSlotMapping(const char *slot_id)
 	Ink_ContextChain *i = local;
 	Ink_HashTable *ret = NULL;
 
-	while (i && !(ret = i->context->getSlotMapping(slot_id))) {
+	while (i && !((ret = i->context->getSlotMapping(slot_id)) && ret->value->type != INK_UNDEFINED)) {
 		i = i->outer;
 	}
 

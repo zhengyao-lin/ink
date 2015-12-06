@@ -75,6 +75,13 @@ InkErr_Calling_Undefined_Object(Ink_ContextChain *context)
 }
 
 inline void
+InkErr_Missing_Semicolon()
+{
+	InkErr_doPrintError(NULL, "Missing semicolon");
+	return;
+}
+
+inline void
 InkWarn_Hash_not_found(const char *index)
 {
 	InkWarn_doPrintWarning("Creating undefined slot \'$(index)\'", index);

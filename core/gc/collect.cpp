@@ -1,28 +1,23 @@
 #include "collect.h"
 #include "core/context.h"
 #include "core/object.h"
+#include "../../interface/engine.h"
 
-long igc_object_count = 0;
-long igc_collect_treshold = IGC_COLLECT_TRESHOLD;
-IGC_CollectEngine *global_engine = NULL;
-IGC_CollectEngine *current_engine = NULL;
-int igc_mark_period = 1;
+extern Ink_InterpreteEngine *current_interprete_engine;
 
-void IGC_initGC(IGC_CollectEngine *engine, bool is_global)
+void IGC_initGC(IGC_CollectEngine *engine)
 {
-	current_engine = engine;
-	if (is_global) global_engine = engine;
+	current_interprete_engine->current_gc_engine = engine;
 	return;
 }
-
 
 void IGC_addObject(Ink_Object *obj)
 {
 	IGC_CollectUnit *new_unit;
 
-	if (current_engine) {
+	if (current_interprete_engine) {
 		new_unit = new IGC_CollectUnit(obj);
-		current_engine->addUnit(new_unit);
+		current_interprete_engine->current_gc_engine->addUnit(new_unit);
 	}
 
 	return;

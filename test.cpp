@@ -6,7 +6,6 @@
 #include "interface/engine.h"
 
 Ink_ExpressionList native_exp_list = Ink_ExpressionList();
-Ink_InterpreteEngine *current_interprete_engine = NULL;
 
 void cleanAll()
 {

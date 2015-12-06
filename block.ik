@@ -161,3 +161,31 @@ func2();
 p(0.2 + 0.4);
 
 p(a[123]);
+
+eval("eval(\"abc = \\\"hellowww\\\";\");");
+p(abc);
+
+func = () {
+	let abcd = 10;
+	eval("() {
+		eval(\"[abcd = 100];\");
+	} ();")();
+	p(abcd);
+};
+
+func2 = () {
+	abcd;
+	func();
+	p(abcd);
+};
+
+func2();
+p(abcd);
+
+func = () {
+	let a;
+	global a = 10;
+	p(a);
+};
+
+func();

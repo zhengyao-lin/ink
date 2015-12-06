@@ -3,15 +3,18 @@
     #include <stdlib.h>
 	#include <string.h>
 	#include "core/expression.h"
+	#include "core/error.h"
 	#include "interface/engine.h"
 	#define SET_LINE_NO(exp) (exp->line_number = current_line_number)
 
 	extern Ink_InterpreteEngine *current_interprete_engine;
 	extern int current_line_number;
+	extern int inkerr_current_line_number;
+	const char *yyerror_prefix = "";
 
 	extern int yylex();
 	void yyerror(const char *msg) {
-		printf("line %d: %s\n", current_line_number, msg);
+		printf("%sline %d: %s\n", yyerror_prefix, current_line_number, msg);
 	}
 %}
 
@@ -443,14 +446,14 @@ param_opt
 	;
 
 expression_list
-	: expression TSEMICOLON
+	: expression
 	{
 		$$ = new Ink_ExpressionList();
 		$$->push_back($1);
 	}
-	| expression_list expression TSEMICOLON
+	| expression_list TSEMICOLON expression
 	{
-		$1->push_back($2);
+		$1->push_back($3);
 		$$ = $1;
 	}
 	;
@@ -460,7 +463,10 @@ expression_list_opt
 	{
 		$$ = new Ink_ExpressionList();
 	}
-	| expression_list
+	| expression_list TSEMICOLON
+	{
+		$$ = $1;
+	}
 	;
 
 function_expression
@@ -516,6 +522,11 @@ primary_expression
 	| TVAR id_context_type TIDENTIFIER
 	{
 		$$ = new Ink_IdentifierExpression($3, $2, true);
+		SET_LINE_NO($$);
+	}
+	| id_context_type TVAR TIDENTIFIER
+	{
+		$$ = new Ink_IdentifierExpression($3, $1, true);
 		SET_LINE_NO($$);
 	}
 	| TLPAREN nestable_expression TRPAREN
