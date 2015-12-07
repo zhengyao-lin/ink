@@ -64,8 +64,8 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 
 	if (!context) context = global_context;
 	for (i = 0; i < top_level.size(); i++) {
-		current_gc_engine->checkGC();
 		ret = top_level[i]->eval(context);
+		current_gc_engine->checkGC();
 	}
 
 	Ink_setCurrentEngine(backup);

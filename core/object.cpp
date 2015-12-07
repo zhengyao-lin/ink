@@ -16,8 +16,11 @@ extern InkNative_MethodTable array_native_method_table[];
 extern int function_native_method_table_count;
 extern InkNative_MethodTable function_native_method_table[];
 
-Ink_Object *getMethod(const char *name, InkNative_MethodTable *table, int count)
+extern Ink_InterpreteEngine *current_interprete_engine;
+
+Ink_Object *getMethod(Ink_Object *obj, const char *name, InkNative_MethodTable *table, int count)
 {
+	Ink_Object *ret = NULL;
 	int i;
 	for (i = 0; i < count; i++) {
 		if (!strcmp(name, table[i].name)) {
@@ -50,25 +53,29 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 
 	switch (type) {
 		case INK_NUMERIC:
-			method = getMethod(key, numeric_native_method_table, numeric_native_method_table_count);
+			method = getMethod(this, key, numeric_native_method_table,
+							   numeric_native_method_table_count);
 			if (method) {
 				ret = setSlot(key, method, false);
 			}
 			break;
 		case INK_STRING:
-			method = getMethod(key, string_native_method_table, string_native_method_table_count);
+			method = getMethod(this, key, string_native_method_table,
+							   string_native_method_table_count);
 			if (method) {
 				ret = setSlot(key, method, false);
 			}
 			break;
 		case INK_ARRAY:
-			method = getMethod(key, array_native_method_table, array_native_method_table_count);
+			method = getMethod(this, key, array_native_method_table,
+							   array_native_method_table_count);
 			if (method) {
 				ret = setSlot(key, method, false);
 			}
 			break;
 		case INK_FUNCTION:
-			method = getMethod(key, function_native_method_table, function_native_method_table_count);
+			method = getMethod(this, key, function_native_method_table,
+							   function_native_method_table_count);
 			if (method) {
 				ret = setSlot(key, method, false);
 			}
@@ -76,7 +83,8 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 		default: break;
 	}
 	if (!ret) {
-		method = getMethod(key, object_native_method_table, object_native_method_table_count);
+		method = getMethod(this, key, object_native_method_table,
+						   object_native_method_table_count);
 		if (method)
 		ret = setSlot(key, method, false);
 	}
@@ -179,8 +187,6 @@ Ink_Object *Ink_String::clone()
 
 	return new_obj;
 }
-
-extern Ink_InterpreteEngine *current_interprete_engine;
 
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {

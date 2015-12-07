@@ -90,9 +90,7 @@ Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, I
 	Ink_Object *new_obj = new Ink_Object(true);
 
 	if (base->type == INK_FUNCTION) {
-		new_obj = base->call(context, argc, argv, new_obj);
-		new_obj->setSlot("prototype", base->getSlot("prototype"));
-		return new_obj;
+		return base->call(context, argc, argv, new_obj);
 	}
 
 	return new_obj;
