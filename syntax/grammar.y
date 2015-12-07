@@ -323,6 +323,14 @@ unary_expression
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
+	| TNEW postfix_expression TLPAREN argument_list_opt TRPAREN block_list
+	{
+		$4->insert($4->end(), $6->begin(), $6->end());
+		$$ = new Ink_CallExpression($2, *$4);
+		delete $4;
+		delete $6;
+		SET_LINE_NO($$);
+	}
 	| TCLONE unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($2, new string("clone")),
