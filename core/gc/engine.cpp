@@ -99,7 +99,7 @@ void IGC_CollectEngine::doCollect()
 
 void IGC_CollectEngine::collectGarbage(bool delete_all)
 {
-	Ink_ContextChain *global = local_context->getGlobal();
+	//Ink_ContextChain *global = local_context->getGlobal();
 	Ink_ContextChain *i;
 
 	//printf("========== GC INTERRUPT =========\n");
@@ -107,8 +107,12 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 	//if (if_clean_mark)
 	//	cleanMark();
 	if (!delete_all) {
-		for (i = global; i; i = i->inner) {
+		/* for (i = global; i; i = i->inner) {
 			// printf("hi\n");
+			doMark(i->context);
+		} */
+		for (i = current_interprete_engine->trace->getGlobal();
+			 i; i = i->inner) {
 			doMark(i->context);
 		}
 	}

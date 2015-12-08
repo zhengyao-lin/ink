@@ -32,6 +32,8 @@ public:
 	Ink_ContextChain *global_context;
 	Ink_InputMode input_mode;
 
+	Ink_ContextChain *trace;
+
 	long igc_object_count;
 	long igc_collect_treshold;
 	IGC_CollectEngine *current_gc_engine;
@@ -41,7 +43,7 @@ public:
 	{
 		Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
 		Ink_setCurrentEngine(this);
-		
+
 		igc_object_count = 0;
 		igc_collect_treshold = IGC_COLLECT_TRESHOLD;
 		igc_mark_period = 1;
@@ -49,6 +51,7 @@ public:
 		gc_engine = new IGC_CollectEngine();
 		current_gc_engine = gc_engine;
 		global_context = new Ink_ContextChain(new Ink_ContextObject());
+		trace = new Ink_ContextChain(global_context->context);
 		gc_engine->initContext(global_context);
 
 		global_context->context->setSlot("this", global_context->context);
@@ -70,8 +73,10 @@ public:
 
 		gc_engine->collectGarbage(true);
 		delete gc_engine;
+
 		cleanExpressionList(top_level);
 		cleanContext(global_context);
+		cleanContext(trace);
 
 		Ink_setCurrentEngine(backup);
 	}

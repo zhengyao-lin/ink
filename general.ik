@@ -88,6 +88,14 @@ partition = (list, start, end) {
 };
 
      
-list = new Array(8, 2, 4, 65, 2, 4, 7, 1, 9, 0, 2, 34, 12); 
-
+list = new Array(8, 2); 
+list.p = () {
+	let i = 0;
+	while ([i < base.size()]) {
+		p(base[i]);
+		i = i + 1;
+	};
+	null;
+};
 quick_sort(list, 0, list.size() - 1);
+list.p();

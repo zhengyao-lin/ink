@@ -31,7 +31,7 @@
 
 %token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
-%token <token> TOR TADD TSUB TMUL TDIV TMOD TDOT
+%token <token> TOR TADD TSUB TMUL TDIV TMOD TDOT TNL
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
 %token <token> TARR TINS TOUT
 %token <token> TCLE TCLT TCGE TCGT TCEQ TCNE TCAND TCOR
@@ -64,6 +64,12 @@ compile_unit
 		delete $1;
 	}
 	;
+
+split
+	: TSEMICOLON
+	/*| TNL
+	| split TNL
+	| split TSEMICOLON*/
 
 expression
 	: nestable_expression
@@ -459,7 +465,7 @@ expression_list
 		$$ = new Ink_ExpressionList();
 		$$->push_back($1);
 	}
-	| expression_list TSEMICOLON expression
+	| expression_list split expression
 	{
 		$1->push_back($3);
 		$$ = $1;
@@ -471,7 +477,7 @@ expression_list_opt
 	{
 		$$ = new Ink_ExpressionList();
 	}
-	| expression_list TSEMICOLON
+	| expression_list split
 	{
 		$$ = $1;
 	}

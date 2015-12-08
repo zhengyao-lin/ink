@@ -20,7 +20,6 @@ extern Ink_InterpreteEngine *current_interprete_engine;
 
 Ink_Object *getMethod(Ink_Object *obj, const char *name, InkNative_MethodTable *table, int count)
 {
-	Ink_Object *ret = NULL;
 	int i;
 	for (i = 0; i < count; i++) {
 		if (!strcmp(name, table[i].name)) {
@@ -206,6 +205,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		local->setSlot("this", this_p ? this_p : this);
 	}
 	context->addContext(local);
+	current_interprete_engine->trace->addContext(local);
 
 	gc_engine->initContext(context);
 
@@ -235,6 +235,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 	//gc_engine->collectGarbage();
 	context->removeLast();
+	current_interprete_engine->trace->removeLast();
 	
 	if (ret_val)
 		gc_engine->doMark(ret_val);
