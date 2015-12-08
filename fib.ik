@@ -1,26 +1,15 @@
-// dp = new Array(100);
+// dp = new Array(100)
 
-fib = (n) {
-	/*if (dp[n]) {
-		return dp[n];
-	};*/
-	if (n == 0 || n == 1) {
-		return 1;
-	};
+fib = fn (n) do
+	/* if (dp[n]) do
+		retn dp[n]
+	end */
+	if (n == 0 ||
+		n == 1) do
+		retn 1
+	end
 	
-	return this(n - 2) + this(n - 1);
-};
+	retn this(n - 2) + this(n - 1)
+end
 
-p(fib(15));
-
-/*
-func = () {
-	if (1) {
-		if (1) {
-			p("hi");
-			return 10;
-			p("shit");
-		};
-	};
-};
-p(func());*/
+p(fib(15))

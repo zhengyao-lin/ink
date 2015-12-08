@@ -6,46 +6,46 @@ func = { | a, b, block, block2 |
 
 func(1, 2) { | c |
 	p("from block, " + c);
-}{
+} {
 	p("from block2, ");
 };
 
-func = (bool) {
+func = fn (bool) {
 	if (bool) {
 		p("true!!!");
-		return;
+		retn;
 		p("what?");
 	} {
 		p("false!!!");
-		return;
+		retn;
 	};
 	p("what?");
 };
 
 func(0);
 
-func = (bool) {
+func = fn (bool) {
 	if (bool) {
 		if (bool + 1) {
-			return 1;
+			retn 1;
 		} {
-			return 2;
+			retn 2;
 		};
 		p(1111);
 	};
-	return 0;
+	retn 0;
 };
 
 p("result: " + func(-1));
 p("hello, world");
 
-func = (a, b) {
+func = fn (a, b) {
 	a + b;
 };
 
-range = () {
-	this.range = () {
-		return new Array(new Array(1, 2), new Array(5, 6));
+range = fn () {
+	this.range = fn () {
+		retn new Array(new Array(1, 2), new Array(5, 6));
 	};
 };
 
@@ -65,16 +65,16 @@ while ([a]) {
 
 p("**************************************");
 
-func = () {
+func = fn () {
 	let i = 0;
 	while ([i - 10]) {
 		p(i);
 		i = i + 1;
 		if (!(i - 5)) {
-			return "I'm returning";
+			retn "I'm retning";
 		};
 	};
-	return "oo";
+	retn "oo";
 };
 
 p(func());
@@ -82,7 +82,7 @@ p(!0);
 p(!123);
 
 
-func = () {
+func = fn () {
 	let a = 10.1;
 
 	p("a = " + a);
@@ -122,7 +122,7 @@ if (i == 0 && i = 1) {
 
 p(i);
 
-func = (a, b) {
+func = fn (a, b) {
 	if (a == undefined) {
 		a = "I'm default. ";
 	};
@@ -139,7 +139,7 @@ p("str" == 'str');
 
 str = " haha";
 
-func = () {
+func = fn () {
 	let str = 10;
 	p("first: " + str);
 	p("second");
@@ -149,7 +149,7 @@ func = () {
 a = func.exp();
 p("size: " + a.size());
 
-((){} << a[-3] << a[-2] << a[-1])();
+(fn (){} << a[-3] << a[-2] << a[-1])();
 
 p("=================Function Rebuild===================");
 
@@ -165,15 +165,16 @@ p(a[123]);
 eval("eval(\"abc = \\\"hellowww\\\";\");");
 p(abc);
 
-func = () {
+
+func = fn () {
 	let abcd = 10;
-	eval("() {
+	eval("fn () {
 		eval(\"[abcd = 100];\");
 	} ();")();
 	p(abcd);
 };
 
-func2 = () {
+func2 = fn () {
 	abcd;
 	func();
 	p(abcd);
@@ -182,9 +183,9 @@ func2 = () {
 func2();
 p(abcd);
 
-func = () {
+func = fn () {
 	let a;
-	global a = 10;
+	top a = 10;
 	p(a);
 };
 

@@ -108,11 +108,14 @@ int ink_yyinput(char *buf, int max_size)
 %%
 
 <INITIAL>"var"						return TOKEN(TVAR);
-<INITIAL>"global"					return TOKEN(TGLOBAL);
+<INITIAL>"top"						return TOKEN(TGLOBAL);
 <INITIAL>"let"						return TOKEN(TLET);
-<INITIAL>"return"					return TOKEN(TRETURN);
+<INITIAL>"retn"						return TOKEN(TRETURN);
 <INITIAL>"new"						return TOKEN(TNEW);
 <INITIAL>"clone"					return TOKEN(TCLONE);
+<INITIAL>"fn"						return TOKEN(TFUNC);
+<INITIAL>"do"						return TOKEN(TDO);
+<INITIAL>"end"						return TOKEN(TEND);
 
 <INITIAL>"&&"						return TOKEN(TCAND);
 <INITIAL>"||"						return TOKEN(TCOR);
@@ -152,7 +155,7 @@ int ink_yyinput(char *buf, int max_size)
 
 <INITIAL>{NEWLINE} {
 	LINE_NUMBER_INC();
-	//return TOKEN(TNL);
+	return TOKEN(TNL);
 }
 <INITIAL>{SP}						/* Blank */;
 
