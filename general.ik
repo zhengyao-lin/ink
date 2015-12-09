@@ -64,3 +64,15 @@ func1 = fn () {
 };
 
 func1();
+
+func = fn () {
+	let a = 10;
+	fn () {
+		a = a + 1;
+		p(a);
+	};
+};
+
+f = func();
+f();
+f();
