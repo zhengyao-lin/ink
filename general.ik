@@ -47,3 +47,20 @@ if (
 "s",  			
 				"b"
 );
+
+func = fn (a) {
+	a.f = fn () {
+		p("hello");
+	};
+	1;
+};
+
+func1 = fn () {
+	let a = 10;
+	fn () {
+		func(a);
+		a.f();
+	} ();
+};
+
+func1();

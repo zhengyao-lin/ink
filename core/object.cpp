@@ -213,6 +213,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	else {
 		for (j = 0, argi = 0; j < param.size(); j++, argi++) {
 			local->setSlot(param[j]->c_str(), argi < argc ? argv[argi] : new Ink_Undefined()); // initiate local argument
+			if (argi < argc)
+				gc_engine->addPardon(argv[argi]);
 		}
 
 		if (argi > argc) {

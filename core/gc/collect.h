@@ -33,12 +33,14 @@ class IGC_CollectEngine {
 public:
 	//long object_count;
 	//long collect_treshold;
+	IGC_CollectUnit *pardon_chain;
 	IGC_CollectUnit *object_chain;
 	IGC_CollectUnit *object_chain_last;
 	Ink_ContextChain *local_context;
 
 	IGC_CollectEngine()
 	{
+		pardon_chain = NULL;
 		object_chain = NULL;
 		object_chain_last = NULL;
 		local_context = NULL;
@@ -49,9 +51,11 @@ public:
 		local_context = context;
 	}
 	void addUnit(IGC_CollectUnit *unit);
+	void addPardon(Ink_Object *obj);
 	void cleanMark();
 	static void doMark(Ink_Object *obj);
 	static void deleteObject(IGC_CollectUnit *unit);
+	static void disposeChainWithoutDelete(IGC_CollectUnit *chain);
 
 	void doCollect();
 	void collectGarbage(bool delete_all = false);
@@ -61,6 +65,7 @@ public:
 	~IGC_CollectEngine()
 	{
 		// collectGarbage(true);
+		disposeChainWithoutDelete(pardon_chain);
 	}
 };
 

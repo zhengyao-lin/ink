@@ -23,6 +23,18 @@ void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
 	return;
 }
 
+void IGC_CollectEngine::addPardon(Ink_Object *obj)
+{
+	if (pardon_chain) {
+		pardon_chain->next = new IGC_CollectUnit(obj);
+		pardon_chain->next->prev = pardon_chain;
+	} else {
+		pardon_chain = new IGC_CollectUnit(obj);
+	}
+
+	return;
+}
+
 void IGC_CollectEngine::cleanMark()
 {
 	IGC_CollectUnit *i;
@@ -76,6 +88,21 @@ void IGC_CollectEngine::deleteObject(IGC_CollectUnit *unit)
 	return;
 }
 
+void IGC_CollectEngine::disposeChainWithoutDelete(IGC_CollectUnit *chain)
+{
+	IGC_CollectUnit *i, *tmp;
+	for (i = chain; i;) {
+		tmp = i;
+		i = i->next;
+		tmp->obj = NULL;
+		tmp->prev = NULL;
+		tmp->next = NULL;
+		delete tmp;
+	}
+
+	return;
+}
+
 void IGC_CollectEngine::doCollect()
 {
 	IGC_CollectUnit *i, *tmp, *last = NULL;
@@ -99,22 +126,25 @@ void IGC_CollectEngine::doCollect()
 
 void IGC_CollectEngine::collectGarbage(bool delete_all)
 {
-	//Ink_ContextChain *global = local_context->getGlobal();
+	Ink_ContextChain *global = local_context->getGlobal();
 	Ink_ContextChain *i;
+	IGC_CollectUnit *j;
 
 	//printf("========== GC INTERRUPT =========\n");
 
 	//if (if_clean_mark)
 	//	cleanMark();
 	if (!delete_all) {
-		/* for (i = global; i; i = i->inner) {
-			// printf("hi\n");
-			doMark(i->context);
-		} */
-		for (i = current_interprete_engine->trace->getGlobal();
-			 i; i = i->inner) {
+		for (i = global; i; i = i->inner) {
 			doMark(i->context);
 		}
+		for (j = pardon_chain; j; j = j->next) {
+			doMark(j->obj);
+		}
+		/* for (i = current_interprete_engine->trace->getGlobal();
+			 i; i = i->inner) {
+			doMark(i->context);
+		} */
 	}
 	doCollect();
 	CURRENT_MARK_PERIOD++;
