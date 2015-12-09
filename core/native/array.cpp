@@ -30,12 +30,15 @@ Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, 
 			hash->bondee = obj->value[index];
 			ret = hash->value;
 			ret->address = hash;
+			ret->setSlot("base", base);
 		} else {
 			InkWarn_Index_Exceed();
 			return new Ink_Undefined();
 		}
 
 		return ret;
+	} else {
+		return InkNative_Object_Index(context, argc, argv, this_p);
 	}
 
 	return new Ink_NullObject();

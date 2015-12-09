@@ -28,7 +28,7 @@ void IGC_CollectEngine::cleanMark()
 	IGC_CollectUnit *i;
 
 	for (i = object_chain; i; i = i->next) {
-		i->obj->marked = false;
+		i->obj->mark = false;
 	}
 
 	return;
@@ -38,7 +38,7 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 {
 	Ink_HashTable *i;
 
-	if (obj->marked != CURRENT_MARK_PERIOD) obj->marked = CURRENT_MARK_PERIOD;
+	if (obj->mark != CURRENT_MARK_PERIOD) obj->mark = CURRENT_MARK_PERIOD;
 	else {
 		//printf("========skip!\n");
 		return;
@@ -83,7 +83,7 @@ void IGC_CollectEngine::doCollect()
 	for (i = object_chain; i;) {
 		tmp = i;
 		i = i->next;
-		if (tmp->obj->marked != CURRENT_MARK_PERIOD) {
+		if (tmp->obj->mark != CURRENT_MARK_PERIOD) {
 			// if (tmp == object_chain) object_chain = i;
 			deleteObject(tmp);
 		} else {

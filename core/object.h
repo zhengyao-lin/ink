@@ -36,7 +36,7 @@ typedef vector<string *> Ink_ParamList;
 
 class Ink_Object {
 public:
-	int marked;
+	int mark;
 	Ink_TypeTag type;
 
 	Ink_HashTable *hash_table;
@@ -46,7 +46,7 @@ public:
 
 	Ink_Object(bool if_init_method = false)
 	{
-		marked = 0;
+		mark = 0;
 		type = INK_OBJECT;
 		hash_table = NULL;
 		address = NULL;

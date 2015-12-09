@@ -78,7 +78,7 @@ Ink_Object *InkNative_Object_Index(Ink_ContextChain *context, unsigned int argc,
 
 		return Ink_HashExpression::getSlot(base, as<Ink_String>(argv[0])->value.c_str());
 	} else if (base->type == INK_FUNCTION) {
-		return InkNative_Function_RangeCall(context, argc, argv);
+		return InkNative_Function_RangeCall(context, argc, argv, this_p);
 	}
 
 	return new Ink_NullObject();

@@ -453,14 +453,11 @@ table_expression
 	: postfix_expression
 	| TLBRACE element_list_opt TRBRACE
 	{
-		$$ = new Ink_CallExpression(new Ink_HashExpression(
-										new Ink_FunctionExpression(Ink_ParamList(), *$2),
-										new string("new")),
-									Ink_ExpressionList());
+		$$ = new Ink_TableExpression(*$2);
 		delete $2;
 		SET_LINE_NO($$);
-		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
+	;
 
 postfix_expression
 	: function_expression
@@ -518,18 +515,18 @@ param_opt
 
 function_expression
 	: primary_expression
-	| TFUNC TLPAREN param_opt TRPAREN nllo TLBRACE expression_list_opt TRBRACE
+	| TFUNC nllo TLPAREN param_opt TRPAREN nllo TLBRACE expression_list_opt TRBRACE
 	{
-		$$ = new Ink_FunctionExpression(*$3, *$7);
-		delete $3;
-		delete $7;
+		$$ = new Ink_FunctionExpression(*$4, *$8);
+		delete $4;
+		delete $8;
 		SET_LINE_NO($$);
 	}
-	| TFUNC TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
+	| TFUNC nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
 	{
-		$$ = new Ink_FunctionExpression(*$3, *$7);
-		delete $3;
-		delete $7;
+		$$ = new Ink_FunctionExpression(*$4, *$8);
+		delete $4;
+		delete $8;
 		SET_LINE_NO($$);
 	}
 	| functional_block

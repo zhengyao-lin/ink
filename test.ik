@@ -149,13 +149,13 @@ p("hello"[0]);
 p(a[hash]);
 
 Object = {
-	setLocal : fn (name, value) {
+	fn (name, value) {
 		base[name] = value;
 	}
 };
 
 a = Object;
-a.setLocal("val1", "halo!");
+a[0]("val1", "halo!");
 p("halo!? : " + a.val1);
 
 // Closure

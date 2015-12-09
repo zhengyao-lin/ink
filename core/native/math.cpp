@@ -47,8 +47,13 @@ Ink_Object *InkNative_Numeric_Div(Ink_ContextChain *context, unsigned int argc, 
 Ink_Object *InkNative_Numeric_Equal(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
-	if (base->type == INK_NUMERIC && argc && argv[0]->type == INK_NUMERIC) {
+
+	if (!argc) return new Ink_NullObject();
+
+	if (base->type == INK_NUMERIC && argv[0]->type == INK_NUMERIC) {
 		return new Ink_Numeric(as<Ink_Numeric>(base)->value == as<Ink_Numeric>(argv[0])->value);
+	} else {
+		return InkNative_Object_Equal(context, argc, argv, this_p);
 	}
 
 	return new Ink_NullObject();
@@ -57,8 +62,13 @@ Ink_Object *InkNative_Numeric_Equal(Ink_ContextChain *context, unsigned int argc
 Ink_Object *InkNative_Numeric_NotEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
-	if (base->type == INK_NUMERIC && argc && argv[0]->type == INK_NUMERIC) {
+
+	if (!argc) return new Ink_NullObject();
+
+	if (base->type == INK_NUMERIC && argv[0]->type == INK_NUMERIC) {
 		return new Ink_Numeric(as<Ink_Numeric>(base)->value != as<Ink_Numeric>(argv[0])->value);
+	} else {
+		return InkNative_Object_NotEqual(context, argc, argv, this_p);
 	}
 
 	return new Ink_NullObject();

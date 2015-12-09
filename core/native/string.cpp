@@ -25,6 +25,8 @@ Ink_Object *InkNative_String_Index(Ink_ContextChain *context, unsigned int argc,
 	if (argc && argv[0]->type == INK_NUMERIC) {
 		int index = as<Ink_Numeric>(argv[0])->value;
 		return new Ink_String(as<Ink_String>(base)->value.substr(index, 1));
+	} else {
+		return InkNative_Object_Index(context, argc, argv, this_p);
 	}
 
 	return new Ink_NullObject();
