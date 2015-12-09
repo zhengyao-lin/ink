@@ -33,7 +33,7 @@
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TOR TADD TSUB TMUL TDIV TMOD TDOT TNL
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
-%token <token> TARR TINS TOUT
+%token <token> TARR TINS TOUT TGO
 %token <token> TCLE TCLT TCGE TCGT TCEQ TCNE TCAND TCOR
 
 %type <expression> expression assignment_expression
@@ -45,7 +45,7 @@
 				   table_expression functional_block
 				   block equality_expression
 				   relational_expression logical_and_expression
-				   logical_or_expression
+				   logical_or_expression go_expression
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
@@ -110,7 +110,14 @@ expression_list_opt
 expression
 	: nestable_expression
 	| return_expression
+	| go_expression
 	;
+
+go_expression
+	: TGO nestable_expression
+	{
+		$$ = new Ink_GoExpression($2);
+	}
 
 nestable_expression
 	: field_expression

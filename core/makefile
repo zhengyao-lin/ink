@@ -2,6 +2,7 @@ TARGET=core.o
 REQUIRE=\
 	gc/gc.o \
 	native/native.o \
+	thread/thread.o \
 	hash.o \
 	object.o \
 	expression.o \
@@ -17,10 +18,13 @@ $(TARGET): $(REQUIRE)
 	$(LD) -r -o $@ $(REQUIRE) $(LDFLAGS)
 
 gc/gc.o:
-	cd gc; $(MAKE);
+	cd gc; $(MAKE)
 
 native/native.o:
-	cd native; $(MAKE);
+	cd native; $(MAKE)
+
+thread/thread.o:
+	cd thread; $(MAKE)
 
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS)
@@ -28,4 +32,5 @@ native/native.o:
 clean:
 	cd gc; $(MAKE) clean
 	cd native; $(MAKE) clean
+	cd thread; $(MAKE) clean
 	$(RM) *.o

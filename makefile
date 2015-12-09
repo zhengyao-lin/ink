@@ -9,7 +9,7 @@ REQUIRE=\
 CC=g++
 LD=ld
 CPPFLAGS= -g -Wall -pedantic
-LDFLAGS=
+LDFLAGS=-pthread
 
 $(TARGET): $(REQUIRE)
 	$(CC) -o $@ $(REQUIRE) $(LDFLAGS)

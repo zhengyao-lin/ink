@@ -65,7 +65,8 @@ public:
 	~IGC_CollectEngine()
 	{
 		// collectGarbage(true);
-		disposeChainWithoutDelete(pardon_chain);
+		if (pardon_chain)
+			disposeChainWithoutDelete(pardon_chain);
 	}
 };
 

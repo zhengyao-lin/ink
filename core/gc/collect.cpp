@@ -7,7 +7,7 @@ extern Ink_InterpreteEngine *current_interprete_engine;
 
 void IGC_initGC(IGC_CollectEngine *engine)
 {
-	current_interprete_engine->current_gc_engine = engine;
+	current_interprete_engine->setCurrentGC(engine);
 	return;
 }
 
@@ -17,7 +17,7 @@ void IGC_addObject(Ink_Object *obj)
 
 	if (current_interprete_engine) {
 		new_unit = new IGC_CollectUnit(obj);
-		current_interprete_engine->current_gc_engine->addUnit(new_unit);
+		current_interprete_engine->getCurrentGC()->addUnit(new_unit);
 	}
 
 	return;

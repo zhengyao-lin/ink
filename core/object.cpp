@@ -193,7 +193,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	// Ink_HashTable *i;
 	Ink_ContextObject *local; // new local context
 	Ink_Object *ret_val = NULL;
-	IGC_CollectEngine *engine_backup = current_interprete_engine->current_gc_engine;
+	IGC_CollectEngine *engine_backup = current_interprete_engine->getCurrentGC();
 
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
 	IGC_initGC(gc_engine);
@@ -205,7 +205,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		local->setSlot("this", this_p ? this_p : this);
 	}
 	context->addContext(local);
-	current_interprete_engine->trace->addContext(local);
 
 	gc_engine->initContext(context);
 
@@ -237,7 +236,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 	//gc_engine->collectGarbage();
 	context->removeLast();
-	current_interprete_engine->trace->removeLast();
 	
 	if (ret_val)
 		gc_engine->doMark(ret_val);
@@ -250,7 +248,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 	//delete gc_engine;
 	if (engine_backup) engine_backup->link(gc_engine);
-	current_interprete_engine->current_gc_engine = engine_backup;
+	current_interprete_engine->setCurrentGC(engine_backup);
 	delete gc_engine;
 
 	return ret_val ? ret_val : new Ink_NullObject(); // return the last expression

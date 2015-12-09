@@ -4,10 +4,12 @@
 #include <iostream>
 #include <vector>
 #include <stdlib.h>
+#include <unistd.h>
 #include "object.h"
 #include "context.h"
 #include "error.h"
 #include "gc/collect.h"
+#include "thread/thread.h"
 #define SET_LINE_NUM (line_num_back = inkerr_current_line_number = line_number)
 #define RESTORE_LINE_NUM (inkerr_current_line_number = line_num_back)
 using namespace std;
@@ -33,6 +35,54 @@ public:
 	{ }
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain) { return NULL; }
 	virtual ~Ink_Expression() { }
+};
+
+class Ink_GoExpression: public Ink_Expression {
+public:
+	Ink_Expression *exp;
+
+	Ink_GoExpression(Ink_Expression *exp)
+	: exp(exp)
+	{ }
+
+	static void *shell(void *p)
+	{
+		registerThread();
+		
+		EvalArgument *arg = (EvalArgument *)p;
+		Ink_ContextChain *context = arg->context;
+
+		IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
+		IGC_initGC(gc_engine);
+		gc_engine->initContext(context);
+
+		arg->exp->eval(context);
+
+		gc_engine->collectGarbage(true);
+		delete gc_engine;
+		delete arg;
+
+		return NULL;
+	}
+
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	{
+		pthread_t *thd = (pthread_t *)malloc(sizeof(pthread_t));;
+
+		pthread_create(thd, NULL, shell, new EvalArgument(exp, context_chain));
+		//sleep(1);
+		//pthread_join(thd, NULL);
+		//pthread_detach(*thd);
+		addThread(thd);
+
+		return new Ink_NullObject();
+	}
+
+	~Ink_GoExpression()
+	{
+		if (exp)
+			delete exp;
+	}
 };
 
 class Ink_ReturnExpression: public Ink_Expression {

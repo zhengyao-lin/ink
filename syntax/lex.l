@@ -116,6 +116,7 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"fn"						return TOKEN(TFUNC);
 <INITIAL>"do"						return TOKEN(TDO);
 <INITIAL>"end"						return TOKEN(TEND);
+<INITIAL>"go"						return TOKEN(TGO);
 
 <INITIAL>"&&"						return TOKEN(TCAND);
 <INITIAL>"||"						return TOKEN(TCOR);

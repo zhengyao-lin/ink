@@ -4,6 +4,7 @@
 #include "core/expression.h"
 #include "core/gc/collect.h"
 #include "interface/engine.h"
+#include "core/thread/thread.h"
 
 Ink_ExpressionList native_exp_list = Ink_ExpressionList();
 
@@ -14,6 +15,26 @@ void cleanAll()
 		delete native_exp_list[i];
 	}
 }
+
+/*void *test1(void *p)
+{
+	registerThread();
+	printf("1: %u\n", getThreadID());
+}
+
+void *test2(void *p)
+{
+	registerThread();
+	printf("2: %u\n", getThreadID());
+}
+
+void *test3(void *p)
+{
+	registerThread();
+	printf("3: %u\n", getThreadID());
+}*/
+
+extern Ink_InterpreteEngine *current_interprete_engine;
 
 int main()
 {
@@ -59,10 +80,23 @@ int main()
 	gc_engine->collectGarbage(true);
 	delete gc_engine;
 #endif
+	initThread();
+
+	//pthread_t th1;
+
+	registerThread();
+	/*pthread_create(&th1, NULL, test1, NULL);
+	pthread_join(th1, NULL);
+	pthread_create(&th1, NULL, test2, NULL);
+	pthread_join(th1, NULL);
+	pthread_create(&th1, NULL, test3, NULL);
+	pthread_join(th1, NULL);*/
 
 	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
 	engine->startParse();
 	engine->execute();
+
+	joinAllThread();
 
 	delete engine;
 	cleanAll();

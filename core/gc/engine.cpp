@@ -25,9 +25,12 @@ void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
 
 void IGC_CollectEngine::addPardon(Ink_Object *obj)
 {
+	IGC_CollectUnit *unit;
+
 	if (pardon_chain) {
-		pardon_chain->next = new IGC_CollectUnit(obj);
-		pardon_chain->next->prev = pardon_chain;
+		for (unit = pardon_chain; unit->next; unit = unit->next) ;
+		unit->next = new IGC_CollectUnit(obj);
+		unit->next->prev = unit;
 	} else {
 		pardon_chain = new IGC_CollectUnit(obj);
 	}
