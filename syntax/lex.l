@@ -198,6 +198,7 @@ int ink_yyinput(char *buf, int max_size)
 <CC_COMMENT>{NEWLINE} {
 	LINE_NUMBER_INC();
 	BEGIN INITIAL;
+	return TOKEN(TNL);
 }
 <CC_COMMENT><<EOF>>	BEGIN INITIAL;
 <CC_COMMENT>.			;
