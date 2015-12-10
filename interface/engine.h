@@ -34,16 +34,16 @@ public:
 	Ink_ContextChain *global_context;
 	Ink_InputMode input_mode;
 
-	MutexLock gc_lock;
+	// MutexLock gc_lock;
 	long igc_object_count;
 	long igc_collect_treshold;
-	// IGC_CollectEngine *current_gc_engine;
+	IGC_CollectEngine *current_gc_engine;
 	int igc_mark_period;
-	std::map<int, IGC_CollectEngine *> gc_engine_map;
+	// std::map<int, IGC_CollectEngine *> gc_engine_map;
 
 	Ink_InterpreteEngine()
 	{
-		gc_lock.init();
+		// gc_lock.init();
 		Ink_setCurrentEngine(this);
 
 		igc_object_count = 0;
@@ -61,24 +61,31 @@ public:
 
 	int setCurrentGC(IGC_CollectEngine *engine)
 	{
+		#if 0
 		int id;
 
-		gc_lock.lock();
+		// gc_lock.lock();
 		gc_engine_map[id = getThreadID()] = engine;
-		gc_lock.unlock();
+		// gc_lock.unlock();
 
 		return id;
+		#endif
+		current_gc_engine = engine;
+		return 0;
 	}
 
 	IGC_CollectEngine *getCurrentGC()
 	{
+		#if 0
 		IGC_CollectEngine *ret;
 
-		gc_lock.lock();
+		// gc_lock.lock();
 		ret = gc_engine_map[getThreadID()];
-		gc_lock.unlock();
+		// gc_lock.unlock();
 
 		return ret;
+		#endif
+		return current_gc_engine;
 	}
 
 	void startParse(FILE *input = stdin);

@@ -201,5 +201,5 @@ fib = fn (n) do
 	retn this(n - 2) + this(n - 1)
 end
 
-go p(fib(10));
+p(fib(10));
 func();
