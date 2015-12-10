@@ -391,7 +391,8 @@ unary_expression
 	| TNEW nllo postfix_expression TLPAREN argument_list_opt TRPAREN block_list
 	{
 		$5->insert($5->end(), $7->begin(), $7->end());
-		$$ = new Ink_CallExpression($3, *$5);
+		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("new")),
+									*$5);
 		delete $5;
 		delete $7;
 		SET_LINE_NO($$);
