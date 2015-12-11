@@ -3,6 +3,7 @@ REQUIRE=\
 	gc/gc.o \
 	native/native.o \
 	thread/thread.o \
+	coroutine/coroutine.o \
 	hash.o \
 	object.o \
 	expression.o \
@@ -26,6 +27,9 @@ native/native.o:
 thread/thread.o:
 	cd thread; $(MAKE)
 
+coroutine/coroutine.o:
+	cd coroutine; $(MAKE)
+
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS)
 
@@ -33,4 +37,5 @@ clean:
 	cd gc; $(MAKE) clean
 	cd native; $(MAKE) clean
 	cd thread; $(MAKE) clean
+	cd coroutine; $(MAKE) clean
 	$(RM) *.o

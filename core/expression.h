@@ -67,7 +67,7 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
 	{
-		pthread_t *thd = (pthread_t *)malloc(sizeof(pthread_t));;
+		pthread_t *thd = (pthread_t *)malloc(sizeof(pthread_t));
 
 		pthread_create(thd, NULL, shell, new EvalArgument(exp, context_chain));
 		//sleep(1);

@@ -5,6 +5,7 @@
 #include "core/gc/collect.h"
 #include "interface/engine.h"
 #include "core/thread/thread.h"
+#include "core/coroutine/coroutine.h"
 
 Ink_ExpressionList native_exp_list = Ink_ExpressionList();
 
@@ -94,12 +95,15 @@ int main()
 
 	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
 	engine->startParse();
+
 	engine->execute();
 
 	joinAllThread();
 
 	delete engine;
 	cleanAll();
+
+
 
 	return 0;
 }
