@@ -209,7 +209,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		clone_origin->is_generator = false;
 
 		gen->setSlot("origin", clone_origin);
-
 		gen->setSlot("address", new Ink_Array());
 		gen->setSlot("send", new Ink_FunctionObject(InkNative_Generator_Send));
 

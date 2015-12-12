@@ -268,3 +268,42 @@ g = yieldHost(func);
 g(fn (a) {
 	p(a);
 });
+
+
+
+
+
+///////////////////////////////////////////////////////////
+fib = fn () {
+	let generator = {};
+	let '$yield' = fn (k, value) {
+		generator.next = k;
+		retn value;
+	};
+
+	generator.next = fn () {
+		let i = 0;
+		let j = 1;
+		let '$while' = fn () {
+			retn '$yield' (fn () {
+				let t = i;
+				i = j;
+				j = j + t;
+				retn '$while'();
+			}, i);
+		};
+		retn '$while'();
+	}
+	retn generator;
+}
+
+
+p("**********************************************************");
+
+let g = fib();
+let i = 0;
+
+while ([i < 10]) {
+  p(g.next());
+  i = i + 1;
+}
