@@ -83,15 +83,7 @@ int main()
 #endif
 	initThread();
 
-	//pthread_t th1;
-
 	registerThread();
-	/*pthread_create(&th1, NULL, test1, NULL);
-	pthread_join(th1, NULL);
-	pthread_create(&th1, NULL, test2, NULL);
-	pthread_join(th1, NULL);
-	pthread_create(&th1, NULL, test3, NULL);
-	pthread_join(th1, NULL);*/
 
 	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
 	engine->startParse();

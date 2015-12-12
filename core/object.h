@@ -21,7 +21,8 @@ enum Ink_TypeTag {
 	INK_FLOAT,
 	INK_CONTEXT,
 	INK_FUNCTION,
-	INK_ARRAY
+	INK_ARRAY,
+	INK_CONTEXTCHAIN
 };
 
 void IGC_addObject(Ink_Object *obj);
@@ -29,6 +30,7 @@ void IGC_addObject(Ink_Object *obj);
 extern bool CGC_if_return;
 
 class Ink_Expression;
+class Ink_ContextObject;
 class Ink_ContextChain;
 class IGC_CollectEngine;
 typedef vector<Ink_Expression *> Ink_ExpressionList;
@@ -73,7 +75,8 @@ public:
 	static void cloneHashTable(Ink_Object *src, Ink_Object *dest);
 
 	virtual Ink_Object *clone();
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL)
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
+							 Ink_Object *this_p = NULL)
 	{
 		InkErr_Calling_Non_Function_Object(context);
 		return NULL;
@@ -93,7 +96,8 @@ public:
 	virtual Ink_Object *clone()
 	{ return this; }
 
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL)
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
+							 Ink_Object *this_p = NULL)
 	{
 		InkErr_Calling_Undefined_Object(context);
 		return NULL;
@@ -126,6 +130,7 @@ class Ink_FunctionObject: public Ink_Object {
 public:
 	bool is_native;
 	bool is_inline;
+	bool is_generator;
 
 	Ink_NativeFunction native;
 
@@ -135,15 +140,15 @@ public:
 	Ink_ContextChain *closure_context;
 
 	Ink_FunctionObject()
-	: is_native(false), is_inline(false), native(NULL), param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL)
+	: is_native(false), is_inline(false), is_generator(false), native(NULL), param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL)
 	{ type = INK_FUNCTION; }
 
 	Ink_FunctionObject(Ink_NativeFunction native, bool is_inline = false)
-	: is_native(true), is_inline(is_inline), native(native), param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL)
+	: is_native(true), is_inline(is_inline), is_generator(false), native(native), param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL)
 	{ type = INK_FUNCTION; }
 
-	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL, bool is_inline = false)
-	: is_native(false), is_inline(is_inline), native(NULL), param(param), exp_list(exp_list), closure_context(closure_context)
+	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL, bool is_inline = false, bool is_generator = false)
+	: is_native(false), is_inline(is_inline), is_generator(is_generator), native(NULL), param(param), exp_list(exp_list), closure_context(closure_context)
 	{ type = INK_FUNCTION; }
 
 	virtual void derivedMethodInit()
@@ -152,7 +157,8 @@ public:
 	}
 	void Ink_FunctionMethodInit();
 
-	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL);
+	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
+							 Ink_Object *this_p = NULL);
 	virtual Ink_Object *clone();
 
 	virtual ~Ink_FunctionObject();

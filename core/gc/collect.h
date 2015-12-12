@@ -33,6 +33,8 @@ class IGC_CollectEngine {
 public:
 	//long object_count;
 	//long collect_treshold;
+	int mark;
+	Ink_TypeTag type;
 	IGC_CollectUnit *pardon_chain;
 	IGC_CollectUnit *object_chain;
 	IGC_CollectUnit *object_chain_last;
@@ -40,6 +42,8 @@ public:
 
 	IGC_CollectEngine()
 	{
+		mark = 0;
+		type = INK_NULL;
 		pardon_chain = NULL;
 		object_chain = NULL;
 		object_chain_last = NULL;

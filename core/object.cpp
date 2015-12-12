@@ -1,9 +1,11 @@
+#include <string.h>
 #include "hash.h"
 #include "object.h"
 #include "expression.h"
 #include "gc/collect.h"
 #include "native/native.h"
 #include "../interface/engine.h"
+#include "coroutine/coroutine.h"
 
 extern int numeric_native_method_table_count;
 extern InkNative_MethodTable numeric_native_method_table[];
@@ -187,13 +189,32 @@ Ink_Object *Ink_String::clone()
 	return new_obj;
 }
 
-Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Generator_Send(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	return NULL;
+}
+
+Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
+									 Ink_Object *this_p)
 {
 	unsigned int argi, j;
 	// Ink_HashTable *i;
-	Ink_ContextObject *local; // new local context
+	Ink_ContextObject *local;
 	Ink_Object *ret_val = NULL;
 	IGC_CollectEngine *engine_backup = current_interprete_engine->getCurrentGC();
+
+	if (is_generator) {
+		Ink_Object *gen = new Ink_Object();
+		Ink_FunctionObject *clone_origin = as<Ink_FunctionObject>(this->clone());
+		clone_origin->is_generator = false;
+
+		gen->setSlot("origin", clone_origin);
+
+		gen->setSlot("address", new Ink_Array());
+		gen->setSlot("send", new Ink_FunctionObject(InkNative_Generator_Send));
+
+		return gen;
+	}
 
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
 	IGC_initGC(gc_engine);
@@ -234,7 +255,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		ret_val = local->getSlot("this");
 	}
 
-	//gc_engine->collectGarbage();
 	context->removeLast();
 	
 	if (ret_val)
@@ -243,12 +263,9 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 	if (closure_context) Ink_ContextChain::disposeContextChain(context);
 
-	//gc_engine->doMark(ret_val);
-	//gc_engine->collectGarbage();
-
-	//delete gc_engine;
 	if (engine_backup) engine_backup->link(gc_engine);
-	current_interprete_engine->setCurrentGC(engine_backup);
+
+	IGC_initGC(engine_backup);
 	delete gc_engine;
 
 	return ret_val ? ret_val : new Ink_NullObject(); // return the last expression
@@ -289,6 +306,7 @@ Ink_Object *Ink_FunctionObject::clone()
 
 	new_obj->is_native = is_native;
 	new_obj->is_inline = is_inline;
+	new_obj->is_generator = is_generator;
 	new_obj->native = native;
 
 	new_obj->param = param;

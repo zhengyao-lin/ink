@@ -8,6 +8,7 @@
 
 extern Ink_ExpressionList native_exp_list;
 extern bool CGC_if_return;
+extern bool CGC_if_yield;
 
 void disposeParamList(Ink_ParamList param)
 {
@@ -87,7 +88,7 @@ Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, In
 	ret = new Ink_NullObject();
 	while (isTrue(cond->call(context))) {
 		ret = block->call(context);
-		if (CGC_if_return) {
+		if (CGC_if_return || CGC_if_yield) {
 			return ret;
 		}
 	}

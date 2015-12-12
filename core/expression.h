@@ -12,12 +12,14 @@
 #include "thread/thread.h"
 #define SET_LINE_NUM (line_num_back = inkerr_current_line_number = line_number)
 #define RESTORE_LINE_NUM (inkerr_current_line_number = line_num_back)
+
 using namespace std;
 
 class Ink_Expression;
 
 extern bool CGC_if_return;
 extern int inkerr_current_line_number;
+extern bool CGC_if_skip_yield;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
 typedef vector<string *> Ink_ParamList;
@@ -35,6 +37,22 @@ public:
 	{ }
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain) { return NULL; }
 	virtual ~Ink_Expression() { }
+};
+
+class Ink_YieldExpression: public Ink_Expression {
+public:
+	Ink_Expression *ret_val;
+
+	Ink_YieldExpression(Ink_Expression *ret_val)
+	: ret_val(ret_val)
+	{ }
+
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain);
+
+	virtual ~Ink_YieldExpression()
+	{
+		delete ret_val;
+	}
 };
 
 class Ink_GoExpression: public Ink_Expression {
@@ -99,10 +117,11 @@ public:
 		SET_LINE_NUM;
 
 		Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
-		CGC_if_return = true;
-		return ret;
 
 		RESTORE_LINE_NUM;
+		CGC_if_return = true;
+
+		return ret;
 	}
 
 	~Ink_ReturnExpression()
@@ -286,9 +305,10 @@ public:
 	Ink_ParamList param;
 	Ink_ExpressionList exp_list;
 	bool is_inline;
+	bool is_generator;
 
-	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, bool is_inline = false)
-	: param(param), exp_list(exp_list), is_inline(is_inline)
+	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, bool is_inline = false, bool is_generator = false)
+	: param(param), exp_list(exp_list), is_inline(is_inline), is_generator(is_generator)
 	{ }
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain);

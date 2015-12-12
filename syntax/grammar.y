@@ -29,7 +29,7 @@
 
 %token <string> TIDENTIFIER TNUMERIC TSTRING
 
-%token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE TFUNC TDO TEND TGO TYIELD
+%token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE TFUNC TDO TEND TGO TYIELD TGEN
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TOR TADD TSUB TMUL TDIV TMOD TDOT TNL
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
@@ -45,7 +45,7 @@
 				   table_expression functional_block
 				   block equality_expression
 				   relational_expression logical_and_expression
-				   logical_or_expression
+				   logical_or_expression yield_expression
 %type <parameter> param_list param_opt
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
@@ -182,13 +182,13 @@ logical_and_expression
 	;
 
 assignment_expression
-	: equality_expression
-	| equality_expression TASSIGN nllo assignment_expression
+	: yield_expression
+	| yield_expression TASSIGN nllo assignment_expression
 	{
 		$$ = new Ink_AssignmentExpression($1, $4);
 		SET_LINE_NO($$);
 	}
-	| equality_expression TARR nllo assignment_expression
+	| yield_expression TARR nllo assignment_expression
 	{
 		Ink_ExpressionList arg = Ink_ExpressionList();
 		arg.push_back($4);
@@ -196,6 +196,15 @@ assignment_expression
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("->")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
+	;
+
+yield_expression
+	: equality_expression
+	| TYIELD yield_expression
+	{
+		$$ = new Ink_YieldExpression($2);
+		SET_LINE_NO($$);
 	}
 	;
 
@@ -526,6 +535,20 @@ function_expression
 	| TFUNC nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
 	{
 		$$ = new Ink_FunctionExpression(*$4, *$8);
+		delete $4;
+		delete $8;
+		SET_LINE_NO($$);
+	}
+	| TGEN nllo TLPAREN param_opt TRPAREN nllo TLBRACE expression_list_opt TRBRACE
+	{
+		$$ = new Ink_FunctionExpression(*$4, *$8, false, true);
+		delete $4;
+		delete $8;
+		SET_LINE_NO($$);
+	}
+	| TGEN nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
+	{
+		$$ = new Ink_FunctionExpression(*$4, *$8, false, true);
 		delete $4;
 		delete $8;
 		SET_LINE_NO($$);

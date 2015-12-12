@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "expression.h"
+#include "coroutine/coroutine.h"
 
 bool CGC_if_return = false;
+bool CGC_if_yield = false;
 
 Ink_Expression *Ink_NumericConstant::parse(string code)
 {
@@ -25,10 +27,23 @@ Ink_Expression *Ink_NumericConstant::parse(string code)
 	return NULL;
 }
 
+Ink_Object *Ink_YieldExpression::eval(Ink_ContextChain *context_chain)
+{
+	int line_num_back;
+	SET_LINE_NUM;
+
+	Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
+
+	RESTORE_LINE_NUM;
+	CGC_if_yield = true;
+
+	return ret;
+}
+
 Ink_Object *Ink_FunctionExpression::eval(Ink_ContextChain *context_chain)
 {
 	int line_num_back;
 	SET_LINE_NUM;
 	RESTORE_LINE_NUM;
-	return new Ink_FunctionObject(param, exp_list, context_chain->copyContextChain(), is_inline);
+	return new Ink_FunctionObject(param, exp_list, context_chain->copyContextChain(), is_inline, is_generator);
 }

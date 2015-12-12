@@ -201,5 +201,70 @@ fib = fn (n) do
 	retn this(n - 2) + this(n - 1)
 end
 
-p(fib(10));
+// p(fib(10));
 func();
+
+yield_f = fn (block) {
+	block;
+};
+
+consumer = fn () {
+	let r = "200 OK"
+	let ret = r
+
+	ret.send = yield_f() { |n|
+		if (!n) { retn }
+		p("[CONSUMER] Consuming " + n + "...");
+		ret;
+	}
+	retn ret;
+}
+
+producer = fn () {
+	let c = consumer();
+	let n = 0;
+	while ([n < 5]) {
+		n = n + 1;
+		p("[PRODUCER] Producing " + n + "...");
+		let r = c.send(n);
+		p("[PRODUCER] Consumer return: " + r);
+	}
+}
+
+producer();
+
+func = gen () {
+	yield 1;
+	while ([1]) {
+		let a = 10;
+		while ([1]) {
+			yield (a = a + 1);
+		}
+	}
+}
+
+g = func();
+p(g.send());
+p(g.send());
+
+yieldHost = fn (yieldFunction) {
+	retn fn (processer) { 
+		yield_f = fn (result) { 
+			processer(result)
+		};
+        yieldFunction(yield_f);
+	};
+}
+
+func = fn (yield_f) {
+	a = 0;
+	while ([a <= 10]) {
+		yield_f(a);
+		a = a + 1;
+	}
+}
+
+g = yieldHost(func);
+g(fn (a) {
+	p(a);
+});
