@@ -87,7 +87,7 @@ Ink_Object *InkNative_Object_Index(Ink_ContextChain *context, unsigned int argc,
 Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
-	Ink_Object *new_obj = new Ink_Object(true);
+	Ink_Object *new_obj = new Ink_Object();
 
 	if (base->type == INK_FUNCTION) {
 		return base->call(context, argc, argv, new_obj);

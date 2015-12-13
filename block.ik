@@ -58,7 +58,7 @@ p("**************************************");
 
 a = 10;
 
-while ([a]) {
+while (a) {
 	p(a);
 	a = a - 1;
 };
@@ -67,7 +67,7 @@ p("**************************************");
 
 func = fn () {
 	let i = 0;
-	while ([i - 10]) {
+	while (i - 10) {
 		p(i);
 		i = i + 1;
 		if (!(i - 5)) {
@@ -165,11 +165,12 @@ p(a[123]);
 eval("eval(\"abc = \\\"hellowww\\\";\");");
 p(abc);
 
+lazy = fn (&exp) { exp }
 
 func = fn () {
 	let abcd = 10;
 	eval("fn () {
-		eval(\"[abcd = 100];\");
+		eval(\"lazy(abcd = 100);\");
 	} ();")();
 	p(abcd);
 };
@@ -223,7 +224,7 @@ consumer = fn () {
 producer = fn () {
 	let c = consumer();
 	let n = 0;
-	while ([n < 5]) {
+	while (n < 5) {
 		n = n + 1;
 		p("[PRODUCER] Producing " + n + "...");
 		let r = c.send(n);
@@ -232,20 +233,6 @@ producer = fn () {
 }
 
 producer();
-
-func = gen () {
-	yield 1;
-	while ([1]) {
-		let a = 10;
-		while ([1]) {
-			yield (a = a + 1);
-		}
-	}
-}
-
-g = func();
-p(g.send());
-p(g.send());
 
 yieldHost = fn (yieldFunction) {
 	retn fn (processer) { 
@@ -258,7 +245,7 @@ yieldHost = fn (yieldFunction) {
 
 func = fn (yield_f) {
 	a = 0;
-	while ([a <= 10]) {
+	while (a <= 10) {
 		yield_f(a);
 		a = a + 1;
 	}
@@ -268,8 +255,6 @@ g = yieldHost(func);
 g(fn (a) {
 	p(a);
 });
-
-
 
 
 
@@ -303,7 +288,29 @@ p("**********************************************************");
 let g = fib();
 let i = 0;
 
-while ([i < 10]) {
+while (i < 10) {
   p(g.next());
   i = i + 1;
+}
+
+p("**********************************************************");
+
+lazy_exp = fn (&exp) {
+	exp;
+}
+
+func = fn () {
+	let this.a = "hello~~";
+	retn lazy_exp(this.a = this.a + "~");
+}
+
+l = func();
+i = 0;
+while (i < 10) {
+	p(l());
+	i = i + 1;
+}
+
+func = fn () {
+	
 }

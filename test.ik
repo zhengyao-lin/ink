@@ -214,11 +214,13 @@ car.drive();
 
 p("\n---------Lazy Expression---------\n");
 
+lazy = fn (&exp) { exp }
+
 a = 5;
-lazy = [a = 1 + 2 + 3];
-lazy << [20];
+lazi = lazy(a = 1 + 2 + 3);
+lazi << lazy(20);
 p("5? : " + a);
-p("20? : " + lazy());
+p("20? : " + lazi());
 p("6? : " + a);
 
 Builder = fn () {
@@ -247,18 +249,18 @@ p("true? : " + func("hi"));
 
 func = fn () {
 	a : 100;
-	lazy_exp = [this];
+	lazy_exp = lazy(this);
 	p("100? : " + lazy_exp().a);
 };
 
 func();
 
 a = 10;
-b = [a];
+b = lazy(a);
 //p(a[a]);
 a = 20;
 
-[p("20? : " + b())]();
+lazy(p("20? : " + b()))();
 
 p("\n---------Array & Bonding---------\n");
 
@@ -297,7 +299,7 @@ p(index);
 
 // pointer-like
 val = "before";
-ptr = [val];
+ptr = lazy(val);
 func = fn (ptr) {
 	ptr() = "after";
 };
@@ -334,7 +336,7 @@ a = 0;
 
 func = fn () {
 	let a = 10;
-	[a];
+	lazy(a);
 };
 
 p("10? : " + func()());
@@ -366,7 +368,7 @@ func = fn () {
 	let b = 10;
 	let a -> b;
 	!! a;
-	retn [top aaa];
+	retn lazy(top aaa);
 };
 aaa = "wow!";
 p(func()());

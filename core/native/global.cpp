@@ -10,25 +10,6 @@ extern Ink_ExpressionList native_exp_list;
 extern bool CGC_if_return;
 extern bool CGC_if_yield;
 
-void disposeParamList(Ink_ParamList param)
-{
-	unsigned int i;
-	for (i = 0; i < param.size(); i++) {
-		delete param[i];
-	}
-	return;
-}
-
-Ink_Expression *getEmptyBlockFunction()
-{
-	Ink_ParamList ret_param;
-
-	ret_param = Ink_ParamList();
-	ret_param.push_back(new string("block"));
-
-	return new Ink_FunctionExpression(ret_param, Ink_ExpressionList(), true);
-}
-
 bool isTrue(Ink_Object *cond)
 {
 	if (cond->type == INK_NUMERIC) {
@@ -179,7 +160,12 @@ Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, I
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
 	context->context->setSlot("if", new Ink_FunctionObject(Ink_IfExpression, true));
-	context->context->setSlot("while", new Ink_FunctionObject(Ink_WhileExpression, true));
+
+	Ink_ParamList param_list = Ink_ParamList();
+	param_list.push_back(Ink_Parameter(NULL, true));
+	Ink_Object *while_func = new Ink_FunctionObject(Ink_WhileExpression, true);
+	as<Ink_FunctionObject>(while_func)->param = param_list;
+	context->context->setSlot("while", while_func);
 	context->context->setSlot("p", new Ink_FunctionObject(Ink_Print));
 	context->context->setSlot("eval", new Ink_FunctionObject(Ink_Eval));
 

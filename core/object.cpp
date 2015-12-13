@@ -120,12 +120,11 @@ void Ink_Object::deleteSlot(const char *key)
 		if (!strcmp(i->key, key)) {
 			if (prev) {
 				prev->next = i->next;
-				delete i;
-				return;
 			} else {
 				hash_table = i->next;
-				delete i;
 			}
+			delete i;
+			return;
 		}
 	}
 
@@ -222,8 +221,10 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	if (closure_context) context = closure_context->copyContextChain();
 	if (!is_inline) { // if not inline function, set local context
 		local->setSlot("base", getSlot("base"));
-		local->setSlot("this", this_p ? this_p : this);
+		local->setSlot("this", this);
 	}
+	if (this_p)
+		local->setSlot("this", this_p);
 	context->addContext(local);
 
 	gc_engine->initContext(context);
@@ -231,7 +232,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	if (is_native) ret_val = native(context, argc, argv, this_p);
 	else {
 		for (j = 0, argi = 0; j < param.size(); j++, argi++) {
-			local->setSlot(param[j]->c_str(), argi < argc ? argv[argi] : new Ink_Undefined()); // initiate local argument
+			local->setSlot(param[j].first->c_str(), argi < argc ? argv[argi] : new Ink_Undefined()); // initiate local argument
 			if (argi < argc)
 				gc_engine->addPardon(argv[argi]);
 		}

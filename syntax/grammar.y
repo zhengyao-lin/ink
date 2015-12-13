@@ -31,7 +31,7 @@
 
 %token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE TFUNC TDO TEND TGO TYIELD TGEN
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
-%token <token> TOR TADD TSUB TMUL TDIV TMOD TDOT TNL
+%token <token> TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
 %token <token> TARR TINS TOUT
 %token <token> TCLE TCLT TCGE TCGT TCEQ TCNE TCAND TCOR
@@ -503,11 +503,21 @@ param_list
 	: TIDENTIFIER
 	{
 		$$ = new Ink_ParamList();
-		$$->push_back($1);
+		$$->push_back(Ink_Parameter($1, false));
+	}
+	| TLAND nllo TIDENTIFIER
+	{
+		$$ = new Ink_ParamList();
+		$$->push_back(Ink_Parameter($3, true));
 	}
 	| param_list TCOMMA nllo TIDENTIFIER
 	{
-		$1->push_back($4);
+		$1->push_back(Ink_Parameter($4, false));
+		$$ = $1;
+	}
+	| param_list TCOMMA nllo TLAND nllo TIDENTIFIER
+	{
+		$1->push_back(Ink_Parameter($6, true));
 		$$ = $1;
 	}
 	;
@@ -607,13 +617,6 @@ primary_expression
 	| TLPAREN nestable_expression TRPAREN
 	{
 		$$ = $2;
-		SET_LINE_NO($$);
-	}
-	| TLBRAKT nestable_expression TRBRAKT
-	{
-		Ink_ExpressionList exp_list = Ink_ExpressionList();
-		exp_list.push_back($2);
-		$$ = new Ink_FunctionExpression(Ink_ParamList(), exp_list, true);
 		SET_LINE_NO($$);
 	}
 	;

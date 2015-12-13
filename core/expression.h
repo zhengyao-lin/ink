@@ -22,7 +22,8 @@ extern int inkerr_current_line_number;
 extern bool CGC_if_skip_yield;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
-typedef vector<string *> Ink_ParamList;
+typedef pair<string *, bool> Ink_Parameter;
+typedef vector<Ink_Parameter> Ink_ParamList;
 
 template <class T> T *as(Ink_Expression *obj)
 {
@@ -283,7 +284,7 @@ public:
 
 		if (!hash) {
 			// InkWarn_Hash_not_found(slot_id->c_str());
-			hash = obj->setSlot(id, new Ink_Object(true));
+			hash = obj->setSlot(id, new Ink_Object());
 		}
 		hash->value->address = hash;
 
@@ -317,7 +318,7 @@ public:
 	{
 		unsigned int i;
 		for (i = 0; i < param.size(); i++) {
-			delete param[i];
+			delete param[i].first;
 		}
 		for (i = 0; i < exp_list.size(); i++) {
 			delete exp_list[i];
@@ -342,15 +343,29 @@ public:
 		unsigned int i;
 		Ink_Object **argv = NULL;
 		Ink_Object *ret_val;
+		Ink_Object *func = callee->eval(context_chain);
+		Ink_ParamList param_list = Ink_ParamList();
+
+		if (func->type == INK_FUNCTION) {
+			param_list = as<Ink_FunctionObject>(func)->param;
+		}
 
 		if (arg_list.size()) {
 			argv = (Ink_Object **)malloc(arg_list.size() * sizeof(Ink_Object *));
 			for (i = 0; i < arg_list.size(); i++) {
-				argv[i] = arg_list[i]->eval(context_chain);
+				if (i < param_list.size() && param_list[i].second) {
+					Ink_ExpressionList exp_list = Ink_ExpressionList();
+					exp_list.push_back(arg_list[i]);
+					argv[i] = new Ink_FunctionObject(Ink_ParamList(), exp_list,
+													 context_chain->copyContextChain(),
+													 true);
+				} else {
+					argv[i] = arg_list[i]->eval(context_chain);
+				}
 			}
 		}
 
-		ret_val = callee->eval(context_chain)->call(context_chain, arg_list.size(), argv);
+		ret_val = func->call(context_chain, arg_list.size(), argv);
 
 		free(argv);
 
@@ -407,7 +422,7 @@ public:
 				break;
 		}
 
-		if (!hash) hash = dest_context->context->setSlot(id->c_str(), if_create_slot ? new Ink_Object(true) : new Ink_Undefined());
+		if (!hash) hash = dest_context->context->setSlot(id->c_str(), if_create_slot ? new Ink_Object() : new Ink_Undefined());
 		hash->value->address = hash;
 		// hash->value->setSlot("this", hash->value);
 

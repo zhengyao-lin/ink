@@ -23,7 +23,7 @@ SPS				({SP})+
 #define SAVE_TOKEN()		(yylval.string = new std::string(yytext, yyleng))
 #define TOKEN(t)			(yylval.token = t)
 #define LINE_NUMBER_INC()	(current_line_number++)
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define MIN(a, b) ((unsigned int)(a) < (unsigned int)(b) ? (a) : (b))
 
 int current_line_number = 1;
 string *id_literal = NULL;
@@ -122,6 +122,8 @@ int ink_yyinput(char *buf, int max_size)
 
 <INITIAL>"&&"						return TOKEN(TCAND);
 <INITIAL>"||"						return TOKEN(TCOR);
+
+<INITIAL>"&"						return TOKEN(TLAND);
 
 <INITIAL>"..."						return TOKEN(TECLI);
 <INITIAL>"!!"						return TOKEN(TDNOT);

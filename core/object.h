@@ -34,7 +34,8 @@ class Ink_ContextObject;
 class Ink_ContextChain;
 class IGC_CollectEngine;
 typedef vector<Ink_Expression *> Ink_ExpressionList;
-typedef vector<string *> Ink_ParamList;
+typedef pair<string *, bool> Ink_Parameter;
+typedef vector<Ink_Parameter> Ink_ParamList;
 
 class Ink_Object {
 public:
@@ -46,7 +47,7 @@ public:
 
 	Ink_Object *base;
 
-	Ink_Object(bool if_init_method = false)
+	Ink_Object()
 	{
 		mark = 0;
 		type = INK_OBJECT;
@@ -55,7 +56,7 @@ public:
 		base = NULL;
 
 		IGC_addObject(this);
-		if (if_init_method) initMethod();
+		// if (if_init_method) initMethod();
 	}
 
 	void Ink_ObjectMethodInit();
@@ -63,7 +64,7 @@ public:
 	void initMethod()
 	{
 		Ink_ObjectMethodInit();
-		derivedMethodInit();
+		// derivedMethodInit();
 	}
 
 	Ink_Object *getSlot(const char *key);
