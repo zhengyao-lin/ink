@@ -35,19 +35,22 @@ public:
 	//long collect_treshold;
 	int mark;
 	Ink_TypeTag type;
-	IGC_CollectUnit *pardon_chain;
+	// IGC_CollectUnit *pardon_chain;
 	IGC_CollectUnit *object_chain;
 	IGC_CollectUnit *object_chain_last;
 	Ink_ContextChain *local_context;
+
+	// IGC_CollectEngine *outer_engine;
 
 	IGC_CollectEngine()
 	{
 		mark = 0;
 		type = INK_NULL;
-		pardon_chain = NULL;
+		// pardon_chain = NULL;
 		object_chain = NULL;
 		object_chain_last = NULL;
 		local_context = NULL;
+		// outer_engine = NULL;
 	}
 
 	void initContext(Ink_ContextChain *context)
@@ -55,7 +58,7 @@ public:
 		local_context = context;
 	}
 	void addUnit(IGC_CollectUnit *unit);
-	void addPardon(Ink_Object *obj);
+	// void addPardon(Ink_Object *obj);
 	void cleanMark();
 	static void doMark(Ink_Object *obj);
 	static void deleteObject(IGC_CollectUnit *unit);
@@ -65,12 +68,14 @@ public:
 	void collectGarbage(bool delete_all = false);
 	void checkGC();
 	void link(IGC_CollectEngine *engine);
+	// void realloc(Ink_Object *obj); // move from the origin gc engine to self
+	// bool remove(Ink_Object *obj);
 
 	~IGC_CollectEngine()
 	{
 		// collectGarbage(true);
-		if (pardon_chain)
-			disposeChainWithoutDelete(pardon_chain);
+		//if (pardon_chain)
+		//	disposeChainWithoutDelete(pardon_chain);
 	}
 };
 

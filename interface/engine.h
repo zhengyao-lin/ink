@@ -34,6 +34,8 @@ public:
 	Ink_ContextChain *global_context;
 	Ink_InputMode input_mode;
 
+	Ink_ContextChain *trace;
+
 	// MutexLock gc_lock;
 	long igc_object_count;
 	long igc_collect_treshold;
@@ -53,10 +55,17 @@ public:
 		gc_engine = new IGC_CollectEngine();
 		setCurrentGC(gc_engine);
 		global_context = new Ink_ContextChain(new Ink_ContextObject());
+		trace = global_context->copyContextChain();
 		gc_engine->initContext(global_context);
 
 		global_context->context->setSlot("this", global_context->context);
 		Ink_GlobalMethodInit(global_context);
+	}
+
+	Ink_ContextChain *addTrace(Ink_ContextObject *context)
+	{
+		if (!trace) return trace = new Ink_ContextChain(context);
+		return trace->addContext(context);
 	}
 
 	int setCurrentGC(IGC_CollectEngine *engine)
@@ -104,6 +113,7 @@ public:
 
 		cleanExpressionList(top_level);
 		cleanContext(global_context);
+		cleanContext(trace);
 
 		Ink_setCurrentEngine(backup);
 	}

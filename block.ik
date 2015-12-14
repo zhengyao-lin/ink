@@ -235,7 +235,7 @@ producer = fn () {
 producer();
 
 yieldHost = fn (yieldFunction) {
-	retn fn (processer) { 
+	retn fn (processer) {
 		yield_f = fn (result) { 
 			processer(result)
 		};

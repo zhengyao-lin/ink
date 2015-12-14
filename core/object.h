@@ -48,6 +48,8 @@ public:
 
 	Ink_Object *base;
 
+	IGC_CollectEngine *alloc_engine;
+
 	Ink_Object()
 	{
 		mark = 0;
@@ -55,6 +57,7 @@ public:
 		hash_table = NULL;
 		address = NULL;
 		base = NULL;
+		alloc_engine = NULL;
 
 		IGC_addObject(this);
 		// if (if_init_method) initMethod();

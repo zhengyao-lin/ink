@@ -57,7 +57,8 @@ Ink_HashTable *Ink_ContextChain::searchSlotMapping(const char *slot_id)
 	Ink_ContextChain *i = local;
 	Ink_HashTable *ret = NULL;
 
-	while (i && !((ret = i->context->getSlotMapping(slot_id)) && ret->value->type != INK_UNDEFINED)) {
+	while (i && !((ret = i->context->getSlotMapping(slot_id))
+				   && ret->value->type != INK_UNDEFINED)) {
 		i = i->outer;
 	}
 

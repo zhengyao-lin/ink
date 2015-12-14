@@ -23,6 +23,7 @@ void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
 	return;
 }
 
+/*
 void IGC_CollectEngine::addPardon(Ink_Object *obj)
 {
 	IGC_CollectUnit *unit;
@@ -37,6 +38,7 @@ void IGC_CollectEngine::addPardon(Ink_Object *obj)
 
 	return;
 }
+*/
 
 void IGC_CollectEngine::cleanMark()
 {
@@ -61,7 +63,8 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 
 	for (i = obj->hash_table; i; i = i->next) {
 		//printf("%s\n", i->key);
-		doMark(i->value);
+		if (i->value)
+			doMark(i->value);
 	}
 
 	if (obj->type == INK_FUNCTION) {
@@ -129,25 +132,32 @@ void IGC_CollectEngine::doCollect()
 
 void IGC_CollectEngine::collectGarbage(bool delete_all)
 {
-	Ink_ContextChain *global = local_context->getGlobal();
+	// Ink_ContextChain *local = local_context->getLocal();
 	Ink_ContextChain *i;
-	IGC_CollectUnit *j;
+	// IGC_CollectUnit *j;
+	// IGC_CollectEngine *engine_i;
 
 	//printf("========== GC INTERRUPT =========\n");
 
 	//if (if_clean_mark)
 	//	cleanMark();
 	if (!delete_all) {
-		for (i = global; i; i = i->inner) {
+		/* for (i = local; i; i = i->outer) {
 			doMark(i->context);
+		}
+		for (engine_i = outer_engine; engine_i;
+			 engine_i = engine_i->outer_engine) {
+			for (j = engine_i->pardon_chain; j; j = j->next) {
+				doMark(j->obj);
+			}
 		}
 		for (j = pardon_chain; j; j = j->next) {
 			doMark(j->obj);
-		}
-		/* for (i = current_interprete_engine->trace->getGlobal();
+		} */
+		for (i = current_interprete_engine->trace->getGlobal();
 			 i; i = i->inner) {
 			doMark(i->context);
-		} */
+		}
 	}
 	doCollect();
 	CURRENT_MARK_PERIOD++;
@@ -168,6 +178,10 @@ void IGC_CollectEngine::checkGC()
 
 void IGC_CollectEngine::link(IGC_CollectEngine *engine)
 {
+	IGC_CollectUnit *i;
+	for (i = engine->object_chain; i; i = i->next) {
+		if (i->obj) i->obj->alloc_engine = this;
+	}
 	if (object_chain_last) {
 		object_chain_last->next = engine->object_chain;
 		if (engine->object_chain)
@@ -178,3 +192,30 @@ void IGC_CollectEngine::link(IGC_CollectEngine *engine)
 	if (engine->object_chain_last)
 		object_chain_last = engine->object_chain_last;
 }
+
+/*
+void IGC_CollectEngine::realloc(Ink_Object *obj)
+{
+	if (obj->alloc_engine) {
+		obj->alloc_engine->remove(obj);
+	}
+	addUnit(new IGC_CollectUnit(obj));
+	obj->alloc_engine = this;
+}
+
+bool IGC_CollectEngine::remove(Ink_Object *obj)
+{
+	IGC_CollectUnit *i;
+	for (i = object_chain; i; i = i->next) {
+		if (i->obj == obj) {
+			i->obj = NULL;
+			if (!i->next) object_chain_last = i->prev;
+			if (!i->prev) object_chain = i->next;
+			deleteObject(i);
+			return true;
+		}
+	}
+
+	return false;
+}
+*/

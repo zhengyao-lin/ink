@@ -281,7 +281,7 @@ public:
 
 		if (!(hash = obj->getSlotMapping(id))) {
 			hash = searchPrototype(obj, id);
-			address = obj->setSlot(id, new Ink_Undefined());
+			address = obj->setSlot(id, NULL);
 		} else {
 			address = hash;
 		}
@@ -430,7 +430,16 @@ public:
 				break;
 		}
 
-		if (!hash) hash = dest_context->context->setSlot(id->c_str(), if_create_slot ? new Ink_Object() : new Ink_Undefined());
+		if (!hash) {
+			if (if_create_slot) {
+				hash = dest_context->context->setSlot(id->c_str(), new Ink_Object());
+			} else {
+				hash = dest_context->context->setSlot(id->c_str(), NULL);
+				Ink_Object *ret = new Ink_Undefined();
+				ret->address = hash;
+				return ret;
+			}
+		}
 		hash->value->address = hash;
 		// hash->value->setSlot("this", hash->value);
 

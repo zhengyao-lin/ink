@@ -45,7 +45,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 	Ink_Object *method = NULL;
 
 	for (i = hash_table; i; i = i->next) {
-		if (!strcmp(i->key, key)) {
+		if (!strcmp(i->key, key) && i->value) {
 			for (ret = i; ret->bonding; ret = ret->bonding) ;
 			ret->bondee = i;
 			return ret;
@@ -155,7 +155,8 @@ void Ink_Object::cloneHashTable(Ink_Object *src, Ink_Object *dest)
 {
 	Ink_HashTable *i;
 	for (i = src->hash_table; i; i = i->next) {
-		dest->setSlot(i->key, i->value);
+		if (i->value)
+			dest->setSlot(i->key, i->value);
 	}
 
 	return;
@@ -216,6 +217,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	}
 
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
+	//gc_engine->initOuterEngine(engine_backup);
 	IGC_initGC(gc_engine);
 
 	local = new Ink_ContextObject();
@@ -227,25 +229,27 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	if (this_p)
 		local->setSlot("this", this_p);
 	context->addContext(local);
+	current_interprete_engine->trace->addContext(local);
 
 	gc_engine->initContext(context);
 
-	if (is_native) ret_val = native(context, argc, argv, this_p);
-	else {
+	if (is_native) {
+		ret_val = native(context, argc, argv, this_p);
+	} else {
 		for (j = 0, argi = 0; j < param.size(); j++, argi++) {
 			if (param[j].third) {
 				break;
 			}
 			local->setSlot(param[j].first->c_str(), argi < argc ? argv[argi] : new Ink_Undefined()); // initiate local argument
-			if (argi < argc)
-				gc_engine->addPardon(argv[argi]);
+			//if (argi < argc)
+			//	gc_engine->addPardon(argv[argi]);
 		}
 
 		if (j < param.size() && param[j].third) {
 			var_arg = new Ink_Array();
 			for (; argi < argc; argi++) {
 				var_arg->value.push_back(new Ink_HashTable("", argv[argi]));
-				gc_engine->addPardon(argv[argi]);
+				// gc_engine->addPardon(argv[argi]);
 			}
 
 			local->setSlot(param[j].first->c_str(), var_arg);
@@ -270,6 +274,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	}
 
 	context->removeLast();
+	current_interprete_engine->trace->removeLast();
 	
 	if (ret_val)
 		gc_engine->doMark(ret_val);
