@@ -10,6 +10,7 @@
 #include "error.h"
 #include "gc/collect.h"
 #include "thread/thread.h"
+#include "general.h"
 #define SET_LINE_NUM (line_num_back = inkerr_current_line_number = line_number)
 #define RESTORE_LINE_NUM (inkerr_current_line_number = line_num_back)
 
@@ -22,7 +23,7 @@ extern int inkerr_current_line_number;
 extern bool CGC_if_skip_yield;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
-typedef pair<string *, bool> Ink_Parameter;
+typedef triple<string *, bool, bool> Ink_Parameter;
 typedef vector<Ink_Parameter> Ink_ParamList;
 
 template <class T> T *as(Ink_Expression *obj)
@@ -276,7 +277,14 @@ public:
 
 	static Ink_Object *getSlot(Ink_Object *obj, const char *id)
 	{
-		Ink_HashTable *hash = searchPrototype(obj, id);
+		Ink_HashTable *hash, *address;
+
+		if (!(hash = obj->getSlotMapping(id))) {
+			hash = searchPrototype(obj, id);
+			address = obj->setSlot(id, new Ink_Undefined());
+		} else {
+			address = hash;
+		}
 
 		if (obj->type == INK_NULL || obj->type == INK_UNDEFINED) {
 			// InkWarn_Get_Null_Hash();
@@ -284,9 +292,9 @@ public:
 
 		if (!hash) {
 			// InkWarn_Hash_not_found(slot_id->c_str());
-			hash = obj->setSlot(id, new Ink_Object());
+			address = hash = obj->setSlot(id, new Ink_Object());
 		}
-		hash->value->address = hash;
+		hash->value->address = address;
 
 		hash->value->setSlot("base", obj);
 		//hash->value->setSlot("this", hash->value);

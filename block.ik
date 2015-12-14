@@ -311,6 +311,12 @@ while (i < 10) {
 	i = i + 1;
 }
 
-func = fn () {
-	
+func = fn (args...) {
+	let i = 0;
+	while (i < args.size()) {
+		p(args[i]);
+		i = i + 1;
+	}
 }
+
+func(10, 20);

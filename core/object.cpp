@@ -200,6 +200,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	// Ink_HashTable *i;
 	Ink_ContextObject *local;
 	Ink_Object *ret_val = NULL;
+	Ink_Array *var_arg = NULL;
 	IGC_CollectEngine *engine_backup = current_interprete_engine->getCurrentGC();
 
 	if (is_generator) {
@@ -232,9 +233,22 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	if (is_native) ret_val = native(context, argc, argv, this_p);
 	else {
 		for (j = 0, argi = 0; j < param.size(); j++, argi++) {
+			if (param[j].third) {
+				break;
+			}
 			local->setSlot(param[j].first->c_str(), argi < argc ? argv[argi] : new Ink_Undefined()); // initiate local argument
 			if (argi < argc)
 				gc_engine->addPardon(argv[argi]);
+		}
+
+		if (j < param.size() && param[j].third) {
+			var_arg = new Ink_Array();
+			for (; argi < argc; argi++) {
+				var_arg->value.push_back(new Ink_HashTable("", argv[argi]));
+				gc_engine->addPardon(argv[argi]);
+			}
+
+			local->setSlot(param[j].first->c_str(), var_arg);
 		}
 
 		if (argi > argc) {

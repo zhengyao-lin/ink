@@ -46,7 +46,7 @@
 				   block equality_expression
 				   relational_expression logical_and_expression
 				   logical_or_expression yield_expression
-%type <parameter> param_list param_opt
+%type <parameter> param_list param_opt param_list_sub
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
 						element_list element_list_opt
@@ -499,26 +499,50 @@ postfix_expression
 	}
 	;
 
-param_list
+param_list_sub
 	: TIDENTIFIER
 	{
 		$$ = new Ink_ParamList();
-		$$->push_back(Ink_Parameter($1, false));
+		$$->push_back(Ink_Parameter($1, false, false));
 	}
 	| TLAND nllo TIDENTIFIER
 	{
 		$$ = new Ink_ParamList();
-		$$->push_back(Ink_Parameter($3, true));
+		$$->push_back(Ink_Parameter($3, true, false));
 	}
 	| param_list TCOMMA nllo TIDENTIFIER
 	{
-		$1->push_back(Ink_Parameter($4, false));
+		$1->push_back(Ink_Parameter($4, false, false));
 		$$ = $1;
 	}
 	| param_list TCOMMA nllo TLAND nllo TIDENTIFIER
 	{
-		$1->push_back(Ink_Parameter($6, true));
+		$1->push_back(Ink_Parameter($6, true, false));
 		$$ = $1;
+	}
+	| param_list TCOMMA nllo TIDENTIFIER TECLI
+	{
+		$1->push_back(Ink_Parameter($4, false, true));
+		$$ = $1;
+	}
+	| param_list TCOMMA nllo TECLI
+	{
+		$1->push_back(Ink_Parameter(new string("arg"), false, true));
+		$$ = $1;
+	}
+	;
+
+param_list
+	: param_list_sub
+	| TIDENTIFIER TECLI
+	{
+		$$ = new Ink_ParamList();
+		$$->push_back(Ink_Parameter($1, false, true));
+	}
+	| TECLI
+	{
+		$$ = new Ink_ParamList();
+		$$->push_back(Ink_Parameter(new string("arg"), false, true));
 	}
 	;
 
