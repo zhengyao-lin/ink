@@ -77,6 +77,19 @@ Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, In
 	return ret;
 }
 
+Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val)
+{
+	Ink_ArrayValue ret;
+	unsigned int i;
+	for (i = 0; i < val.size(); i++) {
+		if (val[i])
+			ret.push_back(new Ink_HashTable("", val[i]->value));
+		else
+			ret.push_back(NULL);
+	}
+	return ret;
+}
+
 Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_ContextChain *local = context->getLocal();
@@ -85,7 +98,9 @@ Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, I
 	if (argc) {
 		if (argv[0]->type == INK_NUMERIC && argc == 1) {
 			ret = new Ink_Array(Ink_ArrayValue(as<Ink_Numeric>(argv[0])->value, NULL));
-		} else {
+		} else if (argv[0]->type == INK_ARRAY && argc == 1) {
+			ret = new Ink_Array(cloneArrayValue(as<Ink_Array>(argv[0])->value));
+		}else {
 			Ink_ArrayValue val = Ink_ArrayValue();
 			unsigned int i;
 			for (i = 0; i < argc; i++) {
@@ -211,11 +226,12 @@ InkNative_MethodTable object_native_method_table[] = {
 	{"clone", new Ink_FunctionObject(InkNative_Object_Clone)}
 };
 
-int array_native_method_table_count = 5;
+int array_native_method_table_count = 6;
 InkNative_MethodTable array_native_method_table[] = {
 	{"[]", new Ink_FunctionObject(InkNative_Array_Index)},
 	{"push", new Ink_FunctionObject(InkNative_Array_Push)},
 	{"size", new Ink_FunctionObject(InkNative_Array_Size)},
+	{"each", new Ink_FunctionObject(InkNative_Array_Each, true)},
 	{"remove", new Ink_FunctionObject(InkNative_Array_Remove)},
 	{"rebuild", new Ink_FunctionObject(InkNative_Array_Rebuild)}
 };

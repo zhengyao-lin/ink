@@ -221,4 +221,11 @@ InkWarn_Too_Huge_Index()
 	return;
 }
 
+inline void
+InkWarn_Each_Argument_Require()
+{
+	InkWarn_doPrintWarning("Each function requires at least one function argument");
+	return;
+}
+
 #endif

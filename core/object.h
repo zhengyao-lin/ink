@@ -226,7 +226,8 @@ public:
 	{
 		unsigned int i;
 		for (i = 0; i < value.size(); i++) {
-			delete value[i];
+			if (value[i])
+				delete value[i];
 		}
 	}
 };

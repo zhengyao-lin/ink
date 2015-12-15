@@ -308,7 +308,7 @@ public:
 
 		if (!hash) {
 			// InkWarn_Hash_not_found(slot_id->c_str());
-			address = hash = obj->setSlot(id, new Ink_Object());
+			address = hash = obj->setSlot(id, new Ink_Undefined());
 		}
 		hash->value->address = address;
 

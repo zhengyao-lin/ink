@@ -3,6 +3,9 @@
 #include "../context.h"
 #include "native.h"
 
+extern bool CGC_if_return;
+extern bool CGC_if_yield;
+
 unsigned int getRealIndex(int index, int size)
 {
 	while (index < 0) index += size;
@@ -61,6 +64,33 @@ Ink_Object *InkNative_Array_Size(Ink_ContextChain *context, unsigned int argc, I
 {
 	Ink_Object *base = context->searchSlot("base");
 	return new Ink_Numeric(as<Ink_Array>(base)->value.size());
+}
+
+Ink_Object *InkNative_Array_Each(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+	Ink_Array *array = as<Ink_Array>(base);
+	Ink_Object *ret = new Ink_NullObject();
+	Ink_Object **args;
+	unsigned int i;
+
+	if (!argc || argv[0]->type != INK_FUNCTION) {
+		InkWarn_Each_Argument_Require();
+		return new Ink_NullObject();
+	}
+
+	args = (Ink_Object **)malloc(sizeof(Ink_Object *));
+	for (i = 0; i < array->value.size(); i++) {
+		args[0] = array->value[i] ? array->value[i]->value : new Ink_Undefined();
+		ret = argv[0]->call(context, 1, args);
+		if (CGC_if_return || CGC_if_yield) {
+			free(args);
+			return ret;
+		}
+	}
+	free(args);
+
+	return ret;
 }
 
 void cleanArrayHashTable(Ink_ArrayValue val, int begin, int end) // assume that begin <= end
