@@ -28,7 +28,6 @@ SPS				({SP})+
 int current_line_number = 1;
 string *id_literal = NULL;
 string *string_literal = NULL;
-extern Ink_InterpreteEngine *current_interprete_engine;
 
 int file_input(char *buf, int max_size)
 {
@@ -87,7 +86,7 @@ int ink_yyinput(char *buf, int max_size)
 {
 	int result;
 
-	switch (current_interprete_engine->input_mode) {
+	switch (Ink_getCurrentEngine()->input_mode) {
 		case INK_STRING_INPUT:
 			result = string_input(buf, max_size);
 			break;
@@ -114,6 +113,7 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"new"						return TOKEN(TNEW);
 <INITIAL>"clone"					return TOKEN(TCLONE);
 <INITIAL>"fn"						return TOKEN(TFUNC);
+<INITIAL>"inl"						return TOKEN(TINLINE);
 <INITIAL>"do"						return TOKEN(TDO);
 <INITIAL>"end"						return TOKEN(TEND);
 <INITIAL>"go"						return TOKEN(TGO);

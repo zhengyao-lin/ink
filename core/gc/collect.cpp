@@ -3,21 +3,20 @@
 #include "core/object.h"
 #include "../../interface/engine.h"
 
-extern Ink_InterpreteEngine *current_interprete_engine;
-
 void IGC_initGC(IGC_CollectEngine *engine)
 {
-	current_interprete_engine->setCurrentGC(engine);
+	Ink_getCurrentEngine()->setCurrentGC(engine);
 	return;
 }
 
 void IGC_addObject(Ink_Object *obj)
 {
 	IGC_CollectUnit *new_unit;
+	Ink_InterpreteEngine *current_engine = Ink_getCurrentEngine();
 
-	if (current_interprete_engine) {
+	if (current_engine) {
 		new_unit = new IGC_CollectUnit(obj);
-		current_interprete_engine->getCurrentGC()->addUnit(new_unit);
+		current_engine->getCurrentGC()->addUnit(new_unit);
 	}
 
 	return;

@@ -13,12 +13,12 @@
 
 class Ink_InterpreteEngine;
 
-extern Ink_InterpreteEngine *current_interprete_engine;
 extern FILE *yyin;
 int yyparse();
 int yylex_destroy();
 void Ink_GlobalMethodInit(Ink_ContextChain *context);
 void Ink_setStringInput(const char **source);
+Ink_InterpreteEngine *Ink_getCurrentEngine();
 void Ink_setCurrentEngine(Ink_InterpreteEngine *engine);
 Ink_InterpreteEngine *Ink_getCurrentEngine();
 
@@ -51,21 +51,30 @@ public:
 		igc_object_count = 0;
 		igc_collect_treshold = IGC_COLLECT_TRESHOLD;
 		igc_mark_period = 1;
+		trace = NULL;
 
 		gc_engine = new IGC_CollectEngine();
 		setCurrentGC(gc_engine);
 		global_context = new Ink_ContextChain(new Ink_ContextObject());
-		trace = global_context->copyContextChain();
 		gc_engine->initContext(global_context);
 
 		global_context->context->setSlot("this", global_context->context);
 		Ink_GlobalMethodInit(global_context);
+
+		addTrace(global_context->context);
 	}
 
 	Ink_ContextChain *addTrace(Ink_ContextObject *context)
 	{
 		if (!trace) return trace = new Ink_ContextChain(context);
 		return trace->addContext(context);
+	}
+
+	void removeLastTrace()
+	{
+		if (trace)
+			trace->removeLast();
+		return;
 	}
 
 	int setCurrentGC(IGC_CollectEngine *engine)

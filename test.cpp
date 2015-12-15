@@ -35,8 +35,6 @@ void *test3(void *p)
 	printf("3: %u\n", getThreadID());
 }*/
 
-extern Ink_InterpreteEngine *current_interprete_engine;
-
 int main()
 {
 #if 0

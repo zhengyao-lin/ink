@@ -1,16 +1,16 @@
 #include "engine.h"
 
-Ink_InterpreteEngine *current_interprete_engine = NULL;
+static Ink_InterpreteEngine *current_interprete_engine = NULL;
+
+Ink_InterpreteEngine *Ink_getCurrentEngine()
+{
+	return current_interprete_engine;
+}
 
 void Ink_setCurrentEngine(Ink_InterpreteEngine *engine)
 {
 	current_interprete_engine = engine;
 	return;
-}
-
-Ink_InterpreteEngine *Ink_getCurrentEngine()
-{
-	return current_interprete_engine;
 }
 
 void Ink_InterpreteEngine::startParse(FILE *input)

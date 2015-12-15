@@ -3,11 +3,9 @@
 #include "core/object.h"
 #include "interface/engine.h"
 
-#define CURRENT_OBJECT_COUNT (current_interprete_engine->igc_object_count)
-#define CURRENT_COLLECT_TRESHOLD (current_interprete_engine->igc_collect_treshold)
-#define CURRENT_MARK_PERIOD (current_interprete_engine->igc_mark_period)
-
-extern Ink_InterpreteEngine *current_interprete_engine;
+#define CURRENT_OBJECT_COUNT (Ink_getCurrentEngine()->igc_object_count)
+#define CURRENT_COLLECT_TRESHOLD (Ink_getCurrentEngine()->igc_collect_treshold)
+#define CURRENT_MARK_PERIOD (Ink_getCurrentEngine()->igc_mark_period)
 
 void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
 {
@@ -154,7 +152,7 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 		for (j = pardon_chain; j; j = j->next) {
 			doMark(j->obj);
 		} */
-		for (i = current_interprete_engine->trace->getGlobal();
+		for (i = Ink_getCurrentEngine()->trace->getGlobal();
 			 i; i = i->inner) {
 			doMark(i->context);
 		}

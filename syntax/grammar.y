@@ -7,7 +7,6 @@
 	#include "interface/engine.h"
 	#define SET_LINE_NO(exp) (exp->line_number = current_line_number)
 
-	extern Ink_InterpreteEngine *current_interprete_engine;
 	extern int current_line_number;
 	extern int inkerr_current_line_number;
 	const char *yyerror_prefix = "";
@@ -29,7 +28,7 @@
 
 %token <string> TIDENTIFIER TNUMERIC TSTRING
 
-%token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE TFUNC TDO TEND TGO TYIELD TGEN
+%token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE TFUNC TINLINE TDO TEND TGO TYIELD TGEN
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
@@ -60,7 +59,7 @@
 compile_unit
 	: expression_list_opt
 	{
-		current_interprete_engine->top_level = *$1;
+		Ink_getCurrentEngine()->top_level = *$1;
 		delete $1;
 	}
 	;
@@ -569,6 +568,20 @@ function_expression
 	| TFUNC nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
 	{
 		$$ = new Ink_FunctionExpression(*$4, *$8);
+		delete $4;
+		delete $8;
+		SET_LINE_NO($$);
+	}
+	| TINLINE nllo TLPAREN param_opt TRPAREN nllo TLBRACE expression_list_opt TRBRACE
+	{
+		$$ = new Ink_FunctionExpression(*$4, *$8, true);
+		delete $4;
+		delete $8;
+		SET_LINE_NO($$);
+	}
+	| TINLINE nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
+	{
+		$$ = new Ink_FunctionExpression(*$4, *$8, true);
 		delete $4;
 		delete $8;
 		SET_LINE_NO($$);

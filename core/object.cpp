@@ -18,8 +18,6 @@ extern InkNative_MethodTable array_native_method_table[];
 extern int function_native_method_table_count;
 extern InkNative_MethodTable function_native_method_table[];
 
-extern Ink_InterpreteEngine *current_interprete_engine;
-
 Ink_Object *getMethod(Ink_Object *obj, const char *name, InkNative_MethodTable *table, int count)
 {
 	int i;
@@ -202,7 +200,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	Ink_ContextObject *local;
 	Ink_Object *ret_val = NULL;
 	Ink_Array *var_arg = NULL;
-	IGC_CollectEngine *engine_backup = current_interprete_engine->getCurrentGC();
+	IGC_CollectEngine *engine_backup = Ink_getCurrentEngine()->getCurrentGC();
 
 	if (is_generator) {
 		Ink_Object *gen = new Ink_Object();
@@ -229,7 +227,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	if (this_p)
 		local->setSlot("this", this_p);
 	context->addContext(local);
-	current_interprete_engine->trace->addContext(local);
+	Ink_getCurrentEngine()->addTrace(local);
 
 	gc_engine->initContext(context);
 
@@ -274,7 +272,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	}
 
 	context->removeLast();
-	current_interprete_engine->trace->removeLast();
+	Ink_getCurrentEngine()->removeLastTrace();
 	
 	if (ret_val)
 		gc_engine->doMark(ret_val);

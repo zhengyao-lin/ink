@@ -102,7 +102,6 @@ Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, I
 	return ret;
 }
 
-extern Ink_InterpreteEngine *current_interprete_engine;
 extern int current_line_number;
 extern int inkerr_current_line_number;
 extern const char *yyerror_prefix;
@@ -112,21 +111,22 @@ Ink_Object *Ink_Eval(Ink_ContextChain *context, unsigned int argc, Ink_Object **
 	Ink_Object *ret = new Ink_NullObject();
 	Ink_ExpressionList top_level_backup;
 	int line_num_backup = current_line_number;
+	Ink_InterpreteEngine *current_engine = Ink_getCurrentEngine();
 
-	if (current_interprete_engine && argc && argv[0]->type == INK_STRING) {
+	if (current_engine && argc && argv[0]->type == INK_STRING) {
 		context->removeLast();
 
-		top_level_backup = current_interprete_engine->top_level;
+		top_level_backup = current_engine->top_level;
 
 		current_line_number = inkerr_current_line_number;
 		yyerror_prefix = "from eval: ";
-		current_interprete_engine->startParse(as<Ink_String>(argv[0])->value);
-		ret = current_interprete_engine->execute(context);
+		current_engine->startParse(as<Ink_String>(argv[0])->value);
+		ret = current_engine->execute(context);
 
 		native_exp_list.insert(native_exp_list.end(),
-							   current_interprete_engine->top_level.begin(),
-							   current_interprete_engine->top_level.end());
-		current_interprete_engine->top_level = top_level_backup;
+							   current_engine->top_level.begin(),
+							   current_engine->top_level.end());
+		current_engine->top_level = top_level_backup;
 
 		context->addContext(new Ink_ContextObject());
 	}

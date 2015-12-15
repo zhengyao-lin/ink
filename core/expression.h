@@ -260,28 +260,44 @@ public:
 		return getSlot(base_obj, slot_id->c_str());
 	}
 
-	static Ink_HashTable *searchPrototype(Ink_Object *obj, const char *id)
+	class ProtoSearchRet {
+	public:
+		Ink_HashTable *hash;
+		Ink_Object *base;
+
+		ProtoSearchRet(Ink_HashTable *hash = NULL, Ink_Object *base = NULL)
+		: hash(hash), base(base)
+		{ }
+	};
+
+	static ProtoSearchRet searchPrototype(Ink_Object *obj, const char *id)
 	{
 		Ink_HashTable *hash = obj->getSlotMapping(id);
 		Ink_HashTable *proto;
+		Ink_Object *proto_obj = NULL;
+		ProtoSearchRet search_res;
 
 		if (!hash) {
 			proto = obj->getSlotMapping("prototype");
 			if (proto && proto->value->type != INK_UNDEFINED) {
-				hash = searchPrototype(proto->value, id);
+				hash = (search_res = searchPrototype(proto->value, id)).hash;
+				proto_obj = search_res.base;
 			}
 		}
 
-		return hash;
+		return ProtoSearchRet(hash, proto_obj ? proto_obj : obj);
 	}
 
 	static Ink_Object *getSlot(Ink_Object *obj, const char *id)
 	{
 		Ink_HashTable *hash, *address;
+		Ink_Object *base = obj;
+		ProtoSearchRet search_res;
 
 		if (!(hash = obj->getSlotMapping(id))) {
-			hash = searchPrototype(obj, id);
+			hash = (search_res = searchPrototype(obj, id)).hash;
 			address = obj->setSlot(id, NULL);
+			if (hash) base = search_res.base;
 		} else {
 			address = hash;
 		}
@@ -296,7 +312,7 @@ public:
 		}
 		hash->value->address = address;
 
-		hash->value->setSlot("base", obj);
+		hash->value->setSlot("base", base);
 		//hash->value->setSlot("this", hash->value);
 
 		return hash->value;

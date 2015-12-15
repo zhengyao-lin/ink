@@ -1,15 +1,21 @@
-
-
-func = fn (b) {
-	let a = "haha";
-	i = a;
-	b()
-	a.b();
+for = inl (init, &cond, &iterate, block) {
+	while (cond()) {
+		block();
+		iterate();
+	}
 }
 
-a = 0;
-i = 110;
-func() {
-	i.b = fn () { }
-	i = 0;
+max = fn (args...) {
+	for (let i = 1 && let max = args[0],
+		 i < args.size(), i = i + 1) {
+		if (args[i] > max) { max = args[i]; }
+	}
+	max;
 }
+
+ExArray = fn () {
+	this.prototype = new Array();
+}
+
+a = new ExArray();
+p(a.size());
