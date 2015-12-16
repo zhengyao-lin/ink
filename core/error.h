@@ -228,4 +228,11 @@ InkWarn_Each_Argument_Require()
 	return;
 }
 
+inline void
+InkWarn_Failed_Finding_Slot(const char *name)
+{
+	InkWarn_doPrintWarning("Failed to find slot $(name)", name);
+	return;
+}
+
 #endif

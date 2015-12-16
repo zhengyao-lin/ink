@@ -8,6 +8,7 @@ REQUIRE=\
 	object.o \
 	expression.o \
 	context.o \
+	general.o \
 	error.o
 
 CC=g++

@@ -47,7 +47,7 @@ Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int
 	}
 
 	range = Ink_HashExpression::getSlot(argv[0], "range");
-	if (!range) {
+	if (!range || range->type != INK_FUNCTION) {
 		InkWarn_Function_Non_Range_Call();
 		return new Ink_NullObject();
 	}

@@ -291,31 +291,32 @@ public:
 	static Ink_Object *getSlot(Ink_Object *obj, const char *id)
 	{
 		Ink_HashTable *hash, *address;
-		Ink_Object *base = obj;
+		Ink_Object *base = obj, *ret;
 		ProtoSearchRet search_res;
 
 		if (!(hash = obj->getSlotMapping(id))) {
 			hash = (search_res = searchPrototype(obj, id)).hash;
 			address = obj->setSlot(id, NULL);
-			if (hash) base = search_res.base;
+			if (hash) {
+				base = search_res.base;
+				ret = hash->value;
+			} else {
+				ret = new Ink_Undefined();
+			}
+			ret->address = address;
 		} else {
-			address = hash;
+			ret = hash->value;
+			ret->address = hash;
 		}
 
 		if (obj->type == INK_NULL || obj->type == INK_UNDEFINED) {
 			// InkWarn_Get_Null_Hash();
 		}
 
-		if (!hash) {
-			// InkWarn_Hash_not_found(slot_id->c_str());
-			address = hash = obj->setSlot(id, new Ink_Undefined());
-		}
-		hash->value->address = address;
-
-		hash->value->setSlot("base", base);
+		ret->setSlot("base", base);
 		//hash->value->setSlot("this", hash->value);
 
-		return hash->value;
+		return ret;
 	}
 
 	virtual ~Ink_HashExpression()

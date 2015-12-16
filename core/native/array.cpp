@@ -70,8 +70,9 @@ Ink_Object *InkNative_Array_Each(Ink_ContextChain *context, unsigned int argc, I
 {
 	Ink_Object *base = context->searchSlot("base");
 	Ink_Array *array = as<Ink_Array>(base);
-	Ink_Object *ret = new Ink_NullObject();
 	Ink_Object **args;
+	Ink_Object *ret_tmp;
+	Ink_ArrayValue ret_val;
 	unsigned int i;
 
 	if (!argc || argv[0]->type != INK_FUNCTION) {
@@ -82,15 +83,15 @@ Ink_Object *InkNative_Array_Each(Ink_ContextChain *context, unsigned int argc, I
 	args = (Ink_Object **)malloc(sizeof(Ink_Object *));
 	for (i = 0; i < array->value.size(); i++) {
 		args[0] = array->value[i] ? array->value[i]->value : new Ink_Undefined();
-		ret = argv[0]->call(context, 1, args);
+		ret_val.push_back(new Ink_HashTable("", ret_tmp = argv[0]->call(context, 1, args)));
 		if (CGC_if_return || CGC_if_yield) {
 			free(args);
-			return ret;
+			return ret_tmp;
 		}
 	}
 	free(args);
 
-	return ret;
+	return new Ink_Array(ret_val);
 }
 
 void cleanArrayHashTable(Ink_ArrayValue val, int begin, int end) // assume that begin <= end
