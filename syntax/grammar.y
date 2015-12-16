@@ -45,6 +45,7 @@
 				   block equality_expression
 				   relational_expression logical_and_expression
 				   logical_or_expression yield_expression
+				   comma_expression
 %type <parameter> param_list param_opt param_list_sub
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
@@ -108,8 +109,23 @@ expression_list_opt
 
 expression
 	: nestable_expression
+	| comma_expression
 	| return_expression
 	;
+
+comma_expression
+	: nestable_expression TCOMMA nllo nestable_expression
+	{
+		Ink_CommaExpression *tmp = new Ink_CommaExpression();
+		tmp->exp_list.push_back($1);
+		tmp->exp_list.push_back($4);
+		$$ = tmp;
+	}
+	| comma_expression TCOMMA nllo nestable_expression
+	{
+		as<Ink_CommaExpression>($1)->exp_list.push_back($4);
+		$$ = $1;
+	}
 
 nestable_expression
 	: field_expression

@@ -2,6 +2,8 @@
 #define _ERROR_H_
 
 #include "../msg/emcore.h"
+#include "type.h"
+#include "debug.h"
 
 class Ink_ContextChain;
 
@@ -38,7 +40,8 @@ InkWarn_doPrintWarning(const char *msg)
 	stringstream strm;
 	strm << "line " << inkerr_current_line_number << ": " << msg;
 
-	ErrorInfo *info = new ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct, strm.str().c_str());
+	ErrorInfo *info = new ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
+									strm.str().c_str());
 	ErrorMessage::popMessage(info);
 	delete info;
 	return;
@@ -47,7 +50,24 @@ InkWarn_doPrintWarning(const char *msg)
 inline void
 InkWarn_doPrintWarning(const char *msg, const char *arg1)
 {
-	ErrorInfo *info = new ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct, msg, arg1);
+	stringstream strm;
+	strm << "line " << inkerr_current_line_number << ": " << msg;
+
+	ErrorInfo *info = new ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
+									strm.str().c_str(), arg1);
+	ErrorMessage::popMessage(info);
+	delete info;
+	return;
+}
+
+inline void
+InkWarn_doPrintWarning(const char *msg, const char *arg1, const char *arg2)
+{
+	stringstream strm;
+	strm << "line " << inkerr_current_line_number << ": " << msg;
+	
+	ErrorInfo *info = new ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
+									strm.str().c_str(), arg1, arg2);
 	ErrorMessage::popMessage(info);
 	delete info;
 	return;
@@ -229,9 +249,46 @@ InkWarn_Each_Argument_Require()
 }
 
 inline void
-InkWarn_Failed_Finding_Slot(const char *name)
+InkWarn_Failed_Finding_Method(const char *name)
 {
-	InkWarn_doPrintWarning("Failed to find slot $(name)", name);
+	InkWarn_doPrintWarning("Failed to find method $(name)", name);
+	return;
+}
+
+enum Ink_TypeTag;
+
+inline void
+InkWarn_Wrong_Type(Ink_TypeTag expect, Ink_TypeTag type)
+{
+	InkWarn_doPrintWarning("Expecting type <$(expect)>, <$(type)> offered",
+						   getTypeName(expect), getTypeName(type));
+	return;
+}
+
+inline void
+InkWarn_Too_Less_Argument(unsigned int min, unsigned int argc)
+{
+	stringstream strm;
+	strm << "Too less argument. need at least " << min
+		 << ", " << argc << " given";
+
+	InkWarn_doPrintWarning(strm.str().c_str());
+	return;
+}
+
+inline void
+InkWarn_Wrong_Argument_Type(Ink_TypeTag expect, Ink_TypeTag type)
+{
+	InkWarn_doPrintWarning("Expecting object of type <$(expect)>, that of <$(type)> offered",
+						   getTypeName(expect), getTypeName(type));
+	return;
+}
+
+inline void
+InkWarn_Method_Fallthrough(Ink_TypeTag type)
+{
+	InkWarn_doPrintWarning("Method fallthrough to $(type)",
+						   getTypeName(type));
 	return;
 }
 

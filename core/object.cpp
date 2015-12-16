@@ -43,7 +43,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 	Ink_Object *method = NULL;
 
 	for (i = hash_table; i; i = i->next) {
-		if (!strcmp(i->key, key) && i->value) {
+		if (!strcmp(i->key, key) && (i->value || i->bonding)) {
 			for (ret = i; ret->bonding; ret = ret->bonding) ;
 			ret->bondee = i;
 			return ret;

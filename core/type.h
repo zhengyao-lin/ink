@@ -1,0 +1,16 @@
+#ifndef _TYPE_H_
+#define _TYPE_H_
+
+enum Ink_TypeTag {
+	INK_NULL = 0,
+	INK_UNDEFINED,
+
+	INK_OBJECT,
+	INK_NUMERIC,
+	INK_STRING,
+	INK_CONTEXT,
+	INK_FUNCTION,
+	INK_ARRAY
+};
+
+#endif

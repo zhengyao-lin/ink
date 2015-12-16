@@ -236,8 +236,9 @@ InkNative_MethodTable array_native_method_table[] = {
 	{"rebuild", new Ink_FunctionObject(InkNative_Array_Rebuild)}
 };
 
-int function_native_method_table_count = 2;
+int function_native_method_table_count = 3;
 InkNative_MethodTable function_native_method_table[] = {
 	{"<<", new Ink_FunctionObject(InkNative_Function_Insert)},
-	{"exp", new Ink_FunctionObject(InkNative_Function_GetExp)}
+	{"exp", new Ink_FunctionObject(InkNative_Function_GetExp)},
+	{"[]", new Ink_FunctionObject(InkNative_Function_RangeCall)},
 };

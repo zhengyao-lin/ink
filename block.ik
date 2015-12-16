@@ -320,3 +320,7 @@ func = fn (args...) {
 }
 
 func(10, 20);
+
+p(asdsa = 10);
+p(asdsa);
+

@@ -22,6 +22,14 @@ public:
 		bondee = NULL;
 	}
 
+	Ink_HashTable(Ink_Object *value)
+	: key(""), value(value)
+	{
+		next = NULL;
+		bonding = NULL;
+		bondee = NULL;
+	}
+
 	Ink_HashTable *getEnd();
 	Ink_HashTable *getMapping(const char *key);
 	Ink_Object *getValue(const char *key);

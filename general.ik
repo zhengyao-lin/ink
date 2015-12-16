@@ -73,6 +73,7 @@ b = new Array("a", "b", "c");
 // p(a == new Array(new Array(30, 20), new Array(10, 20), new Array(40, 5)));
 //(a * b).p();
 
+/*
 ret = (new Array(1, 2, 3)).each() { | elem |
 	elem * 2 + 1;
 }
@@ -85,3 +86,13 @@ func = fn (f, s) {
 
 c = a * b;
 c.p();
+*/
+
+c = null;
+c.'[]' = (new Array()).prototype.'[]';
+p(c[1]);
+
+func = fn () { }
+a = new Array();
+a.'<<' = func.'<<';
+a << 0;

@@ -5,6 +5,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <unistd.h>
+#include "type.h"
 #include "object.h"
 #include "context.h"
 #include "error.h"
@@ -39,6 +40,35 @@ public:
 	{ }
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain) { return NULL; }
 	virtual ~Ink_Expression() { }
+};
+
+class Ink_CommaExpression: public Ink_Expression {
+public:
+	Ink_ExpressionList exp_list;
+
+	Ink_CommaExpression()
+	: exp_list(Ink_ExpressionList())
+	{ }
+
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	{
+		Ink_Object *ret = new Ink_NullObject();
+		unsigned int i;
+
+		for (i = 0; i < exp_list.size(); i++) {
+			ret = exp_list[i]->eval(context_chain);
+		}
+
+		return ret;
+	}
+
+	virtual ~Ink_CommaExpression()
+	{
+		unsigned int i;
+		for (i = 0; i < exp_list.size(); i++) {
+			delete exp_list[i];
+		}
+	}
 };
 
 class Ink_YieldExpression: public Ink_Expression {

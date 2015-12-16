@@ -6,25 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
+#include "type.h"
 #include "inttype.h"
 #include "hash.h"
 #include "error.h"
 #include "general.h"
 using namespace std;
-
-enum Ink_TypeTag {
-	INK_NULL = 0,
-	INK_UNDEFINED,
-
-	INK_OBJECT,
-	INK_NUMERIC,
-	INK_STRING,
-	INK_FLOAT,
-	INK_CONTEXT,
-	INK_FUNCTION,
-	INK_ARRAY,
-	INK_CONTEXTCHAIN
-};
 
 void IGC_addObject(Ink_Object *obj);
 

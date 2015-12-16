@@ -15,54 +15,52 @@ unsigned int getRealIndex(int index, int size)
 Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
+	Ink_Array *obj = as<Ink_Array>(base);
+	Ink_Object *ret;
+	Ink_HashTable *hash;
+	unsigned int index;
 
-	if (base->type != INK_ARRAY) {
-		InkWarn_Get_Non_Array_Index();
-		return new Ink_NullObject();
-	}
+	ASSUME_BASE_TYPE(INK_ARRAY);
 
-	if (argc && argv[0]->type == INK_NUMERIC) {
-		Ink_Array *obj = as<Ink_Array>(base);
-		Ink_Object *ret;
-		Ink_HashTable *hash;
-		unsigned int index = getRealIndex(as<Ink_Numeric>(argv[0])->value, obj->value.size());
-
-		if (index < obj->value.size()) {
-			if (!obj->value[index]) obj->value[index] = new Ink_HashTable("", new Ink_Undefined());
-			for (hash = obj->value[index]; hash->bonding; hash = hash->bonding) ;
-			hash->bondee = obj->value[index];
-			ret = hash->value;
-			ret->address = hash;
-			ret->setSlot("base", base);
-		} else {
-			InkWarn_Index_Exceed();
-			return new Ink_Undefined();
-		}
-
-		return ret;
-	} else {
+	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
 		return InkNative_Object_Index(context, argc, argv, this_p);
 	}
 
-	return new Ink_NullObject();
+	index = getRealIndex(as<Ink_Numeric>(argv[0])->value, obj->value.size());
+	if (index < obj->value.size()) {
+		if (!obj->value[index]) obj->value[index] = new Ink_HashTable(UNDEFINED);
+		for (hash = obj->value[index]; hash->bonding; hash = hash->bonding) ;
+		hash->bondee = obj->value[index];
+		ret = hash->value;
+		ret->address = hash;
+		ret->setSlot("base", base);
+	} else {
+		InkWarn_Index_Exceed();
+		return UNDEFINED;
+	}
+
+	return ret;
 }
 
 Ink_Object *InkNative_Array_Push(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
 
+	ASSUME_BASE_TYPE(INK_ARRAY);
+
 	if (argc) {
 		Ink_Array *obj = as<Ink_Array>(base);
-		obj->value.push_back(new Ink_HashTable("", argv[0]));
+		obj->value.push_back(new Ink_HashTable(argv[0]));
 		return argv[0];
 	}
 
-	return new Ink_NullObject();
+	return NULL_OBJ;
 }
 
 Ink_Object *InkNative_Array_Size(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
+	ASSUME_BASE_TYPE(INK_ARRAY);
 	return new Ink_Numeric(as<Ink_Array>(base)->value.size());
 }
 
@@ -75,16 +73,17 @@ Ink_Object *InkNative_Array_Each(Ink_ContextChain *context, unsigned int argc, I
 	Ink_ArrayValue ret_val;
 	unsigned int i;
 
-	if (!argc || argv[0]->type != INK_FUNCTION) {
-		InkWarn_Each_Argument_Require();
-		return new Ink_NullObject();
+	ASSUME_BASE_TYPE(INK_ARRAY);
+
+	if (!checkArgument(argc, argv, 1, INK_FUNCTION)) {
+		return NULL_OBJ;
 	}
 
 	args = (Ink_Object **)malloc(sizeof(Ink_Object *));
 	for (i = 0; i < array->value.size(); i++) {
-		args[0] = array->value[i] ? array->value[i]->value : new Ink_Undefined();
-		ret_val.push_back(new Ink_HashTable("", ret_tmp = argv[0]->call(context, 1, args)));
-		if (CGC_if_return || CGC_if_yield) {
+		args[0] = array->value[i] ? array->value[i]->value : UNDEFINED;
+		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(context, 1, args)));
+		if (RETURN_FLAG) {
 			free(args);
 			return ret_tmp;
 		}
@@ -110,9 +109,10 @@ Ink_Object *InkNative_Array_Remove(Ink_ContextChain *context, unsigned int argc,
 	Ink_Array *tmp;
 	unsigned int index_begin, index_end, tmp_val;
 
-	if (!argc || argv[0]->type != INK_NUMERIC) {
-		InkWarn_Remove_Argument_Require();
-		return new Ink_NullObject();
+	ASSUME_BASE_TYPE(INK_ARRAY);
+
+	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
 	}
 
 	tmp = as<Ink_Array>(base);
@@ -126,7 +126,7 @@ Ink_Object *InkNative_Array_Remove(Ink_ContextChain *context, unsigned int argc,
 
 	if (index_end > tmp->value.size() || index_end > tmp->value.size()) {
 		InkWarn_Too_Huge_Index();
-		return new Ink_NullObject();
+		return NULL_OBJ;
 	}
 
 	if (index_end != index_begin) {
@@ -144,7 +144,7 @@ Ink_Object *InkNative_Array_Remove(Ink_ContextChain *context, unsigned int argc,
 		tmp->value.erase(tmp->value.begin() + index_begin);
 	}
 
-	return new Ink_NullObject();
+	return NULL_OBJ;
 }
 
 Ink_Object *InkNative_Array_Rebuild(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -155,10 +155,7 @@ Ink_Object *InkNative_Array_Rebuild(Ink_ContextChain *context, unsigned int argc
 	Ink_ExpressionList ret_val;
 	unsigned int i;
 
-	if (base->type != INK_ARRAY) {
-		InkWarn_Rebuild_Non_Array();
-		return new Ink_NullObject();
-	}
+	ASSUME_BASE_TYPE(INK_ARRAY);
 
 	tmp = as<Ink_Array>(base);
 	ret_val = Ink_ExpressionList();

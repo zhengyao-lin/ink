@@ -3,6 +3,7 @@
 
 #include "../object.h"
 #include "../context.h"
+#include "general.h"
 
 typedef struct InkNative_MethodTable_tag {
 	const char *name;

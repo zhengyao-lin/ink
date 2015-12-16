@@ -9,6 +9,7 @@ REQUIRE=\
 	expression.o \
 	context.o \
 	general.o \
+	debug.o \
 	error.o
 
 CC=g++
