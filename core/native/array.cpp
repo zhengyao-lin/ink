@@ -64,6 +64,24 @@ Ink_Object *InkNative_Array_Size(Ink_ContextChain *context, unsigned int argc, I
 	return new Ink_Numeric(as<Ink_Array>(base)->value.size());
 }
 
+void cleanArrayHashTable(Ink_ArrayValue val, int begin, int end) // assume that begin <= end
+{
+	int index;
+	for (index = begin; index < end; index++) {
+		delete val[index];
+	}
+	return;
+}
+
+void cleanArrayHashTable(Ink_ArrayValue val)
+{
+	unsigned int i;
+	for (i = 0; i < val.size(); i++) {
+		delete val[i];
+	}
+	return;
+}
+
 Ink_Object *InkNative_Array_Each(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
@@ -85,21 +103,13 @@ Ink_Object *InkNative_Array_Each(Ink_ContextChain *context, unsigned int argc, I
 		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(context, 1, args)));
 		if (RETURN_FLAG) {
 			free(args);
+			cleanArrayHashTable(ret_val);
 			return ret_tmp;
 		}
 	}
 	free(args);
 
 	return new Ink_Array(ret_val);
-}
-
-void cleanArrayHashTable(Ink_ArrayValue val, int begin, int end) // assume that begin <= end
-{
-	int index;
-	for (index = begin; index < end; index++) {
-		delete val[index];
-	}
-	return;
 }
 
 Ink_Object *InkNative_Array_Remove(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
