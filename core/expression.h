@@ -12,7 +12,7 @@
 #include "gc/collect.h"
 #include "thread/thread.h"
 #include "general.h"
-#define SET_LINE_NUM (line_num_back = inkerr_current_line_number = line_number)
+#define SET_LINE_NUM (line_num_back = inkerr_current_line_number = (line_number != -1 ? line_number : inkerr_current_line_number))
 #define RESTORE_LINE_NUM (inkerr_current_line_number = line_num_back)
 
 using namespace std;
@@ -39,6 +39,7 @@ public:
 	: line_number(-1)
 	{ }
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain) { return NULL; }
+	virtual Ink_Expression *clone() { return NULL; }
 	virtual ~Ink_Expression() { }
 };
 
@@ -208,9 +209,11 @@ class Ink_AssignmentExpression: public Ink_Expression {
 public:
 	Ink_Expression *lval;
 	Ink_Expression *rval;
+	bool is_return_lval;
+	bool is_dispose_lval;
 
-	Ink_AssignmentExpression(Ink_Expression *lval, Ink_Expression *rval)
-	: lval(lval), rval(rval)
+	Ink_AssignmentExpression(Ink_Expression *lval, Ink_Expression *rval, bool is_return_lval = false, bool is_dispose_lval = true)
+	: lval(lval), rval(rval), is_return_lval(is_return_lval), is_dispose_lval(is_dispose_lval)
 	{ }
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
@@ -225,7 +228,8 @@ public:
 		lval_ret = lval->eval(context_chain);
 
 		if (lval_ret->address) {
-			return lval_ret->address->value = rval_ret;
+			lval_ret->address->value = rval_ret;
+			return is_return_lval ? lval_ret : rval_ret;
 		}
 
 		InkErr_Assigning_Unassignable_Expression(context_chain);
@@ -236,7 +240,8 @@ public:
 
 	virtual ~Ink_AssignmentExpression()
 	{
-		delete lval;
+		if (is_dispose_lval)
+			delete lval;
 		delete rval;
 	}
 };
@@ -339,8 +344,8 @@ public:
 			ret->address = hash;
 		}
 
-		if (obj->type == INK_NULL || obj->type == INK_UNDEFINED) {
-			// InkWarn_Get_Null_Hash();
+		if (obj->type == INK_UNDEFINED) {
+			InkWarn_Get_Undefined_Hash();
 		}
 
 		ret->setSlot("base", base);
@@ -596,15 +601,6 @@ public:
 			delete elem_list[i];
 		}
 	}
-};
-
-class Ink_FloatConstant: public Ink_Expression {
-public:
-	double value;
-
-	Ink_FloatConstant(double value)
-	: value(value)
-	{ }
 };
 
 #endif

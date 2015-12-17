@@ -319,7 +319,7 @@ p(a);
 
 a = "hello";
 foo = fn () {
-	let a.b = 10;
+	var let a.b = 10;
 	bar = fn () {
 		//let a = 0;
 		//p("0? : " + a);

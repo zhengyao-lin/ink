@@ -116,9 +116,9 @@ InkWarn_Unfit_Argument()
 }
 
 inline void
-InkWarn_Get_Null_Hash()
+InkWarn_Get_Undefined_Hash()
 {
-	InkWarn_doPrintWarning("Getting the hash of null or undefined(cast to normal object)");
+	InkWarn_doPrintWarning("Getting hash of undefined value");
 	return;
 }
 

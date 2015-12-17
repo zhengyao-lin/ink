@@ -151,6 +151,8 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"{"						return TOKEN(TLBRACE);
 <INITIAL>"}"						return TOKEN(TRBRACE);
 
+<INITIAL>"++"						return TOKEN(TDADD);
+<INITIAL>"--"						return TOKEN(TDSUB);
 <INITIAL>"|"						return TOKEN(TOR);
 <INITIAL>"+"						return TOKEN(TADD);
 <INITIAL>"-"						return TOKEN(TSUB);

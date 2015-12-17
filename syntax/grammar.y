@@ -30,7 +30,7 @@
 
 %token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE TFUNC TINLINE TDO TEND TGO TYIELD TGEN
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
-%token <token> TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND
+%token <token> TDADD TDSUB TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
 %token <token> TARR TINS TOUT
 %token <token> TCLE TCLT TCGE TCGT TCEQ TCNE TCAND TCOR
@@ -449,6 +449,24 @@ unary_expression
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
+	| TDADD nllo unary_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back(new Ink_NumericConstant(1));
+		$$ = new Ink_AssignmentExpression($3, new Ink_CallExpression(
+												  new Ink_HashExpression($3, new string("+")),
+												  arg), false, false);
+		SET_LINE_NO($$);
+	}
+	| TDSUB nllo unary_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back(new Ink_NumericConstant(1));
+		$$ = new Ink_AssignmentExpression($3, new Ink_CallExpression(
+												  new Ink_HashExpression($3, new string("-")),
+												  arg), false, false);
+		SET_LINE_NO($$);
+	}
 	;
 
 element_list
@@ -511,6 +529,24 @@ postfix_expression
 		delete $4;
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
+	| postfix_expression TDADD
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back(new Ink_NumericConstant(1));
+		$$ = new Ink_AssignmentExpression($1, new Ink_CallExpression(
+												  new Ink_HashExpression($1, new string("+")),
+												  arg), true, false);
+		SET_LINE_NO($$);
+	}
+	| postfix_expression TDSUB
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back(new Ink_NumericConstant(1));
+		$$ = new Ink_AssignmentExpression($1, new Ink_CallExpression(
+												  new Ink_HashExpression($1, new string("-")),
+												  arg), true, false);
+		SET_LINE_NO($$);
 	}
 	;
 

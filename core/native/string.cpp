@@ -7,29 +7,29 @@ Ink_Object *InkNative_String_Add(Ink_ContextChain *context, unsigned int argc, I
 {
 	Ink_Object *base = context->searchSlot("base");
 
-	if (argc && argv[0]->type == INK_STRING) {
+	if (checkArgument(false, argc, argv, 1, INK_STRING)) {
 		return new Ink_String(as<Ink_String>(base)->value + as<Ink_String>(argv[0])->value);
-	} else if (argc && argv[0]->type == INK_NUMERIC) {
+	} else if (checkArgument(argc, argv, 1, INK_NUMERIC)) {
 		stringstream ss;
 		ss << as<Ink_Numeric>(argv[0])->value;
 		return new Ink_String(as<Ink_String>(base)->value + ss.str());
 	}
 
-	return new Ink_NullObject();
+	return NULL_OBJ;
 }
 
 Ink_Object *InkNative_String_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
+	int index;
 
-	if (argc && argv[0]->type == INK_NUMERIC) {
-		int index = as<Ink_Numeric>(argv[0])->value;
-		return new Ink_String(as<Ink_String>(base)->value.substr(index, 1));
-	} else {
+	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+		InkWarn_Method_Fallthrough(INK_OBJECT);
 		return InkNative_Object_Index(context, argc, argv, this_p);
 	}
+	index = as<Ink_Numeric>(argv[0])->value;
 
-	return new Ink_NullObject();
+	return new Ink_String(as<Ink_String>(base)->value.substr(index, 1));
 }
 
 extern int string_native_method_table_count;
