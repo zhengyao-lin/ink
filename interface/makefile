@@ -1,6 +1,7 @@
 TARGET=interface.o
 REQUIRE=\
-	engine.o
+	engine.o \
+	setting.o
 
 CC=g++
 LD=ld

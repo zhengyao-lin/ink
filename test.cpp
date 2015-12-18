@@ -3,9 +3,10 @@
 #include "core/object.h"
 #include "core/expression.h"
 #include "core/gc/collect.h"
-#include "interface/engine.h"
 #include "core/thread/thread.h"
 #include "core/coroutine/coroutine.h"
+#include "interface/engine.h"
+#include "interface/setting.h"
 
 Ink_ExpressionList native_exp_list = Ink_ExpressionList();
 
@@ -35,7 +36,7 @@ void *test3(void *p)
 	printf("3: %u\n", getThreadID());
 }*/
 
-int main()
+int main(int argc, char **argv)
 {
 #if 0
 	yyparse();
@@ -79,21 +80,18 @@ int main()
 	gc_engine->collectGarbage(true);
 	delete gc_engine;
 #endif
-	initThread();
-
-	registerThread();
+	// initThread();
+	// registerThread();
 
 	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
-	engine->startParse();
+	engine->startParse(Ink_InputSetting::parseArg(argc, argv));
 
 	engine->execute();
 
-	joinAllThread();
+	// joinAllThread();
 
 	delete engine;
 	cleanAll();
-
-
 
 	return 0;
 }

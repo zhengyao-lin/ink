@@ -4,6 +4,7 @@
 #include <map>
 #include <stdio.h>
 #include <string.h>
+#include "setting.h"
 #include "../core/hash.h"
 #include "../core/object.h"
 #include "../core/expression.h"
@@ -32,6 +33,7 @@ public:
 	Ink_ExpressionList top_level;
 	IGC_CollectEngine *gc_engine;
 	Ink_ContextChain *global_context;
+
 	Ink_InputMode input_mode;
 
 	Ink_ContextChain *trace;
@@ -106,6 +108,7 @@ public:
 		return current_gc_engine;
 	}
 
+	void startParse(Ink_InputSetting setting);
 	void startParse(FILE *input = stdin);
 	void startParse(string code);
 	Ink_Object *execute(Ink_ContextChain *context = NULL);

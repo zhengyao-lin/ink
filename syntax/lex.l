@@ -119,6 +119,7 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"go"						return TOKEN(TGO);
 <INITIAL>"yield"					return TOKEN(TYIELD);
 <INITIAL>"gen"						return TOKEN(TGEN);
+<INITIAL>"import"					return TOKEN(TIMPORT);
 
 <INITIAL>"&&"						return TOKEN(TCAND);
 <INITIAL>"||"						return TOKEN(TCOR);

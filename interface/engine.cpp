@@ -13,6 +13,23 @@ void Ink_setCurrentEngine(Ink_InterpreteEngine *engine)
 	return;
 }
 
+void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
+{
+	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
+	Ink_setCurrentEngine(this);
+	
+	input_mode = INK_FILE_INPUT;
+	// cleanTopLevel();
+	top_level = Ink_ExpressionList();
+	yyin = setting.getInput();
+	yyparse();
+	yylex_destroy();
+
+	Ink_setCurrentEngine(backup);
+
+	return;
+}
+
 void Ink_InterpreteEngine::startParse(FILE *input)
 {
 	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();

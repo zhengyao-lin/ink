@@ -328,3 +328,6 @@ i = 10;
 p(i++);
 p(++
 i);
+
+Object = fn () { }
+a = new Object();

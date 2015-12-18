@@ -102,6 +102,13 @@ InkErr_Missing_Semicolon()
 }
 
 inline void
+InkErr_Failed_Open_File(const char *path)
+{
+	InkErr_doPrintError(NULL, "Failed to open file $(path)", path);
+	return;
+}
+
+inline void
 InkWarn_Hash_not_found(const char *index)
 {
 	InkWarn_doPrintWarning("Creating undefined slot \'$(index)\'", index);
