@@ -25,6 +25,7 @@ Ink_InputSetting Ink_InputSetting::parseArg(int argc, char **argv)
 				break;
 			}
 			ret.setInput(fp);
+			ret.close_fp = true;
 		}
 	}
 

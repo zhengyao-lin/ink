@@ -109,7 +109,7 @@ public:
 	}
 
 	void startParse(Ink_InputSetting setting);
-	void startParse(FILE *input = stdin);
+	void startParse(FILE *input = stdin, bool close_fp = false);
 	void startParse(string code);
 	Ink_Object *execute(Ink_ContextChain *context = NULL);
 	static void cleanExpressionList(Ink_ExpressionList exp_list);

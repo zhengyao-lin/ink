@@ -47,12 +47,12 @@
 				   block equality_expression
 				   relational_expression logical_and_expression
 				   logical_or_expression yield_expression
-				   comma_expression
+				   comma_expression import_expression
 %type <parameter> param_list param_opt param_list_sub
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
 						element_list element_list_opt
-						block_list
+						block_list argument_list_without_paren
 %type <context_type> id_context_type
 
 %start compile_unit
@@ -113,6 +113,16 @@ expression
 	: nestable_expression
 	| comma_expression
 	| return_expression
+	| import_expression
+	;
+
+import_expression
+	: TIMPORT nllo argument_list_without_paren
+	{
+		$$ = new Ink_CallExpression(new Ink_IdentifierExpression(new string("import")), *$3);
+		delete $3;
+		SET_LINE_NO($$);
+	}
 	;
 
 comma_expression
@@ -122,12 +132,15 @@ comma_expression
 		tmp->exp_list.push_back($1);
 		tmp->exp_list.push_back($4);
 		$$ = tmp;
+		SET_LINE_NO($$);
 	}
 	| comma_expression TCOMMA nllo nestable_expression
 	{
 		as<Ink_CommaExpression>($1)->exp_list.push_back($4);
 		$$ = $1;
+		SET_LINE_NO($$);
 	}
+	;
 
 nestable_expression
 	: field_expression
@@ -336,6 +349,19 @@ argument_list
 	| argument_list nllo TCOMMA nllo nestable_expression
 	{
 		$1->push_back($5);
+		$$ = $1;
+	}
+	;
+
+argument_list_without_paren
+	: nestable_expression
+	{
+		$$ = new Ink_ExpressionList();
+		$$->push_back($1);
+	}
+	| argument_list_without_paren TCOMMA nllo nestable_expression
+	{
+		$1->push_back($4);
 		$$ = $1;
 	}
 	;

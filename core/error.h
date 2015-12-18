@@ -299,4 +299,11 @@ InkWarn_Method_Fallthrough(Ink_TypeTag type)
 	return;
 }
 
+inline void
+InkWarn_Not_Package()
+{
+	InkWarn_doPrintWarning("Object is not a package(with load method)");
+	return;
+}
+
 #endif

@@ -67,7 +67,7 @@ ExArray = fn (args...) {
 }
 Array = ExArray;
 
-a = new Array(1, 2, 3);
+a = new Array(1, 2, 3)
 b = new Array("a", "b", "c");
 // p(a.indexOf(50));
 // p(a == new Array(new Array(30, 20), new Array(10, 20), new Array(40, 5)));

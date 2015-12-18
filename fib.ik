@@ -1,5 +1,10 @@
 // dp = new Array(100)
 
+/* import "test.ik"
+import "block.ik"
+import "general.ik"
+*/
+
 fib = fn (n) do
 	/* if (dp[n]) do
 		retn dp[n]

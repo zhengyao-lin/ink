@@ -5,10 +5,11 @@
 
 class Ink_InputSetting {
 public:
+	bool close_fp;
 	FILE *input_file_pointer;
 
-	Ink_InputSetting(FILE *fp = stdin)
-	: input_file_pointer(fp)
+	Ink_InputSetting(FILE *fp = stdin, bool close_fp = false)
+	: close_fp(close_fp), input_file_pointer(fp)
 	{ }
 
 	void setInput(FILE *fp)
@@ -20,6 +21,12 @@ public:
 	FILE *getInput()
 	{
 		return input_file_pointer;
+	}
+
+	void clean()
+	{
+		if (close_fp)
+			fclose(input_file_pointer);
 	}
 
 	static Ink_InputSetting

@@ -25,12 +25,14 @@ void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 	yyparse();
 	yylex_destroy();
 
+	setting.clean();
+
 	Ink_setCurrentEngine(backup);
 
 	return;
 }
 
-void Ink_InterpreteEngine::startParse(FILE *input)
+void Ink_InterpreteEngine::startParse(FILE *input, bool close_fp)
 {
 	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
 	Ink_setCurrentEngine(this);
@@ -41,6 +43,8 @@ void Ink_InterpreteEngine::startParse(FILE *input)
 	yyin = input;
 	yyparse();
 	yylex_destroy();
+
+	if (close_fp) fclose(input);
 
 	Ink_setCurrentEngine(backup);
 
@@ -71,6 +75,9 @@ void Ink_InterpreteEngine::startParse(string code)
 	return;
 }
 
+extern bool CGC_if_return;
+extern bool CGC_if_yield;
+
 Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 {
 	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
@@ -82,6 +89,9 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 	if (!context) context = global_context;
 	for (i = 0; i < top_level.size(); i++) {
 		ret = top_level[i]->eval(context);
+		if (CGC_if_return || CGC_if_yield) {
+			break;
+		}
 		getCurrentGC()->checkGC();
 	}
 

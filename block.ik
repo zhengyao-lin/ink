@@ -329,5 +329,14 @@ p(i++);
 p(++
 i);
 
-Object = fn () { }
+Object = fn (block) { p(this); if (block) { p(this); block(this) } }
 a = new Object();
+
+package = new Object() { | this_p |
+	this_p.count = 1
+	this_p.load = fn () {
+		p("I'm package loader!! -- the " + base.count++ + "th time");
+	}
+}
+
+import package, package, package

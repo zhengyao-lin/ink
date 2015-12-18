@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <vector>
 #include "../object.h"
 #include "../context.h"
@@ -123,7 +124,7 @@ extern const char *yyerror_prefix;
 
 Ink_Object *Ink_Eval(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *ret = new Ink_NullObject();
+	Ink_Object *ret = NULL_OBJ;
 	Ink_ExpressionList top_level_backup;
 	int line_num_backup = current_line_number;
 	Ink_InterpreteEngine *current_engine = Ink_getCurrentEngine();
@@ -171,6 +172,56 @@ Ink_Object *Ink_Print(Ink_ContextChain *context, unsigned int argc, Ink_Object *
 	return new Ink_NullObject();
 }
 
+Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	unsigned int i;
+	FILE *fp;
+	Ink_Object *load;
+	const char *tmp;
+	Ink_InterpreteEngine *current_engine = Ink_getCurrentEngine();
+	Ink_ExpressionList top_level_backup;
+	int line_num_backup = current_line_number;
+
+	for (i = 0; i < argc; i++) {
+		if (argv[i]->type == INK_STRING) {
+			tmp = as<Ink_String>(argv[i])->value.c_str();
+			if (!(fp = fopen(tmp, "r"))) {
+				InkErr_Failed_Open_File(tmp);
+				continue;
+			}
+
+			if (current_engine) {
+				context->removeLast();
+				top_level_backup = current_engine->top_level;
+				current_line_number = inkerr_current_line_number;
+
+				yyerror_prefix = "from import: ";
+				current_engine->startParse(fp);
+				current_engine->execute(context);
+
+				native_exp_list.insert(native_exp_list.end(),
+									   current_engine->top_level.begin(),
+									   current_engine->top_level.end());
+				current_engine->top_level = top_level_backup;
+
+				context->addContext(new Ink_ContextObject());
+			}
+			fclose(fp);
+			// run file
+		} else {
+			// call load method
+			if ((load = getSlotWithProto(argv[i], "load"))->type == INK_FUNCTION) {
+				load->call(context);
+			} else {
+				InkWarn_Not_Package();
+			}
+		}
+	}
+	current_line_number = line_num_backup;
+
+	return NULL_OBJ;
+}
+
 Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p);
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
@@ -183,6 +234,7 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("while", while_func);
 	context->context->setSlot("p", new Ink_FunctionObject(Ink_Print));
 	context->context->setSlot("eval", new Ink_FunctionObject(Ink_Eval));
+	context->context->setSlot("import", new Ink_FunctionObject(Ink_Import));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);
