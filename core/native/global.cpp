@@ -217,7 +217,7 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 			// run file
 		} else {
 			// call load method
-			if ((load = getSlotWithProto(argv[i], "load"))->type == INK_FUNCTION) {
+			if ((load = getSlotWithProto(context, argv[i], "load"))->type == INK_FUNCTION) {
 				load->call(context);
 			} else {
 				InkWarn_Not_Package();
@@ -268,13 +268,14 @@ InkNative_MethodTable numeric_native_method_table[] = {
 	{"-u", new Ink_FunctionObject(InkNative_Numeric_Sub_Unary)}
 };
 
-int string_native_method_table_count = 2;
+int string_native_method_table_count = 3;
 InkNative_MethodTable string_native_method_table[] = {
 	{"+", new Ink_FunctionObject(InkNative_String_Add)},
-	{"[]", new Ink_FunctionObject(InkNative_String_Index)}
+	{"[]", new Ink_FunctionObject(InkNative_String_Index)},
+	{"length", new Ink_FunctionObject(InkNative_String_Length)}
 };
 
-int object_native_method_table_count = 8;
+int object_native_method_table_count = 10;
 InkNative_MethodTable object_native_method_table[] = {
 	{"->", new Ink_FunctionObject(InkNative_Object_Bond)},
 	{"!!", new Ink_FunctionObject(InkNative_Object_Debond)},
@@ -283,7 +284,9 @@ InkNative_MethodTable object_native_method_table[] = {
 	{"!=", new Ink_FunctionObject(InkNative_Object_NotEqual)},
 	{"[]", new Ink_FunctionObject(InkNative_Object_Index)},
 	{"new", new Ink_FunctionObject(InkNative_Object_New)},
-	{"clone", new Ink_FunctionObject(InkNative_Object_Clone)}
+	{"clone", new Ink_FunctionObject(InkNative_Object_Clone)},
+	{"get", new Ink_FunctionObject(InkNative_Object_SetGetter)},
+	{"set", new Ink_FunctionObject(InkNative_Object_SetSetter)}
 };
 
 int array_native_method_table_count = 6;

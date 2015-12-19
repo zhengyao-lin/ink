@@ -356,3 +356,20 @@ for (let i = 0, i < 10, i++) {
 	p(i);
 }
 p("end!");
+
+
+String = fn (str) {
+	this.val = str;
+	this.length = 10;
+	this.get("length") {
+		retn this.base.val.length();
+	}
+	this.set("length") {
+		p("readonly!!");
+	}
+}
+
+str = new String("hi");
+p(str.length);
+str.length = 10;
+p(str.length);

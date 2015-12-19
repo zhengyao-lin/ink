@@ -54,7 +54,7 @@ Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int
 		return NULL_OBJ;
 	}
 
-	range = Ink_HashExpression::getSlot(argv[0], "range");
+	range = getSlotWithProto(context, argv[0], "range");
 	if (range->type != INK_FUNCTION) {
 		InkWarn_Method_Fallthrough(INK_OBJECT);
 		return InkNative_Object_Index(context, argc, argv, this_p);

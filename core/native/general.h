@@ -15,15 +15,15 @@
 	} \
 } while (0)
 
-inline Ink_Object *getSlotWithProto(Ink_Object *base, const char *name)
+inline Ink_Object *getSlotWithProto(Ink_ContextChain *context, Ink_Object *base, const char *name)
 {
-	return Ink_HashExpression::getSlot(base, name);
+	return Ink_HashExpression::getSlot(context, base, name);
 }
 
 inline Ink_Object *callMethod(Ink_ContextChain *context, Ink_Object *base, const char *method_name,
 							  unsigned int argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL)
 {
-	if ((base = getSlotWithProto(base, method_name))->type != INK_FUNCTION) {
+	if ((base = getSlotWithProto(context, base, method_name))->type != INK_FUNCTION) {
 		InkWarn_Failed_Finding_Method(method_name);
 		return NULL;
 	}

@@ -203,6 +203,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	Ink_Array *var_arg = NULL;
 	IGC_CollectEngine *engine_backup = Ink_getCurrentEngine()->getCurrentGC();
 	Ink_Object *tmp;
+	bool force_return = false;
 
 	if (is_generator) {
 		Ink_Object *gen = new Ink_Object();
@@ -280,11 +281,12 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 				}
 				if (attr.hasTrap(CGC_interrupt_signal))
 					CGC_interrupt_signal = INTER_NONE;
+				force_return = true;
 				break;
 			}
 		}
 	}
-	if (this_p) {
+	if (this_p && !force_return) {
 		ret_val = local->getSlot("this");
 	}
 

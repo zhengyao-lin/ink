@@ -82,15 +82,9 @@ public:
 		if (engine->object_chain_last)
 			object_chain_last = engine->object_chain_last;
 	}
-	// void realloc(Ink_Object *obj); // move from the origin gc engine to self
-	// bool remove(Ink_Object *obj);
 
 	~IGC_CollectEngine()
-	{
-		// collectGarbage(true);
-		//if (pardon_chain)
-		//	disposeChainWithoutDelete(pardon_chain);
-	}
+	{ }
 };
 
 void IGC_initGC(IGC_CollectEngine *engine);

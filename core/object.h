@@ -164,7 +164,7 @@ public:
 		}
 	}
 
-	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL,
+	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context,
 					   bool is_inline = false, bool is_generator = false)
 	: is_native(false), is_inline(is_inline), is_generator(is_generator), native(NULL),
 	  param(param), exp_list(exp_list), closure_context(closure_context), attr(Ink_FunctionAttribution())

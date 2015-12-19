@@ -26,7 +26,7 @@ Ink_Expression *Ink_NumericConstant::parse(string code)
 	return NULL;
 }
 
-Ink_Object *Ink_FunctionExpression::eval(Ink_ContextChain *context_chain)
+Ink_Object *Ink_FunctionExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	SET_LINE_NUM;

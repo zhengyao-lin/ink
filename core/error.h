@@ -306,4 +306,18 @@ InkWarn_Not_Package()
 	return;
 }
 
+inline void
+InkWarn_Setting_Unassignable_Getter()
+{
+	InkWarn_doPrintWarning("Setting getter of unassignable object");
+	return;
+}
+
+inline void
+InkWarn_Setting_Unassignable_Setter()
+{
+	InkWarn_doPrintWarning("Setting setter of unassignable object");
+	return;
+}
+
 #endif

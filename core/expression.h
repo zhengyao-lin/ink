@@ -31,13 +31,23 @@ template <class T> T *as(Ink_Expression *obj)
 	return dynamic_cast<T*>(obj);
 }
 
+class Ink_EvalFlag {
+public:
+	bool is_left_value;
+
+	Ink_EvalFlag(bool is_left_value = false)
+	: is_left_value(is_left_value)
+	{ }
+};
+
 class Ink_Expression {
 public:
 	int line_number;
 	Ink_Expression()
 	: line_number(-1)
 	{ }
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain) { return NULL; }
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain) { return eval(context_chain, Ink_EvalFlag()); }
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags) { return NULL; }
 	virtual Ink_Expression *clone() { return NULL; }
 	virtual ~Ink_Expression() { }
 };
@@ -50,7 +60,7 @@ public:
 	: exp_list(Ink_ExpressionList())
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		Ink_Object *ret = new Ink_NullObject();
 		unsigned int i;
@@ -99,7 +109,7 @@ public:
 		return NULL;
 	}
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		pthread_t *thd = (pthread_t *)malloc(sizeof(pthread_t));
 
@@ -128,7 +138,7 @@ public:
 	: signal(signal), ret_val(ret_val)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
@@ -165,7 +175,7 @@ public:
 	: lval(lval), rval(rval), type(type)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		bool ret_val = false;
@@ -200,19 +210,28 @@ public:
 	: lval(lval), rval(rval), is_return_lval(is_return_lval), is_dispose_lval(is_dispose_lval)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
 
 		Ink_Object *rval_ret;
 		Ink_Object *lval_ret;
+		Ink_Object **tmp;
 
 		rval_ret = rval->eval(context_chain);
-		lval_ret = lval->eval(context_chain);
+		lval_ret = lval->eval(context_chain, Ink_EvalFlag(true));
 
 		if (lval_ret->address) {
-			lval_ret->address->value = rval_ret;
+			if (lval_ret->address->setter) {
+				tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
+				tmp[0] = rval_ret;
+				lval_ret->address->value = lval_ret->address->setter->call(context_chain, 1, tmp, lval_ret);
+				CGC_interrupt_signal = INTER_NONE;
+				free(tmp);
+			} else {
+				lval_ret->address->value = rval_ret;
+			}
 			return is_return_lval ? lval_ret : rval_ret;
 		}
 
@@ -238,7 +257,7 @@ public:
 	: elem_list(elem_list)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		Ink_ArrayValue val = Ink_ArrayValue();
 		unsigned int i;
@@ -268,7 +287,7 @@ public:
 	: base(base), slot_id(slot_id)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
@@ -276,7 +295,7 @@ public:
 		Ink_Object *base_obj = base->eval(context_chain);
 
 		RESTORE_LINE_NUM;
-		return getSlot(base_obj, slot_id->c_str());
+		return getSlot(context_chain, base_obj, slot_id->c_str(), flags);
 	}
 
 	class ProtoSearchRet {
@@ -307,7 +326,11 @@ public:
 		return ProtoSearchRet(hash, proto_obj ? proto_obj : obj);
 	}
 
-	static Ink_Object *getSlot(Ink_Object *obj, const char *id)
+	static Ink_Object *getSlot(Ink_ContextChain *context_chain, Ink_Object *obj, const char *id)
+	{
+		return getSlot(context_chain, obj, id, Ink_EvalFlag());
+	}
+	static Ink_Object *getSlot(Ink_ContextChain *context_chain, Ink_Object *obj, const char *id, Ink_EvalFlag flags)
 	{
 		Ink_HashTable *hash, *address;
 		Ink_Object *base = obj, *ret;
@@ -322,17 +345,22 @@ public:
 			} else {
 				ret = new Ink_Undefined();
 			}
-			ret->address = address;
 		} else {
 			ret = hash->value;
-			ret->address = hash;
+			address = hash;
 		}
 
 		if (obj->type == INK_UNDEFINED) {
 			InkWarn_Get_Undefined_Hash();
 		}
 
+		ret->address = address;
 		ret->setSlot("base", base);
+
+		if (!flags.is_left_value && address->getter) {
+			ret = address->getter->call(context_chain, 0, NULL, ret);
+			CGC_interrupt_signal = INTER_NONE;
+		}
 		//hash->value->setSlot("this", hash->value);
 
 		return ret;
@@ -356,7 +384,7 @@ public:
 	: param(param), exp_list(exp_list), is_inline(is_inline), is_generator(is_generator)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain);
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	virtual ~Ink_FunctionExpression()
 	{
@@ -379,7 +407,7 @@ public:
 	: callee(callee), arg_list(arg_list)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
@@ -443,7 +471,7 @@ public:
 	: id(id), context_type(context_type), if_create_slot(if_create_slot)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
@@ -452,6 +480,7 @@ public:
 		Ink_ContextChain *local = context_chain->getLocal();
 		Ink_ContextChain *global = context_chain->getGlobal();
 		Ink_ContextChain *dest_context = local;
+		Ink_Object *tmp;
 
 		switch (context_type){
 			case ID_LOCAL:
@@ -477,6 +506,13 @@ public:
 			}
 		}
 		hash->value->address = hash;
+		if (!flags.is_left_value && hash->getter) {
+			tmp = hash->getter->call(context_chain, 0, NULL, hash->value);
+			CGC_interrupt_signal = INTER_NONE;
+
+			RESTORE_LINE_NUM;
+			return tmp;
+		}
 		// hash->value->setSlot("this", hash->value);
 
 		RESTORE_LINE_NUM;
@@ -492,7 +528,7 @@ public:
 class Ink_NullConstant: public Ink_Expression {
 public:
 	Ink_NullConstant() { }
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
@@ -504,7 +540,7 @@ public:
 class Ink_UndefinedConstant: public Ink_Expression {
 public:
 	Ink_UndefinedConstant() { }
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
@@ -521,7 +557,7 @@ public:
 	: value(value)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
@@ -541,7 +577,7 @@ public:
 	: value(value)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
@@ -563,7 +599,7 @@ public:
 	: elem_list(elem_list)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;

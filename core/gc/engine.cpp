@@ -21,37 +21,22 @@ void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
 	return;
 }
 
-/*
-void IGC_CollectEngine::addPardon(Ink_Object *obj)
-{
-	IGC_CollectUnit *unit;
-
-	if (pardon_chain) {
-		for (unit = pardon_chain; unit->next; unit = unit->next) ;
-		unit->next = new IGC_CollectUnit(obj);
-		unit->next->prev = unit;
-	} else {
-		pardon_chain = new IGC_CollectUnit(obj);
-	}
-
-	return;
-}
-*/
-
 void IGC_CollectEngine::doMark(Ink_Object *obj)
 {
 	Ink_HashTable *i;
 
 	if (obj->mark != CURRENT_MARK_PERIOD) obj->mark = CURRENT_MARK_PERIOD;
 	else {
-		//printf("========skip!\n");
 		return;
 	}
 
 	for (i = obj->hash_table; i; i = i->next) {
-		//printf("%s\n", i->key);
 		if (i->value)
 			doMark(i->value);
+		if (i->setter)
+			doMark(i->setter);
+		if (i->getter)
+			doMark(i->getter);
 	}
 
 	if (obj->type == INK_FUNCTION) {
@@ -143,31 +128,3 @@ void IGC_CollectEngine::checkGC()
 	}
 	return;
 }
-
-
-/*
-void IGC_CollectEngine::realloc(Ink_Object *obj)
-{
-	if (obj->alloc_engine) {
-		obj->alloc_engine->remove(obj);
-	}
-	addUnit(new IGC_CollectUnit(obj));
-	obj->alloc_engine = this;
-}
-
-bool IGC_CollectEngine::remove(Ink_Object *obj)
-{
-	IGC_CollectUnit *i;
-	for (i = object_chain; i; i = i->next) {
-		if (i->obj == obj) {
-			i->obj = NULL;
-			if (!i->next) object_chain_last = i->prev;
-			if (!i->prev) object_chain = i->next;
-			deleteObject(i);
-			return true;
-		}
-	}
-
-	return false;
-}
-*/

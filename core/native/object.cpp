@@ -76,10 +76,10 @@ Ink_Object *InkNative_Object_Index(Ink_ContextChain *context, unsigned int argc,
 	if (!base->getSlotMapping(as<Ink_String>(argv[0])->value.c_str())) {
 		Ink_IdentifierExpression *id_exp = new Ink_IdentifierExpression(new string(as<Ink_String>(argv[0])->value.c_str()));
 		native_exp_list.push_back(id_exp);
-		return Ink_HashExpression::getSlot(base, id_exp->id->c_str());
+		return getSlotWithProto(context, base, id_exp->id->c_str());
 	}
 
-	return Ink_HashExpression::getSlot(base, as<Ink_String>(argv[0])->value.c_str());
+	return getSlotWithProto(context, base, as<Ink_String>(argv[0])->value.c_str());
 }
 
 Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -99,6 +99,46 @@ Ink_Object *InkNative_Object_Clone(Ink_ContextChain *context, unsigned int argc,
 	Ink_Object *base = context->searchSlot("base");
 
 	return base->clone();
+}
+
+Ink_Object *InkNative_Object_SetGetter(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+	Ink_HashTable *hash;
+	const char *tmp;
+
+	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	tmp = as<Ink_String>(argv[0])->value.c_str();
+	if (!(hash = base->getSlotMapping(tmp))) {
+		hash = base->setSlot(tmp, UNDEFINED);
+	}
+
+	hash->getter = argc > 1 ? argv[1] : NULL;
+
+	return NULL_OBJ;
+}
+
+Ink_Object *InkNative_Object_SetSetter(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+	Ink_HashTable *hash;
+	const char *tmp;
+
+	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	tmp = as<Ink_String>(argv[0])->value.c_str();
+	if (!(hash = base->getSlotMapping(tmp))) {
+		hash = base->setSlot(tmp, UNDEFINED);
+	}
+
+	hash->setter = argc > 1 ? argv[1] : NULL;
+
+	return NULL_OBJ;
 }
 
 extern int object_native_method_table_count;

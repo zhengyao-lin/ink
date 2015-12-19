@@ -14,12 +14,18 @@ public:
 	Ink_HashTable *bonding;
 	Ink_HashTable *bondee;
 
+	Ink_Object *setter;
+	Ink_Object *getter;
+
 	Ink_HashTable(const char *key, Ink_Object *value)
 	: key(key), value(value)
 	{
 		next = NULL;
 		bonding = NULL;
 		bondee = NULL;
+
+		setter = NULL;
+		getter = NULL;
 	}
 
 	Ink_HashTable(Ink_Object *value)
@@ -28,6 +34,9 @@ public:
 		next = NULL;
 		bonding = NULL;
 		bondee = NULL;
+
+		setter = NULL;
+		getter = NULL;
 	}
 
 	Ink_HashTable *getEnd();
