@@ -1,4 +1,9 @@
 #include "engine.h"
+#include "../core/gc/collect.h"
+#include "../core/hash.h"
+#include "../core/object.h"
+#include "../core/expression.h"
+#include "../core/thread/thread.h"
 
 static Ink_InterpreteEngine *current_interprete_engine = NULL;
 extern InterruptSignal CGC_interrupt_signal;
@@ -11,6 +16,40 @@ Ink_InterpreteEngine *Ink_getCurrentEngine()
 void Ink_setCurrentEngine(Ink_InterpreteEngine *engine)
 {
 	current_interprete_engine = engine;
+	return;
+}
+
+Ink_InterpreteEngine::Ink_InterpreteEngine()
+{
+	// gc_lock.init();
+	Ink_setCurrentEngine(this);
+
+	igc_object_count = 0;
+	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
+	igc_mark_period = 1;
+	trace = NULL;
+
+	gc_engine = new IGC_CollectEngine();
+	setCurrentGC(gc_engine);
+	global_context = new Ink_ContextChain(new Ink_ContextObject());
+	gc_engine->initContext(global_context);
+
+	global_context->context->setSlot("this", global_context->context);
+	Ink_GlobalMethodInit(global_context);
+
+	addTrace(global_context->context);
+}
+
+Ink_ContextChain *Ink_InterpreteEngine::addTrace(Ink_ContextObject *context)
+{
+	if (!trace) return trace = new Ink_ContextChain(context);
+	return trace->addContext(context);
+}
+
+void Ink_InterpreteEngine::removeLastTrace()
+{
+	if (trace)
+		trace->removeLast();
 	return;
 }
 
@@ -119,4 +158,19 @@ void Ink_InterpreteEngine::cleanContext(Ink_ContextChain *context)
 	}
 
 	return;
+}
+
+Ink_InterpreteEngine::~Ink_InterpreteEngine()
+{
+	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
+	Ink_setCurrentEngine(this);
+
+	gc_engine->collectGarbage(true);
+	delete gc_engine;
+
+	cleanExpressionList(top_level);
+	cleanContext(global_context);
+	cleanContext(trace);
+
+	Ink_setCurrentEngine(backup);
 }

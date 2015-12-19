@@ -1,18 +1,23 @@
 #ifndef _ENGINE_H_
 #define _ENGINE_H_
 
+#include <vector>
 #include <map>
+#include <string>
 #include <stdio.h>
 #include <string.h>
 #include "setting.h"
-#include "../core/hash.h"
-#include "../core/object.h"
-#include "../core/expression.h"
-#include "../core/context.h"
-#include "../core/gc/collect.h"
-#include "../core/thread/thread.h"
 
+using namespace std;
+
+class Ink_Object;
+class Ink_Expression;
 class Ink_InterpreteEngine;
+class IGC_CollectEngine;
+class Ink_ContextObject;
+class Ink_ContextChain;
+
+typedef vector<Ink_Expression *> Ink_ExpressionList;
 
 extern FILE *yyin;
 int yyparse();
@@ -45,66 +50,19 @@ public:
 	int igc_mark_period;
 	// std::map<int, IGC_CollectEngine *> gc_engine_map;
 
-	Ink_InterpreteEngine()
+	Ink_InterpreteEngine();
+
+	Ink_ContextChain *addTrace(Ink_ContextObject *context);
+	void removeLastTrace();
+
+	inline int setCurrentGC(IGC_CollectEngine *engine)
 	{
-		// gc_lock.init();
-		Ink_setCurrentEngine(this);
-
-		igc_object_count = 0;
-		igc_collect_treshold = IGC_COLLECT_TRESHOLD;
-		igc_mark_period = 1;
-		trace = NULL;
-
-		gc_engine = new IGC_CollectEngine();
-		setCurrentGC(gc_engine);
-		global_context = new Ink_ContextChain(new Ink_ContextObject());
-		gc_engine->initContext(global_context);
-
-		global_context->context->setSlot("this", global_context->context);
-		Ink_GlobalMethodInit(global_context);
-
-		addTrace(global_context->context);
-	}
-
-	Ink_ContextChain *addTrace(Ink_ContextObject *context)
-	{
-		if (!trace) return trace = new Ink_ContextChain(context);
-		return trace->addContext(context);
-	}
-
-	void removeLastTrace()
-	{
-		if (trace)
-			trace->removeLast();
-		return;
-	}
-
-	int setCurrentGC(IGC_CollectEngine *engine)
-	{
-		#if 0
-		int id;
-
-		// gc_lock.lock();
-		gc_engine_map[id = getThreadID()] = engine;
-		// gc_lock.unlock();
-
-		return id;
-		#endif
 		current_gc_engine = engine;
 		return 0;
 	}
 
-	IGC_CollectEngine *getCurrentGC()
+	inline IGC_CollectEngine *getCurrentGC()
 	{
-		#if 0
-		IGC_CollectEngine *ret;
-
-		// gc_lock.lock();
-		ret = gc_engine_map[getThreadID()];
-		// gc_lock.unlock();
-
-		return ret;
-		#endif
 		return current_gc_engine;
 	}
 
@@ -115,20 +73,7 @@ public:
 	static void cleanExpressionList(Ink_ExpressionList exp_list);
 	static void cleanContext(Ink_ContextChain *context);
 
-	~Ink_InterpreteEngine()
-	{
-		Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
-		Ink_setCurrentEngine(this);
-
-		gc_engine->collectGarbage(true);
-		delete gc_engine;
-
-		cleanExpressionList(top_level);
-		cleanContext(global_context);
-		cleanContext(trace);
-
-		Ink_setCurrentEngine(backup);
-	}
+	~Ink_InterpreteEngine();
 };
 
 #endif

@@ -59,7 +59,6 @@ public:
 	}
 	void addUnit(IGC_CollectUnit *unit);
 	// void addPardon(Ink_Object *obj);
-	void cleanMark();
 	static void doMark(Ink_Object *obj);
 	static void deleteObject(IGC_CollectUnit *unit);
 	static void disposeChainWithoutDelete(IGC_CollectUnit *chain);
@@ -67,7 +66,22 @@ public:
 	void doCollect();
 	void collectGarbage(bool delete_all = false);
 	void checkGC();
-	void link(IGC_CollectEngine *engine);
+	inline void link(IGC_CollectEngine *engine)
+	{
+		IGC_CollectUnit *i;
+		for (i = engine->object_chain; i; i = i->next) {
+			if (i->obj) i->obj->alloc_engine = this;
+		}
+		if (object_chain_last) {
+			object_chain_last->next = engine->object_chain;
+			if (engine->object_chain)
+				engine->object_chain->prev = object_chain_last;
+		} else {
+			object_chain = engine->object_chain;
+		}
+		if (engine->object_chain_last)
+			object_chain_last = engine->object_chain_last;
+	}
 	// void realloc(Ink_Object *obj); // move from the origin gc engine to self
 	// bool remove(Ink_Object *obj);
 

@@ -38,17 +38,6 @@ void IGC_CollectEngine::addPardon(Ink_Object *obj)
 }
 */
 
-void IGC_CollectEngine::cleanMark()
-{
-	IGC_CollectUnit *i;
-
-	for (i = object_chain; i; i = i->next) {
-		i->obj->mark = false;
-	}
-
-	return;
-}
-
 void IGC_CollectEngine::doMark(Ink_Object *obj)
 {
 	Ink_HashTable *i;
@@ -130,28 +119,9 @@ void IGC_CollectEngine::doCollect()
 
 void IGC_CollectEngine::collectGarbage(bool delete_all)
 {
-	// Ink_ContextChain *local = local_context->getLocal();
 	Ink_ContextChain *i;
-	// IGC_CollectUnit *j;
-	// IGC_CollectEngine *engine_i;
 
-	//printf("========== GC INTERRUPT =========\n");
-
-	//if (if_clean_mark)
-	//	cleanMark();
 	if (!delete_all) {
-		/* for (i = local; i; i = i->outer) {
-			doMark(i->context);
-		}
-		for (engine_i = outer_engine; engine_i;
-			 engine_i = engine_i->outer_engine) {
-			for (j = engine_i->pardon_chain; j; j = j->next) {
-				doMark(j->obj);
-			}
-		}
-		for (j = pardon_chain; j; j = j->next) {
-			doMark(j->obj);
-		} */
 		for (i = Ink_getCurrentEngine()->trace->getGlobal();
 			 i; i = i->inner) {
 			doMark(i->context);
@@ -174,22 +144,6 @@ void IGC_CollectEngine::checkGC()
 	return;
 }
 
-void IGC_CollectEngine::link(IGC_CollectEngine *engine)
-{
-	IGC_CollectUnit *i;
-	for (i = engine->object_chain; i; i = i->next) {
-		if (i->obj) i->obj->alloc_engine = this;
-	}
-	if (object_chain_last) {
-		object_chain_last->next = engine->object_chain;
-		if (engine->object_chain)
-			engine->object_chain->prev = object_chain_last;
-	} else {
-		object_chain = engine->object_chain;
-	}
-	if (engine->object_chain_last)
-		object_chain_last = engine->object_chain_last;
-}
 
 /*
 void IGC_CollectEngine::realloc(Ink_Object *obj)
