@@ -56,6 +56,19 @@ Ink_Object *InkNative_Numeric_Div(Ink_ContextChain *context, unsigned int argc, 
 	return new Ink_Numeric(as<Ink_Numeric>(base)->value / as<Ink_Numeric>(argv[0])->value);
 }
 
+Ink_Object *InkNative_Numeric_Mod(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+
+	ASSUME_BASE_TYPE(INK_NUMERIC);
+
+	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric((int)as<Ink_Numeric>(base)->value % (int)as<Ink_Numeric>(argv[0])->value);
+}
+
 Ink_Object *InkNative_Numeric_Equal(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");

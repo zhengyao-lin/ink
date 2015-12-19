@@ -15,7 +15,7 @@ using namespace std;
 
 void IGC_addObject(Ink_Object *obj);
 
-extern bool CGC_if_return;
+extern InterruptSignal CGC_interrupt_signal;
 
 class Ink_Expression;
 class Ink_ContextObject;
@@ -118,6 +118,20 @@ public:
 
 typedef Ink_Object *(*Ink_NativeFunction)(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p);
 
+class Ink_FunctionAttribution {
+public:
+	int interrupt_signal_trap;
+
+	Ink_FunctionAttribution(int trap = INTER_RETURN | INTER_BREAK | INTER_CONTINUE)
+	: interrupt_signal_trap(trap)
+	{ }
+
+	inline bool hasTrap(InterruptSignal signal)
+	{
+		return hasSignal(interrupt_signal_trap, signal);
+	}
+};
+
 class Ink_FunctionObject: public Ink_Object {
 public:
 	bool is_native;
@@ -131,17 +145,41 @@ public:
 
 	Ink_ContextChain *closure_context;
 
+	Ink_FunctionAttribution attr;
+
 	Ink_FunctionObject()
-	: is_native(false), is_inline(false), is_generator(false), native(NULL), param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL)
+	: is_native(false), is_inline(false), is_generator(false), native(NULL),
+	  param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL),
+	  attr(Ink_FunctionAttribution())
 	{ type = INK_FUNCTION; }
 
 	Ink_FunctionObject(Ink_NativeFunction native, bool is_inline = false)
-	: is_native(true), is_inline(is_inline), is_generator(false), native(native), param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL)
-	{ type = INK_FUNCTION; }
+	: is_native(true), is_inline(is_inline), is_generator(false), native(native),
+	  param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL),
+	  attr(Ink_FunctionAttribution())
+	{
+		type = INK_FUNCTION;
+		if (is_inline) {
+			setAttr(Ink_FunctionAttribution(INTER_NONE));
+		}
+	}
 
-	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL, bool is_inline = false, bool is_generator = false)
-	: is_native(false), is_inline(is_inline), is_generator(is_generator), native(NULL), param(param), exp_list(exp_list), closure_context(closure_context)
-	{ type = INK_FUNCTION; }
+	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context = NULL,
+					   bool is_inline = false, bool is_generator = false)
+	: is_native(false), is_inline(is_inline), is_generator(is_generator), native(NULL),
+	  param(param), exp_list(exp_list), closure_context(closure_context), attr(Ink_FunctionAttribution())
+	{
+		type = INK_FUNCTION;
+		if (is_inline) {
+			setAttr(Ink_FunctionAttribution(INTER_NONE));
+		}
+	}
+
+	inline void setAttr(Ink_FunctionAttribution a)
+	{
+		attr = a;
+		return;
+	}
 
 	virtual void derivedMethodInit()
 	{

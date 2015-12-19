@@ -1,4 +1,5 @@
 for = inl (init, &cond, &iterate, block) {
+	block.'continue' = iterate;
 	while (cond()) {
 		block();
 		iterate();

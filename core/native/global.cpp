@@ -8,8 +8,7 @@
 #include "native.h"
 
 extern Ink_ExpressionList native_exp_list;
-extern bool CGC_if_return;
-extern bool CGC_if_yield;
+extern InterruptSignal CGC_interrupt_signal;
 
 bool isTrue(Ink_Object *cond)
 {
@@ -70,8 +69,16 @@ Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, In
 	ret = new Ink_NullObject();
 	while (isTrue(cond->call(context))) {
 		ret = block->call(context);
-		if (CGC_if_return || CGC_if_yield) {
-			return ret;
+		switch (CGC_interrupt_signal) {
+			case INTER_RETURN:
+				return ret; // fallthrough the signal
+			case INTER_BREAK:
+				CGC_interrupt_signal = INTER_NONE; // trap the signal
+				return ret;
+			case INTER_CONTINUE:
+				CGC_interrupt_signal = INTER_NONE; // trap the signal
+				continue;
+			default: ;
 		}
 	}
 
@@ -244,12 +251,13 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("null", new Ink_NullObject());
 }
 
-int numeric_native_method_table_count = 12;
+int numeric_native_method_table_count = 13;
 InkNative_MethodTable numeric_native_method_table[] = {
 	{"+", new Ink_FunctionObject(InkNative_Numeric_Add)},
 	{"-", new Ink_FunctionObject(InkNative_Numeric_Sub)},
 	{"*", new Ink_FunctionObject(InkNative_Numeric_Mul)},
 	{"/", new Ink_FunctionObject(InkNative_Numeric_Div)},
+	{"%", new Ink_FunctionObject(InkNative_Numeric_Mod)},
 	{"==", new Ink_FunctionObject(InkNative_Numeric_Equal)},
 	{"!=", new Ink_FunctionObject(InkNative_Numeric_NotEqual)},
 	{">", new Ink_FunctionObject(InkNative_Numeric_Greater)},

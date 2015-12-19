@@ -6,6 +6,7 @@
 #include "native/native.h"
 #include "../interface/engine.h"
 #include "coroutine/coroutine.h"
+#include "native/general.h"
 
 extern int numeric_native_method_table_count;
 extern InkNative_MethodTable numeric_native_method_table[];
@@ -201,6 +202,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	Ink_Object *ret_val = NULL;
 	Ink_Array *var_arg = NULL;
 	IGC_CollectEngine *engine_backup = Ink_getCurrentEngine()->getCurrentGC();
+	Ink_Object *tmp;
 
 	if (is_generator) {
 		Ink_Object *gen = new Ink_Object();
@@ -260,9 +262,24 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		for (j = 0; j < exp_list.size(); j++) {
 			gc_engine->checkGC();
 			ret_val = exp_list[j]->eval(context); // eval each expression
-			if (CGC_if_return) {
-				if (!is_inline)
-					CGC_if_return = false;
+			if (CGC_interrupt_signal != INTER_NONE) {
+				switch (CGC_interrupt_signal) {
+					case INTER_RETURN:
+						if ((tmp = getSlot("return"))->type == INK_FUNCTION) {
+							tmp->call(context);
+						} break;
+					case INTER_CONTINUE:
+						if ((tmp = getSlot("continue"))->type == INK_FUNCTION) {
+							tmp->call(context);
+						} break;
+					case INTER_BREAK:
+						if ((tmp = getSlot("break"))->type == INK_FUNCTION) {
+							tmp->call(context);
+						} break;
+					default: ;
+				}
+				if (attr.hasTrap(CGC_interrupt_signal))
+					CGC_interrupt_signal = INTER_NONE;
 				break;
 			}
 		}
@@ -330,6 +347,7 @@ Ink_Object *Ink_FunctionObject::clone()
 	new_obj->exp_list = exp_list;
 	if (new_obj->closure_context)
 		new_obj->closure_context = closure_context->copyContextChain();
+	new_obj->attr = attr;
 
 	cloneHashTable(this, new_obj);
 

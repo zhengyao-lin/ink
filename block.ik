@@ -257,10 +257,10 @@ g(fn (a) {
 });
 
 
-
+Object = fn () {};
 ///////////////////////////////////////////////////////////
 fib = fn () {
-	let generator = {};
+	let generator = new Object();
 	let '$yield' = fn (k, value) {
 		generator.next = k;
 		retn value;
@@ -329,7 +329,7 @@ p(i++);
 p(++
 i);
 
-Object = fn (block) { p(this); if (block) { p(this); block(this) } }
+Object = fn (block) { if (block) { block(this) } }
 a = new Object();
 
 package = new Object() { | this_p |
@@ -340,3 +340,19 @@ package = new Object() { | this_p |
 }
 
 import package, package, package
+
+for = inl (init, &cond, &iterate, block) {
+	block.'continue' = iterate;
+	while (cond()) {
+		block();
+		iterate();
+	}
+}
+
+for (let i = 0, i < 10, i++) {
+	if (!(i % 2)) {
+		continue;
+	}
+	p(i);
+}
+p("end!");

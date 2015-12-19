@@ -3,9 +3,6 @@
 #include "../context.h"
 #include "native.h"
 
-extern bool CGC_if_return;
-extern bool CGC_if_yield;
-
 unsigned int getRealIndex(int index, int size)
 {
 	while (index < 0) index += size;

@@ -8,7 +8,7 @@
 
 #define NULL_OBJ (new Ink_NullObject())
 #define UNDEFINED (new Ink_Undefined())
-#define RETURN_FLAG (CGC_if_return || CGC_if_yield)
+#define RETURN_FLAG (CGC_interrupt_signal == INTER_RETURN)
 #define ASSUME_BASE_TYPE(t) do { \
 	if (!assumeType(base, t)) { \
 		return NULL_OBJ; \

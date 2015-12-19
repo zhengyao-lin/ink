@@ -23,6 +23,7 @@
 	Ink_ExpressionList *expression_list;
 	std::string *string;
 	IDContextType context_type;
+	InterruptSignal signal;
 	int token;
 }
 
@@ -30,7 +31,7 @@
 
 %token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE
 			   TFUNC TINLINE TDO TEND TGO TYIELD TGEN
-			   TIMPORT
+			   TIMPORT TBREAK TCONTINUE
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TDADD TDSUB TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
@@ -40,20 +41,21 @@
 %type <expression> expression assignment_expression
 				   primary_expression postfix_expression
 				   function_expression additive_expression
-				   return_expression multiplicative_expression
+				   interrupt_expression multiplicative_expression
 				   unary_expression nestable_expression
 				   insert_expression field_expression
 				   table_expression functional_block
 				   block equality_expression
 				   relational_expression logical_and_expression
-				   logical_or_expression yield_expression
-				   comma_expression import_expression
+				   logical_or_expression comma_expression
+				   import_expression
 %type <parameter> param_list param_opt param_list_sub
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
 						element_list element_list_opt
 						block_list argument_list_without_paren
 %type <context_type> id_context_type
+%type <signal> interrupt_signal
 
 %start compile_unit
 
@@ -112,8 +114,36 @@ expression_list_opt
 expression
 	: nestable_expression
 	| comma_expression
-	| return_expression
+	| interrupt_expression
 	| import_expression
+	;
+
+interrupt_signal
+	: TRETURN
+	{
+		$$ = INTER_RETURN;
+	}
+	| TBREAK
+	{
+		$$ = INTER_BREAK;
+	}
+	| TCONTINUE
+	{
+		$$ = INTER_CONTINUE;
+	}
+	;
+
+interrupt_expression
+	: interrupt_signal
+	{
+		$$ = new Ink_InterruptExpression($1, NULL);
+		SET_LINE_NO($$);
+	}
+	| interrupt_signal nestable_expression
+	{
+		$$ = new Ink_InterruptExpression($1, $2);
+		SET_LINE_NO($$);
+	}
 	;
 
 import_expression
@@ -180,19 +210,6 @@ insert_expression
 	}
 	;
 
-return_expression
-	: TRETURN
-	{
-		$$ = new Ink_ReturnExpression(NULL);
-		SET_LINE_NO($$);
-	}
-	| TRETURN nestable_expression
-	{
-		$$ = new Ink_ReturnExpression($2);
-		SET_LINE_NO($$);
-	}
-	;
-
 logical_or_expression
 	: logical_and_expression
 	| logical_or_expression TCOR nllo logical_and_expression
@@ -212,13 +229,13 @@ logical_and_expression
 	;
 
 assignment_expression
-	: yield_expression
-	| yield_expression TASSIGN nllo assignment_expression
+	: equality_expression
+	| equality_expression TASSIGN nllo assignment_expression
 	{
 		$$ = new Ink_AssignmentExpression($1, $4);
 		SET_LINE_NO($$);
 	}
-	| yield_expression TARR nllo assignment_expression
+	| equality_expression TARR nllo assignment_expression
 	{
 		Ink_ExpressionList arg = Ink_ExpressionList();
 		arg.push_back($4);
@@ -226,15 +243,6 @@ assignment_expression
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("->")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
-	}
-	;
-
-yield_expression
-	: equality_expression
-	| TYIELD yield_expression
-	{
-		$$ = new Ink_YieldExpression($2);
-		SET_LINE_NO($$);
 	}
 	;
 
@@ -335,6 +343,14 @@ multiplicative_expression
 		Ink_ExpressionList arg = Ink_ExpressionList();
 		arg.push_back($4);
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("/")), arg);
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
+	| multiplicative_expression TMOD nllo unary_expression
+	{
+		Ink_ExpressionList arg = Ink_ExpressionList();
+		arg.push_back($4);
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("%")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
@@ -522,7 +538,7 @@ element_list_opt
 
 table_expression
 	: postfix_expression
-	| TLBRACE element_list_opt TRBRACE
+	| TLBRAKT element_list_opt TRBRAKT
 	{
 		$$ = new Ink_TableExpression(*$2);
 		delete $2;

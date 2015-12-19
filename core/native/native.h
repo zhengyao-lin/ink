@@ -28,6 +28,7 @@ Ink_Object *InkNative_Numeric_Add(Ink_ContextChain *context, unsigned int argc, 
 Ink_Object *InkNative_Numeric_Sub(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_Numeric_Mul(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_Numeric_Div(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
+Ink_Object *InkNative_Numeric_Mod(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_Numeric_Equal(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_Numeric_NotEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_Numeric_Greater(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);

@@ -21,4 +21,21 @@ public:
 	{ }
 };
 
+typedef enum {
+	INTER_NONE = 1 << 1,
+	INTER_RETURN = 1 << 2,
+	INTER_BREAK = 1 << 3,
+	INTER_CONTINUE = 1 << 4
+} InterruptSignal;
+
+inline bool hasSignal(int set, InterruptSignal sign)
+{
+	return (~(~set | sign) != set);
+}
+
+inline int addSignal(int set, InterruptSignal sign)
+{
+	return set | sign;
+}
+
 #endif

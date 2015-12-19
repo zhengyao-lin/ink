@@ -3,8 +3,7 @@
 #include "expression.h"
 #include "coroutine/coroutine.h"
 
-bool CGC_if_return = false;
-bool CGC_if_yield = false;
+InterruptSignal CGC_interrupt_signal = INTER_NONE;
 
 Ink_Expression *Ink_NumericConstant::parse(string code)
 {
@@ -25,19 +24,6 @@ Ink_Expression *Ink_NumericConstant::parse(string code)
 		return new Ink_NumericConstant(val * flag);
 
 	return NULL;
-}
-
-Ink_Object *Ink_YieldExpression::eval(Ink_ContextChain *context_chain)
-{
-	int line_num_back;
-	SET_LINE_NUM;
-
-	Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
-
-	RESTORE_LINE_NUM;
-	CGC_if_yield = true;
-
-	return ret;
 }
 
 Ink_Object *Ink_FunctionExpression::eval(Ink_ContextChain *context_chain)

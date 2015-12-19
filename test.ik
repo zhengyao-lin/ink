@@ -148,11 +148,11 @@ hash = "b";
 p("hello"[0]);
 p(a[hash]);
 
-Object = {
+Object = [
 	fn (name, value) {
 		base[name] = value;
 	}
-};
+];
 
 a = Object;
 a[0]("val1", "halo!");

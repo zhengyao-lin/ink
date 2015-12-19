@@ -19,9 +19,8 @@ using namespace std;
 
 class Ink_Expression;
 
-extern bool CGC_if_return;
 extern int inkerr_current_line_number;
-extern bool CGC_if_skip_yield;
+extern InterruptSignal CGC_interrupt_signal;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
 typedef triple<string *, bool, bool> Ink_Parameter;
@@ -69,22 +68,6 @@ public:
 		for (i = 0; i < exp_list.size(); i++) {
 			delete exp_list[i];
 		}
-	}
-};
-
-class Ink_YieldExpression: public Ink_Expression {
-public:
-	Ink_Expression *ret_val;
-
-	Ink_YieldExpression(Ink_Expression *ret_val)
-	: ret_val(ret_val)
-	{ }
-
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain);
-
-	virtual ~Ink_YieldExpression()
-	{
-		delete ret_val;
 	}
 };
 
@@ -136,12 +119,13 @@ public:
 	}
 };
 
-class Ink_ReturnExpression: public Ink_Expression {
+class Ink_InterruptExpression: public Ink_Expression {
 public:
+	InterruptSignal signal;
 	Ink_Expression *ret_val;
 
-	Ink_ReturnExpression(Ink_Expression *ret_val)
-	: ret_val(ret_val)
+	Ink_InterruptExpression(InterruptSignal signal, Ink_Expression *ret_val)
+	: signal(signal), ret_val(ret_val)
 	{ }
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain)
@@ -152,12 +136,12 @@ public:
 		Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
 
 		RESTORE_LINE_NUM;
-		CGC_if_return = true;
+		CGC_interrupt_signal = signal;
 
 		return ret;
 	}
 
-	~Ink_ReturnExpression()
+	~Ink_InterruptExpression()
 	{
 		if (ret_val)
 			delete ret_val;
