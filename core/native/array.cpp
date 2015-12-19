@@ -114,6 +114,7 @@ Ink_Object *InkNative_Array_Remove(Ink_ContextChain *context, unsigned int argc,
 	Ink_Object *base = context->searchSlot("base");
 	// Ink_Object *ret;
 	Ink_Array *tmp;
+	Ink_Object *ret = NULL_OBJ;
 	unsigned int index_begin, index_end, tmp_val;
 
 	ASSUME_BASE_TYPE(INK_ARRAY);
@@ -147,11 +148,12 @@ Ink_Object *InkNative_Array_Remove(Ink_ContextChain *context, unsigned int argc,
 		tmp->value.erase(tmp->value.begin() + index_begin,
 						 tmp->value.begin() + index_end);
 	} else {
+		if (tmp->value[index_begin]) ret = tmp->value[index_begin]->value;
 		delete tmp->value[index_begin];
 		tmp->value.erase(tmp->value.begin() + index_begin);
 	}
 
-	return NULL_OBJ;
+	return ret;
 }
 
 Ink_Object *InkNative_Array_Rebuild(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)

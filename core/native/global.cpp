@@ -240,6 +240,19 @@ Ink_Object *Ink_TypeName(Ink_ContextChain *context, unsigned int argc, Ink_Objec
 	return new Ink_String(getTypeName(argv[0]->type));
 }
 
+Ink_Object *Ink_NumVal(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Expression *tmp;
+
+	if (!checkArgument(argc, argv, 1, INK_STRING) || as<Ink_String>(argv[0])->value == "") {
+		return NULL_OBJ;
+	}
+
+	native_exp_list.push_back(tmp = Ink_NumericConstant::parse(as<Ink_String>(argv[0])->value));
+
+	return tmp->eval(context);
+}
+
 Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p);
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
@@ -254,6 +267,7 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("eval", new Ink_FunctionObject(Ink_Eval));
 	context->context->setSlot("import", new Ink_FunctionObject(Ink_Import));
 	context->context->setSlot("typename", new Ink_FunctionObject(Ink_TypeName));
+	context->context->setSlot("numval", new Ink_FunctionObject(Ink_NumVal));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);
@@ -280,9 +294,14 @@ InkNative_MethodTable numeric_native_method_table[] = {
 	{"-u", new Ink_FunctionObject(InkNative_Numeric_Sub_Unary)}
 };
 
-int string_native_method_table_count = 3;
+int string_native_method_table_count = 8;
 InkNative_MethodTable string_native_method_table[] = {
 	{"+", new Ink_FunctionObject(InkNative_String_Add)},
+	{"<", new Ink_FunctionObject(InkNative_String_Index)},
+	{">", new Ink_FunctionObject(InkNative_String_Greater)},
+	{"<", new Ink_FunctionObject(InkNative_String_Less)},
+	{">=", new Ink_FunctionObject(InkNative_String_GreaterOrEqual)},
+	{"<=", new Ink_FunctionObject(InkNative_String_LessOrEqual)},
 	{"[]", new Ink_FunctionObject(InkNative_String_Index)},
 	{"length", new Ink_FunctionObject(InkNative_String_Length)}
 };

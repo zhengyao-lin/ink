@@ -45,6 +45,54 @@ Ink_Object *InkNative_String_Length(Ink_ContextChain *context, unsigned int argc
 	return new Ink_Numeric(as<Ink_String>(base)->value.length());
 }
 
+Ink_Object *InkNative_String_Greater(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+
+	ASSUME_BASE_TYPE(INK_STRING);
+	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(as<Ink_String>(base)->value.c_str()[0] > as<Ink_String>(argv[0])->value.c_str()[0]);
+}
+
+Ink_Object *InkNative_String_Less(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+
+	ASSUME_BASE_TYPE(INK_STRING);
+	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(as<Ink_String>(base)->value.c_str()[0] < as<Ink_String>(argv[0])->value.c_str()[0]);
+}
+
+Ink_Object *InkNative_String_GreaterOrEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+
+	ASSUME_BASE_TYPE(INK_STRING);
+	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(as<Ink_String>(base)->value.c_str()[0] >= as<Ink_String>(argv[0])->value.c_str()[0]);
+}
+
+Ink_Object *InkNative_String_LessOrEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+
+	ASSUME_BASE_TYPE(INK_STRING);
+	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(as<Ink_String>(base)->value.c_str()[0] <= as<Ink_String>(argv[0])->value.c_str()[0]);
+}
+
 extern int string_native_method_table_count;
 extern InkNative_MethodTable string_native_method_table[];
 

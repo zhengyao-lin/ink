@@ -16,10 +16,10 @@ max = fn (args...) {
 
 __Array = Array
 ExArray = fn (args...) {
-	this.prototype = new __Array(args);
+	this = new __Array(args);
 	this.indexOf = fn (a) {
 		for (let i = 0, i < base.size(), i = i + 1) {
-			if (base.prototype[i] == a) {
+			if (base[i] == a) {
 				retn i;
 			}
 		}
@@ -97,3 +97,73 @@ func = fn () { }
 a = new Array();
 a.'<<' = func.'<<';
 a << 0;
+
+Stack = fn () {
+	this = new Array()
+
+	this.pop = fn () {
+		if (base.size() < 1) {
+			retn null;
+		}
+		base.remove(base.size() - 1);
+	}
+}
+
+st = new Stack();
+input = "2 3 + 3 + 7 / 9 * 9 1 ++";
+
+for (let i = 0, i < input.length(), i++) {
+	let c = input[i];
+	let tmp_num = "";
+
+	while (c >= "0" && c <= "9") {
+		tmp_num = tmp_num + c;
+		i++;
+		c = input[i];
+	}
+	if (tmp_num != "") {
+		st.push(numval(tmp_num));
+	}
+
+	if (c == "+") {
+		v1 = st.pop();
+		v2 = st.pop();
+		if (!v1 || !v2) {
+			p("Error: no enough stack for operator '+'");
+		} {
+			st.push(v1 + v2);
+		}
+	} {
+		if (c == "-") {
+			v1 = st.pop();
+			v2 = st.pop();
+			if (!v1 || !v2) {
+				p("Error: no enough stack for operator '-'");
+			} {
+				st.push(v1 - v2);
+			}
+		} {
+			if (c == "*") {
+				v1 = st.pop();
+				v2 = st.pop();
+				if (!v1 || !v2) {
+					p("Error: no enough stack for operator '*'");
+				} {
+					st.push(v1 * v2);
+				}
+			} {
+				if (c == "/") {
+					v1 = st.pop();
+					v2 = st.pop();
+					if (!v1 || !v2) {
+						p("Error: no enough stack for operator '/'");
+					} {
+						st.push(v1 / v2);
+					}
+				}
+			}
+		}
+	}
+}
+
+st.p();
