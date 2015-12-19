@@ -320,4 +320,11 @@ InkWarn_Setting_Unassignable_Setter()
 	return;
 }
 
+inline void
+InkWarn_Type_Name_Argument_Require()
+{
+	InkWarn_doPrintWarning("Function typename requires at least 1 argument");
+	return;
+}
+
 #endif

@@ -48,6 +48,7 @@ Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, I
 Ink_Object *InkNative_Object_Clone(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_Object_SetGetter(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_Object_SetSetter(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
+Ink_Object *InkNative_Object_Each(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 
 Ink_Object *InkNative_String_Add(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_String_Index(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);

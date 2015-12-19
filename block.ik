@@ -359,17 +359,52 @@ p("end!");
 
 
 String = fn (str) {
-	this.val = str;
-	this.length = 10;
-	this.get("length") {
-		retn this.base.val.length();
+	this = clone str;
+	this.size = 10;
+	this.getter("size") {
+		retn this.base.length();
 	}
-	this.set("length") {
+	this.setter("size") {
 		p("readonly!!");
 	}
 }
 
-str = new String("hi");
-p(str.length);
-str.length = 10;
-p(str.length);
+str = new String("hello, world");
+p(str.size);
+str.size = 10;
+p(str.size);
+p(str);
+
+
+this.setter("value") { | val |
+	p("setter!");
+	this = val;
+}
+
+value = 10;
+p(value);
+
+p("###################################");
+
+a = new Array(10, 20);
+
+foreach = fn (a, &val, block) {
+	a.each () { | v |
+		val() = v
+		block()
+	}
+}
+
+var elem;
+foreach (a, elem) {
+	p(elem);
+}
+
+p("###################################");
+
+a = 10;
+a + 1;
+a.b = 10;
+a.each () { | name, value |
+	p(name + " = value of type \"" + typename(value) + "\"");
+}

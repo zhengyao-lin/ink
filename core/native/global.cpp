@@ -6,6 +6,7 @@
 #include "../error.h"
 #include "../../interface/engine.h"
 #include "native.h"
+#include "../debug.h"
 
 extern Ink_ExpressionList native_exp_list;
 extern InterruptSignal CGC_interrupt_signal;
@@ -229,6 +230,16 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 	return NULL_OBJ;
 }
 
+Ink_Object *Ink_TypeName(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (argc < 1) {
+		InkWarn_Type_Name_Argument_Require();
+		return NULL_OBJ;
+	}
+
+	return new Ink_String(getTypeName(argv[0]->type));
+}
+
 Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p);
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
@@ -242,6 +253,7 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("p", new Ink_FunctionObject(Ink_Print));
 	context->context->setSlot("eval", new Ink_FunctionObject(Ink_Eval));
 	context->context->setSlot("import", new Ink_FunctionObject(Ink_Import));
+	context->context->setSlot("typename", new Ink_FunctionObject(Ink_TypeName));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);
@@ -275,7 +287,7 @@ InkNative_MethodTable string_native_method_table[] = {
 	{"length", new Ink_FunctionObject(InkNative_String_Length)}
 };
 
-int object_native_method_table_count = 10;
+int object_native_method_table_count = 11;
 InkNative_MethodTable object_native_method_table[] = {
 	{"->", new Ink_FunctionObject(InkNative_Object_Bond)},
 	{"!!", new Ink_FunctionObject(InkNative_Object_Debond)},
@@ -285,8 +297,9 @@ InkNative_MethodTable object_native_method_table[] = {
 	{"[]", new Ink_FunctionObject(InkNative_Object_Index)},
 	{"new", new Ink_FunctionObject(InkNative_Object_New)},
 	{"clone", new Ink_FunctionObject(InkNative_Object_Clone)},
-	{"get", new Ink_FunctionObject(InkNative_Object_SetGetter)},
-	{"set", new Ink_FunctionObject(InkNative_Object_SetSetter)}
+	{"getter", new Ink_FunctionObject(InkNative_Object_SetGetter)},
+	{"setter", new Ink_FunctionObject(InkNative_Object_SetSetter)},
+	{"each", new Ink_FunctionObject(InkNative_Object_Each)},
 };
 
 int array_native_method_table_count = 6;

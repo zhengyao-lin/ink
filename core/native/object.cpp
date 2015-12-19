@@ -141,6 +141,36 @@ Ink_Object *InkNative_Object_SetSetter(Ink_ContextChain *context, unsigned int a
 	return NULL_OBJ;
 }
 
+void cleanArrayHashTable(Ink_ArrayValue val);
+
+Ink_Object *InkNative_Object_Each(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+	Ink_Object **args;
+	Ink_Object *ret_tmp;
+	Ink_HashTable *hash;
+	Ink_ArrayValue ret_val;
+
+	if (!checkArgument(argc, argv, 1, INK_FUNCTION)) {
+		return NULL_OBJ;
+	}
+
+	args = (Ink_Object **)malloc(2 * sizeof(Ink_Object *));
+	for (hash = base->hash_table; hash; hash = hash->next) {
+		args[0] = new Ink_String(hash->key);
+		args[1] = hash->value ? hash->value : UNDEFINED;
+		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(context, 2, args)));
+		if (RETURN_FLAG) {
+			free(args);
+			cleanArrayHashTable(ret_val);
+			return ret_tmp;
+		}
+	}
+	free(args);
+
+	return new Ink_Array(ret_val);
+}
+
 extern int object_native_method_table_count;
 extern InkNative_MethodTable object_native_method_table[];
 
