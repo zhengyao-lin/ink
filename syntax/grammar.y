@@ -6,6 +6,8 @@
 	#include "core/error.h"
 	#include "interface/engine.h"
 	#define SET_LINE_NO(exp) (exp->line_number = current_line_number)
+	#define YYERROR_VERBOSE
+	#define YYDEBUG 1
 
 	extern int current_line_number;
 	extern int inkerr_current_line_number;
@@ -13,7 +15,7 @@
 
 	extern int yylex();
 	void yyerror(const char *msg) {
-		printf("%sline %d: %s\n", yyerror_prefix, current_line_number, msg);
+		fprintf(stderr, "%sline %d: %s\n", yyerror_prefix, current_line_number, msg);
 	}
 %}
 

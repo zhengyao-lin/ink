@@ -4,9 +4,10 @@
 #include "../context.h"
 #include "../expression.h"
 #include "../error.h"
-#include "../../interface/engine.h"
-#include "native.h"
 #include "../debug.h"
+#include "../../interface/engine.h"
+#include "../../interface/setting.h"
+#include "native.h"
 
 extern Ink_ExpressionList native_exp_list;
 extern InterruptSignal CGC_interrupt_signal;
@@ -186,6 +187,7 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 	FILE *fp;
 	Ink_Object *load;
 	const char *tmp;
+	char *current_dir, *redirect;
 	Ink_InterpreteEngine *current_engine = Ink_getCurrentEngine();
 	Ink_ExpressionList top_level_backup;
 	int line_num_backup = current_line_number;
@@ -197,6 +199,12 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 				InkErr_Failed_Open_File(tmp);
 				continue;
 			}
+			current_dir = getCurrentDir();
+			redirect = getBasePath(tmp);
+			if (redirect) {
+				changeDir(redirect);
+				free(redirect);
+			}
 
 			if (current_engine) {
 				context->removeLast();
@@ -207,6 +215,8 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 				current_engine->startParse(fp);
 				current_engine->execute(context);
 
+				CGC_interrupt_signal = INTER_NONE;
+
 				native_exp_list.insert(native_exp_list.end(),
 									   current_engine->top_level.begin(),
 									   current_engine->top_level.end());
@@ -215,6 +225,11 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 				context->addContext(new Ink_ContextObject());
 			}
 			fclose(fp);
+
+			if (current_dir) {
+				changeDir(current_dir);
+				free(current_dir);
+			}
 			// run file
 		} else {
 			// call load method

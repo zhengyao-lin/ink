@@ -250,9 +250,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 			var_arg = new Ink_Array();
 			for (; argi < argc; argi++) {
 				var_arg->value.push_back(new Ink_HashTable("", argv[argi]));
-				// gc_engine->addPardon(argv[argi]);
 			}
-
 			local->setSlot(param[j].first->c_str(), var_arg);
 		}
 
