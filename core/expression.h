@@ -226,11 +226,11 @@ public:
 			if (lval_ret->address->setter) {
 				tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 				tmp[0] = rval_ret;
-				lval_ret->address->value = lval_ret->address->setter->call(context_chain, 1, tmp, lval_ret);
+				lval_ret->address->setValue(lval_ret->address->setter->call(context_chain, 1, tmp, lval_ret));
 				CGC_interrupt_signal = INTER_NONE;
 				free(tmp);
 			} else {
-				lval_ret->address->value = rval_ret;
+				lval_ret->address->setValue(rval_ret);
 			}
 			return is_return_lval ? lval_ret : rval_ret;
 		}
@@ -317,8 +317,8 @@ public:
 
 		if (!hash) {
 			proto = obj->getSlotMapping("prototype");
-			if (proto && proto->value->type != INK_UNDEFINED) {
-				hash = (search_res = searchPrototype(proto->value, id)).hash;
+			if (proto && proto->getValue()->type != INK_UNDEFINED) {
+				hash = (search_res = searchPrototype(proto->getValue(), id)).hash;
 				proto_obj = search_res.base;
 			}
 		}
@@ -341,12 +341,12 @@ public:
 			address = obj->setSlot(id, NULL);
 			if (hash) {
 				base = search_res.base;
-				ret = hash->value;
+				ret = hash->getValue();
 			} else {
 				ret = new Ink_Undefined();
 			}
 		} else {
-			ret = hash->value;
+			ret = hash->getValue();
 			address = hash;
 		}
 
@@ -505,9 +505,9 @@ public:
 				return ret;
 			}
 		}
-		hash->value->address = hash;
+		hash->getValue()->address = hash;
 		if (!flags.is_left_value && hash->getter) {
-			tmp = hash->getter->call(context_chain, 0, NULL, hash->value);
+			tmp = hash->getter->call(context_chain, 0, NULL, hash->getValue());
 			CGC_interrupt_signal = INTER_NONE;
 
 			RESTORE_LINE_NUM;
@@ -516,7 +516,7 @@ public:
 		// hash->value->setSlot("this", hash->value);
 
 		RESTORE_LINE_NUM;
-		return hash->value;
+		return hash->getValue();
 	}
 
 	virtual ~Ink_IdentifierExpression()

@@ -93,7 +93,7 @@ Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val)
 	unsigned int i;
 	for (i = 0; i < val.size(); i++) {
 		if (val[i])
-			ret.push_back(new Ink_HashTable("", val[i]->value));
+			ret.push_back(new Ink_HashTable("", val[i]->getValue()));
 		else
 			ret.push_back(NULL);
 	}
@@ -187,7 +187,7 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 	FILE *fp;
 	Ink_Object *load;
 	const char *tmp;
-	char *current_dir, *redirect;
+	char *current_dir = NULL, *redirect = NULL;
 	Ink_InterpreteEngine *current_engine = Ink_getCurrentEngine();
 	Ink_ExpressionList top_level_backup;
 	int line_num_backup = current_line_number;

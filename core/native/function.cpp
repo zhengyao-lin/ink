@@ -32,7 +32,7 @@ Ink_Object **arrayValueToObject(Ink_ArrayValue val)
 	unsigned int i;
 
 	for (i = 0; i < val.size(); i++) {
-		ret[i] = val[i]->value;
+		ret[i] = val[i]->getValue();
 	}
 
 	return ret;
@@ -71,8 +71,8 @@ Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int
 
 	for (i = 0; i < range_val.size(); i++) {
 		if (range_val[i]
-			&& range_val[i]->value->type == INK_ARRAY) {
-			tmp_arr_val = as<Ink_Array>(range_val[i]->value)->value;
+			&& range_val[i]->getValue()->type == INK_ARRAY) {
+			tmp_arr_val = as<Ink_Array>(range_val[i]->getValue())->value;
 			tmp = arrayValueToObject(tmp_arr_val);
 			ret_val.push_back(new Ink_HashTable("", base->call(context, tmp_arr_val.size(), tmp)));
 			free(tmp);

@@ -27,7 +27,7 @@ Ink_Object *InkNative_Object_Debond(Ink_ContextChain *context, unsigned int argc
 
 	if (base->address && base->address->bondee) {
 		base->address->bondee->bonding = NULL;
-		return base->address->bondee->value;
+		return base->address->bondee->getValue();
 	}
 
 	return new Ink_NullObject();
@@ -158,7 +158,7 @@ Ink_Object *InkNative_Object_Each(Ink_ContextChain *context, unsigned int argc, 
 	args = (Ink_Object **)malloc(2 * sizeof(Ink_Object *));
 	for (hash = base->hash_table; hash; hash = hash->next) {
 		args[0] = new Ink_String(hash->key);
-		args[1] = hash->value ? hash->value : UNDEFINED;
+		args[1] = hash->getValue() ? hash->getValue() : UNDEFINED;
 		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(context, 2, args)));
 		if (RETURN_FLAG) {
 			free(args);

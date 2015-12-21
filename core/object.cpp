@@ -34,7 +34,7 @@ Ink_Object *Ink_Object::getSlot(const char *key)
 {
 	Ink_HashTable *ret = getSlotMapping(key);
 
-	return ret ? ret->value : new Ink_Undefined();
+	return ret ? ret->getValue() : new Ink_Undefined();
 }
 
 Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
@@ -44,7 +44,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 	Ink_Object *method = NULL;
 
 	for (i = hash_table; i; i = i->next) {
-		if (!strcmp(i->key, key) && (i->value || i->bonding)) {
+		if (!strcmp(i->key, key) && (i->getValue() || i->bonding)) {
 			for (ret = i; ret->bonding; ret = ret->bonding) ;
 			ret->bondee = i;
 			return ret;
@@ -99,7 +99,7 @@ Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_c
 	if (if_check_exist) slot = getSlotMapping(key);
 
 	if (slot) {
-		slot->value = value;
+		slot->setValue(value);
 	} else {
 		slot = new Ink_HashTable(key, value);
 		if (hash_table)
@@ -154,8 +154,8 @@ void Ink_Object::cloneHashTable(Ink_Object *src, Ink_Object *dest)
 {
 	Ink_HashTable *i;
 	for (i = src->hash_table; i; i = i->next) {
-		if (i->value)
-			dest->setSlot(i->key, i->value);
+		if (i->getValue())
+			dest->setSlot(i->key, i->getValue());
 	}
 
 	return;
@@ -318,7 +318,7 @@ Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val)
 
 	for (i = 0; i < val.size(); i++) {
 		if (val[i])
-			ret.push_back(new Ink_HashTable("", val[i]->value));
+			ret.push_back(new Ink_HashTable("", val[i]->getValue()));
 		else ret.push_back(NULL);
 	}
 

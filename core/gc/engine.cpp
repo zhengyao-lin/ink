@@ -31,8 +31,8 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 	}
 
 	for (i = obj->hash_table; i; i = i->next) {
-		if (i->value)
-			doMark(i->value);
+		if (i->getValue())
+			doMark(i->getValue());
 		if (i->setter)
 			doMark(i->setter);
 		if (i->getter)
@@ -52,7 +52,7 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 		unsigned int i;
 		for (i = 0; i < arr->value.size(); i++) {
 			if (arr->value[i])
-				doMark(arr->value[i]->value);
+				doMark(arr->value[i]->getValue());
 		}
 	}
 

@@ -43,8 +43,9 @@ inline char *getBasePath(const char *path)
 			break;
 	}
 
-	if (i > 0) {
+	if (i >= 0) {
 		ret = (char *)malloc(sizeof(char) * (i + 2));
+		memset(ret, 0x0, sizeof(char) * (i + 2));
 		strncpy(ret, path, i + 1);
 	}
 

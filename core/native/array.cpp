@@ -28,7 +28,7 @@ Ink_Object *InkNative_Array_Index(Ink_ContextChain *context, unsigned int argc, 
 		if (!obj->value[index]) obj->value[index] = new Ink_HashTable(UNDEFINED);
 		for (hash = obj->value[index]; hash->bonding; hash = hash->bonding) ;
 		hash->bondee = obj->value[index];
-		ret = hash->value;
+		ret = hash->getValue();
 		ret->address = hash;
 		ret->setSlot("base", base);
 	} else {
@@ -96,7 +96,7 @@ Ink_Object *InkNative_Array_Each(Ink_ContextChain *context, unsigned int argc, I
 
 	args = (Ink_Object **)malloc(sizeof(Ink_Object *));
 	for (i = 0; i < array->value.size(); i++) {
-		args[0] = array->value[i] ? array->value[i]->value : UNDEFINED;
+		args[0] = array->value[i] ? array->value[i]->getValue() : UNDEFINED;
 		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(context, 1, args)));
 		if (RETURN_FLAG) {
 			free(args);
@@ -148,7 +148,7 @@ Ink_Object *InkNative_Array_Remove(Ink_ContextChain *context, unsigned int argc,
 		tmp->value.erase(tmp->value.begin() + index_begin,
 						 tmp->value.begin() + index_end);
 	} else {
-		if (tmp->value[index_begin]) ret = tmp->value[index_begin]->value;
+		if (tmp->value[index_begin]) ret = tmp->value[index_begin]->getValue();
 		delete tmp->value[index_begin];
 		tmp->value.erase(tmp->value.begin() + index_begin);
 	}
@@ -169,7 +169,7 @@ Ink_Object *InkNative_Array_Rebuild(Ink_ContextChain *context, unsigned int argc
 	tmp = as<Ink_Array>(base);
 	ret_val = Ink_ExpressionList();
 	for (i = 0; i < tmp->value.size(); i++) {
-		if (tmp->value[i] && (tmp_func = as<Ink_FunctionObject>(tmp->value[i]->value))) {
+		if (tmp->value[i] && (tmp_func = as<Ink_FunctionObject>(tmp->value[i]->getValue()))) {
 			if (tmp_func->type == INK_FUNCTION) {
 				ret_val.push_back(tmp_func->exp_list[0]);
 			} else {

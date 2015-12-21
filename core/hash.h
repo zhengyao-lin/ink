@@ -6,9 +6,9 @@
 class Ink_Object;
 
 class Ink_HashTable {
+	Ink_Object *value;
 public:
 	const char *key;
-	Ink_Object *value;
 
 	Ink_HashTable *next;
 	Ink_HashTable *bonding;
@@ -17,31 +17,17 @@ public:
 	Ink_Object *setter;
 	Ink_Object *getter;
 
-	Ink_HashTable(const char *key, Ink_Object *value)
-	: key(key), value(value)
-	{
-		next = NULL;
-		bonding = NULL;
-		bondee = NULL;
+	Ink_HashTable(const char *key, Ink_Object *value);
 
-		setter = NULL;
-		getter = NULL;
-	}
-
-	Ink_HashTable(Ink_Object *value)
-	: key(""), value(value)
-	{
-		next = NULL;
-		bonding = NULL;
-		bondee = NULL;
-
-		setter = NULL;
-		getter = NULL;
-	}
+	Ink_HashTable(Ink_Object *value);
 
 	Ink_HashTable *getEnd();
-	Ink_HashTable *getMapping(const char *key);
-	Ink_Object *getValue(const char *key);
+	// Ink_HashTable *getMapping(const char *key);
+	inline Ink_Object *getValue() {
+		return value;
+	}
+
+	Ink_Object *setValue(Ink_Object *val);
 };
 
 #endif
