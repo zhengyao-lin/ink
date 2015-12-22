@@ -23,11 +23,14 @@ public:
 
 	Ink_HashTable *getEnd();
 	// Ink_HashTable *getMapping(const char *key);
-	inline Ink_Object *getValue() {
+	inline Ink_Object *getValue()
+	{
 		return value;
 	}
-
-	Ink_Object *setValue(Ink_Object *val);
+	inline Ink_Object *setValue(Ink_Object *val)
+	{
+		return value = val;
+	}
 };
 
 #endif

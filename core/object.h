@@ -28,7 +28,6 @@ typedef vector<Ink_Parameter> Ink_ParamList;
 class Ink_Object {
 public:
 	int mark;
-	int ref_count;
 	Ink_TypeTag type;
 
 	Ink_HashTable *hash_table;
@@ -41,7 +40,6 @@ public:
 	Ink_Object()
 	{
 		mark = 0;
-		ref_count = 0;
 		type = INK_OBJECT;
 		hash_table = NULL;
 		address = NULL;
