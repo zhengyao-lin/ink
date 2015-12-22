@@ -68,7 +68,7 @@ public:
 
 	virtual Ink_Object *clone();
 	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
-							 Ink_Object *this_p = NULL)
+							 Ink_Object *this_p = NULL, bool if_return_this = true)
 	{
 		InkErr_Calling_Non_Function_Object(context);
 		return NULL;
@@ -89,7 +89,7 @@ public:
 	{ return this; }
 
 	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
-							 Ink_Object *this_p = NULL)
+							 Ink_Object *this_p = NULL, bool if_return_this = true)
 	{
 		InkErr_Calling_Undefined_Object(context);
 		return NULL;
@@ -188,7 +188,7 @@ public:
 	void Ink_FunctionMethodInit();
 
 	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
-							 Ink_Object *this_p = NULL);
+							 Ink_Object *this_p = NULL, bool if_return_this = true);
 	virtual Ink_Object *clone();
 
 	virtual ~Ink_FunctionObject();

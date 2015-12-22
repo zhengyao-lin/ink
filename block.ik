@@ -377,7 +377,6 @@ p(str);
 
 
 this.setter("value") { | val |
-	p("setter!");
 	this = val;
 }
 

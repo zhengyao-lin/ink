@@ -263,8 +263,10 @@ Ink_Object *Ink_NumVal(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 		return NULL_OBJ;
 	}
 
-	native_exp_list.push_back(tmp = Ink_NumericConstant::parse(as<Ink_String>(argv[0])->value));
+	if (!(tmp = Ink_NumericConstant::parse(as<Ink_String>(argv[0])->value)))
+		return NULL_OBJ;
 
+	native_exp_list.push_back(tmp);
 	return tmp->eval(context);
 }
 

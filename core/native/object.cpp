@@ -101,6 +101,13 @@ Ink_Object *InkNative_Object_Clone(Ink_ContextChain *context, unsigned int argc,
 	return base->clone();
 }
 
+const char *createStrConstant(const char *str)
+{
+	string *tmp;
+	native_exp_list.push_back(new Ink_StringConstant(tmp = new string(str)));
+	return tmp->c_str();
+}
+
 Ink_Object *InkNative_Object_SetGetter(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
@@ -113,7 +120,7 @@ Ink_Object *InkNative_Object_SetGetter(Ink_ContextChain *context, unsigned int a
 
 	tmp = as<Ink_String>(argv[0])->value.c_str();
 	if (!(hash = base->getSlotMapping(tmp))) {
-		hash = base->setSlot(tmp, UNDEFINED);
+		hash = base->setSlot(createStrConstant(tmp), NULL);
 	}
 
 	hash->getter = argc > 1 ? argv[1] : NULL;
@@ -133,7 +140,7 @@ Ink_Object *InkNative_Object_SetSetter(Ink_ContextChain *context, unsigned int a
 
 	tmp = as<Ink_String>(argv[0])->value.c_str();
 	if (!(hash = base->getSlotMapping(tmp))) {
-		hash = base->setSlot(tmp, UNDEFINED);
+		hash = base->setSlot(createStrConstant(tmp), NULL);
 	}
 
 	hash->setter = argc > 1 ? argv[1] : NULL;

@@ -476,12 +476,21 @@ public:
 		int line_num_back;
 		SET_LINE_NUM;
 
+		/* Variables */
 		Ink_HashTable *hash;
 		Ink_ContextChain *local = context_chain->getLocal();
 		Ink_ContextChain *global = context_chain->getGlobal();
 		Ink_ContextChain *dest_context = local;
-		Ink_Object *tmp;
+		Ink_Object *tmp, *ret;
 
+		/* Determine the type of reference:
+		 * 1. local
+		 *		find slot in the local context
+		 * 2. global
+		 *		find slot in the global context
+		 * 3. default
+		 *		search all contexts to find slot
+		 */
 		switch (context_type){
 			case ID_LOCAL:
 				hash = local->context->getSlotMapping(id->c_str());
@@ -495,19 +504,26 @@ public:
 				break;
 		}
 
+		/* if the slot cannot be found */
 		if (!hash) {
-			if (if_create_slot) {
-				hash = dest_context->context->setSlot(id->c_str(), new Ink_Object());
-			} else {
+			if (if_create_slot) { /* if has the "var" keyword */
+				ret = new Ink_Object();
+				hash = dest_context->context->setSlot(id->c_str(), ret);
+			} else { /* generate a undefined value */
+				ret = new Ink_Undefined();
 				hash = dest_context->context->setSlot(id->c_str(), NULL);
-				Ink_Object *ret = new Ink_Undefined();
-				ret->address = hash;
-				return ret;
 			}
+		} else {
+			ret = hash->getValue(); /* get value */
 		}
-		hash->getValue()->address = hash;
+		ret->address = hash; /* set its address for assigning */
+
+		/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
 		if (!flags.is_left_value && hash->getter) {
-			tmp = hash->getter->call(context_chain, 0, NULL, hash->getValue());
+			tmp = hash->getter->call(context_chain, 0, NULL,
+									 hash->getValue(), /* don't return this pointer anyway */ false);
+
+			/* trap all interrupt signal */
 			CGC_interrupt_signal = INTER_NONE;
 
 			RESTORE_LINE_NUM;
@@ -516,7 +532,7 @@ public:
 		// hash->value->setSlot("this", hash->value);
 
 		RESTORE_LINE_NUM;
-		return hash->getValue();
+		return ret;
 	}
 
 	virtual ~Ink_IdentifierExpression()

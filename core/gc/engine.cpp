@@ -1,3 +1,4 @@
+#include <time.h>
 #include "collect.h"
 #include "core/context.h"
 #include "core/object.h"
@@ -105,7 +106,9 @@ void IGC_CollectEngine::doCollect()
 void IGC_CollectEngine::collectGarbage(bool delete_all)
 {
 	Ink_ContextChain *i;
+	//clock_t st;
 
+	//st = clock();
 	if (!delete_all) {
 		for (i = Ink_getCurrentEngine()->trace->getGlobal();
 			 i; i = i->inner) {
@@ -113,15 +116,16 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 		}
 	}
 	doCollect();
+	//printf("GC time duration: %lf\n", (double)(clock() - st) / CLOCKS_PER_SEC);
 	CURRENT_MARK_PERIOD++;
 
 	return;
 }
 
 void IGC_CollectEngine::checkGC()
-{
+{collectGarbage();
 	if (CURRENT_OBJECT_COUNT >= CURRENT_COLLECT_TRESHOLD) {
-		collectGarbage();
+		
 		if (CURRENT_OBJECT_COUNT >= CURRENT_COLLECT_TRESHOLD) {
 			CURRENT_COLLECT_TRESHOLD += CURRENT_OBJECT_COUNT;
 		}

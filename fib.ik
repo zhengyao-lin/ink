@@ -17,4 +17,4 @@ fib = fn (n) do
 	retn this(n - 2) + this(n - 1)
 end
 
-p(fib(25));
+p(fib(15));

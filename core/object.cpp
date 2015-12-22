@@ -194,7 +194,7 @@ Ink_Object *InkNative_Generator_Send(Ink_ContextChain *context, unsigned int arg
 }
 
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
-									 Ink_Object *this_p)
+									 Ink_Object *this_p, bool if_return_this)
 {
 	unsigned int argi, j;
 	// Ink_HashTable *i;
@@ -284,7 +284,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 			}
 		}
 	}
-	if (this_p && !force_return) {
+	if (this_p && if_return_this && !force_return) {
 		ret_val = local->getSlot("this");
 	}
 
