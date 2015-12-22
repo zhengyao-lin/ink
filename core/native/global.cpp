@@ -5,6 +5,7 @@
 #include "../expression.h"
 #include "../error.h"
 #include "../debug.h"
+#include "../general.h"
 #include "../../interface/engine.h"
 #include "../../interface/setting.h"
 #include "native.h"
@@ -35,7 +36,7 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 		return new Ink_NullObject();
 	}
 
-	for (i = 0; i < argc; i++) {
+	for (i = 1; i < argc; i++) {
 		if (argv[i]->type == INK_FUNCTION) {
 			if (!true_block) true_block = argv[i];
 			else {

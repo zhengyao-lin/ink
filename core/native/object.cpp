@@ -2,6 +2,7 @@
 #include "../object.h"
 #include "../context.h"
 #include "../expression.h"
+#include "../general.h"
 #include "native.h"
 
 extern Ink_ExpressionList native_exp_list;

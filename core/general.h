@@ -1,6 +1,11 @@
 #ifndef _CORE_GENERAL_H_
 #define _CORE_GENERAL_H_
 
+#include <vector>
+#include <string>
+
+extern std::vector<std::string *> string_pool;
+
 template <typename T1, typename T2, typename T3>
 class triple {
 public:
@@ -37,5 +42,8 @@ inline int addSignal(int set, InterruptSignal sign)
 {
 	return set | sign;
 }
+
+std::string *StrPool_addStr(const char *str);
+void StrPool_dispose();
 
 #endif

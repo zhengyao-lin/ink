@@ -35,7 +35,7 @@
 			   TFUNC TINLINE TDO TEND TGO TYIELD TGEN
 			   TIMPORT TBREAK TCONTINUE
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
-%token <token> TDADD TDSUB TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND
+%token <token> TDADD TDSUB TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND TAT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
 %token <token> TARR TINS TOUT
 %token <token> TCLE TCLT TCGE TCGT TCEQ TCNE TCAND TCOR
@@ -55,7 +55,7 @@
 %type <expression_list> expression_list expression_list_opt
 						argument_list argument_list_opt
 						element_list element_list_opt
-						block_list argument_list_without_paren
+						argument_attachment argument_list_without_paren
 %type <context_type> id_context_type
 %type <signal> interrupt_signal
 
@@ -428,7 +428,7 @@ functional_block
 	}
 	;
 
-block_list
+argument_attachment
 	: block
 	{
 		$$ = new Ink_ExpressionList();
@@ -439,12 +439,12 @@ block_list
 		$$ = new Ink_ExpressionList();
 		$$->push_back(new Ink_StringConstant($1));
 	}
-	| block_list block
+	| argument_attachment block
 	{
 		$1->push_back($2);
 		$$ = $1;
 	}
-	| block_list TIDENTIFIER
+	| argument_attachment TIDENTIFIER
 	{
 		$1->push_back(new Ink_StringConstant($2));
 		$$ = $1;
@@ -461,7 +461,7 @@ unary_expression
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
-	| TNEW nllo postfix_expression TLPAREN argument_list_opt TRPAREN block_list
+	| TNEW nllo postfix_expression TLPAREN argument_list_opt TRPAREN argument_attachment
 	{
 		$5->insert($5->end(), $7->begin(), $7->end());
 		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("new")),
@@ -571,7 +571,7 @@ postfix_expression
 		delete $3;
 		SET_LINE_NO($$);
 	}
-	| postfix_expression TLPAREN argument_list_opt TRPAREN block_list
+	| postfix_expression TLPAREN argument_list_opt TRPAREN argument_attachment
 	{
 		$3->insert($3->end(), $5->begin(), $5->end());
 		$$ = new Ink_CallExpression($1, *$3);

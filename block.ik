@@ -329,7 +329,7 @@ p(i++);
 p(++
 i);
 
-Object = fn (block) { if (block) { block(this) } }
+Object = fn (block) {if (block) { block(this) } }
 a = new Object();
 
 package = new Object() { | this_p |
@@ -412,4 +412,10 @@ func = fn (id) {
 	p(id)
 }
 
-func ();
+func() hhhh;
+
+if (0) {
+	p("yeha");
+} else {
+	p("wow");
+}

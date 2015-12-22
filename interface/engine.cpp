@@ -3,6 +3,7 @@
 #include "../core/hash.h"
 #include "../core/object.h"
 #include "../core/expression.h"
+#include "../core/general.h"
 #include "../core/thread/thread.h"
 
 static Ink_InterpreteEngine *current_interprete_engine = NULL;
@@ -171,6 +172,7 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 	cleanExpressionList(top_level);
 	cleanContext(global_context);
 	cleanContext(trace);
+	StrPool_dispose();
 
 	Ink_setCurrentEngine(backup);
 }
