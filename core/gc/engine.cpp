@@ -3,6 +3,7 @@
 #include "core/context.h"
 #include "core/object.h"
 #include "interface/engine.h"
+#include "includes/switches.h"
 
 #define CURRENT_OBJECT_COUNT (Ink_getCurrentEngine()->igc_object_count)
 #define CURRENT_COLLECT_TRESHOLD (Ink_getCurrentEngine()->igc_collect_treshold)
@@ -123,12 +124,19 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 }
 
 void IGC_CollectEngine::checkGC()
-{collectGarbage();
+{
+#ifdef INK_DEBUG_FLAG
+	collectGarbage();
 	if (CURRENT_OBJECT_COUNT >= CURRENT_COLLECT_TRESHOLD) {
-		
+		CURRENT_COLLECT_TRESHOLD += CURRENT_OBJECT_COUNT;
+	}
+#else
+	if (CURRENT_OBJECT_COUNT >= CURRENT_COLLECT_TRESHOLD) {
+		collectGarbage();
 		if (CURRENT_OBJECT_COUNT >= CURRENT_COLLECT_TRESHOLD) {
 			CURRENT_COLLECT_TRESHOLD += CURRENT_OBJECT_COUNT;
 		}
 	}
+#endif
 	return;
 }

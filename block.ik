@@ -407,3 +407,9 @@ a.b = 10;
 a.each () { | name, value |
 	p(name + " = value of type \"" + typename(value) + "\"");
 }
+
+func = fn (id) {
+	p(id)
+}
+
+func ();

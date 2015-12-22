@@ -434,9 +434,19 @@ block_list
 		$$ = new Ink_ExpressionList();
 		$$->push_back($1);
 	}
+	| TIDENTIFIER
+	{
+		$$ = new Ink_ExpressionList();
+		$$->push_back(new Ink_StringConstant($1));
+	}
 	| block_list block
 	{
 		$1->push_back($2);
+		$$ = $1;
+	}
+	| block_list TIDENTIFIER
+	{
+		$1->push_back(new Ink_StringConstant($2));
 		$$ = $1;
 	}
 	;

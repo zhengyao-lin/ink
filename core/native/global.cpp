@@ -27,21 +27,31 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 {
 	Ink_Object *cond;
 	Ink_Object *ret;
+	Ink_Object *true_block = NULL, *false_block = NULL;
+	unsigned int i;
 
 	if (!argc) {
 		InkWarn_If_Argument_Fault();
 		return new Ink_NullObject();
 	}
 
+	for (i = 0; i < argc; i++) {
+		if (argv[i]->type == INK_FUNCTION) {
+			if (!true_block) true_block = argv[i];
+			else {
+				false_block = argv[i];
+				break;
+			}
+		}
+	}
+
 	ret = cond = argv[0];
 	if (isTrue(cond)) {
-		if (argc > 1 && argv[1]->type == INK_FUNCTION) {
-			ret = argv[1]->call(context);
-		}
+		if (true_block)
+			ret = true_block->call(context);
 	} else {
-		if (argc > 2 && argv[2]->type == INK_FUNCTION) {
-			ret = argv[2]->call(context);
-		}
+		if (false_block)
+			ret = false_block->call(context);
 	}
 
 	return ret;

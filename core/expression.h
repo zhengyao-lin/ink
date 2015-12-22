@@ -491,7 +491,7 @@ public:
 		 * 3. default
 		 *		search all contexts to find slot
 		 */
-		switch (context_type){
+		switch (context_type) {
 			case ID_LOCAL:
 				hash = local->context->getSlotMapping(id->c_str());
 				break;
@@ -521,7 +521,9 @@ public:
 		/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
 		if (!flags.is_left_value && hash->getter) {
 			tmp = hash->getter->call(context_chain, 0, NULL,
-									 hash->getValue(), /* don't return this pointer anyway */ false);
+									 hash->getValue(),
+									 /* don't return "this" pointer anyway */
+									 false);
 
 			/* trap all interrupt signal */
 			CGC_interrupt_signal = INTER_NONE;
