@@ -193,6 +193,13 @@ Ink_Object *InkNative_Generator_Send(Ink_ContextChain *context, unsigned int arg
 	return NULL;
 }
 
+inline Ink_Object **copyArgv(int argc, Ink_Object **argv)
+{
+	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * argc);
+	memcpy(ret, argv, sizeof(Ink_Object *) * argc);
+	return ret;
+}
+
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
 {
@@ -215,6 +222,30 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		gen->setSlot("send", new Ink_FunctionObject(InkNative_Generator_Send));
 
 		return gen;
+	}
+
+	if (partial_applied_argv) {
+		for (j = 0, argi = 0; j < partial_applied_argc; j++) {
+			if (isUnknown(partial_applied_argv[j])) {
+				if (argi < argc)
+					partial_applied_argv[j] = argv[argi];
+				argi++;
+			}
+		}
+
+		if (argi > argc) {
+			return clone();
+		}
+		argc = partial_applied_argc;
+		argv = partial_applied_argv;
+	} else {
+		for (argi = 0; argi < argc; argi++) {
+			if (isUnknown(argv[argi])) {
+				partial_applied_argc = argc;
+				partial_applied_argv = copyArgv(argc, argv);
+				return clone();
+			}
+		}
 	}
 
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
@@ -305,12 +336,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	return ret_val ? ret_val : new Ink_NullObject(); // return the last expression
 }
 
-Ink_FunctionObject::~Ink_FunctionObject()
-{
-	if (closure_context) Ink_ContextChain::disposeContextChain(closure_context);
-	cleanHashTable();
-}
-
 Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val)
 {
 	Ink_ArrayValue ret = Ink_ArrayValue();
@@ -348,6 +373,24 @@ Ink_Object *Ink_FunctionObject::clone()
 	if (new_obj->closure_context)
 		new_obj->closure_context = closure_context->copyContextChain();
 	new_obj->attr = attr;
+	new_obj->partial_applied_argc = partial_applied_argc;
+	new_obj->partial_applied_argv = copyArgv(partial_applied_argc, partial_applied_argv);
+
+	cloneHashTable(this, new_obj);
+
+	return new_obj;
+}
+
+Ink_FunctionObject::~Ink_FunctionObject()
+{
+	if (closure_context) Ink_ContextChain::disposeContextChain(closure_context);
+	if (partial_applied_argv) free(partial_applied_argv);
+	cleanHashTable();
+}
+
+Ink_Object *Ink_Unknown::clone()
+{
+	Ink_Object *new_obj = new Ink_Unknown();
 
 	cloneHashTable(this, new_obj);
 

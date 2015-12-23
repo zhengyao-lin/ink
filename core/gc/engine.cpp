@@ -45,9 +45,16 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 		Ink_FunctionObject *func = as<Ink_FunctionObject>(obj);
 		Ink_ContextChain *global = func->closure_context->getGlobal();
 		Ink_ContextChain *j;
+		unsigned int argi;
 
 		for (j = global; j; j = j->inner) {
 			doMark(j->context);
+		}
+
+		if (func->partial_applied_argv) {
+			for (argi = 0; argi < func->partial_applied_argc; argi++) {
+				doMark(func->partial_applied_argv[argi]);
+			}
 		}
 	} else if (obj->type == INK_ARRAY) {
 		Ink_Array *arr = as<Ink_Array>(obj);

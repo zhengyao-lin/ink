@@ -5,7 +5,7 @@ PM				[+-]
 DIGIT			[0-9]
 HEX				[a-fA-F0-9]
 OCT				[0-7]
-LETTER			[a-zA-Z_]
+LETTER			[a-zA-Z_?]
 
 DIGITS			({DIGIT})+
 SPS				({SP})+

@@ -10,7 +10,8 @@ enum Ink_TypeTag {
 	INK_STRING,
 	INK_CONTEXT,
 	INK_FUNCTION,
-	INK_ARRAY
+	INK_ARRAY,
+	INK_UNKNOWN
 };
 
 #endif

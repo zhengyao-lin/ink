@@ -80,6 +80,11 @@ public:
 	}
 };
 
+inline bool isUnknown(Ink_Object *obj)
+{
+	return obj && obj->type == INK_UNKNOWN;
+}
+
 class Ink_Undefined: public Ink_Object {
 public:
 	Ink_Undefined()
@@ -147,16 +152,19 @@ public:
 
 	Ink_FunctionAttribution attr;
 
+	unsigned int partial_applied_argc;
+	Ink_Object **partial_applied_argv;
+
 	Ink_FunctionObject()
 	: is_native(false), is_inline(false), is_generator(false), native(NULL),
 	  param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL),
-	  attr(Ink_FunctionAttribution())
+	  attr(Ink_FunctionAttribution()), partial_applied_argc(0), partial_applied_argv(NULL)
 	{ type = INK_FUNCTION; }
 
 	Ink_FunctionObject(Ink_NativeFunction native, bool is_inline = false)
 	: is_native(true), is_inline(is_inline), is_generator(false), native(native),
 	  param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL),
-	  attr(Ink_FunctionAttribution())
+	  attr(Ink_FunctionAttribution()), partial_applied_argc(0), partial_applied_argv(NULL)
 	{
 		type = INK_FUNCTION;
 		if (is_inline) {
@@ -167,7 +175,8 @@ public:
 	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context,
 					   bool is_inline = false, bool is_generator = false)
 	: is_native(false), is_inline(is_inline), is_generator(is_generator), native(NULL),
-	  param(param), exp_list(exp_list), closure_context(closure_context), attr(Ink_FunctionAttribution())
+	  param(param), exp_list(exp_list), closure_context(closure_context), attr(Ink_FunctionAttribution()),
+	  partial_applied_argc(0), partial_applied_argv(NULL)
 	{
 		type = INK_FUNCTION;
 		if (is_inline) {
@@ -255,6 +264,17 @@ public:
 				delete value[i];
 		}
 	}
+};
+
+class Ink_Unknown: public Ink_Object {
+public:
+
+	Ink_Unknown()
+	{
+		type = INK_UNKNOWN;
+	}
+
+	virtual Ink_Object *clone();
 };
 
 template <class T> T *as(Ink_Object *obj)

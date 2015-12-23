@@ -419,3 +419,24 @@ if (0) {
 } else {
 	p("wow");
 }
+
+/*missing = fn (str) {
+	p("missing: " + str);
+}*/
+
+TypeA = fn () {
+	this.missing = fn () {
+		retn "haha, no"
+	}
+}
+
+a = new TypeA();
+a.b? = 10;
+p(a.b?);
+
+p((1 + ?)(2));
+func = fn (a, b, c) {
+	p(a + b + c);
+}
+
+func(1, ?, ?)(2)(3);

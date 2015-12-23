@@ -333,7 +333,8 @@ public:
 	static Ink_Object *getSlot(Ink_ContextChain *context_chain, Ink_Object *obj, const char *id, Ink_EvalFlag flags)
 	{
 		Ink_HashTable *hash, *address;
-		Ink_Object *base = obj, *ret;
+		Ink_Object *base = obj, *ret, *tmp;
+		Ink_Object **argv;
 		ProtoSearchRet search_res;
 
 		if (!(hash = obj->getSlotMapping(id))) {
@@ -343,7 +344,14 @@ public:
 				base = search_res.base;
 				ret = hash->getValue();
 			} else {
-				ret = new Ink_Undefined();
+				if ((tmp = obj->getSlot("missing"))->type == INK_FUNCTION) {
+					argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
+					argv[0] = new Ink_String(string(id));
+					ret = tmp->call(context_chain, 1, argv);
+					free(argv);
+				} else {
+					ret = new Ink_Undefined();
+				}
 			}
 		} else {
 			ret = hash->getValue();
@@ -477,11 +485,12 @@ public:
 		SET_LINE_NUM;
 
 		/* Variables */
-		Ink_HashTable *hash;
+		Ink_HashTable *hash, *missing;
 		Ink_ContextChain *local = context_chain->getLocal();
 		Ink_ContextChain *global = context_chain->getGlobal();
 		Ink_ContextChain *dest_context = local;
 		Ink_Object *tmp, *ret;
+		Ink_Object **argv;
 
 		/* Determine the type of reference:
 		 * 1. local
@@ -494,13 +503,16 @@ public:
 		switch (context_type) {
 			case ID_LOCAL:
 				hash = local->context->getSlotMapping(id->c_str());
+				missing = local->context->getSlotMapping("missing");
 				break;
 			case ID_GLOBAL:
 				hash = global->context->getSlotMapping(id->c_str());
+				missing = global->context->getSlotMapping("missing");
 				dest_context = global;
 				break;
 			default:
 				hash = context_chain->searchSlotMapping(id->c_str());
+				missing = context_chain->searchSlotMapping("missing");
 				break;
 		}
 
@@ -510,7 +522,14 @@ public:
 				ret = new Ink_Object();
 				hash = dest_context->context->setSlot(id->c_str(), ret);
 			} else { /* generate a undefined value */
-				ret = new Ink_Undefined();
+				if (missing && missing->getValue()->type == INK_FUNCTION) {
+					argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
+					argv[0] = new Ink_String(id->c_str());
+					ret = missing->getValue()->call(context_chain, 1, argv);
+					free(argv);
+				} else {
+					ret = new Ink_Undefined();
+				}
 				hash = dest_context->context->setSlot(id->c_str(), NULL);
 			}
 		} else {
