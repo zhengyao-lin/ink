@@ -33,7 +33,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	gc_engine = new IGC_CollectEngine();
 	setCurrentGC(gc_engine);
 	global_context = new Ink_ContextChain(new Ink_ContextObject());
-	gc_engine->initContext(global_context);
+	// gc_engine->initContext(global_context);
 
 	global_context->context->setSlot("this", global_context->context);
 	global_context->context->setSlot("?", new Ink_Unknown());

@@ -98,7 +98,7 @@ public:
 
 		IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
 		IGC_initGC(gc_engine);
-		gc_engine->initContext(context);
+		// gc_engine->initContext(context);
 
 		arg->exp->eval(context);
 

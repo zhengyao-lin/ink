@@ -435,8 +435,12 @@ a.b? = 10;
 p(a.b?);
 
 p((1 + ?)(2));
-func = fn (a, b, c) {
-	p(a + b + c);
+func = fn (arg...) {
+	let ret = 0
+	for (let i = 0, i < arg.size(), i++) {
+		ret = ret + arg[i]
+	}
+	p(ret)
 }
 
-func(1, ?)(2, 3);
+func(1, ?, 2, ?, 8, ?, 0)(?)(?)(3)(?)(?, 4)(90);

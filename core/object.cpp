@@ -212,7 +212,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 									 Ink_Object *this_p, bool if_return_this)
 {
 	unsigned int argi, j;
-	// Ink_HashTable *i;
 	Ink_ContextObject *local;
 	Ink_Object *ret_val = NULL;
 	Ink_Array *var_arg = NULL;
@@ -220,6 +219,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	Ink_Object *tmp;
 	bool force_return = false;
 
+	/*
 	if (is_generator) {
 		Ink_Object *gen = new Ink_Object();
 		Ink_FunctionObject *clone_origin = as<Ink_FunctionObject>(this->clone());
@@ -231,55 +231,74 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 		return gen;
 	}
+	*/
+	bool is_arg_completed = true;
 
+	/* if some arguments have been applied already */
 	if (partial_applied_argv) {
 		for (j = 0, argi = 0; j < partial_applied_argc; j++) {
+			/* find unknown place to put in arguments */
 			if (isUnknown(partial_applied_argv[j])) {
-				if (argi < argc)
+				if (argi < argc /* not excess */
+					&& !isUnknown(argv[argi]) /* not another unknown argument */)
 					partial_applied_argv[j] = argv[argi];
+				else
+					is_arg_completed = false;
 				argi++;
 			}
 		}
 
-		if (argi > argc) {
-			return clone();
+		if (!is_arg_completed) {
+			return clone(); /* still missing arguments -- return another PAF */
 		}
-		unsigned int remainc = argc - argi;
+
+		unsigned int remainc = argc - argi; /* remaining arguments */
 		argc = remainc + partial_applied_argc;
 		argv = linkArgv(partial_applied_argc, partial_applied_argv,
-						remainc, &argv[argi]);
+						remainc, &argv[argi]); /* link the PA arguments and remaining arguments */
 	} else {
 		for (argi = 0; argi < argc; argi++) {
-			if (isUnknown(argv[argi])) {
+			if (isUnknown(argv[argi])) { /* find unknown argument */
 				partial_applied_argc = argc;
 				partial_applied_argv = copyArgv(argc, argv);
-				return clone();
+				return clone(); /* copy argv and return PAF */
 			}
 		}
 	}
 
+	/* init GC engine */
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
-	//gc_engine->initOuterEngine(engine_backup);
 	IGC_initGC(gc_engine);
 
+	/* create new local context */
 	local = new Ink_ContextObject();
-	if (closure_context) context = closure_context->copyContextChain();
-	if (!is_inline) { // if not inline function, set local context
+	if (closure_context)
+		context = closure_context->copyContextChain(); /* copy closure context chain */
+
+	if (!is_inline) { /* if not inline function, set local context */
 		local->setSlot("base", getSlot("base"));
 		local->setSlot("this", this);
 	}
+
+	/* set "this" pointer if exists */
 	if (this_p)
 		local->setSlot("this", this_p);
+
 	context->addContext(local);
+
+	/* set trace(unsed for mark&sweep GC) */
 	Ink_getCurrentEngine()->addTrace(local);
 
-	gc_engine->initContext(context);
+	/* set local context */
+	// gc_engine->initContext(context);
 
 	if (is_native) {
+		/* if it's a native function, call the function pointer */
 		ret_val = native(context, argc, argv, this_p);
 	} else {
+		/* create local variable according to the parameter list */
 		for (j = 0, argi = 0; j < param.size(); j++, argi++) {
-			if (param[j].is_variant) {
+			if (param[j].is_variant) { /* find variant argument -- break the loop */
 				break;
 			}
 			local->setSlot(param[j].name->c_str(),
@@ -288,21 +307,31 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		}
 
 		if (j < param.size() && param[j].is_variant) {
+			/* breaked from finding variant arguments */
+
+			/* create variant arguments */
 			var_arg = new Ink_Array();
 			for (; argi < argc; argi++) {
+				/* push arguments in to VA array */
 				var_arg->value.push_back(new Ink_HashTable("", argv[argi]));
 			}
+
+			/* set VA array */
 			local->setSlot(param[j].name->c_str(), var_arg);
 		}
 
-		if (argi > argc) {
+		if (argi > argc) { /* still some parameter remaining */
 			InkWarn_Unfit_Argument();
 		}
 
 		for (j = 0; j < exp_list.size(); j++) {
 			gc_engine->checkGC();
 			ret_val = exp_list[j]->eval(context); // eval each expression
+
+			/* interrupt signal received */
 			if (CGC_interrupt_signal != INTER_NONE) {
+
+				/* interrupt event triggered */
 				switch (CGC_interrupt_signal) {
 					case INTER_RETURN:
 						if ((tmp = getSlot("return"))->type == INK_FUNCTION) {
@@ -318,6 +347,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 						} break;
 					default: ;
 				}
+
+				/* whether trap the signal */
 				if (attr.hasTrap(CGC_interrupt_signal))
 					CGC_interrupt_signal = INTER_NONE;
 				force_return = true;
@@ -325,21 +356,33 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 			}
 		}
 	}
+
+	/* conditions of returning "this" pointer:
+	 * 1. has "this" pointer as argument
+	 * 2. bool if_return_this is true(in default)
+	 * 3. no force return
+	 */
 	if (this_p && if_return_this && !force_return) {
 		ret_val = local->getSlot("this");
 	}
 
+	/* remove local context from chain and trace */
 	context->removeLast();
 	Ink_getCurrentEngine()->removeLastTrace();
 	
+	/* mark return value before sweeping */
 	if (ret_val)
 		gc_engine->doMark(ret_val);
+
 	gc_engine->collectGarbage();
 
+	/* dispose closure context created */
 	if (closure_context) Ink_ContextChain::disposeContextChain(context);
 
+	/* link remaining objects to previous GC engine */
 	if (engine_backup) engine_backup->link(gc_engine);
 
+	/* restore GC engine */
 	IGC_initGC(engine_backup);
 	delete gc_engine;
 

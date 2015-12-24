@@ -38,7 +38,7 @@ public:
 	// IGC_CollectUnit *pardon_chain;
 	IGC_CollectUnit *object_chain;
 	IGC_CollectUnit *object_chain_last;
-	Ink_ContextChain *local_context;
+	// Ink_ContextChain *local_context;
 
 	// IGC_CollectEngine *outer_engine;
 
@@ -49,14 +49,14 @@ public:
 		// pardon_chain = NULL;
 		object_chain = NULL;
 		object_chain_last = NULL;
-		local_context = NULL;
+		// local_context = NULL;
 		// outer_engine = NULL;
 	}
 
-	void initContext(Ink_ContextChain *context)
+	/* void initContext(Ink_ContextChain *context)
 	{
 		local_context = context;
-	}
+	} */
 	void addUnit(IGC_CollectUnit *unit);
 	// void addPardon(Ink_Object *obj);
 	static void doMark(Ink_Object *obj);
