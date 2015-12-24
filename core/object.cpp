@@ -200,6 +200,14 @@ inline Ink_Object **copyArgv(int argc, Ink_Object **argv)
 	return ret;
 }
 
+inline Ink_Object **linkArgv(int argc1, Ink_Object **argv1, int argc2, Ink_Object **argv2)
+{
+	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * (argc1 + argc2));
+	memcpy(ret, argv1, sizeof(Ink_Object *) * argc1);
+	memcpy(&ret[argc1], argv2, sizeof(Ink_Object *) * argc2);
+	return ret;
+}
+
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
 {
@@ -236,8 +244,10 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		if (argi > argc) {
 			return clone();
 		}
-		argc = partial_applied_argc;
-		argv = partial_applied_argv;
+		unsigned int remainc = argc - argi;
+		argc = remainc + partial_applied_argc;
+		argv = linkArgv(partial_applied_argc, partial_applied_argv,
+						remainc, &argv[argi]);
 	} else {
 		for (argi = 0; argi < argc; argi++) {
 			if (isUnknown(argv[argi])) {
@@ -269,20 +279,20 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		ret_val = native(context, argc, argv, this_p);
 	} else {
 		for (j = 0, argi = 0; j < param.size(); j++, argi++) {
-			if (param[j].third) {
+			if (param[j].is_variant) {
 				break;
 			}
-			local->setSlot(param[j].first->c_str(), argi < argc ? argv[argi] : new Ink_Undefined()); // initiate local argument
-			//if (argi < argc)
-			//	gc_engine->addPardon(argv[argi]);
+			local->setSlot(param[j].name->c_str(),
+						   argi < argc ? argv[argi]
+						   			   : new Ink_Undefined()); // initiate local argument
 		}
 
-		if (j < param.size() && param[j].third) {
+		if (j < param.size() && param[j].is_variant) {
 			var_arg = new Ink_Array();
 			for (; argi < argc; argi++) {
 				var_arg->value.push_back(new Ink_HashTable("", argv[argi]));
 			}
-			local->setSlot(param[j].first->c_str(), var_arg);
+			local->setSlot(param[j].name->c_str(), var_arg);
 		}
 
 		if (argi > argc) {

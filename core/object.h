@@ -22,7 +22,7 @@ class Ink_ContextObject;
 class Ink_ContextChain;
 class IGC_CollectEngine;
 typedef vector<Ink_Expression *> Ink_ExpressionList;
-typedef triple<string *, bool, bool> Ink_Parameter;
+// typedef triple<string *, bool, bool> Ink_Parameter;
 typedef vector<Ink_Parameter> Ink_ParamList;
 
 class Ink_Object {

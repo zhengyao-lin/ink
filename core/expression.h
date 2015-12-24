@@ -23,7 +23,7 @@ extern int inkerr_current_line_number;
 extern InterruptSignal CGC_interrupt_signal;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
-typedef triple<string *, bool, bool> Ink_Parameter;
+// typedef triple<string *, bool, bool> Ink_Parameter;
 typedef vector<Ink_Parameter> Ink_ParamList;
 
 template <class T> T *as(Ink_Expression *obj)
@@ -398,7 +398,7 @@ public:
 	{
 		unsigned int i;
 		for (i = 0; i < param.size(); i++) {
-			delete param[i].first;
+			delete param[i].name;
 		}
 		for (i = 0; i < exp_list.size(); i++) {
 			delete exp_list[i];
@@ -433,7 +433,7 @@ public:
 		if (arg_list.size()) {
 			argv = (Ink_Object **)malloc(arg_list.size() * sizeof(Ink_Object *));
 			for (i = 0; i < arg_list.size(); i++) {
-				if (i < param_list.size() && param_list[i].second) {
+				if (i < param_list.size() && param_list[i].is_ref) {
 					Ink_ExpressionList exp_list = Ink_ExpressionList();
 					exp_list.push_back(arg_list[i]);
 					argv[i] = new Ink_FunctionObject(Ink_ParamList(), exp_list,

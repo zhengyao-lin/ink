@@ -26,6 +26,30 @@ public:
 	{ }
 };
 
+class Ink_Parameter {
+public:
+	std::string *name;
+	bool is_ref;
+	bool is_variant;
+	bool is_optional;
+
+	Ink_Parameter(std::string *name)
+	: name(name)
+	{ }
+
+	Ink_Parameter(std::string *name, bool is_ref)
+	: name(name), is_ref(is_ref)
+	{ }
+
+	Ink_Parameter(std::string *name, bool is_ref, bool is_variant)
+	: name(name), is_ref(is_ref), is_variant(is_variant)
+	{ }
+
+	Ink_Parameter(std::string *name, bool is_ref, bool is_variant, bool is_optional)
+	: name(name), is_ref(is_ref), is_variant(is_variant), is_optional(is_optional)
+	{ }
+};
+
 typedef enum {
 	INTER_NONE = 1 << 1,
 	INTER_RETURN = 1 << 2,

@@ -606,25 +606,49 @@ postfix_expression
 	}
 	;
 
+param_multi_decl
+	: TMUL nllo TLAND nllo
+	| TLAND nllo TMUL nllo
+
 param_list_sub
 	: TIDENTIFIER
 	{
 		$$ = new Ink_ParamList();
 		$$->push_back(Ink_Parameter($1, false, false));
 	}
+	| TMUL nllo TIDENTIFIER
+	{
+		$$ = new Ink_ParamList();
+		$$->push_back(Ink_Parameter($3, false, false, true));
+	}
 	| TLAND nllo TIDENTIFIER
 	{
 		$$ = new Ink_ParamList();
 		$$->push_back(Ink_Parameter($3, true, false));
+	}
+	| param_multi_decl TIDENTIFIER
+	{
+		$$ = new Ink_ParamList();
+		$$->push_back(Ink_Parameter($2, true, false, true));
 	}
 	| param_list TCOMMA nllo TIDENTIFIER
 	{
 		$1->push_back(Ink_Parameter($4, false, false));
 		$$ = $1;
 	}
+	| param_list TCOMMA nllo TMUL nllo TIDENTIFIER
+	{
+		$1->push_back(Ink_Parameter($6, false, false, true));
+		$$ = $1;
+	}
 	| param_list TCOMMA nllo TLAND nllo TIDENTIFIER
 	{
 		$1->push_back(Ink_Parameter($6, true, false));
+		$$ = $1;
+	}
+	| param_list TCOMMA nllo param_multi_decl TIDENTIFIER
+	{
+		$1->push_back(Ink_Parameter($5, true, false, true));
 		$$ = $1;
 	}
 	| param_list TCOMMA nllo TIDENTIFIER TECLI
