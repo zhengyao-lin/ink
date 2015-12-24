@@ -3,6 +3,7 @@
 #include "expression.h"
 #include "coroutine/coroutine.h"
 
+/* interrupt signal */
 InterruptSignal CGC_interrupt_signal = INTER_NONE;
 
 Ink_Expression *Ink_NumericConstant::parse(string code)
