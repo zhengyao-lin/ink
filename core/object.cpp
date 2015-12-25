@@ -211,13 +211,15 @@ inline Ink_Object **linkArgv(int argc1, Ink_Object **argv1, int argc2, Ink_Objec
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
 {
-	unsigned int argi, j;
+	unsigned int argi, j, tmp_argc;
 	Ink_ContextObject *local;
 	Ink_Object *ret_val = NULL;
 	Ink_Array *var_arg = NULL;
 	IGC_CollectEngine *engine_backup = Ink_getCurrentEngine()->getCurrentGC();
-	Ink_Object *tmp;
+	Ink_Object *tmp = NULL;
+	Ink_Object **tmp_argv = NULL;
 	bool force_return = false;
+	bool if_delete_argv = false;
 
 	/*
 	if (is_generator) {
@@ -236,12 +238,14 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 	/* if some arguments have been applied already */
 	if (partial_applied_argv) {
-		for (j = 0, argi = 0; j < partial_applied_argc; j++) {
+		tmp_argc = partial_applied_argc;
+		tmp_argv = copyArgv(partial_applied_argc, partial_applied_argv);
+		for (j = 0, argi = 0; j < tmp_argc; j++) {
 			/* find unknown place to put in arguments */
-			if (isUnknown(partial_applied_argv[j])) {
+			if (isUnknown(tmp_argv[j])) {
 				if (argi < argc /* not excess */
 					&& !isUnknown(argv[argi]) /* not another unknown argument */)
-					partial_applied_argv[j] = argv[argi];
+					tmp_argv[j] = argv[argi];
 				else
 					is_arg_completed = false;
 				argi++;
@@ -249,19 +253,32 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		}
 
 		if (!is_arg_completed) {
-			return clone(); /* still missing arguments -- return another PAF */
+			/* still missing arguments -- return another PAF */
+			if (argi < argc) {
+				unsigned int remainc = argc - argi; /* remaining arguments */
+				argc = remainc + tmp_argc;
+				/* link the PA arguments and remaining arguments */
+				argv = linkArgv(tmp_argc, tmp_argv,
+								remainc, &argv[argi]);
+
+				free(tmp_argv);
+				tmp_argc = argc;
+				tmp_argv = argv;
+			}
+			return cloneWithPA(tmp_argc, tmp_argv, true);
 		}
 
 		unsigned int remainc = argc - argi; /* remaining arguments */
-		argc = remainc + partial_applied_argc;
-		argv = linkArgv(partial_applied_argc, partial_applied_argv,
-						remainc, &argv[argi]); /* link the PA arguments and remaining arguments */
+		argc = remainc + tmp_argc;
+		/* link the PA arguments and remaining arguments */
+		argv = linkArgv(tmp_argc, tmp_argv,
+						remainc, &argv[argi]);
+		free(tmp_argv);
+		if_delete_argv = true;
 	} else {
 		for (argi = 0; argi < argc; argi++) {
 			if (isUnknown(argv[argi])) { /* find unknown argument */
-				partial_applied_argc = argc;
-				partial_applied_argv = copyArgv(argc, argv);
-				return clone(); /* copy argv and return PAF */
+				return cloneWithPA(argc, copyArgv(argc, argv), true);
 			}
 		}
 	}
@@ -365,6 +382,9 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	if (this_p && if_return_this && !force_return) {
 		ret_val = local->getSlot("this");
 	}
+
+	if (if_delete_argv)
+		free(argv);
 
 	/* remove local context from chain and trace */
 	context->removeLast();

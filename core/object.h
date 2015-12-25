@@ -138,6 +138,27 @@ public:
 };
 
 class Ink_FunctionObject: public Ink_Object {
+	inline Ink_Object *cloneWithPA(unsigned int argc, Ink_Object **argv,
+										   bool if_delete_argv = false)
+	{
+		unsigned int back_argc = partial_applied_argc;
+		Ink_Object **back_argv = partial_applied_argv;
+		Ink_Object *tmp;
+
+		partial_applied_argc = argc;
+		partial_applied_argv = argv;
+
+		tmp = clone();
+
+		partial_applied_argc = back_argc;
+		partial_applied_argv = back_argv;
+
+		if (if_delete_argv)
+			free(argv);
+
+		return tmp;
+	}
+
 public:
 	bool is_native;
 	bool is_inline;
