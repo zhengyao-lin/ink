@@ -434,7 +434,7 @@ a = new TypeA();
 a.b? = 10;
 p(a.b?);
 
-p((1 + ?)(2));
+p((1 + _)(2));
 func = fn (arg...) {
 	let ret = 0
 	for (let i = 0, i < arg.size(), i++) {
@@ -443,6 +443,9 @@ func = fn (arg...) {
 	p(ret)
 }
 
-PAF = func(1, ?, 2, ?, 8, ?, 0);
+PAF = func(1, _, 2, _, 8, _, 0);
 PAF2 = PAF(2, 2)
-PAF3 = PAF2(?, 2, 3, 4)(2);
+PAF3 = PAF2(_, 2, 3, 4)(2);
+
+a = 0;
+p(a++ = 10);

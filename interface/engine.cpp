@@ -36,7 +36,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	// gc_engine->initContext(global_context);
 
 	global_context->context->setSlot("this", global_context->context);
-	global_context->context->setSlot("?", new Ink_Unknown());
+	global_context->context->setSlot("_", new Ink_Unknown());
 	Ink_GlobalMethodInit(global_context);
 
 	addTrace(global_context->context);

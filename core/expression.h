@@ -223,7 +223,7 @@ public:
 		lval_ret = lval->eval(context_chain, Ink_EvalFlag(true));
 
 		if (lval_ret->address) {
-			if (lval_ret->address->setter) {
+			if (lval_ret->address->setter) { /* if has setter, call it */
 				tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 				tmp[0] = rval_ret;
 				lval_ret->address->setValue(lval_ret->address->setter->call(context_chain, 1, tmp, lval_ret));
@@ -315,14 +315,21 @@ public:
 		Ink_Object *proto_obj = NULL;
 		ProtoSearchRet search_res;
 
-		if (!hash) {
+		if (!hash) { /* cannot find slot in object itself */
+			/* get prototype */
 			proto = obj->getSlotMapping("prototype");
+
+			/* prototype exists and it's not undefined */
 			if (proto && proto->getValue()->type != INK_UNDEFINED) {
+				/* search the slot in prototype, and get the result */
 				hash = (search_res = searchPrototype(proto->getValue(), id)).hash;
 				proto_obj = search_res.base;
 			}
 		}
 
+		/* return result with base pointed to the prototype(if has)
+		 * in which found the slot
+		 */
 		return ProtoSearchRet(hash, proto_obj ? proto_obj : obj);
 	}
 
@@ -337,39 +344,48 @@ public:
 		Ink_Object **argv;
 		ProtoSearchRet search_res;
 
-		if (!(hash = obj->getSlotMapping(id))) {
+		if (obj->type == INK_UNDEFINED) {
+			InkWarn_Get_Undefined_Hash();
+		}
+
+		if (!(hash = obj->getSlotMapping(id)) /* cannot find slot in the origin object */) {
+			/* search prototype */
 			hash = (search_res = searchPrototype(obj, id)).hash;
+
+			/* create barrier to prevent changes on prototype */
 			address = obj->setSlot(id, NULL);
-			if (hash) {
-				base = search_res.base;
+			if (hash) { /* if found the slot in prototype */
+				base = search_res.base; /* set base as the prototype(to make some native method run correctly) */
 				ret = hash->getValue();
 			} else {
 				if ((tmp = obj->getSlot("missing"))->type == INK_FUNCTION) {
+					/* has missing method, call it */
 					argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 					argv[0] = new Ink_String(string(id));
 					ret = tmp->call(context_chain, 1, argv);
 					free(argv);
 				} else {
+					/* return undefined */
 					ret = new Ink_Undefined();
 				}
 			}
 		} else {
+			/* found slot correctly */
 			ret = hash->getValue();
 			address = hash;
 		}
 
-		if (obj->type == INK_UNDEFINED) {
-			InkWarn_Get_Undefined_Hash();
-		}
-
+		/* set address for possible assignment */
 		ret->address = address;
+		/* set base */
 		ret->setSlot("base", base);
 
+		/* call getter if has one */
 		if (!flags.is_left_value && address->getter) {
 			ret = address->getter->call(context_chain, 0, NULL, ret);
+			/* trap all interrupt signal */
 			CGC_interrupt_signal = INTER_NONE;
 		}
-		//hash->value->setSlot("this", hash->value);
 
 		return ret;
 	}
