@@ -7,8 +7,8 @@ REQUIRE=\
 	function.o \
 	array.o
 
-CC=g++
-LD=ld
+CC=$(ARCH_PREFIX)g++
+LD=$(ARCH_PREFIX)ld
 CPPFLAGS=-I../../ -g -Wall -pedantic
 LDFLAGS=
 

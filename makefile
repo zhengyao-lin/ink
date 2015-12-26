@@ -1,3 +1,9 @@
+ifeq ($(ARCH), arm)
+	export ARCH_PREFIX=arm-none-linux-gnueabi-
+else
+	export ARCH_PREFIX=
+endif
+
 TARGET=test
 REQUIRE=\
 	syntax/syntax.o \
@@ -6,8 +12,8 @@ REQUIRE=\
 	interface/interface.o \
 	test.o
 
-CC=g++
-LD=ld
+CC=$(ARCH_PREFIX)g++
+LD=$(ARCH_PREFIX)ld
 CPPFLAGS= -g -Wall -pedantic
 LDFLAGS=-pthread
 

@@ -5,22 +5,29 @@
 
 class Ink_ContextChain {
 public:
-	Ink_ContextChain *outer = NULL;
+	Ink_ContextChain *outer;
 	Ink_ContextObject *context;
-	Ink_ContextChain *inner = NULL;
+	Ink_ContextChain *inner;
 
 	Ink_ContextChain()
 	{
 		context = new Ink_ContextObject();
+		outer = NULL;
+		inner = NULL;
 	}
 
 	Ink_ContextChain(Ink_ContextObject *context)
 	: context(context)
-	{ }
+	{
+		outer = NULL;
+		inner = NULL;
+	}
 
 	Ink_ContextChain(Ink_HashTable *hash_table)
 	{
 		context = new Ink_ContextObject(hash_table);
+		outer = NULL;
+		inner = NULL;
 	}
 
 	Ink_ContextChain *addContext(Ink_ContextObject *c);
