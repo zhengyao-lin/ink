@@ -74,6 +74,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 		 i < arg_list.size(); i++) {
 		if (arg_list[i]->is_expand) {
 			another_tmp_arg_list = expandArgument(arg_list[i]->expandee->eval(context_chain));
+			delete arg_list[i];
 			tmp_arg_list.insert(tmp_arg_list.end(), another_tmp_arg_list.begin(), another_tmp_arg_list.end());
 		} else {
 			tmp_arg_list.push_back(arg_list[i]);

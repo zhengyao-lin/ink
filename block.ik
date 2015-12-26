@@ -444,8 +444,8 @@ func = fn (arg...) {
 }
 
 PAF = func() with [1, _, 2, _, 8, _, 0];
-PAF2 = PAF(2, 2)
+PAF2 = PAF(2) with [2] with [2, _, 5, 3]
 PAF3 = PAF2(_, 2, 3, 4)(2);
 
 a = 0;
-p(a++ = 10);
+p(a++ = 10)

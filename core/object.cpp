@@ -275,11 +275,14 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 						remainc, &argv[argi]);
 		free(tmp_argv);
 		if_delete_argv = true;
-	} else {
-		for (argi = 0; argi < argc; argi++) {
-			if (isUnknown(argv[argi])) { /* find unknown argument */
-				return cloneWithPA(argc, copyArgv(argc, argv), true);
-			}
+	}
+
+	for (argi = 0; argi < argc; argi++) {
+		if (isUnknown(argv[argi])) { /* find unknown argument */
+			tmp = cloneWithPA(argc, copyArgv(argc, argv), true);
+			if (if_delete_argv)
+				free(argv);
+			return tmp;
 		}
 	}
 
