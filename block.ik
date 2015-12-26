@@ -443,7 +443,7 @@ func = fn (arg...) {
 	p(ret)
 }
 
-PAF = func(1, _, 2, _, 8, _, 0);
+PAF = func() with [1, _, 2, _, 8, _, 0];
 PAF2 = PAF(2, 2)
 PAF3 = PAF2(_, 2, 3, 4)(2);
 

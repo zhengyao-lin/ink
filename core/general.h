@@ -26,6 +26,26 @@ public:
 	{ }
 };
 
+class Ink_Expression;
+
+class Ink_Argument {
+public:
+	Ink_Expression *arg;
+
+	bool is_expand;
+	Ink_Expression *expandee;
+
+	Ink_Argument(Ink_Expression *arg)
+	: arg(arg), is_expand(false), expandee(NULL)
+	{ }
+
+	Ink_Argument(bool is_expand, Ink_Expression *expandee)
+	: arg(NULL), is_expand(is_expand), expandee(expandee)
+	{ }
+
+	~Ink_Argument();
+};
+
 class Ink_Parameter {
 public:
 	std::string *name;

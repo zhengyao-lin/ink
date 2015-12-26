@@ -23,6 +23,7 @@
 	Ink_Expression *expression;
 	Ink_ParamList *parameter;
 	Ink_ExpressionList *expression_list;
+	Ink_ArgumentList *argument_list;
 	std::string *string;
 	IDContextType context_type;
 	InterruptSignal signal;
@@ -33,7 +34,7 @@
 
 %token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE
 			   TFUNC TINLINE TDO TEND TGO TYIELD TGEN
-			   TIMPORT TBREAK TCONTINUE
+			   TIMPORT TBREAK TCONTINUE TWITH
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TDADD TDSUB TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND TAT
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
@@ -46,16 +47,15 @@
 				   interrupt_expression multiplicative_expression
 				   unary_expression nestable_expression
 				   insert_expression field_expression
-				   table_expression functional_block
+				   functional_block import_expression
 				   block equality_expression
 				   relational_expression logical_and_expression
 				   logical_or_expression comma_expression
-				   import_expression
 %type <parameter> param_list param_opt param_list_sub
 %type <expression_list> expression_list expression_list_opt
-						argument_list argument_list_opt
 						element_list element_list_opt
-						argument_attachment argument_list_without_paren
+%type <argument_list> argument_list argument_list_opt
+					  argument_attachment argument_list_without_paren
 %type <context_type> id_context_type
 %type <signal> interrupt_signal
 
@@ -194,8 +194,8 @@ insert_expression
 	: logical_or_expression
 	| insert_expression TINS nllo logical_or_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<<")), arg);
 		SET_LINE_NO($$);
@@ -203,8 +203,8 @@ insert_expression
 	}
 	| insert_expression TOUT nllo logical_or_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">>")), arg);
 		SET_LINE_NO($$);
@@ -239,8 +239,8 @@ assignment_expression
 	}
 	| equality_expression TARR nllo assignment_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("->")), arg);
 		SET_LINE_NO($$);
@@ -252,8 +252,8 @@ equality_expression
 	: relational_expression
 	| equality_expression TCEQ nllo relational_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("==")), arg);
 		SET_LINE_NO($$);
@@ -261,8 +261,8 @@ equality_expression
 	}
 	| equality_expression TCNE nllo relational_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("!=")), arg);
 		SET_LINE_NO($$);
@@ -274,8 +274,8 @@ relational_expression
 	: additive_expression
 	| relational_expression TCLT nllo additive_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<")), arg);
 		SET_LINE_NO($$);
@@ -283,8 +283,8 @@ relational_expression
 	}
 	| relational_expression TCGT nllo additive_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">")), arg);
 		SET_LINE_NO($$);
@@ -292,8 +292,8 @@ relational_expression
 	}
 	| relational_expression TCLE nllo additive_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<=")), arg);
 		SET_LINE_NO($$);
@@ -301,8 +301,8 @@ relational_expression
 	}
 	| relational_expression TCGE nllo additive_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">=")), arg);
 		SET_LINE_NO($$);
@@ -314,16 +314,16 @@ additive_expression
 	: multiplicative_expression
 	| additive_expression TADD nllo multiplicative_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("+")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| additive_expression TSUB nllo multiplicative_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("-")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
@@ -334,24 +334,24 @@ multiplicative_expression
 	: unary_expression
 	| multiplicative_expression TMUL nllo unary_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("*")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| multiplicative_expression TDIV nllo unary_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("/")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| multiplicative_expression TMOD nllo unary_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back($4);
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("%")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
@@ -361,12 +361,12 @@ multiplicative_expression
 argument_list
 	: nestable_expression
 	{
-		$$ = new Ink_ExpressionList();
-		$$->push_back($1);
+		$$ = new Ink_ArgumentList();
+		$$->push_back(new Ink_Argument($1));
 	}
 	| argument_list nllo TCOMMA nllo nestable_expression
 	{
-		$1->push_back($5);
+		$1->push_back(new Ink_Argument($5));
 		$$ = $1;
 	}
 	;
@@ -374,12 +374,12 @@ argument_list
 argument_list_without_paren
 	: nestable_expression
 	{
-		$$ = new Ink_ExpressionList();
-		$$->push_back($1);
+		$$ = new Ink_ArgumentList();
+		$$->push_back(new Ink_Argument($1));
 	}
 	| argument_list_without_paren TCOMMA nllo nestable_expression
 	{
-		$1->push_back($4);
+		$1->push_back(new Ink_Argument($4));
 		$$ = $1;
 	}
 	;
@@ -387,7 +387,7 @@ argument_list_without_paren
 argument_list_opt
 	: nllo
 	{
-		$$ = new Ink_ExpressionList();
+		$$ = new Ink_ArgumentList();
 	}
 	| nllo argument_list nllo
 	{
@@ -428,31 +428,8 @@ functional_block
 	}
 	;
 
-argument_attachment
-	: block
-	{
-		$$ = new Ink_ExpressionList();
-		$$->push_back($1);
-	}
-	| TIDENTIFIER
-	{
-		$$ = new Ink_ExpressionList();
-		$$->push_back(new Ink_StringConstant($1));
-	}
-	| argument_attachment block
-	{
-		$1->push_back($2);
-		$$ = $1;
-	}
-	| argument_attachment TIDENTIFIER
-	{
-		$1->push_back(new Ink_StringConstant($2));
-		$$ = $1;
-	}
-	;
-
 unary_expression
-	: table_expression
+	: postfix_expression
 	| TNEW nllo postfix_expression TLPAREN argument_list_opt TRPAREN
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("new")),
@@ -473,42 +450,42 @@ unary_expression
 	| TCLONE nllo unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("clone")),
-									Ink_ExpressionList());
+									Ink_ArgumentList());
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| TADD nllo unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("+u")),
-									Ink_ExpressionList());
+									Ink_ArgumentList());
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| TSUB nllo unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("-u")),
-									Ink_ExpressionList());
+									Ink_ArgumentList());
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| TDNOT nllo unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("!!")),
-									Ink_ExpressionList());
+									Ink_ArgumentList());
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| TNOT nllo unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("!")),
-									Ink_ExpressionList());
+									Ink_ArgumentList());
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| TDADD nllo unary_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back(new Ink_NumericConstant(1));
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument(new Ink_NumericConstant(1)));
 		$$ = new Ink_AssignmentExpression($3, new Ink_CallExpression(
 												  new Ink_HashExpression($3, new string("+")),
 												  arg), false, false);
@@ -516,8 +493,8 @@ unary_expression
 	}
 	| TDSUB nllo unary_expression
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back(new Ink_NumericConstant(1));
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument(new Ink_NumericConstant(1)));
 		$$ = new Ink_AssignmentExpression($3, new Ink_CallExpression(
 												  new Ink_HashExpression($3, new string("-")),
 												  arg), false, false);
@@ -525,36 +502,36 @@ unary_expression
 	}
 	;
 
-element_list
-	: nestable_expression
+argument_attachment
+	: block
 	{
-		$$ = new Ink_ExpressionList();
-		$$->push_back($1);
+		$$ = new Ink_ArgumentList();
+		$$->push_back(new Ink_Argument($1));
 	}
-	| element_list nllo TCOMMA nllo nestable_expression
+	| TIDENTIFIER
 	{
-		$1->push_back($5);
+		$$ = new Ink_ArgumentList();
+		$$->push_back(new Ink_Argument(new Ink_StringConstant($1)));
+	}
+	| TWITH nllo function_expression
+	{
+		$$ = new Ink_ArgumentList();
+		$$->push_back(new Ink_Argument(true, $3));
+	}
+	| argument_attachment block
+	{
+		$1->push_back(new Ink_Argument($2));
 		$$ = $1;
 	}
-	;
-
-element_list_opt
-	: nllo
+	| argument_attachment TIDENTIFIER
 	{
-		$$ = new Ink_ExpressionList();
+		$1->push_back(new Ink_Argument(new Ink_StringConstant($2)));
+		$$ = $1;
 	}
-	| nllo element_list nllo
+	| argument_attachment TWITH nllo function_expression
 	{
-		$$ = $2;
-	}
-
-table_expression
-	: postfix_expression
-	| TLBRAKT element_list_opt TRBRAKT
-	{
-		$$ = new Ink_TableExpression(*$2);
-		delete $2;
-		SET_LINE_NO($$);
+		$1->push_back(new Ink_Argument(true, $4));
+		$$ = $1;
 	}
 	;
 
@@ -588,8 +565,8 @@ postfix_expression
 	}
 	| postfix_expression TDADD
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back(new Ink_NumericConstant(1));
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument(new Ink_NumericConstant(1)));
 		$$ = new Ink_AssignmentExpression($1, new Ink_CallExpression(
 												  new Ink_HashExpression($1, new string("+")),
 												  arg), true, false);
@@ -597,8 +574,8 @@ postfix_expression
 	}
 	| postfix_expression TDSUB
 	{
-		Ink_ExpressionList arg = Ink_ExpressionList();
-		arg.push_back(new Ink_NumericConstant(1));
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument(new Ink_NumericConstant(1)));
 		$$ = new Ink_AssignmentExpression($1, new Ink_CallExpression(
 												  new Ink_HashExpression($1, new string("-")),
 												  arg), true, false);
@@ -745,6 +722,29 @@ id_context_type
 		$$ = ID_GLOBAL;
 	}
 
+element_list
+	: nestable_expression
+	{
+		$$ = new Ink_ExpressionList();
+		$$->push_back($1);
+	}
+	| element_list nllo TCOMMA nllo nestable_expression
+	{
+		$1->push_back($5);
+		$$ = $1;
+	}
+	;
+
+element_list_opt
+	: nllo
+	{
+		$$ = new Ink_ExpressionList();
+	}
+	| nllo element_list nllo
+	{
+		$$ = $2;
+	}
+
 primary_expression
 	: TNUMERIC
 	{
@@ -786,6 +786,12 @@ primary_expression
 	| TLPAREN nestable_expression TRPAREN
 	{
 		$$ = $2;
+		SET_LINE_NO($$);
+	}
+	| TLBRAKT element_list_opt TRBRAKT
+	{
+		$$ = new Ink_TableExpression(*$2);
+		delete $2;
 		SET_LINE_NO($$);
 	}
 	;

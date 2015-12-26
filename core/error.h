@@ -327,4 +327,11 @@ InkWarn_Type_Name_Argument_Require()
 	return;
 }
 
+inline void
+InkWarn_With_Attachment_Require()
+{
+	InkWarn_doPrintWarning("with attachment needs array as argument");
+	return;
+}
+
 #endif

@@ -21,3 +21,11 @@ void StrPool_dispose()
 	}
 	return;
 }
+
+Ink_Argument::~Ink_Argument()
+{
+	if (arg)
+		delete arg;
+	if (is_expand)
+		delete expandee;
+}
