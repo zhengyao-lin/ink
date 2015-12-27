@@ -102,7 +102,6 @@ Ink_Object *InkNative_File_GetString(Ink_ContextChain *context, unsigned int arg
 	Ink_Object *base = context->searchSlot("base");
 	FILE *tmp;
 	char buffer[FILE_GETS_BUFFER_SIZE] = { '\0' };
-	const char *tmp_str;
 
 	ASSUME_BASE_TYPE(INK_CUSTOM);
 
