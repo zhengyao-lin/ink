@@ -334,4 +334,11 @@ InkWarn_With_Attachment_Require()
 	return;
 }
 
+inline void
+InkWarn_Failed_Open_File(const char *path)
+{
+	InkWarn_doPrintWarning("Failed to open file $(path)", path);
+	return;
+}
+
 #endif

@@ -449,3 +449,26 @@ PAF3 = PAF2(_, 2, 3, 4)(2);
 
 a = 0;
 p(a++ = 10)
+
+import io
+
+var fp
+
+p("+++++++++++++++++++++++++++++++++++");
+
+if (file_exist("test_file.ik")) {
+	p("freak!!! abnormal ending");
+	fp = new File("test_file.ik", "r");
+} else {
+	p("that's right!");
+	fp = new File("test_file.ik", "w+");
+	fp.puts("p(\"I'm new file\")");
+	fp.flush();
+}
+
+import "test_file.ik"
+
+fp.close();
+file_remove("test_file.ik");
+
+stdout.puts("from file interface\n");

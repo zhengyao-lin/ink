@@ -11,5 +11,6 @@ DBG_TypeMapping dbg_type_mapping[] =
 	{ INK_CONTEXT,		"context" },
 	{ INK_FUNCTION,		"function" },
 	{ INK_ARRAY,		"array" },
-	{ INK_UNKNOWN,		"unknown" }
+	{ INK_UNKNOWN,		"unknown" },
+	{ INK_CUSTOM,		"custom" }
 };

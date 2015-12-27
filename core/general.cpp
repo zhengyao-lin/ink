@@ -9,7 +9,7 @@ vector<string *> string_pool;
 string *StrPool_addStr(const char *str)
 {
 	string *tmp;
-	string_pool.push_back(tmp = new string(str));
+	string_pool.push_back(tmp = new string(str ? str : ""));
 	return tmp;
 }
 

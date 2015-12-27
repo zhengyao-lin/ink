@@ -47,14 +47,14 @@ public:
 		alloc_engine = NULL;
 
 		IGC_addObject(this);
-		// if (if_init_method) initMethod();
+		// initMethod();
 	}
 
 	void Ink_ObjectMethodInit();
 	virtual void derivedMethodInit() { }
 	void initMethod()
 	{
-		Ink_ObjectMethodInit();
+		// Ink_ObjectMethodInit();
 		// derivedMethodInit();
 	}
 

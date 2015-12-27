@@ -5,7 +5,8 @@ REQUIRE=\
 	string.o \
 	object.o \
 	function.o \
-	array.o
+	array.o \
+	file.o
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld

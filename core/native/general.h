@@ -99,4 +99,20 @@ inline bool checkArgument(unsigned int argc, Ink_Object **argv,
 	return true;
 }
 
+inline bool checkArgument(bool if_output, unsigned int argc, Ink_Object **argv,
+						  unsigned int min, Ink_TypeTag type1, Ink_TypeTag type2)
+{
+	if (argc < min) {
+		return false;
+	}
+
+	if (argv[0]->type != type1) {
+		return false;
+	} else if (argv[1]->type != type2) {
+		return false;
+	}
+
+	return true;
+}
+
 #endif

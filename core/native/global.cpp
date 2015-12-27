@@ -196,7 +196,7 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 {
 	unsigned int i;
 	FILE *fp;
-	Ink_Object *load;
+	Ink_Object *load, **tmp_argv;
 	const char *tmp;
 	char *current_dir = NULL, *redirect = NULL;
 	Ink_InterpreteEngine *current_engine = Ink_getCurrentEngine();
@@ -245,7 +245,10 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 		} else {
 			// call load method
 			if ((load = getSlotWithProto(context, argv[i], "load"))->type == INK_FUNCTION) {
-				load->call(context);
+				tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
+				tmp_argv[0] = argv[i];
+				load->call(context, 1, tmp_argv);
+				free(tmp_argv);
 			} else {
 				InkWarn_Not_Package();
 			}
@@ -281,6 +284,44 @@ Ink_Object *Ink_NumVal(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 	return tmp->eval(context);
 }
 
+#include "file.h"
+
+Ink_Object *InkPkg_File_Loader(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *global_context = context->getGlobal()->context;
+	
+	global_context->setSlot("File", new Ink_FunctionObject(InkNative_File_Constructor));
+	global_context->setSlot("file_exist", new Ink_FunctionObject(InkNative_File_Exist));
+	global_context->setSlot("file_remove", new Ink_FunctionObject(InkNative_File_Remove));
+	global_context->setSlot("stdin", new Ink_FilePointer(stdin));
+	global_context->setSlot("stdout", new Ink_FilePointer(stdout));
+	global_context->setSlot("stderr", new Ink_FilePointer(stderr));
+
+	return NULL_OBJ;
+}
+
+Ink_Object *InkPkg_IO_Loader(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (argc)
+		argv[0]->getSlot("file")->getSlot("load")->call(context);
+
+	return NULL_OBJ;
+}
+
+inline Ink_Object *addPackage(Ink_Object *obj, const char *name, Ink_Object *loader)
+{
+	Ink_Object *pkg;
+	obj->setSlot(name, pkg = new Ink_Object());
+	pkg->setSlot("load", loader);
+
+	return pkg;
+}
+
+inline Ink_Object *addPackage(Ink_ContextChain *context, const char *name, Ink_Object *loader)
+{
+	return addPackage(context->context, name, loader);
+}
+
 Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p);
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
@@ -300,6 +341,9 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);
 	array_cons->setSlot("new", new Ink_FunctionObject(InkNative_Object_New));
+
+	addPackage(addPackage(context, "io", new Ink_FunctionObject(InkPkg_IO_Loader)),
+			   "file", new Ink_FunctionObject(InkPkg_File_Loader));
 
 	context->context->setSlot("undefined", new Ink_Undefined());
 	context->context->setSlot("null", new Ink_NullObject());
