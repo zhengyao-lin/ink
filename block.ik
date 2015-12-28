@@ -470,5 +470,8 @@ import "test_file.ik"
 
 fp.close();
 file_remove("test_file.ik");
+p(typename(fp));
 
 stdout.puts("from file interface\n");
+
+p(typename(fn(){}));

@@ -12,7 +12,7 @@ enum Ink_TypeTag {
 	INK_FUNCTION,
 	INK_ARRAY,
 	INK_UNKNOWN,
-	INK_CUSTOM
+	INK_LAST
 };
 
 #endif

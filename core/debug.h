@@ -3,16 +3,24 @@
 
 #include "type.h"
 
-typedef struct DBG_TypeMapping_tag {
-	Ink_TypeTag type;
+class DBG_TypeMapping {
+public:
+	int type;
 	const char *friendly_name;
-} DBG_TypeMapping;
 
-extern DBG_TypeMapping dbg_type_mapping[];
+	DBG_TypeMapping(int type, const char *name)
+	: type(type), friendly_name(name)
+	{ }
+};
 
-inline const char *getTypeName(Ink_TypeTag type_tag)
+extern DBG_TypeMapping *dbg_type_mapping;
+
+inline const char *getTypeName(int type_tag)
 {
 	return dbg_type_mapping[type_tag].friendly_name;
 }
+
+void DBG_initTypeMapping();
+int registerType(const char *name);
 
 #endif

@@ -2,6 +2,7 @@
 #include "core/hash.h"
 #include "core/object.h"
 #include "core/expression.h"
+#include "core/debug.h"
 #include "core/gc/collect.h"
 #include "core/thread/thread.h"
 #include "core/coroutine/coroutine.h"
@@ -82,6 +83,8 @@ int main(int argc, char **argv)
 #endif
 	// initThread();
 	// registerThread();
+
+	DBG_initTypeMapping();
 
 	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
 	engine->startParse(Ink_InputSetting::parseArg(argc, argv));

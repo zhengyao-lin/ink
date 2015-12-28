@@ -6,6 +6,8 @@
 
 using namespace std;
 
+Ink_TypeTag file_pointer_type_tag;
+
 inline string getStringVal(Ink_Object *str)
 {
 	if (str->type == INK_STRING) {
@@ -48,7 +50,7 @@ Ink_Object *InkNative_File_Constructor(Ink_ContextChain *context, unsigned int a
 		if (!fp) {
 			InkWarn_Failed_Open_File(tmp);
 		}
-	} else if (checkArgument(false, argc, argv, 1, INK_CUSTOM)) {
+	} else if (checkArgument(false, argc, argv, 1, file_pointer_type_tag)) {
 		fp = as<Ink_FilePointer>(argv[0])->fp;
 	}
 
@@ -71,7 +73,7 @@ Ink_Object *InkNative_File_Close(Ink_ContextChain *context, unsigned int argc, I
 	Ink_Object *base = context->searchSlot("base");
 	FILE *tmp;
 
-	ASSUME_BASE_TYPE(INK_CUSTOM);
+	ASSUME_BASE_TYPE(file_pointer_type_tag);
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp)
@@ -85,7 +87,7 @@ Ink_Object *InkNative_File_PutString(Ink_ContextChain *context, unsigned int arg
 	Ink_Object *base = context->searchSlot("base");
 	FILE *tmp;
 
-	ASSUME_BASE_TYPE(INK_CUSTOM);
+	ASSUME_BASE_TYPE(file_pointer_type_tag);
 	if (!checkArgument(argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
@@ -103,7 +105,7 @@ Ink_Object *InkNative_File_GetString(Ink_ContextChain *context, unsigned int arg
 	FILE *tmp;
 	char buffer[FILE_GETS_BUFFER_SIZE] = { '\0' };
 
-	ASSUME_BASE_TYPE(INK_CUSTOM);
+	ASSUME_BASE_TYPE(file_pointer_type_tag);
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp) {
@@ -118,7 +120,7 @@ Ink_Object *InkNative_File_Flush(Ink_ContextChain *context, unsigned int argc, I
 	Ink_Object *base = context->searchSlot("base");
 	FILE *tmp;
 
-	ASSUME_BASE_TYPE(INK_CUSTOM);
+	ASSUME_BASE_TYPE(file_pointer_type_tag);
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp)

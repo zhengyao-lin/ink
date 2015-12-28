@@ -285,25 +285,32 @@ Ink_Object *Ink_NumVal(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 }
 
 #include "file.h"
+#include "../debug.h"
+
+extern Ink_TypeTag file_pointer_type_tag;
 
 Ink_Object *InkPkg_File_Loader(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *global_context = context->getGlobal()->context;
+
+	file_pointer_type_tag = (Ink_TypeTag)registerType("io.file.file_pointer");
 	
 	global_context->setSlot("File", new Ink_FunctionObject(InkNative_File_Constructor));
 	global_context->setSlot("file_exist", new Ink_FunctionObject(InkNative_File_Exist));
 	global_context->setSlot("file_remove", new Ink_FunctionObject(InkNative_File_Remove));
-	global_context->setSlot("stdin", new Ink_FilePointer(stdin));
-	global_context->setSlot("stdout", new Ink_FilePointer(stdout));
-	global_context->setSlot("stderr", new Ink_FilePointer(stderr));
 
 	return NULL_OBJ;
 }
 
 Ink_Object *InkPkg_IO_Loader(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
+	Ink_Object *global_context = context->getGlobal()->context;
+
 	if (argc)
 		argv[0]->getSlot("file")->getSlot("load")->call(context);
+	global_context->setSlot("stdin", new Ink_FilePointer(stdin));
+	global_context->setSlot("stdout", new Ink_FilePointer(stdout));
+	global_context->setSlot("stderr", new Ink_FilePointer(stderr));
 
 	return NULL_OBJ;
 }
