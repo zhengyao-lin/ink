@@ -36,6 +36,12 @@ void DBG_initTypeMapping()
 	return;
 }
 
+void DBG_disposeTypeMapping()
+{
+	free(dbg_type_mapping);
+	return;
+}
+
 int registerType(const char *name)
 {
 	// StrPool_addStr(

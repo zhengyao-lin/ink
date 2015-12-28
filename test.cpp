@@ -95,6 +95,7 @@ int main(int argc, char **argv)
 
 	delete engine;
 	cleanAll();
+	DBG_disposeTypeMapping();
 
 	return 0;
 }

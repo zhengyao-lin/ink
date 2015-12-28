@@ -21,6 +21,7 @@ inline const char *getTypeName(int type_tag)
 }
 
 void DBG_initTypeMapping();
+void DBG_disposeTypeMapping();
 int registerType(const char *name);
 
 #endif
