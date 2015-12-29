@@ -475,3 +475,7 @@ p(typename(fp));
 stdout.puts("from file interface\n");
 
 p(typename(fn(){}));
+
+p({
+	name: "hello"	
+}.name);

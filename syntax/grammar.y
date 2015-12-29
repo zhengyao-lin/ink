@@ -24,6 +24,7 @@
 	Ink_ParamList *parameter;
 	Ink_ExpressionList *expression_list;
 	Ink_ArgumentList *argument_list;
+	Ink_HashTableMapping *hash_table_mapping;
 	std::string *string;
 	IDContextType context_type;
 	InterruptSignal signal;
@@ -56,6 +57,7 @@
 						element_list element_list_opt
 %type <argument_list> argument_list argument_list_opt
 					  argument_attachment argument_list_without_paren
+%type <hash_table_mapping> hash_table_mapping hash_table_mapping_opt
 %type <context_type> id_context_type
 %type <signal> interrupt_signal
 
@@ -189,6 +191,7 @@ field_expression
 				 $4);
 		SET_LINE_NO($$);
 	}
+	;
 
 insert_expression
 	: logical_or_expression
@@ -744,6 +747,31 @@ element_list_opt
 	{
 		$$ = $2;
 	}
+	;
+
+hash_table_mapping
+	: TIDENTIFIER TCOLON nestable_expression
+	{
+		$$ = new Ink_HashTableMapping();
+		$$->push_back(Ink_HashTableMappingSingle($1, $3));
+	}
+	| hash_table_mapping nllo TCOMMA nllo TIDENTIFIER TCOLON nestable_expression
+	{
+		$1->push_back(Ink_HashTableMappingSingle($5, $7));
+		$$ = $1;
+	}
+	;
+
+hash_table_mapping_opt
+	: nllo
+	{
+		$$ = new Ink_HashTableMapping();
+	}
+	| nllo hash_table_mapping nllo
+	{
+		$$ = $2;
+	}
+	;
 
 primary_expression
 	: TNUMERIC
@@ -791,6 +819,12 @@ primary_expression
 	| TLBRAKT element_list_opt TRBRAKT
 	{
 		$$ = new Ink_TableExpression(*$2);
+		delete $2;
+		SET_LINE_NO($$);
+	}
+	| TLBRACE hash_table_mapping_opt TRBRACE
+	{
+		$$ = new Ink_HashTableExpression(*$2);
 		delete $2;
 		SET_LINE_NO($$);
 	}

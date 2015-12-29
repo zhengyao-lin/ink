@@ -262,6 +262,38 @@ public:
 	}
 };
 
+typedef pair<string *, Ink_Expression *> Ink_HashTableMappingSingle;
+typedef vector<Ink_HashTableMappingSingle> Ink_HashTableMapping;
+
+class Ink_HashTableExpression: public Ink_Expression {
+public:
+	Ink_HashTableMapping mapping;
+
+	Ink_HashTableExpression(Ink_HashTableMapping mapping)
+	: mapping(mapping)
+	{ }
+
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+	{
+		Ink_Object *ret = new Ink_Object();
+		unsigned int i;
+
+		for (i = 0; i < mapping.size(); i++) {
+			ret->setSlot(mapping[i].first->c_str(), mapping[i].second->eval(context_chain));
+		}
+		return ret;
+	}
+
+	~Ink_HashTableExpression()
+	{
+		unsigned int i;
+		for (i = 0; i < mapping.size(); i++) {
+			delete mapping[i].first;
+			delete mapping[i].second;
+		}
+	}
+};
+
 class Ink_TableExpression: public Ink_Expression {
 public:
 	Ink_ExpressionList elem_list;
