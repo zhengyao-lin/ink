@@ -341,4 +341,18 @@ InkWarn_Failed_Open_File(const char *path)
 	return;
 }
 
+inline void
+InkWarn_Failed_Find_Mod(const char *path)
+{
+	InkWarn_doPrintWarning("Failed to open module directory $(path)", path);
+	return;
+}
+
+inline void
+InkWarn_Failed_Load_Mod(const char *name)
+{
+	InkWarn_doPrintWarning("Failed to load module $(name)", name);
+	return;
+}
+
 #endif

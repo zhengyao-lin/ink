@@ -9,6 +9,7 @@
 #include "../../interface/engine.h"
 #include "../../interface/setting.h"
 #include "native.h"
+#include "../package/load.h"
 
 extern Ink_ExpressionList native_exp_list;
 extern InterruptSignal CGC_interrupt_signal;
@@ -315,20 +316,6 @@ Ink_Object *InkPkg_IO_Loader(Ink_ContextChain *context, unsigned int argc, Ink_O
 	return NULL_OBJ;
 }
 
-inline Ink_Object *addPackage(Ink_Object *obj, const char *name, Ink_Object *loader)
-{
-	Ink_Object *pkg;
-	obj->setSlot(name, pkg = new Ink_Object());
-	pkg->setSlot("load", loader);
-
-	return pkg;
-}
-
-inline Ink_Object *addPackage(Ink_ContextChain *context, const char *name, Ink_Object *loader)
-{
-	return addPackage(context->context, name, loader);
-}
-
 Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p);
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
@@ -349,8 +336,10 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("Array", array_cons);
 	array_cons->setSlot("new", new Ink_FunctionObject(InkNative_Object_New));
 
-	addPackage(addPackage(context, "io", new Ink_FunctionObject(InkPkg_IO_Loader)),
-			   "file", new Ink_FunctionObject(InkPkg_File_Loader));
+	//addPackage(addPackage(context, "io", new Ink_FunctionObject(InkPkg_IO_Loader)),
+	//		   "file", new Ink_FunctionObject(InkPkg_File_Loader));
+
+	loadAllModules(context);
 
 	context->context->setSlot("undefined", new Ink_Undefined());
 	context->context->setSlot("null", new Ink_NullObject());

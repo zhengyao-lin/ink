@@ -1,6 +1,6 @@
-TARGET=coroutine.o
+TARGET=package.o
 REQUIRE=\
-	general.o
+	load.o
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld

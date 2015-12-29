@@ -4,23 +4,44 @@ else
 	export ARCH_PREFIX=
 endif
 
-TARGET=test
+INSTALL_BIN_PATH := /usr/bin
+INSTALL_LIB_PATH := /usr/lib
+INSTALL_LIB_NAME := ink
+INSTALL_MODULE_PATH := modules
+
+BIN_OUTPUT := bin
+LIB_OUTPUT := lib
+MOD_OUTPUT := modules
+
+TARGET=$(BIN_OUTPUT)/ink
+LIBS=\
+	core/libcore.so
 REQUIRE=\
 	syntax/syntax.o \
-	core/core.o \
 	msg/msg.o \
 	interface/interface.o \
-	test.o
+	ink.o
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld
 CPPFLAGS= -g -Wall -pedantic
-LDFLAGS=-pthread
+LDFLAGS=-Lcore -lcore
 
-$(TARGET): $(REQUIRE)
+$(TARGET): $(REQUIRE) $(LIBS)
+
+ifneq ($(BIN_OUTPUT), $(wildcard $(BIN_OUTPUT)))
+	mkdir $(BIN_OUTPUT)
+endif
+
+ifneq ($(LIB_OUTPUT), $(wildcard $(LIB_OUTPUT)))
+	mkdir $(LIB_OUTPUT)
+endif
+
 	$(CC) -o $@ $(REQUIRE) $(LDFLAGS)
+	cp $(LIBS) $(LIB_OUTPUT)
+	cd modules; $(MAKE)
 
-core/core.o:
+core/libcore.so:
 	cd core; $(MAKE)
 
 syntax/syntax.o:
@@ -35,9 +56,20 @@ interface/interface.o:
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS)
 
+install:
+	cp -a $(BIN_OUTPUT)/* $(INSTALL_BIN_PATH)
+
+	mkdir -p $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)
+	cp -af $(LIB_OUTPUT)/* $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)
+	ln -sf $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/libcore.so $(INSTALL_LIB_PATH)/libcore.so
+
+	mkdir -p $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(INSTALL_MODULE_PATH)
+	cp -af $(MOD_OUTPUT)/*.mod $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(INSTALL_MODULE_PATH)
+
 clean:
 	cd core; $(MAKE) clean
 	cd syntax; $(MAKE) clean
 	cd msg; $(MAKE) clean
 	cd interface; $(MAKE) clean
-	$(RM) *.o $(TARGET)
+	cd modules; $(MAKE) clean
+	$(RM) -r *.o $(TARGET) $(BIN_OUTPUT) $(LIB_OUTPUT)

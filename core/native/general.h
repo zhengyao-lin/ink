@@ -115,4 +115,18 @@ inline bool checkArgument(bool if_output, unsigned int argc, Ink_Object **argv,
 	return true;
 }
 
+inline Ink_Object *addPackage(Ink_Object *obj, const char *name, Ink_Object *loader)
+{
+	Ink_Object *pkg;
+	obj->setSlot(name, pkg = new Ink_Object());
+	pkg->setSlot("load", loader);
+
+	return pkg;
+}
+
+inline Ink_Object *addPackage(Ink_ContextChain *context, const char *name, Ink_Object *loader)
+{
+	return addPackage(context->context, name, loader);
+}
+
 #endif

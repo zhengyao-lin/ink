@@ -1,9 +1,10 @@
-TARGET=core.o
+TARGET=libcore.so
 REQUIRE=\
 	gc/gc.o \
 	native/native.o \
 	thread/thread.o \
 	coroutine/coroutine.o \
+	package/package.o \
 	hash.o \
 	object.o \
 	expression.o \
@@ -14,11 +15,11 @@ REQUIRE=\
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld
-CPPFLAGS=-I../ -g -Wall -pedantic
-LDFLAGS=
+CPPFLAGS=-I../ -g -Wall -pedantic -fPIC
+LDFLAGS=-shared -ldl -pthread
 
 $(TARGET): $(REQUIRE)
-	$(LD) -r -o $@ $(REQUIRE) $(LDFLAGS)
+	$(CC) -o $@ $(REQUIRE) $(LDFLAGS)
 
 gc/gc.o:
 	cd gc; $(MAKE)
@@ -32,6 +33,9 @@ thread/thread.o:
 coroutine/coroutine.o:
 	cd coroutine; $(MAKE)
 
+package/package.o:
+	cd package; $(MAKE)
+
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS)
 
@@ -40,4 +44,5 @@ clean:
 	cd native; $(MAKE) clean
 	cd thread; $(MAKE) clean
 	cd coroutine; $(MAKE) clean
-	$(RM) *.o
+	cd package; $(MAKE) clean
+	$(RM) *.o *.so

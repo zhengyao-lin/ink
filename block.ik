@@ -477,5 +477,6 @@ stdout.puts("from file interface\n");
 p(typename(fn(){}));
 
 p({
-	name: "hello"	
+	name: "hello",
+	id: 110
 }.name);
