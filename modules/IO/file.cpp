@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string>
 #include "core/native/native.h"
-#include "core/native/file.h"
 #include "core/general.h"
 #include "core/debug.h"
+#include "file.h"
 
 using namespace std;
 

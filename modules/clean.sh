@@ -1,12 +1,14 @@
 #! /bin/bash
 
-modules=`find mod_* -maxdepth 0 -type d`
+modules=`find -maxdepth 1 -type d`
 
 LD=${ARCH_PREFIX}ld
 LDFLAGS=-shared
 
 for mod in $modules
 do
-	cd $mod
-	make clean
+	if [ ! $mod = "." ]; then
+		cd $mod
+		make clean
+	fi
 done

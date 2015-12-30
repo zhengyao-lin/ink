@@ -1,8 +1,4 @@
-CC=$(ARCH_PREFIX)g++
-LD=$(ARCH_PREFIX)ld
-CPPFLAGS=-I../../ -g -Wall -pedantic -fPIC
-LDFLAGS=-shared
-
+export CORELIB=-L../../core -lcore
 SH=bash
 
 all: build_mods.sh
