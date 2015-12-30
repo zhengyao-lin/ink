@@ -1,4 +1,5 @@
-TARGET=libcore.so
+LIB_NAME=libink-core.so
+TARGET=$(LIB_NAME)
 REQUIRE=\
 	gc/gc.o \
 	native/native.o \

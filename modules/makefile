@@ -1,4 +1,3 @@
-export CORELIB=-L../../core -lcore
 SH=bash
 
 all: build_mods.sh

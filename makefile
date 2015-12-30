@@ -4,6 +4,9 @@ else
 	export ARCH_PREFIX=
 endif
 
+LIB_LD_NAME := ink-core
+LIB_NAME = lib$(LIB_LD_NAME).so
+
 INSTALL_BIN_PATH := /usr/bin
 INSTALL_LIB_PATH := /usr/lib
 INSTALL_LIB_NAME := ink
@@ -15,7 +18,7 @@ MOD_OUTPUT := modules
 
 TARGET=$(BIN_OUTPUT)/ink
 LIBS=\
-	core/libcore.so
+	core/$(LIB_NAME)
 REQUIRE=\
 	syntax/syntax.o \
 	msg/msg.o \
@@ -25,7 +28,7 @@ REQUIRE=\
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld
 CPPFLAGS= -g -Wall -pedantic
-LDFLAGS=-Lcore -lcore
+LDFLAGS=-Lcore -l$(LIB_LD_NAME)
 
 $(TARGET): $(REQUIRE) $(LIBS)
 
@@ -41,7 +44,7 @@ endif
 	cp $(LIBS) $(LIB_OUTPUT)
 	cd modules; $(MAKE)
 
-core/libcore.so:
+core/$(LIB_NAME):
 	cd core; $(MAKE)
 
 syntax/syntax.o:
@@ -61,7 +64,7 @@ install:
 
 	mkdir -p $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)
 	cp -af $(LIB_OUTPUT)/* $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)
-	ln -sf $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/libcore.so $(INSTALL_LIB_PATH)/libcore.so
+	ln -sf $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(LIB_NAME) $(INSTALL_LIB_PATH)/$(LIB_NAME)
 
 	mkdir -p $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(INSTALL_MODULE_PATH)
 	cp -af $(MOD_OUTPUT)/*.mod $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(INSTALL_MODULE_PATH)

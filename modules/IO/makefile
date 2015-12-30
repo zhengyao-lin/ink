@@ -5,7 +5,7 @@ REQUIRE=\
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)g++
 CPPFLAGS=-g -c -fPIC -Wall -pedantic
-LDFLAGS=-shared $(CORELIB)
+LDFLAGS=-shared -L../../lib -link-core
 INCLUDES=-I../../
 
 $(TARGET): $(REQUIRE)
