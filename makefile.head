@@ -1,0 +1,5 @@
+export GLOBAL_ROOT_PATH := $(shell pwd)
+export GLOBAL_LIB_PATH = $(GLOBAL_ROOT_PATH)/lib
+
+export GLOBAL_CORE_LIB_NAME := ink-core
+export GLOBAL_CORE_LIB_SONAME = lib$(GLOBAL_CORE_LIB_NAME).so

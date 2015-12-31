@@ -8,6 +8,7 @@
 
 static Ink_InterpreteEngine *current_interprete_engine = NULL;
 extern InterruptSignal CGC_interrupt_signal;
+extern Ink_CodeMode CGC_code_mode;
 
 Ink_InterpreteEngine *Ink_getCurrentEngine()
 {
@@ -60,6 +61,7 @@ void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 	Ink_setCurrentEngine(this);
 	
 	input_mode = INK_FILE_INPUT;
+	CGC_code_mode = setting.getMode();
 	// cleanTopLevel();
 	top_level = Ink_ExpressionList();
 	yyin = setting.getInput();
@@ -132,6 +134,23 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 			break;
 		}
 	}
+
+	Ink_setCurrentEngine(backup);
+
+	return ret;
+}
+
+Ink_Object *Ink_InterpreteEngine::execute(Ink_Expression *exp)
+{
+	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
+	Ink_setCurrentEngine(this);
+
+	Ink_Object *ret;
+	Ink_ContextChain *context = NULL;
+
+	if (!context) context = global_context;
+	getCurrentGC()->checkGC();
+	ret = exp->eval(context);
 
 	Ink_setCurrentEngine(backup);
 

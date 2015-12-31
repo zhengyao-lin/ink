@@ -5,13 +5,16 @@
 	#include "core/expression.h"
 	#include "core/error.h"
 	#include "interface/engine.h"
+	#include "interface/setting.h"
 	#define SET_LINE_NO(exp) (exp->line_number = current_line_number)
 	#define YYERROR_VERBOSE 1
 	#define YYDEBUG 1
 
 	extern int current_line_number;
 	extern int inkerr_current_line_number;
+
 	const char *yyerror_prefix = "";
+	Ink_CodeMode CGC_code_mode;
 
 	extern int yylex();
 	void yyerror(const char *msg) {
@@ -53,7 +56,8 @@
 				   relational_expression logical_and_expression
 				   logical_or_expression comma_expression
 %type <parameter> param_list param_opt param_list_sub
-%type <expression_list> expression_list expression_list_opt
+%type <expression_list> top_level_expression_list top_level_expression_list_opt
+						expression_list expression_list_opt
 						element_list element_list_opt
 %type <argument_list> argument_list argument_list_opt
 					  argument_attachment argument_list_without_paren
@@ -66,7 +70,7 @@
 %%
 
 compile_unit
-	: expression_list_opt
+	: top_level_expression_list_opt
 	{
 		Ink_getCurrentEngine()->top_level = *$1;
 		delete $1;
@@ -86,10 +90,36 @@ nllo
 split
 	: nll
 	| TSEMICOLON nllo
+	;
 
 split_opt
 	: /* empty */
 	| split
+	;
+
+top_level_expression_list
+	: expression
+	{
+		$$ = new Ink_ExpressionList();
+		$$->push_back($1);
+	}
+	| top_level_expression_list split expression
+	{
+		$1->push_back($3);
+		$$ = $1;
+	}
+	;
+
+top_level_expression_list_opt
+	: split_opt
+	{
+		$$ = new Ink_ExpressionList();
+	}
+	| split_opt top_level_expression_list split_opt
+	{
+		$$ = $2;
+	}
+	;
 
 expression_list
 	: expression

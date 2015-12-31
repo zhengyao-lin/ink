@@ -52,13 +52,19 @@ inline char *getBasePath(const char *path)
 	return ret;
 }
 
+enum Ink_CodeMode {
+	SOURCE_CODE = 0,
+	COMMANDER
+};
+
 class Ink_InputSetting {
 public:
 	bool close_fp;
 	FILE *input_file_pointer;
+	Ink_CodeMode code_mode;
 
 	Ink_InputSetting(FILE *fp = stdin, bool close_fp = false)
-	: close_fp(close_fp), input_file_pointer(fp)
+	: close_fp(close_fp), input_file_pointer(fp), code_mode(SOURCE_CODE)
 	{ }
 
 	void setInput(FILE *fp)
@@ -70,6 +76,17 @@ public:
 	FILE *getInput()
 	{
 		return input_file_pointer;
+	}
+
+	void setMode(Ink_CodeMode mode)
+	{
+		code_mode = mode;
+		return;
+	}
+
+	Ink_CodeMode getMode()
+	{
+		return code_mode;
 	}
 
 	void clean()

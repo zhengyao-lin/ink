@@ -1,11 +1,11 @@
-TARGET=build/mod_IO.so
+TARGET=build/IO.so
 REQUIRE=\
 	file.o
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)g++
 CPPFLAGS=-g -c -fPIC -Wall -pedantic
-LDFLAGS=-shared -L../../lib -link-core
+LDFLAGS=-shared -L$(GLOBAL_LIB_PATH) -l$(GLOBAL_CORE_LIB_NAME)
 INCLUDES=-I../../
 
 $(TARGET): $(REQUIRE)

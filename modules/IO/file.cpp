@@ -17,6 +17,14 @@ inline string getStringVal(Ink_Object *str)
 	return "";
 }
 
+inline Ink_NumericValue getNumVal(Ink_Object *num)
+{
+	if (num->type == INK_NUMERIC) {
+		return as<Ink_Numeric>(num)->value;
+	}
+	return 0;
+}
+
 Ink_Object *InkNative_File_Exist(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(argc, argv, 1, INK_STRING)) {
@@ -60,15 +68,6 @@ Ink_Object *InkNative_File_Constructor(Ink_ContextChain *context, unsigned int a
 	return ret;
 }
 
-void Ink_FilePointer::setMethod()
-{
-	setSlot("close", new Ink_FunctionObject(InkNative_File_Close));
-	setSlot("puts", new Ink_FunctionObject(InkNative_File_PutString));
-	setSlot("gets", new Ink_FunctionObject(InkNative_File_GetString));
-	setSlot("flush", new Ink_FunctionObject(InkNative_File_Flush));
-	return;
-}
-
 Ink_Object *InkNative_File_Close(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
@@ -100,6 +99,28 @@ Ink_Object *InkNative_File_PutString(Ink_ContextChain *context, unsigned int arg
 	return NULL_OBJ;
 }
 
+Ink_Object *InkNative_File_PutCh(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+	FILE *tmp;
+	char ch;
+
+	ASSUME_BASE_TYPE(file_pointer_type_tag);
+	if (checkArgument(false, argc, argv, 1, INK_STRING)) {
+		ch = getStringVal(argv[0]).c_str()[0];
+	} else if (checkArgument(argc, argv, 1, INK_NUMERIC)) {
+		ch = getNumVal(argv[0]);
+	} else {
+		return NULL_OBJ;
+	}
+
+	tmp = as<Ink_FilePointer>(base)->fp;
+	if (tmp)
+		fputc(ch, tmp);
+
+	return NULL_OBJ;
+}
+
 Ink_Object *InkNative_File_GetString(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
@@ -111,6 +132,54 @@ Ink_Object *InkNative_File_GetString(Ink_ContextChain *context, unsigned int arg
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp) {
 		return new Ink_String(*StrPool_addStr(fgets(buffer, FILE_GETS_BUFFER_SIZE, tmp)));
+	}
+
+	return NULL_OBJ;
+}
+
+Ink_Object *InkNative_File_GetCh(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+	FILE *tmp;
+	char buffer[2];
+
+	ASSUME_BASE_TYPE(file_pointer_type_tag);
+
+	tmp = as<Ink_FilePointer>(base)->fp;
+	if (tmp) {
+		buffer[0] = fgetc(tmp);
+		buffer[1] = '\0';
+		return new Ink_String(*StrPool_addStr(buffer));
+	}
+
+	return NULL_OBJ;
+}
+
+Ink_Object *InkNative_File_ReadAll(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+	FILE *tmp;
+	size_t len;
+	char *buffer;
+	Ink_Object *ret;
+
+	ASSUME_BASE_TYPE(file_pointer_type_tag);
+
+	tmp = as<Ink_FilePointer>(base)->fp;
+
+	if (tmp) {
+		fseek(tmp, 0L, SEEK_END);
+		len = ftell(tmp);
+		buffer = (char *)malloc(len + 1);
+
+		fseek(tmp, 0L, SEEK_SET);
+		fread(buffer, len, 1, tmp);
+		buffer[len] = '\0';
+
+		ret = new Ink_String(*StrPool_addStr(buffer));
+		free(buffer);
+
+		return ret;
 	}
 
 	return NULL_OBJ;
@@ -128,6 +197,18 @@ Ink_Object *InkNative_File_Flush(Ink_ContextChain *context, unsigned int argc, I
 		fflush(tmp);
 
 	return NULL_OBJ;
+}
+
+void Ink_FilePointer::setMethod()
+{
+	setSlot("close", new Ink_FunctionObject(InkNative_File_Close));
+	setSlot("puts", new Ink_FunctionObject(InkNative_File_PutString));
+	setSlot("putc", new Ink_FunctionObject(InkNative_File_PutCh));
+	setSlot("gets", new Ink_FunctionObject(InkNative_File_GetString));
+	setSlot("getc", new Ink_FunctionObject(InkNative_File_GetCh));
+	setSlot("read", new Ink_FunctionObject(InkNative_File_ReadAll));
+	setSlot("flush", new Ink_FunctionObject(InkNative_File_Flush));
+	return;
 }
 
 Ink_Object *InkMod_File_Loader(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)

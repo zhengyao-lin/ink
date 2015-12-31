@@ -70,6 +70,7 @@ public:
 	void startParse(FILE *input = stdin, bool close_fp = false);
 	void startParse(string code);
 	Ink_Object *execute(Ink_ContextChain *context = NULL);
+	Ink_Object *execute(Ink_Expression *exp);
 	static void cleanExpressionList(Ink_ExpressionList exp_list);
 	static void cleanContext(Ink_ContextChain *context);
 

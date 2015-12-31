@@ -224,11 +224,13 @@ public:
 	virtual ~Ink_FunctionObject();
 };
 
+typedef double Ink_NumericValue;
+
 class Ink_Numeric: public Ink_Object {
 public:
-	double value;
+	Ink_NumericValue value;
 
-	Ink_Numeric(double value = 0)
+	Ink_Numeric(Ink_NumericValue value = 0)
 	: value(value)
 	{ type = INK_NUMERIC; }
 

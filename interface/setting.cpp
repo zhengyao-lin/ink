@@ -14,7 +14,7 @@ Ink_InputSetting Ink_InputSetting::parseArg(int argc, char **argv)
 {
 	int i;
 	Ink_InputSetting ret = Ink_InputSetting();
-	FILE *fp;
+	FILE *fp = NULL;
 
 	for (i = 1; i < argc; i++) {
 		if (isArg(argv[i])) {
@@ -27,6 +27,11 @@ Ink_InputSetting Ink_InputSetting::parseArg(int argc, char **argv)
 			ret.setInput(fp);
 			ret.close_fp = true;
 		}
+	}
+
+	if (!fp) {
+		ret.setMode(COMMANDER);
+		ret.setInput(stdin);
 	}
 
 	return ret;

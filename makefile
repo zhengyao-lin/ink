@@ -4,8 +4,10 @@ else
 	export ARCH_PREFIX=
 endif
 
-LIB_LD_NAME := ink-core
-LIB_NAME = lib$(LIB_LD_NAME).so
+include makefile.head
+
+LIB_LD_NAME := $(GLOBAL_CORE_LIB_NAME)
+LIB_NAME = $(GLOBAL_CORE_LIB_SONAME)
 
 INSTALL_BIN_PATH := /usr/bin
 INSTALL_LIB_PATH := /usr/lib

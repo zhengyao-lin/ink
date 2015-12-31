@@ -1,4 +1,4 @@
-LIB_NAME=libink-core.so
+LIB_NAME=$(GLOBAL_CORE_LIB_SONAME)
 TARGET=$(LIB_NAME)
 REQUIRE=\
 	gc/gc.o \
