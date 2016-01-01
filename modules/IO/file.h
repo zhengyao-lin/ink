@@ -22,4 +22,37 @@ public:
 	void setMethod();
 };
 
+#ifdef __linux__
+	#include <termios.h>
+
+	typedef struct termios ttyMode;
+
+	inline ttyMode getttyMode()
+	{
+	    ttyMode mode;
+	    tcgetattr(0, &mode);
+	    return mode;
+	}
+
+	inline void setttyMode(ttyMode mode)
+	{
+		tcsetattr(0, TCSANOW, &mode);
+		return;
+	}
+
+	inline void closettyBuffer()
+	{
+		ttyMode state;
+
+		tcgetattr(0, &state);
+
+		state.c_lflag &= ~ICANON;
+		state.c_cc[VMIN] = 1;
+
+		tcsetattr(0, TCSANOW, &state);
+
+		return;
+	}
+#endif
+
 #endif

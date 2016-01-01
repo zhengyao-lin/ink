@@ -3,6 +3,7 @@
 #include "core/native/native.h"
 #include "core/general.h"
 #include "core/debug.h"
+#include "includes/switches.h"
 #include "file.h"
 
 using namespace std;
@@ -99,7 +100,7 @@ Ink_Object *InkNative_File_PutString(Ink_ContextChain *context, unsigned int arg
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_File_PutCh(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_PutC(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
 	FILE *tmp;
@@ -137,23 +138,39 @@ Ink_Object *InkNative_File_GetString(Ink_ContextChain *context, unsigned int arg
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_File_GetCh(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_GetC(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
 	FILE *tmp;
-	char buffer[2];
 
 	ASSUME_BASE_TYPE(file_pointer_type_tag);
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp) {
-		buffer[0] = fgetc(tmp);
-		buffer[1] = '\0';
-		return new Ink_String(*StrPool_addStr(buffer));
+		return new Ink_Numeric(fgetc(tmp));
 	}
 
 	return NULL_OBJ;
 }
+
+#ifdef __linux__
+
+Ink_Object *InkNative_File_GetCh(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	char ch;
+	ttyMode mode_back = getttyMode(); // back up tty mode
+
+	closettyBuffer();
+	// close buffering
+	ch = fgetc(stdin);
+
+	// restore tty mode
+	setttyMode(mode_back);
+
+	return new Ink_Numeric(ch);
+}
+
+#endif
 
 Ink_Object *InkNative_File_ReadAll(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
@@ -203,9 +220,9 @@ void Ink_FilePointer::setMethod()
 {
 	setSlot("close", new Ink_FunctionObject(InkNative_File_Close));
 	setSlot("puts", new Ink_FunctionObject(InkNative_File_PutString));
-	setSlot("putc", new Ink_FunctionObject(InkNative_File_PutCh));
+	setSlot("putc", new Ink_FunctionObject(InkNative_File_PutC));
 	setSlot("gets", new Ink_FunctionObject(InkNative_File_GetString));
-	setSlot("getc", new Ink_FunctionObject(InkNative_File_GetCh));
+	setSlot("getc", new Ink_FunctionObject(InkNative_File_GetC));
 	setSlot("read", new Ink_FunctionObject(InkNative_File_ReadAll));
 	setSlot("flush", new Ink_FunctionObject(InkNative_File_Flush));
 	return;
@@ -220,6 +237,9 @@ Ink_Object *InkMod_File_Loader(Ink_ContextChain *context, unsigned int argc, Ink
 	global_context->setSlot("File", new Ink_FunctionObject(InkNative_File_Constructor));
 	global_context->setSlot("file_exist", new Ink_FunctionObject(InkNative_File_Exist));
 	global_context->setSlot("file_remove", new Ink_FunctionObject(InkNative_File_Remove));
+#ifdef __linux__
+	global_context->setSlot("getch", new Ink_FunctionObject(InkNative_File_GetCh)); // no buffering getc
+#endif
 
 	return NULL_OBJ;
 }
