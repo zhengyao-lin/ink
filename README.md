@@ -42,7 +42,7 @@ This part will tell you how to install ink interpreter in your own computer.
 #####If your operating system is...
 
 
-####Linux Distribution / Mac OS X
+####1.1 Linux Distribution / Mac OS X
 #####First, create a temp dir and clone the source code using git
 	mkdir ink-src && cd ink-src
 	git clone https://github.com/Rod-Lin/ink.git
@@ -76,7 +76,7 @@ The correct output should be
 
 	hello, how are you?
 
-####Windows & Others
+####1.2 Windows & Others
 Transplantation is under processing. Please wait tight
 
 
