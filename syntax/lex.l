@@ -15,7 +15,7 @@ SPS				({SP})+
 #include <stdlib.h>
 #include <string>
 #include "core/expression.h"
-#include "interface/engine.h"
+#include "core/interface/engine.h"
 #include "grammar.hpp"
 
 #undef YY_INPUT

@@ -10,6 +10,6 @@ do
 	if [ ! $mod = "." ]; then
 		cd $mod
 		make
-		cp build/*.so "../${mod}.mod"
+		cp build/*.so "../${mod}.so"
 	fi
 done

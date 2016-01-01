@@ -6,6 +6,8 @@ REQUIRE=\
 	thread/thread.o \
 	coroutine/coroutine.o \
 	package/package.o \
+	msg/msg.o \
+	interface/interface.o \
 	hash.o \
 	object.o \
 	expression.o \
@@ -37,6 +39,12 @@ coroutine/coroutine.o:
 package/package.o:
 	cd package; $(MAKE)
 
+msg/msg.o:
+	cd msg; $(MAKE)
+
+interface/interface.o:
+	cd interface; $(MAKE)
+
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS)
 
@@ -46,4 +54,6 @@ clean:
 	cd thread; $(MAKE) clean
 	cd coroutine; $(MAKE) clean
 	cd package; $(MAKE) clean
+	cd msg; $(MAKE) clean
+	cd interface; $(MAKE) clean
 	$(RM) *.o *.so

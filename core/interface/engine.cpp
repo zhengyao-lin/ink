@@ -1,10 +1,10 @@
 #include "engine.h"
-#include "../core/gc/collect.h"
-#include "../core/hash.h"
-#include "../core/object.h"
-#include "../core/expression.h"
-#include "../core/general.h"
-#include "../core/thread/thread.h"
+#include "core/gc/collect.h"
+#include "core/hash.h"
+#include "core/object.h"
+#include "core/expression.h"
+#include "core/general.h"
+#include "core/thread/thread.h"
 
 static Ink_InterpreteEngine *current_interprete_engine = NULL;
 extern InterruptSignal CGC_interrupt_signal;

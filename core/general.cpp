@@ -2,9 +2,11 @@
 #include "general.h"
 #include "object.h"
 #include "expression.h"
+#include "../includes/switches.h"
 using namespace std;
 
 vector<string *> string_pool;
+Ink_ExpressionList native_exp_list = Ink_ExpressionList();
 
 string *StrPool_addStr(const char *str)
 {
@@ -20,6 +22,19 @@ void StrPool_dispose()
 		delete string_pool[i];
 	}
 	return;
+}
+
+void cleanAll()
+{
+	unsigned int i;
+	for (i = 0; i < native_exp_list.size(); i++) {
+		delete native_exp_list[i];
+	}
+
+	// TODO: rewrite
+#ifdef __linux__
+	system("rm -r " INK_TMP_PATH "/ink_tmp*");
+#endif
 }
 
 Ink_Argument::~Ink_Argument()

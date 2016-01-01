@@ -6,8 +6,8 @@
 #include "../error.h"
 #include "../debug.h"
 #include "../general.h"
-#include "../../interface/engine.h"
-#include "../../interface/setting.h"
+#include "../interface/engine.h"
+#include "../interface/setting.h"
 #include "native.h"
 #include "../package/load.h"
 

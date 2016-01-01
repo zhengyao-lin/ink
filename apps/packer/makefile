@@ -1,11 +1,12 @@
-TARGET=build/IO.so
+TARGET=build/ink-packer
 REQUIRE=\
-	file.o
+	packer.o \
+	$(GLOBAL_ROOT_PATH)/syntax/syntax.o
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)g++
 CPPFLAGS=-g -c -fPIC -Wall -pedantic
-LDFLAGS=-shared -L$(GLOBAL_LIB_PATH) -l$(GLOBAL_CORE_LIB_NAME) -lcurses
+LDFLAGS=-L$(GLOBAL_LIB_PATH) -l$(GLOBAL_CORE_LIB_NAME)
 INCLUDES=-I$(GLOBAL_ROOT_PATH)
 
 $(TARGET): $(REQUIRE)

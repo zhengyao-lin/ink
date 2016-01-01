@@ -1,7 +1,7 @@
 #ifndef _ERROR_H_
 #define _ERROR_H_
 
-#include "../msg/emcore.h"
+#include "msg/emcore.h"
 #include "type.h"
 #include "debug.h"
 

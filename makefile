@@ -23,8 +23,6 @@ LIBS=\
 	core/$(LIB_NAME)
 REQUIRE=\
 	syntax/syntax.o \
-	msg/msg.o \
-	interface/interface.o \
 	ink.o
 
 CC=$(ARCH_PREFIX)g++
@@ -44,6 +42,7 @@ endif
 
 	$(CC) -o $@ $(REQUIRE) $(LDFLAGS)
 	cp $(LIBS) $(LIB_OUTPUT)
+	cd apps; $(MAKE)
 	cd modules; $(MAKE)
 
 core/$(LIB_NAME):
@@ -51,12 +50,6 @@ core/$(LIB_NAME):
 
 syntax/syntax.o:
 	cd syntax; $(MAKE)
-
-msg/msg.o:
-	cd msg; $(MAKE)
-
-interface/interface.o:
-	cd interface; $(MAKE)
 
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS)
@@ -69,12 +62,11 @@ install:
 	ln -sf $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(LIB_NAME) $(INSTALL_LIB_PATH)/$(LIB_NAME)
 
 	mkdir -p $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(INSTALL_MODULE_PATH)
-	cp -af $(MOD_OUTPUT)/*.mod $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(INSTALL_MODULE_PATH)
+	-cp -af $(MOD_OUTPUT)/*.mod $(MOD_OUTPUT)/*.so $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(INSTALL_MODULE_PATH)
 
 clean:
 	cd core; $(MAKE) clean
 	cd syntax; $(MAKE) clean
-	cd msg; $(MAKE) clean
-	cd interface; $(MAKE) clean
 	cd modules; $(MAKE) clean
+	cd apps; $(MAKE) clean
 	$(RM) -r *.o $(TARGET) $(BIN_OUTPUT) $(LIB_OUTPUT)

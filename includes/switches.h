@@ -5,6 +5,7 @@
 
 #ifdef __linux__
 	#define INK_MODULE_DIR "/usr/lib/ink/modules"
+	#define INK_TMP_PATH "/tmp"
 #endif
 
 #endif

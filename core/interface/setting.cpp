@@ -1,6 +1,6 @@
 #include <string.h>
 #include "setting.h"
-#include "../core/error.h"
+#include "core/error.h"
 
 inline bool isArg(const char *arg)
 {

@@ -4,7 +4,7 @@
 #include "expression.h"
 #include "gc/collect.h"
 #include "native/native.h"
-#include "../interface/engine.h"
+#include "interface/engine.h"
 #include "coroutine/coroutine.h"
 #include "native/general.h"
 

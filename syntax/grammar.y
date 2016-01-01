@@ -4,8 +4,8 @@
 	#include <string.h>
 	#include "core/expression.h"
 	#include "core/error.h"
-	#include "interface/engine.h"
-	#include "interface/setting.h"
+	#include "core/interface/engine.h"
+	#include "core/interface/setting.h"
 	#define SET_LINE_NO(exp) (exp->line_number = current_line_number)
 	#define YYERROR_VERBOSE 1
 	#define YYDEBUG 1

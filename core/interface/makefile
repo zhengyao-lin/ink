@@ -5,7 +5,7 @@ REQUIRE=\
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld
-CPPFLAGS=-I../../ -g -Wall -pedantic
+CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -g -Wall -pedantic -fPIC
 LDFLAGS=
 
 $(TARGET): $(REQUIRE)

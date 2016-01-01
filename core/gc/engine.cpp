@@ -2,7 +2,7 @@
 #include "collect.h"
 #include "core/context.h"
 #include "core/object.h"
-#include "interface/engine.h"
+#include "core/interface/engine.h"
 #include "includes/switches.h"
 
 #define CURRENT_OBJECT_COUNT (Ink_getCurrentEngine()->igc_object_count)

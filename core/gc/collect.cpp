@@ -1,7 +1,7 @@
 #include "collect.h"
 #include "core/context.h"
 #include "core/object.h"
-#include "../../interface/engine.h"
+#include "core/interface/engine.h"
 
 void IGC_initGC(IGC_CollectEngine *engine)
 {
