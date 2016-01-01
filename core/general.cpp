@@ -21,6 +21,7 @@ void StrPool_dispose()
 	for (i = 0; i < string_pool.size(); i++) {
 		delete string_pool[i];
 	}
+	string_pool = vector<string *>();
 	return;
 }
 
@@ -32,6 +33,8 @@ void cleanAll()
 	}
 
 	// remove(INK_TMP_PATH);
+	StrPool_dispose();
+
 	if (isDirExist(INK_TMP_PATH))
 		removeDir(INK_TMP_PATH);
 }

@@ -64,7 +64,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 	Ink_Object *ret_val;
 	Ink_Object *func = callee->eval(context_chain);
 	Ink_ParamList param_list = Ink_ParamList();
-	Ink_ArgumentList tmp_arg_list, another_tmp_arg_list;
+	Ink_ArgumentList dispose_list, tmp_arg_list, another_tmp_arg_list;
 
 	if (func->type == INK_FUNCTION) {
 		param_list = as<Ink_FunctionObject>(func)->param;
@@ -74,32 +74,35 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 		 i < arg_list.size(); i++) {
 		if (arg_list[i]->is_expand) {
 			another_tmp_arg_list = expandArgument(arg_list[i]->expandee->eval(context_chain));
-			delete arg_list[i];
+			dispose_list.insert(dispose_list.end(), another_tmp_arg_list.begin(), another_tmp_arg_list.end());
 			tmp_arg_list.insert(tmp_arg_list.end(), another_tmp_arg_list.begin(), another_tmp_arg_list.end());
 		} else {
 			tmp_arg_list.push_back(arg_list[i]);
 		}
 	}
-	arg_list = tmp_arg_list;
 
-	if (arg_list.size()) {
-		argv = (Ink_Object **)malloc(arg_list.size() * sizeof(Ink_Object *));
-		for (i = 0; i < arg_list.size(); i++) {
+	if (tmp_arg_list.size()) {
+		argv = (Ink_Object **)malloc(tmp_arg_list.size() * sizeof(Ink_Object *));
+		for (i = 0; i < tmp_arg_list.size(); i++) {
 			if (i < param_list.size() && param_list[i].is_ref) {
 				Ink_ExpressionList exp_list = Ink_ExpressionList();
-				exp_list.push_back(arg_list[i]->arg);
+				exp_list.push_back(tmp_arg_list[i]->arg);
 				argv[i] = new Ink_FunctionObject(Ink_ParamList(), exp_list,
 												 context_chain->copyContextChain(),
 												 true);
 			} else {
-				argv[i] = arg_list[i]->arg->eval(context_chain);
+				argv[i] = tmp_arg_list[i]->arg->eval(context_chain);
 			}
 		}
 	}
 
-	ret_val = func->call(context_chain, arg_list.size(), argv);
+	ret_val = func->call(context_chain, tmp_arg_list.size(), argv);
 
 	free(argv);
+
+	for (i = 0; i < dispose_list.size(); i++) {
+		delete dispose_list[i];
+	}
 
 	RESTORE_LINE_NUM;
 	return ret_val;
