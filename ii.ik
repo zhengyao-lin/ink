@@ -40,6 +40,6 @@ a = new Promise(fn (func) {
 
 a.then({ | |
 	p("hahasss");
-}).then({ | |
+}).then() {
 	p("hahaiii");
-})
+}
