@@ -8,6 +8,7 @@ REQUIRE=\
 	package/package.o \
 	msg/msg.o \
 	interface/interface.o \
+	syntax/syntax.o \
 	hash.o \
 	object.o \
 	expression.o \
@@ -45,6 +46,9 @@ msg/msg.o:
 interface/interface.o:
 	cd interface; $(MAKE)
 
+syntax/syntax.o:
+	cd syntax; $(MAKE)
+
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS)
 
@@ -56,4 +60,5 @@ clean:
 	cd package; $(MAKE) clean
 	cd msg; $(MAKE) clean
 	cd interface; $(MAKE) clean
+	cd syntax; $(MAKE) clean
 	$(RM) *.o *.so

@@ -247,7 +247,7 @@ public:
 			return is_return_lval ? lval_ret : rval_ret;
 		}
 
-		InkErr_Assigning_Unassignable_Expression(context_chain);
+		InkErr_Assigning_Unassignable_Expression();
 		abort();
 
 		RESTORE_LINE_NUM;

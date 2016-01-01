@@ -13,4 +13,21 @@
 	#define INK_PATH_SPLIT_C '\\'
 #endif
 
+
+#ifdef __linux__
+	#include <unistd.h>
+	#include <sys/stat.h>
+	#include <dirent.h>
+
+	inline bool isDirExist(const char *path)
+	{
+		DIR *dir;
+		if ((dir = opendir(path)) != NULL) {
+			closedir(dir);
+			return true;
+		}
+		return false;
+	}
+#endif
+
 #endif

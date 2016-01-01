@@ -1,7 +1,5 @@
-TARGET=build/ink-packer
-REQUIRE=\
-	packer.o \
-	$(GLOBAL_ROOT_PATH)/syntax/syntax.o
+TARGET = build/ink-packer
+REQUIRE = packer.o
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)g++

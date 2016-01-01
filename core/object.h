@@ -70,7 +70,7 @@ public:
 	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true)
 	{
-		InkErr_Calling_Non_Function_Object(context);
+		InkErr_Calling_Non_Function_Object();
 		return NULL;
 	}
 
@@ -96,7 +96,7 @@ public:
 	virtual Ink_Object *call(Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true)
 	{
-		InkErr_Calling_Undefined_Object(context);
+		InkErr_Calling_Undefined_Object();
 		return NULL;
 	}
 };

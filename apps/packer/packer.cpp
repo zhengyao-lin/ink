@@ -23,21 +23,21 @@ InkWarn_Excess_Argument(const char *name)
 inline void
 InkErr_No_Lib_Given()
 {
-	InkErr_doPrintError(NULL, "Ink Packer: No library file given");
+	InkErr_doPrintError("Ink Packer: No library file given");
 	return;
 }
 
 inline void
 InkErr_No_Dest_Given()
 {
-	InkErr_doPrintError(NULL, "Ink Packer: No output file given");
+	InkErr_doPrintError("Ink Packer: No output file given");
 	return;
 }
 
 inline void
 InkErr_Could_Not_Create_File(const char *path)
 {
-	InkErr_doPrintError(NULL, "Ink Packer: Couldn't create file $(path)", path);
+	InkErr_doPrintError("Ink Packer: Couldn't create file $(path)", path);
 	return;
 }
 

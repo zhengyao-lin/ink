@@ -32,7 +32,8 @@ void cleanAll()
 	}
 
 	// remove(INK_TMP_PATH);
-	removeDir(INK_TMP_PATH);
+	if (isDirExist(INK_TMP_PATH))
+		removeDir(INK_TMP_PATH);
 }
 
 Ink_Argument::~Ink_Argument()

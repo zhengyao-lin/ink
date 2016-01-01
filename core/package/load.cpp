@@ -66,7 +66,7 @@ string *InkPack_FileBlock::bufferToTmp() // return: tmp file path
 	string path;
 
 #ifdef __linux__
-	if (access(INK_TMP_PATH, 0))
+	if (!isDirExist(INK_TMP_PATH))
 		mkdir(INK_TMP_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif
 

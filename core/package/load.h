@@ -10,11 +10,6 @@
 #include "../../includes/switches.h"
 #include "../error.h"
 
-#ifdef __linux__
-	#include <unistd.h>
-	#include <sys/stat.h>
-#endif
-
 using namespace std;
 
 inline bool

@@ -6,29 +6,28 @@ endif
 
 include makefile.head
 
-LIB_LD_NAME := $(GLOBAL_CORE_LIB_NAME)
+LIB_LD_NAME = $(GLOBAL_CORE_LIB_NAME)
 LIB_NAME = $(GLOBAL_CORE_LIB_SONAME)
 
-INSTALL_BIN_PATH := /usr/bin
-INSTALL_LIB_PATH := /usr/lib
-INSTALL_LIB_NAME := ink
-INSTALL_MODULE_PATH := modules
+INSTALL_BIN_PATH = /usr/bin
+INSTALL_LIB_PATH = /usr/lib
+INSTALL_LIB_NAME = ink
+INSTALL_MODULE_PATH = modules
 
-BIN_OUTPUT := bin
-LIB_OUTPUT := lib
-MOD_OUTPUT := modules
+BIN_OUTPUT = bin
+LIB_OUTPUT = lib
+MOD_OUTPUT = modules
 
 TARGET=$(BIN_OUTPUT)/ink
-LIBS=\
-	core/$(LIB_NAME)
-REQUIRE=\
-	syntax/syntax.o \
-	ink.o
+LIBS = core/$(LIB_NAME)
+REQUIRE = ink.o
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld
 CPPFLAGS= $(GLOBAL_CPPFLAGS)
 LDFLAGS=-Lcore -l$(LIB_LD_NAME)
+
+all: $(TARGET) apps modules
 
 $(TARGET): $(REQUIRE) $(LIBS)
 
@@ -48,11 +47,14 @@ endif
 core/$(LIB_NAME):
 	cd core; $(MAKE)
 
-syntax/syntax.o:
-	cd syntax; $(MAKE)
-
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS)
+
+apps: $(TARGET) FORCE
+	cd apps; $(MAKE)
+
+modules: $(TARGET) FORCE
+	cd modules; $(MAKE)
 
 install:
 	cp -a $(BIN_OUTPUT)/* $(INSTALL_BIN_PATH)
@@ -66,7 +68,8 @@ install:
 
 clean:
 	cd core; $(MAKE) clean
-	cd syntax; $(MAKE) clean
 	cd modules; $(MAKE) clean
 	cd apps; $(MAKE) clean
 	$(RM) -r *.o $(TARGET) $(BIN_OUTPUT) $(LIB_OUTPUT)
+
+FORCE:

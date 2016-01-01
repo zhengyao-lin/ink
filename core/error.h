@@ -11,7 +11,7 @@ void cleanAll();
 extern int inkerr_current_line_number;
 
 inline void
-InkErr_doPrintError(Ink_ContextChain *context, const char *msg)
+InkErr_doPrintError(const char *msg)
 {
 	stringstream strm;
 	strm << "line " << inkerr_current_line_number << ": " << msg;
@@ -23,7 +23,7 @@ InkErr_doPrintError(Ink_ContextChain *context, const char *msg)
 }
 
 inline void
-InkErr_doPrintError(Ink_ContextChain *context, const char *msg, const char *arg1)
+InkErr_doPrintError(const char *msg, const char *arg1)
 {
 	stringstream strm;
 	strm << "line " << inkerr_current_line_number << ": " << msg;
@@ -74,37 +74,37 @@ InkWarn_doPrintWarning(const char *msg, const char *arg1, const char *arg2)
 }
 
 inline void
-InkErr_Assigning_Unassignable_Expression(Ink_ContextChain *context)
+InkErr_Assigning_Unassignable_Expression()
 {
-	InkErr_doPrintError(context, "Assigning unassignable expression");
+	InkErr_doPrintError("Assigning unassignable expression");
 	return;
 }
 
 inline void
-InkErr_Calling_Non_Function_Object(Ink_ContextChain *context)
+InkErr_Calling_Non_Function_Object()
 {
-	InkErr_doPrintError(context, "Calling non-function object");
+	InkErr_doPrintError("Calling non-function object");
 	return;
 }
 
 inline void
-InkErr_Calling_Undefined_Object(Ink_ContextChain *context)
+InkErr_Calling_Undefined_Object()
 {
-	InkErr_doPrintError(context, "Calling undefined object");
+	InkErr_doPrintError("Calling undefined object");
 	return;
 }
 
 inline void
 InkErr_Missing_Semicolon()
 {
-	InkErr_doPrintError(NULL, "Missing semicolon");
+	InkErr_doPrintError("Missing semicolon");
 	return;
 }
 
 inline void
 InkErr_Failed_Open_File(const char *path)
 {
-	InkErr_doPrintError(NULL, "Failed to open file $(path)", path);
+	InkErr_doPrintError("Failed to open file $(path)", path);
 	return;
 }
 
