@@ -36,11 +36,14 @@ Seems simple, isn't it?
 The grammar of ink is designed to be simple as well as flexible, which costs a little to learn. If you have any programming experiences in C/C++, Ruby, Python or JavaScript, then it'll be quite easy to get used to ink.
 
 ---
+
 ##1. Getting Start
 This part will tell you how to install ink interpreter in your own computer.
 
 #####If your operating system is...
+
 ---
+
 ####Linux Distribution / Mac OS X
 #####First, create a temp dir and clone the source code using git
 	mkdir ink-src && cd ink-src
@@ -76,15 +79,20 @@ The correct output should be
 	hello, how are you?
 
 ---
+
 ####Windows & Others
 Transplantation is under processing. Please wait tight
 
+
 ---
+
 
 ##2. Programming with ink
 Specific details are under editing. Comming soon.
 
+
 ---
+
 
 ##3. Contact me
  Rod L: lancelot.b@outlook.com
