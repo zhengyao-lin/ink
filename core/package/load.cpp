@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "load.h"
 
 DLHandlerPool dl_handler_pool;
@@ -55,4 +56,79 @@ Ink_Package *Ink_Package::readFrom(FILE *fp)
 	InkPack_Info *tmp_pack_info = InkPack_Info::readFrom(fp);
 	InkPack_FileBlock *tmp_so_file = InkPack_FileBlock::readFrom(fp);
 	return new Ink_Package(tmp_magic_num, tmp_pack_info, tmp_so_file);
+}
+
+string *InkPack_FileBlock::bufferToTmp() // return: tmp file path
+{
+	FILE *fp;
+	char *suffix;
+	int current_bit = 1;
+	string path;
+
+#ifdef __linux__
+	if (access(INK_TMP_PATH, 0))
+		mkdir(INK_TMP_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
+
+	suffix = (char *)malloc(sizeof(char) * (current_bit + 1));
+	for (suffix[0] = 'a', suffix[1] = '\0';
+		 !(fp = fopen((path = string(INK_TMP_PATH INK_PATH_SPLIT) + string(suffix)).c_str(), "wbx"));) {
+		int i = current_bit - 1;
+		for (; i >= 0 && suffix[i] >= 'z'; i--) ;
+
+		if (i < 0) {
+			free(suffix);
+			suffix = (char *)malloc(sizeof(char) * (++ current_bit + 1));
+			for (i = 0; i < current_bit; i++)
+				suffix[i] = 'a';
+			suffix[i] = '\0';
+		} else {
+			suffix[i]++;
+			for (i++; i < current_bit; i++)
+				suffix[i] = 'a';
+		}
+	}
+	free(suffix);
+	fwrite(data, sizeof(byte) * file_size, 1, fp);
+	fclose(fp);
+
+	return new string(path);
+}
+
+void Ink_Package::load(Ink_ContextChain *context, const char *path)
+{
+	void *handler;
+	FILE *fp = fopen(path, "rb");
+	string *tmp;
+
+	if (!fp) {
+		InkErr_Failed_Open_File(path);
+		// unreachable
+	}
+
+	Ink_Package *pack = Ink_Package::readFrom(fp);
+	tmp = pack->so_file->bufferToTmp();
+	handler = dlopen(tmp->c_str(), RTLD_NOW);
+	delete tmp;
+	InkMod_Loader loader = (InkMod_Loader)dlsym(handler, "InkMod_Loader");
+
+	if (!handler || !loader) {
+		InkWarn_Failed_Load_Mod(path);
+		if (handler) dlclose(handler);
+		printf("%s\n", dlerror());
+
+		delete pack;
+		fclose(fp);
+
+		return;
+	}
+	loader(context);
+	addHandler(handler);
+	printf("Package Loader: Loading package: %s by %s\n",
+		   pack->pack_info->pack_name->str,
+		   pack->pack_info->author->str);
+	delete pack;
+	fclose(fp);
+
+	return;
 }

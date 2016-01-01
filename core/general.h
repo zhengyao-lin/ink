@@ -3,6 +3,16 @@
 
 #include <vector>
 #include <string>
+#include <stdlib.h>
+
+#ifdef __linux__
+	#include <unistd.h>
+
+	inline void removeDir(std::string path)
+	{
+		system(("rm -r \"" + path + "\"").c_str());
+	}
+#endif
 
 extern std::vector<std::string *> string_pool;
 

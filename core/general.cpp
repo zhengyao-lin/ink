@@ -31,10 +31,8 @@ void cleanAll()
 		delete native_exp_list[i];
 	}
 
-	// TODO: rewrite
-#ifdef __linux__
-	system("rm -r " INK_TMP_PATH "/ink_tmp*");
-#endif
+	// remove(INK_TMP_PATH);
+	removeDir(INK_TMP_PATH);
 }
 
 Ink_Argument::~Ink_Argument()

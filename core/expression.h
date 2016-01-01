@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 #include <stdlib.h>
-#include <unistd.h>
 #include "type.h"
 #include "object.h"
 #include "context.h"

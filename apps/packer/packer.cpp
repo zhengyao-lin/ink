@@ -100,7 +100,7 @@ public:
 int main(int argc, char **argv)
 {
 	int i, argi = 0;
-	char *so_file = NULL, *pack_name = "Unknown", *author = "Anonymous";
+	const char *so_file = NULL, *pack_name = "Unknown", *author = "Anonymous";
 	char *target = NULL;
 	Argument *arg[MAX_ARG_COUNT];
 

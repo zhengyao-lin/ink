@@ -18,7 +18,7 @@ REQUIRE=\
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld
-CPPFLAGS=-I../ -g -Wall -pedantic -fPIC
+CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=-shared -ldl -pthread
 
 $(TARGET): $(REQUIRE)

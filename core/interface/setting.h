@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../../includes/switches.h"
 
 #ifdef __linux__
-	#define PATH_SPLIT '/'
 	#include <unistd.h>
 
 	inline char *getCurrentDir()
@@ -19,7 +19,6 @@
 		return chdir(path);
 	}
 #else
-	#define PATH_SPLIT '\\'
 	#include <direct.h>
 
 	inline char *getCurrentDir()
@@ -39,7 +38,7 @@ inline char *getBasePath(const char *path)
 	int i;
 
 	for (i = strlen(path) - 1; i > 0; i--) {
-		if (path[i] == PATH_SPLIT)
+		if (path[i] == INK_PATH_SPLIT_C)
 			break;
 	}
 

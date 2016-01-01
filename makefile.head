@@ -3,3 +3,5 @@ export GLOBAL_LIB_PATH = $(GLOBAL_ROOT_PATH)/lib
 
 export GLOBAL_CORE_LIB_NAME := ink-core
 export GLOBAL_CORE_LIB_SONAME = lib$(GLOBAL_CORE_LIB_NAME).so
+
+export GLOBAL_CPPFLAGS := -g -Wall -pedantic
