@@ -42,7 +42,7 @@ This part will tell you how to install ink interpreter in your own computer.
 #####If your operating system is...
 
 
-####1.1 Linux Distribution / Mac OS X
+####1.1 Linux Distribution on x86 / Mac OS X
 #####First, create a temp dir and clone the source code using git
 	mkdir ink-src && cd ink-src
 	git clone https://github.com/Rod-Lin/ink.git
@@ -76,11 +76,15 @@ The correct output should be
 
 	hello, how are you?
 
-####1.2 Windows & Others
+####1.2 Windows on x86
 Transplantation is under processing. Please wait tight
 
+####1.3 Linux on ARM
+Similar process. Install g++ cross-compiler in the host(with Linux on x86) first, and make with argument ARCH=arm
 
+	make ARCH=arm
 
+After compiling, copy the folder "bin" and "lib" into your ARM device(normally on /usr) with scp or anything you like.
 
 ##2. Programming with ink
 Specific details are under editing. Comming soon.
