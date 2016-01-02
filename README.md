@@ -35,6 +35,7 @@ So have a look of what ink looks like
 Seems simple, isn't it?
 The grammar of ink is designed to be simple as well as flexible, which costs a little to learn. If you have any programming experiences in C/C++, Ruby, Python or JavaScript, then it'll be quite easy to get used to ink.
 
+<br>
 
 ##1. Getting Start
 This part will tell you how to install ink interpreter in your own computer.
@@ -86,10 +87,12 @@ Similar process. Install g++ cross-compiler in the host(with Linux on x86) first
 
 After compiling, copy the folder "bin" and "lib" into your ARM device(normally on /usr) with scp or anything you like.
 
+<br>
+
 ##2. Programming with ink
 Specific details are under editing. Comming soon.
 
-
+<br>
 
 ##3. Contact me
  Rod L: lancelot.b@outlook.com
