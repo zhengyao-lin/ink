@@ -185,6 +185,7 @@ public:
 #ifdef __linux__
 	inline void loadAllModules(Ink_ContextChain *context)
 	{
+	#ifndef INK_STATIC
 		DIR *mod_dir = opendir(INK_MODULE_DIR);
 		struct dirent *child;
 		void *handler;
@@ -199,11 +200,17 @@ public:
 				Ink_Package::load(context, (string(INK_MODULE_DIR INK_PATH_SPLIT) + string(child->d_name)).c_str());
 			} else if (hasSuffix(child->d_name, "so")) {
 				handler = dlopen((string(INK_MODULE_DIR INK_PATH_SPLIT) + string(child->d_name)).c_str(), RTLD_NOW);
-				InkMod_Loader loader = (InkMod_Loader)dlsym(handler, "InkMod_Loader");
-				if (!handler || !loader) {
+				if (!handler) {
 					InkWarn_Failed_Load_Mod(child->d_name);
-					if (handler) dlclose(handler);
-					printf("%s\n", dlerror());
+					printf("\t%s\n", dlerror());
+					continue;
+				}
+
+				InkMod_Loader loader = (InkMod_Loader)dlsym(handler, "InkMod_Loader");
+				if (!loader) {
+					InkWarn_Failed_Find_Loader(child->d_name);
+					dlclose(handler);
+					printf("\t%s\n", dlerror());
 				} else {
 					loader(context);
 					addHandler(handler);
@@ -212,7 +219,8 @@ public:
 		}
 
 		closedir(mod_dir);
-
+	#endif
+		
 		return;
 	}
 #endif

@@ -1,7 +1,12 @@
-export GLOBAL_ROOT_PATH := $(shell pwd)
+export GLOBAL_ROOT_PATH = $(shell pwd)
 export GLOBAL_LIB_PATH = $(GLOBAL_ROOT_PATH)/lib
 
-export GLOBAL_CORE_LIB_NAME := ink-core
+export GLOBAL_CORE_STATIC_LIB_NAME = core.o
+export GLOBAL_CORE_STATIC_LIB_PATH = core/$(GLOBAL_CORE_STATIC_LIB_NAME)
+export GLOBAL_CORE_LIB_NAME = ink-core
 export GLOBAL_CORE_LIB_SONAME = lib$(GLOBAL_CORE_LIB_NAME).so
 
-export GLOBAL_CPPFLAGS := -g -Wall -pedantic
+export GLOBAL_INSTALL_PATH = /usr
+
+export GLOBAL_CPPFLAGS = -g -Wall -pedantic -DINK_INSTALL_PATH="\"$(GLOBAL_INSTALL_PATH)\""
+export GLOBAL_STATIC_CPPFLAGS = -DINK_STATIC

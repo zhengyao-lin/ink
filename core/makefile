@@ -1,4 +1,5 @@
 LIB_NAME=$(GLOBAL_CORE_LIB_SONAME)
+STATIC_LIB_NAME=$(GLOBAL_CORE_STATIC_LIB_NAME)
 TARGET=$(LIB_NAME)
 REQUIRE=\
 	gc/gc.o \
@@ -21,9 +22,13 @@ CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld
 CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=-shared -ldl -pthread
+STATIC_LDFLAGS=
 
 $(TARGET): $(REQUIRE)
 	$(CC) -o $@ $(REQUIRE) $(LDFLAGS)
+
+static: $(REQUIRE)
+	$(LD) -r -o $(STATIC_LIB_NAME) $(REQUIRE) $(STATIC_LDFLAGS)
 
 gc/gc.o:
 	cd gc; $(MAKE)
@@ -62,3 +67,5 @@ clean:
 	cd interface; $(MAKE) clean
 	cd syntax; $(MAKE) clean
 	$(RM) *.o *.so
+
+FORCE:

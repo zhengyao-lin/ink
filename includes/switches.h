@@ -4,7 +4,11 @@
 #define INK_DEBUG_FLAG 1
 
 #ifdef __linux__
-	#define INK_MODULE_DIR "/usr/lib/ink/modules"
+	#ifdef INK_INSTALL_PATH
+		#define INK_MODULE_DIR INK_INSTALL_PATH "/lib/ink/modules"
+	#else
+		#define INK_MODULE_DIR "/usr/lib/ink/modules"
+	#endif
 	#define INK_TMP_PATH "/tmp/ink_tmp"
 	#define INK_PATH_SPLIT "/"
 	#define INK_PATH_SPLIT_C '/'

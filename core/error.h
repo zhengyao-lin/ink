@@ -351,7 +351,14 @@ InkWarn_Failed_Find_Mod(const char *path)
 inline void
 InkWarn_Failed_Load_Mod(const char *name)
 {
-	InkWarn_doPrintWarning("Failed to load module $(name)", name);
+	InkWarn_doPrintWarning("Failed to load module $(name):", name);
+	return;
+}
+
+inline void
+InkWarn_Failed_Find_Loader(const char *name)
+{
+	InkWarn_doPrintWarning("Failed to loader function in module $(name):", name);
 	return;
 }
 

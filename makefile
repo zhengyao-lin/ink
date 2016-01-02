@@ -9,8 +9,8 @@ include makefile.head
 LIB_LD_NAME = $(GLOBAL_CORE_LIB_NAME)
 LIB_NAME = $(GLOBAL_CORE_LIB_SONAME)
 
-INSTALL_BIN_PATH = /usr/bin
-INSTALL_LIB_PATH = /usr/lib
+INSTALL_BIN_PATH = $(GLOBAL_INSTALL_PATH)/bin
+INSTALL_LIB_PATH = $(GLOBAL_INSTALL_PATH)/lib
 INSTALL_LIB_NAME = ink
 INSTALL_MODULE_PATH = modules
 
@@ -19,30 +19,43 @@ LIB_OUTPUT = lib
 MOD_OUTPUT = modules
 
 TARGET=$(BIN_OUTPUT)/ink
+STATIC_TARGET=$(BIN_OUTPUT)/ink_static
 LIBS = core/$(LIB_NAME)
 REQUIRE = ink.o
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld
-CPPFLAGS= $(GLOBAL_CPPFLAGS)
-LDFLAGS=-Lcore -l$(LIB_LD_NAME)
 
-all: $(TARGET) apps modules
+CPPFLAGS=$(GLOBAL_CPPFLAGS)
+STATIC_CPPFLAGS=$(CPPFLAGS) $(GLOBAL_STATIC_CPPFLAGS)
+
+LDFLAGS=-Lcore -l$(LIB_LD_NAME)
+STATIC_LDFLAGS=-ldl -pthread
+
+CREATE_OUTPUT_DIR = \
+	if [ ! -d $(BIN_OUTPUT) ]; then \
+	  mkdir $(BIN_OUTPUT); \
+	fi; \
+	if [ ! -d $(LIB_OUTPUT) ]; then \
+	  mkdir $(LIB_OUTPUT); \
+	fi
+
+all: main_prog apps modules
+
+main_prog: $(TARGET) static
+	$(CREATE_OUTPUT_DIR)
+	cp $(LIBS) $(LIB_OUTPUT)
 
 $(TARGET): $(REQUIRE) $(LIBS)
-
-ifneq ($(BIN_OUTPUT), $(wildcard $(BIN_OUTPUT)))
-	mkdir $(BIN_OUTPUT)
-endif
-
-ifneq ($(LIB_OUTPUT), $(wildcard $(LIB_OUTPUT)))
-	mkdir $(LIB_OUTPUT)
-endif
-
+	$(CREATE_OUTPUT_DIR)
 	$(CC) -o $@ $(REQUIRE) $(LDFLAGS)
-	cp $(LIBS) $(LIB_OUTPUT)
-	cd apps; $(MAKE)
-	cd modules; $(MAKE)
+
+static: $(REQUIRE) $(GLOBAL_CORE_STATIC_LIB_PATH)
+	$(CREATE_OUTPUT_DIR)
+	$(CC) -o $(STATIC_TARGET) $(REQUIRE) $(GLOBAL_CORE_STATIC_LIB_PATH) $(STATIC_LDFLAGS)
+
+$(GLOBAL_CORE_STATIC_LIB_PATH):
+	cd core; $(MAKE) static
 
 core/$(LIB_NAME):
 	cd core; $(MAKE)
@@ -50,10 +63,10 @@ core/$(LIB_NAME):
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS)
 
-apps: $(TARGET) FORCE
+apps: main_prog FORCE
 	cd apps; $(MAKE)
 
-modules: $(TARGET) FORCE
+modules: main_prog FORCE
 	cd modules; $(MAKE)
 
 install:
