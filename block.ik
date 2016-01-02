@@ -480,3 +480,7 @@ p({
 	name: "hello",
 	id: 110
 }.name);
+
+a = fn () {};
+p.a
+debug(new String("hi"));

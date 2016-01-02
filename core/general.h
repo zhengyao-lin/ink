@@ -64,15 +64,15 @@ public:
 	bool is_optional;
 
 	Ink_Parameter(std::string *name)
-	: name(name)
+	: name(name), is_ref(false), is_variant(false), is_optional(true)
 	{ }
 
 	Ink_Parameter(std::string *name, bool is_ref)
-	: name(name), is_ref(is_ref)
+	: name(name), is_ref(is_ref), is_variant(false), is_optional(true)
 	{ }
 
 	Ink_Parameter(std::string *name, bool is_ref, bool is_variant)
-	: name(name), is_ref(is_ref), is_variant(is_variant)
+	: name(name), is_ref(is_ref), is_variant(is_variant), is_optional(true)
 	{ }
 
 	Ink_Parameter(std::string *name, bool is_ref, bool is_variant, bool is_optional)

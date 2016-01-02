@@ -54,7 +54,7 @@ make sure your system has the following dependencies:
 	2. GNU Flex >= 2.5.39
 	3. GNU Make >= 4.0
 	4. GNU G++ >= 5.2.1
-(Lower version may work, but I haven't tested them)
+(Lower versions may work, but I haven't tested them)
 
 	cd ink
 	make

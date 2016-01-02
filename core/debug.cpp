@@ -1,8 +1,14 @@
+#include <string>
+#include <vector>
+#include <algorithm>
 #include <stdlib.h>
+#include <string.h>
 #include "debug.h"
 #include "object.h"
 #include "general.h"
 #include "type.h"
+
+using namespace std;
 
 int dbg_type_mapping_length = 0;
 DBG_TypeMapping *dbg_type_mapping = NULL;
@@ -50,4 +56,128 @@ int registerType(const char *name)
 												  sizeof(DBG_TypeMapping) * dbg_type_mapping_length);
 	dbg_type_mapping[ret] = DBG_TypeMapping(ret, StrPool_addStr(name)->c_str());
 	return ret;
+}
+
+vector<Ink_Object *> traced_stack;
+
+void printSlotInfo(FILE *fp, Ink_Object *obj, string prefix = "")
+{
+	Ink_HashTable *i;
+	unsigned int j;
+	Ink_Array *arr;
+	string getter_setter_info = "";
+
+	if (!obj) {
+		fprintf(fp, "\n");
+		return;
+	}
+	fprintf(fp, " {\n");
+	for (i = obj->hash_table; i; i = i->next) {
+		getter_setter_info = i->getter ?
+							 string(" [ has getter") + (i->setter ? " and setter ]" : " ]") :
+							 (i->setter ? " [ has setter ]" : "");
+
+		fprintf(fp, "%s" DBG_TAB "\'%s\':%s ", prefix.c_str(),
+				(i->key && strlen(i->key) ? i->key : "anonymous"), getter_setter_info.c_str());
+		printDebugInfo(fp, i->getValue(), "", prefix + DBG_TAB);
+	}
+
+	if (obj->type == INK_ARRAY) {
+		arr = as<Ink_Array>(obj);
+		for (j = 0; j < arr->value.size(); j++) {
+			fprintf(fp, "%s" DBG_TAB "[%d]: ", prefix.c_str(), j);
+			if (arr->value[j]) {
+				printDebugInfo(fp, arr->value[j]->getValue(), "", prefix + DBG_TAB);
+			} else {
+				fprintf(fp, "(no value)\n");
+			}
+		}
+	}
+
+	if (i == obj->hash_table)
+		fprintf(fp, "%s" DBG_TAB "(empty)\n", prefix.c_str());
+
+	fprintf(fp, "%s}\n", prefix.c_str());
+
+	return;
+}
+
+void initPrintDebugInfo()
+{
+	traced_stack = vector<Ink_Object *>();
+	return;
+}
+
+#define btos(b) ((b) ? "true" : "false")
+
+inline string getTrapMask(Ink_FunctionAttribution attr)
+{
+	string ret = "";
+	if (attr.hasTrap(INTER_RETURN)) {
+		if (ret != "") ret += " | ";
+		ret += "retn";
+	}
+	if (attr.hasTrap(INTER_CONTINUE)) {
+		if (ret != "") ret += " | ";
+		ret += "continue";
+	}
+	if (attr.hasTrap(INTER_BREAK)) {
+		if (ret != "") ret += " | ";
+		ret += "break";
+	}
+	return ret;
+}
+
+void printFunctionInfo(FILE *fp, Ink_FunctionObject *func, string prefix = "")
+{
+	unsigned int i;
+
+	fprintf(fp, ", function attr: [\n");
+	fprintf(fp, "%s" DBG_TAB "is native: %s\n", prefix.c_str(), btos(func->is_native));
+	fprintf(fp, "%s" DBG_TAB "is inline: %s\n", prefix.c_str(), btos(func->is_inline));
+	fprintf(fp, "%s" DBG_TAB "is generator: %s\n", prefix.c_str(), btos(func->is_generator));
+	fprintf(fp, "%s" DBG_TAB "is partial applied: %s\n", prefix.c_str(), btos(func->partial_applied_argc > 0));
+
+	fprintf(fp, "%s" DBG_TAB "parameter%s: (", prefix.c_str(), func->param.size() > 1 ? "s" : "");
+	for (i = 0; i < func->param.size(); i++) {
+		fprintf(fp, "%s%s%s%s",
+				func->param[i].is_ref ? "&" : "",
+				func->param[i].is_optional ? "*" : "",
+				func->param[i].name ? func->param[i].name->c_str() : "",
+				func->param[i].is_variant ? "..." : "");
+		if (i < func->param.size() - 1) {
+			fprintf(fp, ", ");
+		}
+	}
+	fprintf(fp, ")\n");
+	fprintf(fp, "%s" DBG_TAB "interrupt signal trap mask: %s\n", prefix.c_str(),
+			getTrapMask(func->attr).c_str());
+	fprintf(fp, "%s]", prefix.c_str());
+
+	return;
+}
+
+void printDebugInfo(FILE *fp, Ink_Object *obj, string prefix, string slot_prefix)
+{
+	const char *slot_name = NULL;
+
+	if (find(traced_stack.begin(), traced_stack.end(), obj) != traced_stack.end()) {
+		fprintf(fp, "traced\n");
+		return;
+	}
+	traced_stack.push_back(obj);
+
+	if (obj) {
+		slot_name = obj->getDebugName();
+	}
+
+	fprintf(fp, "%sObject@%x of type \'%s\' in slot \'%s\'", prefix.c_str(), obj,
+			obj ? getTypeName(obj->type) : "unpointed",
+			(!slot_name || !strlen(slot_name) ? "anonymous slot" : slot_name));
+	if (obj && obj->type == INK_FUNCTION) {
+		printFunctionInfo(fp, as<Ink_FunctionObject>(obj), slot_prefix);
+	}
+	printSlotInfo(fp, obj, slot_prefix);
+
+	return;
 }

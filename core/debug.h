@@ -1,7 +1,13 @@
 #ifndef _DEBUG_H
 #define _DEBUG_H
 
+#include <string>
+#include <stdio.h>
 #include "type.h"
+
+#define DBG_TAB "    "
+
+class Ink_Object;
 
 class DBG_TypeMapping {
 public:
@@ -23,5 +29,7 @@ inline const char *getTypeName(int type_tag)
 void DBG_initTypeMapping();
 void DBG_disposeTypeMapping();
 int registerType(const char *name);
+void initPrintDebugInfo();
+void printDebugInfo(FILE *fp, Ink_Object *obj, std::string prefix = "INK_DBG: ", std::string slot_prefix = "");
 
 #endif

@@ -34,8 +34,8 @@ public:
 	Ink_HashTable *address;
 
 	Ink_Object *base;
-
 	IGC_CollectEngine *alloc_engine;
+	const char *debug_name;
 
 	Ink_Object()
 	{
@@ -45,9 +45,21 @@ public:
 		address = NULL;
 		base = NULL;
 		alloc_engine = NULL;
+		debug_name = NULL;
 
 		IGC_addObject(this);
 		// initMethod();
+	}
+
+	inline void setDebugName(const char *name)
+	{
+		debug_name = name;
+		return;
+	}
+
+	inline const char *getDebugName()
+	{
+		return debug_name;
 	}
 
 	void Ink_ObjectMethodInit();

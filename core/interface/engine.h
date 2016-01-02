@@ -53,6 +53,11 @@ public:
 	Ink_InterpreteEngine();
 
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
+	void printTrace(FILE *fp = NULL)
+	{
+		if (!fp) fp = stderr;
+		return;
+	}
 	void removeLastTrace();
 
 	inline int setCurrentGC(IGC_CollectEngine *engine)

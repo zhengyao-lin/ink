@@ -27,10 +27,9 @@ public:
 	{
 		return value;
 	}
-	inline Ink_Object *setValue(Ink_Object *val)
-	{
-		return value = val;
-	}
+	Ink_Object *setValue(Ink_Object *val);
+
+	~Ink_HashTable();
 };
 
 #endif

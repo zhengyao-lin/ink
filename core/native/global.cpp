@@ -8,8 +8,8 @@
 #include "../general.h"
 #include "../interface/engine.h"
 #include "../interface/setting.h"
-#include "native.h"
 #include "../package/load.h"
+#include "native.h"
 
 extern Ink_ExpressionList native_exp_list;
 extern InterruptSignal CGC_interrupt_signal;
@@ -285,6 +285,20 @@ Ink_Object *Ink_NumVal(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 	return tmp->eval(context);
 }
 
+Ink_Object *Ink_Debug(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	unsigned int i;
+	if (!checkArgument(argc, 1))
+		return NULL_OBJ;
+
+	for (i = 0; i < argc; i++) {
+		initPrintDebugInfo();
+		printDebugInfo(stderr, argv[i]);
+	}
+
+	return NULL_OBJ;
+}
+
 Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p);
 void Ink_GlobalMethodInit(Ink_ContextChain *context)
 {
@@ -300,6 +314,7 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("import", new Ink_FunctionObject(Ink_Import));
 	context->context->setSlot("typename", new Ink_FunctionObject(Ink_TypeName));
 	context->context->setSlot("numval", new Ink_FunctionObject(Ink_NumVal));
+	context->context->setSlot("debug", new Ink_FunctionObject(Ink_Debug));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);
