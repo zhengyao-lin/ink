@@ -39,7 +39,8 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	global_context->context->setSlot("this", global_context->context);
 	Ink_GlobalMethodInit(global_context);
 
-	addTrace(global_context->context);
+	global_context->context->setDebugName("__global_context__");
+	addTrace(global_context->context)->setDebug(-1, global_context->context);
 }
 
 Ink_ContextChain *Ink_InterpreteEngine::addTrace(Ink_ContextObject *context)

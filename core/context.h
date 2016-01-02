@@ -9,11 +9,16 @@ public:
 	Ink_ContextObject *context;
 	Ink_ContextChain *inner;
 
+	int debug_lineno;
+	Ink_Object *debug_creater;
+
 	Ink_ContextChain()
 	{
 		context = new Ink_ContextObject();
 		outer = NULL;
 		inner = NULL;
+		debug_lineno = -1;
+		debug_creater = NULL;
 	}
 
 	Ink_ContextChain(Ink_ContextObject *context)
@@ -21,6 +26,8 @@ public:
 	{
 		outer = NULL;
 		inner = NULL;
+		debug_lineno = -1;
+		debug_creater = NULL;
 	}
 
 	Ink_ContextChain(Ink_HashTable *hash_table)
@@ -28,7 +35,21 @@ public:
 		context = new Ink_ContextObject(hash_table);
 		outer = NULL;
 		inner = NULL;
+		debug_lineno = -1;
+		debug_creater = NULL;
 	}
+
+	inline void setDebug(int lineno, Ink_Object *creater)
+	{
+		debug_lineno = lineno;
+		debug_creater = creater;
+		return;
+	}
+
+	inline int getLineno()
+	{ return debug_lineno; }
+	inline Ink_Object *getCreater()
+	{ return debug_creater; }
 
 	Ink_ContextChain *addContext(Ink_ContextObject *c);
 	void removeLast(bool if_delete = true);

@@ -7,6 +7,7 @@
 #include "object.h"
 #include "general.h"
 #include "type.h"
+#include "context.h"
 
 using namespace std;
 
@@ -48,7 +49,7 @@ void DBG_disposeTypeMapping()
 	return;
 }
 
-int registerType(const char *name)
+int DBG_registerType(const char *name)
 {
 	// StrPool_addStr(
 	int ret = dbg_type_mapping_length++;
@@ -79,7 +80,7 @@ void printSlotInfo(FILE *fp, Ink_Object *obj, string prefix = "")
 
 		fprintf(fp, "%s" DBG_TAB "\'%s\':%s ", prefix.c_str(),
 				(i->key && strlen(i->key) ? i->key : "anonymous"), getter_setter_info.c_str());
-		printDebugInfo(fp, i->getValue(), "", prefix + DBG_TAB);
+		DBG_printDebugInfo(fp, i->getValue(), "", DBG_TAB + prefix);
 	}
 
 	if (obj->type == INK_ARRAY) {
@@ -87,7 +88,7 @@ void printSlotInfo(FILE *fp, Ink_Object *obj, string prefix = "")
 		for (j = 0; j < arr->value.size(); j++) {
 			fprintf(fp, "%s" DBG_TAB "[%d]: ", prefix.c_str(), j);
 			if (arr->value[j]) {
-				printDebugInfo(fp, arr->value[j]->getValue(), "", prefix + DBG_TAB);
+				DBG_printDebugInfo(fp, arr->value[j]->getValue(), "", DBG_TAB + prefix);
 			} else {
 				fprintf(fp, "(no value)\n");
 			}
@@ -102,7 +103,7 @@ void printSlotInfo(FILE *fp, Ink_Object *obj, string prefix = "")
 	return;
 }
 
-void initPrintDebugInfo()
+void DBG_initPrintDebugInfo()
 {
 	traced_stack = vector<Ink_Object *>();
 	return;
@@ -157,7 +158,7 @@ void printFunctionInfo(FILE *fp, Ink_FunctionObject *func, string prefix = "")
 	return;
 }
 
-void printDebugInfo(FILE *fp, Ink_Object *obj, string prefix, string slot_prefix)
+void DBG_printDebugInfo(FILE *fp, Ink_Object *obj, string prefix, string slot_prefix, bool if_scan_slot)
 {
 	const char *slot_name = NULL;
 
@@ -171,13 +172,30 @@ void printDebugInfo(FILE *fp, Ink_Object *obj, string prefix, string slot_prefix
 		slot_name = obj->getDebugName();
 	}
 
-	fprintf(fp, "%sObject@%x of type \'%s\' in slot \'%s\'", prefix.c_str(), obj,
+	fprintf(fp, "%sobject@%lx of type \'%s\' in slot \'%s\'", prefix.c_str(), (unsigned long int)obj,
 			obj ? getTypeName(obj->type) : "unpointed",
 			(!slot_name || !strlen(slot_name) ? "anonymous slot" : slot_name));
 	if (obj && obj->type == INK_FUNCTION) {
 		printFunctionInfo(fp, as<Ink_FunctionObject>(obj), slot_prefix);
 	}
-	printSlotInfo(fp, obj, slot_prefix);
+	if (if_scan_slot)
+		printSlotInfo(fp, obj, slot_prefix);
+	else fprintf(fp, "\n");
+
+	return;
+}
+
+void DBG_printTrace(FILE *fp, Ink_ContextChain *context, string prefix)
+{
+	Ink_ContextChain *i;
+	Ink_ContextChain *inner_most = context->getLocal();
+
+	fprintf(fp, "%srising from:\n", prefix.c_str());
+	for (i = inner_most; i; i = i->outer) {
+		fprintf(fp, DBG_TAB "line %d: ", i->getLineno());
+		DBG_initPrintDebugInfo();
+		DBG_printDebugInfo(false, fp, i->getCreater(), "", DBG_TAB);
+	}
 
 	return;
 }

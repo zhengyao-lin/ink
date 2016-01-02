@@ -292,10 +292,16 @@ Ink_Object *Ink_Debug(Ink_ContextChain *context, unsigned int argc, Ink_Object *
 		return NULL_OBJ;
 
 	for (i = 0; i < argc; i++) {
-		initPrintDebugInfo();
-		printDebugInfo(stderr, argv[i]);
+		DBG_initPrintDebugInfo();
+		DBG_printDebugInfo(stderr, argv[i]);
 	}
 
+	return NULL_OBJ;
+}
+
+Ink_Object *Ink_Where(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	DBG_printTrace(stderr, Ink_getCurrentEngine()->getTrace());
 	return NULL_OBJ;
 }
 
@@ -314,7 +320,9 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("import", new Ink_FunctionObject(Ink_Import));
 	context->context->setSlot("typename", new Ink_FunctionObject(Ink_TypeName));
 	context->context->setSlot("numval", new Ink_FunctionObject(Ink_NumVal));
+
 	context->context->setSlot("debug", new Ink_FunctionObject(Ink_Debug));
+	context->context->setSlot("where", new Ink_FunctionObject(Ink_Where));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);

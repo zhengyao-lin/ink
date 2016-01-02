@@ -19,6 +19,8 @@ extern InkNative_MethodTable array_native_method_table[];
 extern int function_native_method_table_count;
 extern InkNative_MethodTable function_native_method_table[];
 
+extern int inkerr_current_line_number;
+
 Ink_Object *getMethod(Ink_Object *obj, const char *name, InkNative_MethodTable *table, int count)
 {
 	int i;
@@ -220,6 +222,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	Ink_Object **tmp_argv = NULL;
 	bool force_return = false;
 	bool if_delete_argv = false;
+	const char *debug_name_back = getDebugName();
 
 	/*
 	if (is_generator) {
@@ -304,10 +307,13 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	if (this_p)
 		local->setSlot("this", this_p);
 
+	// reset debug name
+	setDebugName(debug_name_back);
+
 	context->addContext(local);
 
-	/* set trace(unsed for mark&sweep GC) */
-	Ink_getCurrentEngine()->addTrace(local);
+	/* set trace(unsed for mark&sweep GC) and set debug info */
+	Ink_getCurrentEngine()->addTrace(local)->setDebug(inkerr_current_line_number, this);
 
 	/* set local context */
 	// gc_engine->initContext(context);

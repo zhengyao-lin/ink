@@ -483,4 +483,13 @@ p({
 
 a = fn () {};
 p.a
-debug(new String("hi"));
+
+//debug(new String("hi"));
+
+a = fn () {
+	where();
+}
+
+a();
+
+debug(p);

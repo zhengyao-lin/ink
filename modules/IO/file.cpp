@@ -232,7 +232,7 @@ Ink_Object *InkMod_File_Loader(Ink_ContextChain *context, unsigned int argc, Ink
 {
 	Ink_Object *global_context = context->getGlobal()->context;
 
-	file_pointer_type_tag = (Ink_TypeTag)registerType("io.file.file_pointer");
+	file_pointer_type_tag = (Ink_TypeTag)DBG_registerType("io.file.file_pointer");
 	
 	global_context->setSlot("File", new Ink_FunctionObject(InkNative_File_Constructor));
 	global_context->setSlot("file_exist", new Ink_FunctionObject(InkNative_File_Exist));

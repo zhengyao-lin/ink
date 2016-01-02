@@ -422,7 +422,9 @@ public:
 		/* set address for possible assignment */
 		ret->address = address;
 		/* set base */
+		const char *debug_name_back = base->getDebugName();
 		ret->setSlot("base", base);
+		base->setDebugName(debug_name_back);
 
 		/* call getter if has one */
 		if (!flags.is_left_value && address->getter) {
