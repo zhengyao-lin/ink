@@ -190,11 +190,6 @@ Ink_Object *Ink_String::clone()
 	return new_obj;
 }
 
-Ink_Object *InkNative_Generator_Send(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
-{
-	return NULL;
-}
-
 inline Ink_Object **copyArgv(int argc, Ink_Object **argv)
 {
 	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * argc);
@@ -210,6 +205,37 @@ inline Ink_Object **linkArgv(int argc1, Ink_Object **argv1, int argc2, Ink_Objec
 	return ret;
 }
 
+Ink_Object *CGC_yield_value = NULL;
+ucontext CGC_yield_from;
+Ink_Object *CGC_send_back_value = NULL;
+ucontext CGC_yield_to;
+
+Ink_Object *InkNative_Generator_Send(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base"), *ret;
+	Ink_UContext *uc = as<Ink_UContext>(base->getSlot("context"));
+	ucontext *tmp;
+
+	if ((tmp = uc->getContext()) != NULL) {
+		CGC_send_back_value = argc ? argv[0] : new Ink_NullObject();
+		swapcontext(&CGC_yield_to, tmp);
+		uc->setContext(CGC_yield_from);
+		return CGC_yield_value;
+	} else {
+		CGC_yield_value = NULL;
+		getcontext(&CGC_yield_to);
+		if (CGC_yield_value) {
+			uc->setContext(CGC_yield_from);
+			return CGC_yield_value;
+		}
+		ret = base->getSlot("origin")->call(context, argc, argv, this_p);
+	}
+	return ret;
+}
+
+Ink_Object *CGC_interrupt_value = NULL;
+ucontext *CGC_interrupt_address = NULL;
+
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
 {
@@ -224,19 +250,19 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	bool if_delete_argv = false;
 	const char *debug_name_back = getDebugName();
 
-	/*
-	if (is_generator) {
+	// TODO: still have problem
+	/*if (is_generator) {
 		Ink_Object *gen = new Ink_Object();
 		Ink_FunctionObject *clone_origin = as<Ink_FunctionObject>(this->clone());
 		clone_origin->is_generator = false;
 
 		gen->setSlot("origin", clone_origin);
-		gen->setSlot("address", new Ink_Array());
+		gen->setSlot("context", new Ink_UContext());
 		gen->setSlot("send", new Ink_FunctionObject(InkNative_Generator_Send));
 
 		return gen;
-	}
-	*/
+	}*/
+
 	bool is_arg_completed = true;
 
 	/* if some arguments have been applied already */
@@ -350,13 +376,26 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 			InkWarn_Unfit_Argument();
 		}
 
+		ucontext_t *tmp_ucontext = NULL;
+		ucontext_t *intterupt_address_back = CGC_interrupt_address;
 		for (j = 0; j < exp_list.size(); j++) {
+			if (!tmp_ucontext) {
+				tmp_ucontext = (ucontext_t *)malloc(sizeof(ucontext_t));
+				getcontext(tmp_ucontext);
+				if (CGC_interrupt_address == tmp_ucontext /* means the next statement has executed */
+					&& CGC_interrupt_signal != INTER_NONE) {
+					ret_val = CGC_interrupt_value;
+					goto SIGNAL_RECEIVED;
+				}
+				CGC_interrupt_address = tmp_ucontext;
+			}
+
 			gc_engine->checkGC();
 			ret_val = exp_list[j]->eval(context); // eval each expression
 
 			/* interrupt signal received */
 			if (CGC_interrupt_signal != INTER_NONE) {
-
+SIGNAL_RECEIVED:
 				/* interrupt event triggered */
 				switch (CGC_interrupt_signal) {
 					case INTER_RETURN:
@@ -375,12 +414,19 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 				}
 
 				/* whether trap the signal */
-				if (attr.hasTrap(CGC_interrupt_signal))
+				if (attr.hasTrap(CGC_interrupt_signal)) {
 					CGC_interrupt_signal = INTER_NONE;
+					CGC_interrupt_value = NULL;
+				}
+
 				force_return = true;
 				break;
 			}
 		}
+		if (tmp_ucontext) {
+			free(tmp_ucontext);
+		}
+		CGC_interrupt_address = intterupt_address_back;
 	}
 
 	/* conditions of returning "this" pointer:

@@ -105,5 +105,11 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 	}
 
 	RESTORE_LINE_NUM;
+
+	/*if (CGC_interrupt_signal != INTER_NONE && CGC_interrupt_address) {
+		param_list = Ink_ParamList();
+		setcontext(CGC_interrupt_address);
+	}*/
+
 	return ret_val;
 }

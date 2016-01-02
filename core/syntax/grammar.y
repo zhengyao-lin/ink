@@ -533,6 +533,11 @@ unary_expression
 												  arg), false, false);
 		SET_LINE_NO($$);
 	}
+	| TYIELD nllo unary_expression
+	{
+		$$ = new Ink_YieldExpression($3);
+		SET_LINE_NO($$);
+	}
 	;
 
 argument_attachment

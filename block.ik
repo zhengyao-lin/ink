@@ -493,3 +493,25 @@ a = fn () {
 a();
 
 debug(p);
+
+glob = 10;
+
+a = fn () {
+	glob = inl () {
+		retn 20;
+	} ()
+}
+
+a();
+p(glob);
+
+/*
+gene = gen () {
+	while (1) {
+		yield 1
+	}
+}
+
+start = gene();
+p(start.send());
+*/

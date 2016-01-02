@@ -1,32 +1,38 @@
 #ifndef _COROUTINE_H_
 #define _COROUTINE_H_
 
-#include <stack>
+#include <stdlib.h>
 #include <ucontext.h>
 #include "../object.h"
-#include "../context.h"
-#include "../gc/collect.h"
 
 class Ink_UContext: public Ink_Object {
 public:
-	ucontext_t context;
+	ucontext_t *context;
 
-	Ink_UContext(ucontext_t context)
-	: context(context)
-	{ type = INK_NULL; }
-};
-
-class Ink_GCEngine: public Ink_Object {
-public:
-	IGC_CollectEngine *gc_engine;
-
-	Ink_GCEngine(IGC_CollectEngine *gc_engine)
-	: gc_engine(gc_engine)
-	{ type = INK_NULL; }
-
-	virtual ~Ink_GCEngine()
+	Ink_UContext(ucontext_t c)
 	{
-		delete gc_engine;
+		context = (ucontext_t *)malloc(sizeof(ucontext_t));
+		*context = c;
+	}
+
+	Ink_UContext()
+	: context(NULL)
+	{ }
+
+	inline void setContext(ucontext_t c)
+	{
+		if (!context)
+			context = (ucontext_t *)malloc(sizeof(ucontext_t));
+		*context = c;
+	}
+
+	inline ucontext_t *getContext()
+	{ return context; }
+
+	~Ink_UContext()
+	{
+		if (context)
+			free(context);
 	}
 };
 

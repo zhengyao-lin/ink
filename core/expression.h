@@ -10,6 +10,7 @@
 #include "error.h"
 #include "gc/collect.h"
 #include "thread/thread.h"
+#include "coroutine/coroutine.h"
 #include "general.h"
 #define SET_LINE_NUM (line_num_back = inkerr_current_line_number = (line_number != -1 ? line_number : inkerr_current_line_number))
 #define RESTORE_LINE_NUM (inkerr_current_line_number = line_num_back)
@@ -141,6 +142,41 @@ public:
 	}
 };
 
+extern Ink_Object *CGC_yield_value;
+extern ucontext CGC_yield_from;
+extern Ink_Object *CGC_send_back_value;
+extern ucontext CGC_yield_to;
+
+class Ink_YieldExpression: public Ink_Expression {
+public:
+	Ink_Expression *ret_val;
+
+	Ink_YieldExpression(Ink_Expression *ret_val)
+	: ret_val(ret_val)
+	{ }
+
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+	{
+		int line_num_back;
+		SET_LINE_NUM;
+
+		CGC_send_back_value = NULL;
+		CGC_yield_value = ret_val->eval(context_chain);
+		swapcontext(&CGC_yield_from, &CGC_yield_to);
+
+		RESTORE_LINE_NUM;
+		return CGC_send_back_value;
+	}
+
+	~Ink_YieldExpression()
+	{
+		delete ret_val;
+	}
+};
+
+extern Ink_Object *CGC_interrupt_value;
+extern ucontext *CGC_interrupt_address;
+
 class Ink_InterruptExpression: public Ink_Expression {
 public:
 	InterruptSignal signal;
@@ -159,6 +195,8 @@ public:
 
 		RESTORE_LINE_NUM;
 		CGC_interrupt_signal = signal;
+		CGC_interrupt_value = ret;
+		setcontext(CGC_interrupt_address);
 
 		return ret;
 	}
