@@ -275,6 +275,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	bool force_return = false;
 	bool if_delete_argv = false;
 	const char *debug_name_back = getDebugName();
+	const char *base_debug_name_back = getSlot("base")->getDebugName();
 
 	/*if (is_generator) {
 		Ink_Object *gen = new Ink_Object();
@@ -359,6 +360,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 		local->setSlot("this", this_p);
 
 	// reset debug name
+	getSlot("base")->setDebugName(base_debug_name_back);
 	setDebugName(debug_name_back);
 
 	context->addContext(local);

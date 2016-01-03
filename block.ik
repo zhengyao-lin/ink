@@ -540,7 +540,7 @@ try = fn (block, args...) {
 		if (typename(args[i]) == "string") {
 			if (args[i] == "catch" && i + 1 < args.size()) {
 				block.'throw' = args[i + 1];
-				block.'throw' << fn () { drop; } // write expression to rewrite signal
+				block.'throw' << fn () { where(); drop; } // rewrite signal
 				i++;
 				continue;
 			} else {
