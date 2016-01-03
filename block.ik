@@ -505,17 +505,29 @@ a = fn () {
 a();
 p(glob);
 
+p("################ drop signal test ################");
+
 inline = inl () {
+	p("returning 10");
 	drop 10; // drop signal
 }
 
-inline.'drop' = inl () {
-	// this return won't work
-	retn 100;
+inline.'drop' = inl (ret_val) {
+	ret_val.p = 10;
+	p("previous return value: " + ret_val);
+	p("override to 100");
+	drop 100; // change return value
+}
+
+inline.'drop'.'drop' = { |ret_val|
+	ret_val.p = 10;
+	p("previous return value: " + ret_val);
+	p("I'm NOT overriding to 1000");
+	1000; // change return value
 }
 
 a = {
 	a: 10,
 	b: inline()
 }
-p(a.b)
+p("final value(100?): " + a.b)

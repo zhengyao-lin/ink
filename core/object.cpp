@@ -236,6 +236,32 @@ Ink_Object *InkNative_Generator_Send(Ink_ContextChain *context, unsigned int arg
 Ink_Object *CGC_interrupt_value = NULL;
 // ucontext *CGC_interrupt_address = NULL;
 
+inline Ink_FunctionAttribution getFuncAttr(Ink_Object *obj)
+{
+	return as<Ink_FunctionObject>(obj)->attr;
+}
+
+inline void setFuncAttr(Ink_Object *obj, Ink_FunctionAttribution attr)
+{
+	as<Ink_FunctionObject>(obj)->setAttr(attr);
+	return;
+}
+
+inline Ink_Object *callWithAttr(Ink_Object *obj, Ink_FunctionAttribution attr, Ink_ContextChain *context,
+								unsigned int argc = 0, Ink_Object **argv = NULL)
+{
+	Ink_FunctionAttribution attr_back;
+	Ink_Object *ret = new Ink_NullObject();
+
+	if (obj->type == INK_FUNCTION) {
+		attr_back = getFuncAttr(obj);
+		setFuncAttr(obj, attr);
+		ret = obj->call(context, argc, argv);
+		setFuncAttr(obj, attr_back);
+	}
+	return ret;
+}
+
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
 {
@@ -383,36 +409,48 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 			if (CGC_interrupt_signal != INTER_NONE) {
 				/* interrupt event triggered */
 				InterruptSignal signal_backup = CGC_interrupt_signal;
-				Ink_Object *value_backup = CGC_interrupt_value;
+				Ink_Object *value_backup
+							= local->ret_val /* set return value of context object for GC to mark */
+							= CGC_interrupt_value;
 
+				tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 				CGC_interrupt_signal = INTER_NONE;
 				CGC_interrupt_value = NULL;
 				switch (signal_backup) {
 					case INTER_RETURN:
 						if ((tmp = getSlot("retn"))->type == INK_FUNCTION) {
-							tmp->call(context);
+							tmp_argv[0] = value_backup;
+							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), context, 1, tmp_argv);
 						} break;
 					case INTER_CONTINUE:
 						if ((tmp = getSlot("continue"))->type == INK_FUNCTION) {
-							tmp->call(context);
+							tmp_argv[0] = value_backup;
+							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), context, 1, tmp_argv);
 						} break;
 					case INTER_BREAK:
 						if ((tmp = getSlot("break"))->type == INK_FUNCTION) {
-							tmp->call(context);
+							tmp_argv[0] = value_backup;
+							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), context, 1, tmp_argv);
 						} break;
 					case INTER_DROP:
 						if ((tmp = getSlot("drop"))->type == INK_FUNCTION) {
-							tmp->call(context);
+							tmp_argv[0] = value_backup;
+							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), context, 1, tmp_argv);
 						} break;
 					default: ;
 				}
-				/* restore signal */
-				CGC_interrupt_signal = signal_backup;
-				CGC_interrupt_value = value_backup;
+				free(tmp_argv);
+				/* restore signal if it hasn't been changed */
+				if (CGC_interrupt_signal == INTER_NONE) {
+					CGC_interrupt_signal = signal_backup;
+					CGC_interrupt_value = value_backup;
+				}
 
 				/* whether trap the signal */
 				if (attr.hasTrap(CGC_interrupt_signal)) {
 					ret_val = trapSignal();
+				} else {
+					ret_val = NULL;
 				}
 
 				force_return = true;

@@ -63,6 +63,8 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 			if (arr->value[i])
 				doMark(arr->value[i]->getValue());
 		}
+	} else if (obj->type == INK_CONTEXT) {
+		doMark(as<Ink_ContextObject>(obj)->ret_val);
 	}
 
 	return;
@@ -122,7 +124,7 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 			 i; i = i->inner) {
 			doMark(i->context);
 		}
-		// doMark(CGC_interrupt_value);
+		doMark(CGC_interrupt_value);
 	}
 	doCollect();
 	//printf("GC time duration: %lf\n", (double)(clock() - st) / CLOCKS_PER_SEC);

@@ -124,12 +124,18 @@ public:
 
 class Ink_ContextObject: public Ink_Object {
 public:
+	Ink_Object *ret_val;
+
 	Ink_ContextObject()
-	{ type = INK_CONTEXT; }
+	{
+		type = INK_CONTEXT;
+		ret_val = NULL;
+	}
 	Ink_ContextObject(Ink_HashTable *hash)
 	{
 		type = INK_CONTEXT;
 		hash_table = hash;
+		ret_val = NULL;
 	}
 };
 
