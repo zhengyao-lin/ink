@@ -123,6 +123,7 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"break"					return TOKEN(TBREAK);
 <INITIAL>"continue"					return TOKEN(TCONTINUE);
 <INITIAL>"drop"						return TOKEN(TDROP);
+<INITIAL>"throw"					return TOKEN(TTHROW);
 <INITIAL>"with"						return TOKEN(TWITH);
 
 <INITIAL>"&&"						return TOKEN(TCAND);

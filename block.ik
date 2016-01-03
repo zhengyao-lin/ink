@@ -531,3 +531,45 @@ a = {
 	b: inline()
 }
 p("final value(100?): " + a.b)
+
+p("################ try/catch test ################");
+
+try = fn (block, args...) {
+	let final = fn () {};
+	for (let i = 0, i < args.size(), i++) {
+		if (typename(args[i]) == "string") {
+			if (args[i] == "catch" && i + 1 < args.size()) {
+				block.'throw' = args[i + 1];
+				block.'throw' << fn () { drop; } // write expression to rewrite signal
+				i++;
+				continue;
+			} else {
+				if (args[i] == "final" && i + 1 < args.size()) {
+					final = args[i + 1];
+					i++;
+					continue;
+				}
+			}
+		}
+	}
+	block();
+	final();
+}
+
+error_func = fn () {
+	throw "this is a fault!!"
+	"fault?";
+}
+
+a = "origin"
+
+try () {
+	a = error_func();
+} catch { | throw_val |
+	p("I caught that! " + throw_val);
+	p("a = " + a);
+	a = "right!!"
+} final {
+	p("finally!!");
+	p("a = " + a);
+}

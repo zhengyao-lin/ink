@@ -85,7 +85,8 @@ typedef enum {
 	INTER_RETURN = 1 << 2,
 	INTER_BREAK = 1 << 3,
 	INTER_CONTINUE = 1 << 4,
-	INTER_DROP = 1 << 5
+	INTER_DROP = 1 << 5,
+	INTER_THROW = 1 << 6
 } InterruptSignal;
 
 inline bool hasSignal(int set, InterruptSignal sign)

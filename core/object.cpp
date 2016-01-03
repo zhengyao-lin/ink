@@ -437,6 +437,11 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 							tmp_argv[0] = value_backup;
 							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), context, 1, tmp_argv);
 						} break;
+					case INTER_THROW:
+						if ((tmp = getSlot("throw"))->type == INK_FUNCTION) {
+							tmp_argv[0] = value_backup;
+							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), context, 1, tmp_argv);
+						} break;
 					default: ;
 				}
 				free(tmp_argv);
