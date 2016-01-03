@@ -234,7 +234,7 @@ Ink_Object *InkNative_Generator_Send(Ink_ContextChain *context, unsigned int arg
 }
 
 Ink_Object *CGC_interrupt_value = NULL;
-ucontext *CGC_interrupt_address = NULL;
+// ucontext *CGC_interrupt_address = NULL;
 
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
@@ -250,7 +250,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	bool if_delete_argv = false;
 	const char *debug_name_back = getDebugName();
 
-	// TODO: still have problem
 	/*if (is_generator) {
 		Ink_Object *gen = new Ink_Object();
 		Ink_FunctionObject *clone_origin = as<Ink_FunctionObject>(this->clone());
@@ -376,30 +375,21 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 			InkWarn_Unfit_Argument();
 		}
 
-		ucontext_t *tmp_ucontext = NULL;
-		ucontext_t *intterupt_address_back = CGC_interrupt_address;
 		for (j = 0; j < exp_list.size(); j++) {
-			if (!tmp_ucontext) {
-				tmp_ucontext = (ucontext_t *)malloc(sizeof(ucontext_t));
-				getcontext(tmp_ucontext);
-				if (CGC_interrupt_address == tmp_ucontext /* means the next statement has executed */
-					&& CGC_interrupt_signal != INTER_NONE) {
-					ret_val = CGC_interrupt_value;
-					goto SIGNAL_RECEIVED;
-				}
-				CGC_interrupt_address = tmp_ucontext;
-			}
-
 			gc_engine->checkGC();
 			ret_val = exp_list[j]->eval(context); // eval each expression
 
 			/* interrupt signal received */
 			if (CGC_interrupt_signal != INTER_NONE) {
-SIGNAL_RECEIVED:
 				/* interrupt event triggered */
-				switch (CGC_interrupt_signal) {
+				InterruptSignal signal_backup = CGC_interrupt_signal;
+				Ink_Object *value_backup = CGC_interrupt_value;
+
+				CGC_interrupt_signal = INTER_NONE;
+				CGC_interrupt_value = NULL;
+				switch (signal_backup) {
 					case INTER_RETURN:
-						if ((tmp = getSlot("return"))->type == INK_FUNCTION) {
+						if ((tmp = getSlot("retn"))->type == INK_FUNCTION) {
 							tmp->call(context);
 						} break;
 					case INTER_CONTINUE:
@@ -410,23 +400,25 @@ SIGNAL_RECEIVED:
 						if ((tmp = getSlot("break"))->type == INK_FUNCTION) {
 							tmp->call(context);
 						} break;
+					case INTER_DROP:
+						if ((tmp = getSlot("drop"))->type == INK_FUNCTION) {
+							tmp->call(context);
+						} break;
 					default: ;
 				}
+				/* restore signal */
+				CGC_interrupt_signal = signal_backup;
+				CGC_interrupt_value = value_backup;
 
 				/* whether trap the signal */
 				if (attr.hasTrap(CGC_interrupt_signal)) {
-					CGC_interrupt_signal = INTER_NONE;
-					CGC_interrupt_value = NULL;
+					ret_val = trapSignal();
 				}
 
 				force_return = true;
 				break;
 			}
 		}
-		if (tmp_ucontext) {
-			free(tmp_ucontext);
-		}
-		CGC_interrupt_address = intterupt_address_back;
 	}
 
 	/* conditions of returning "this" pointer:

@@ -124,14 +124,15 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
 	Ink_setCurrentEngine(this);
 
-	Ink_Object *ret;
+	Ink_Object *ret = new Ink_NullObject();
 	unsigned int i;
 
 	if (!context) context = global_context;
 	for (i = 0; i < top_level.size(); i++) {
 		getCurrentGC()->checkGC();
 		ret = top_level[i]->eval(context);
-		if (CGC_interrupt_signal == INTER_RETURN) {
+		if (CGC_interrupt_signal != INTER_NONE) {
+			trapSignal(); // trap all
 			break;
 		}
 	}

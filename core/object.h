@@ -139,7 +139,7 @@ class Ink_FunctionAttribution {
 public:
 	int interrupt_signal_trap;
 
-	Ink_FunctionAttribution(int trap = INTER_RETURN | INTER_BREAK | INTER_CONTINUE)
+	Ink_FunctionAttribution(int trap = INTER_RETURN | INTER_BREAK | INTER_CONTINUE | INTER_DROP)
 	: interrupt_signal_trap(trap)
 	{ }
 
@@ -201,7 +201,7 @@ public:
 	{
 		type = INK_FUNCTION;
 		if (is_inline) {
-			setAttr(Ink_FunctionAttribution(INTER_NONE));
+			setAttr(Ink_FunctionAttribution(INTER_DROP));
 		}
 	}
 
@@ -213,7 +213,7 @@ public:
 	{
 		type = INK_FUNCTION;
 		if (is_inline) {
-			setAttr(Ink_FunctionAttribution(INTER_NONE));
+			setAttr(Ink_FunctionAttribution(INTER_DROP));
 		}
 	}
 
@@ -291,13 +291,19 @@ public:
 
 	virtual Ink_Object *clone();
 
-	virtual ~Ink_Array()
+	static void disposeArrayValue(Ink_ArrayValue val)
 	{
 		unsigned int i;
-		for (i = 0; i < value.size(); i++) {
-			if (value[i])
-				delete value[i];
+		for (i = 0; i < val.size(); i++) {
+			if (val[i])
+				delete val[i];
 		}
+		return;
+	}
+
+	virtual ~Ink_Array()
+	{
+		disposeArrayValue(value);
 	}
 };
 

@@ -14,6 +14,7 @@
 #include "general.h"
 #define SET_LINE_NUM (line_num_back = inkerr_current_line_number = (line_number != -1 ? line_number : inkerr_current_line_number))
 #define RESTORE_LINE_NUM (inkerr_current_line_number = line_num_back)
+#define INTER_SIGNAL_RECEIVED (CGC_interrupt_signal != INTER_NONE)
 
 using namespace std;
 
@@ -21,6 +22,7 @@ class Ink_Expression;
 
 extern int inkerr_current_line_number;
 extern InterruptSignal CGC_interrupt_signal;
+extern Ink_Object *CGC_interrupt_value;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
 // typedef triple<string *, bool, bool> Ink_Parameter;
@@ -75,13 +77,21 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
+		int line_num_back;
+		SET_LINE_NUM;
+
 		Ink_Object *ret = new Ink_NullObject();
 		unsigned int i;
 
 		for (i = 0; i < exp_list.size(); i++) {
 			ret = exp_list[i]->eval(context_chain);
+			if (INTER_SIGNAL_RECEIVED) {
+				RESTORE_LINE_NUM;
+				return CGC_interrupt_value;
+			}
 		}
 
+		RESTORE_LINE_NUM;
 		return ret;
 	}
 
@@ -162,6 +172,10 @@ public:
 
 		CGC_send_back_value = NULL;
 		CGC_yield_value = ret_val->eval(context_chain);
+		if (INTER_SIGNAL_RECEIVED) {
+			RESTORE_LINE_NUM;
+			return CGC_interrupt_value;
+		}
 		swapcontext(&CGC_yield_from, &CGC_yield_to);
 
 		RESTORE_LINE_NUM;
@@ -173,9 +187,6 @@ public:
 		delete ret_val;
 	}
 };
-
-extern Ink_Object *CGC_interrupt_value;
-extern ucontext *CGC_interrupt_address;
 
 class Ink_InterruptExpression: public Ink_Expression {
 public:
@@ -192,11 +203,14 @@ public:
 		SET_LINE_NUM;
 
 		Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
+		if (INTER_SIGNAL_RECEIVED) {
+			RESTORE_LINE_NUM;
+			return CGC_interrupt_value;
+		}
 
 		RESTORE_LINE_NUM;
 		CGC_interrupt_signal = signal;
 		CGC_interrupt_value = ret;
-		setcontext(CGC_interrupt_address);
 
 		return ret;
 	}
@@ -231,11 +245,35 @@ public:
 		bool ret_val = false;
 		SET_LINE_NUM;
 
-		if (isTrue(lval->eval(context_chain))) {
+		Ink_Object *lhs = lval->eval(context_chain);
+		Ink_Object *rhs;
+
+		if (INTER_SIGNAL_RECEIVED) {
+			RESTORE_LINE_NUM;
+			return CGC_interrupt_value;
+		}
+
+		if (isTrue(lhs)) {
 			if (type == LOGIC_OR) ret_val = true;
-			else if (isTrue(rval->eval(context_chain))) ret_val = true;
-		} else if (type == LOGIC_OR && isTrue(rval->eval(context_chain)))
-			ret_val = true;
+			else {
+				rhs = rval->eval(context_chain);
+				if (INTER_SIGNAL_RECEIVED) {
+					RESTORE_LINE_NUM;
+					return CGC_interrupt_value;
+				}
+				if (isTrue(rhs)) {
+					ret_val = true;
+				}
+			}
+		} else {
+			if (type == LOGIC_OR && isTrue(rval->eval(context_chain))) {
+				if (INTER_SIGNAL_RECEIVED) {
+					RESTORE_LINE_NUM;
+					return CGC_interrupt_value;
+				}
+				ret_val = true;
+			}
+		}
 
 		RESTORE_LINE_NUM;
 
@@ -270,7 +308,15 @@ public:
 		Ink_Object **tmp;
 
 		rval_ret = rval->eval(context_chain);
+		if (INTER_SIGNAL_RECEIVED) {
+			RESTORE_LINE_NUM;
+			return CGC_interrupt_value;
+		}
 		lval_ret = lval->eval(context_chain, Ink_EvalFlag(true));
+		if (INTER_SIGNAL_RECEIVED) {
+			RESTORE_LINE_NUM;
+			return CGC_interrupt_value;
+		}
 
 		if (lval_ret->address) {
 			if (lval_ret->address->setter) { /* if has setter, call it */
@@ -312,12 +358,21 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
+		int line_num_back;
+		SET_LINE_NUM;
+
 		Ink_Object *ret = new Ink_Object();
 		unsigned int i;
 
 		for (i = 0; i < mapping.size(); i++) {
 			ret->setSlot(mapping[i].first->c_str(), mapping[i].second->eval(context_chain));
+			if (INTER_SIGNAL_RECEIVED) {
+				RESTORE_LINE_NUM;
+				return CGC_interrupt_value;
+			}
 		}
+
+		RESTORE_LINE_NUM;
 		return ret;
 	}
 
@@ -341,13 +396,22 @@ public:
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
+		int line_num_back;
+		SET_LINE_NUM;
+
 		Ink_ArrayValue val = Ink_ArrayValue();
 		unsigned int i;
 
 		for (i = 0; i < elem_list.size(); i++) {
 			val.push_back(new Ink_HashTable("", elem_list[i]->eval(context_chain)));
+			if (INTER_SIGNAL_RECEIVED) {
+				RESTORE_LINE_NUM;
+				Ink_Array::disposeArrayValue(val);
+				return CGC_interrupt_value;
+			}
 		}
 
+		RESTORE_LINE_NUM;
 		return new Ink_Array(val);
 	}
 
@@ -375,6 +439,10 @@ public:
 		SET_LINE_NUM;
 
 		Ink_Object *base_obj = base->eval(context_chain);
+		if (INTER_SIGNAL_RECEIVED) {
+			RESTORE_LINE_NUM;
+			return CGC_interrupt_value;
+		}
 
 		RESTORE_LINE_NUM;
 		return getSlot(context_chain, base_obj, slot_id->c_str(), flags);
@@ -709,6 +777,11 @@ public:
 
 		for (i = 0; i < elem_list.size(); i++) {
 			val.push_back(new Ink_HashTable("", elem_list[i]->eval(context_chain)));
+			if (INTER_SIGNAL_RECEIVED) {
+				RESTORE_LINE_NUM;
+				Ink_Array::disposeArrayValue(val);
+				return CGC_interrupt_value;
+			}
 		}
 
 		RESTORE_LINE_NUM;

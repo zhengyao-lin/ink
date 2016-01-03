@@ -85,12 +85,12 @@ Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, In
 		ret = block->call(context);
 		switch (CGC_interrupt_signal) {
 			case INTER_RETURN:
-				return ret; // fallthrough the signal
+				return CGC_interrupt_value; // fallthrough the signal
+			case INTER_DROP:
 			case INTER_BREAK:
-				CGC_interrupt_signal = INTER_NONE; // trap the signal
-				return ret;
+				return trapSignal(); // trap the signal
 			case INTER_CONTINUE:
-				CGC_interrupt_signal = INTER_NONE; // trap the signal
+				trapSignal(); // trap the signal, but do not return
 				continue;
 			default: ;
 		}

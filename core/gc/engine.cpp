@@ -27,7 +27,7 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 {
 	Ink_HashTable *i;
 
-	if (obj->mark != CURRENT_MARK_PERIOD) obj->mark = CURRENT_MARK_PERIOD;
+	if (obj && obj->mark != CURRENT_MARK_PERIOD) obj->mark = CURRENT_MARK_PERIOD;
 	else {
 		return;
 	}
@@ -122,6 +122,7 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 			 i; i = i->inner) {
 			doMark(i->context);
 		}
+		// doMark(CGC_interrupt_value);
 	}
 	doCollect();
 	//printf("GC time duration: %lf\n", (double)(clock() - st) / CLOCKS_PER_SEC);

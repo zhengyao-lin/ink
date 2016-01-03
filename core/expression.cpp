@@ -61,8 +61,10 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 
 	unsigned int i;
 	Ink_Object **argv = NULL;
-	Ink_Object *ret_val;
+	Ink_Object *ret_val, *expandee;
 	Ink_Object *func = callee->eval(context_chain);
+	if (INTER_SIGNAL_RECEIVED)
+		return CGC_interrupt_value;
 	Ink_ParamList param_list = Ink_ParamList();
 	Ink_ArgumentList dispose_list, tmp_arg_list, another_tmp_arg_list;
 
@@ -73,7 +75,12 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 	for (i = 0, tmp_arg_list = Ink_ArgumentList();
 		 i < arg_list.size(); i++) {
 		if (arg_list[i]->is_expand) {
-			another_tmp_arg_list = expandArgument(arg_list[i]->expandee->eval(context_chain));
+			expandee = arg_list[i]->expandee->eval(context_chain);
+			if (INTER_SIGNAL_RECEIVED) {
+				ret_val = CGC_interrupt_value;
+				goto DISPOSE_LIST;
+			}
+			another_tmp_arg_list = expandArgument(expandee);
 			dispose_list.insert(dispose_list.end(), another_tmp_arg_list.begin(), another_tmp_arg_list.end());
 			tmp_arg_list.insert(tmp_arg_list.end(), another_tmp_arg_list.begin(), another_tmp_arg_list.end());
 		} else {
@@ -92,14 +99,20 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 												 true);
 			} else {
 				argv[i] = tmp_arg_list[i]->arg->eval(context_chain);
+				if (INTER_SIGNAL_RECEIVED) {
+					ret_val = CGC_interrupt_value;
+					goto DISPOSE_ARGV;
+				}
 			}
 		}
 	}
 
 	ret_val = func->call(context_chain, tmp_arg_list.size(), argv);
 
+DISPOSE_ARGV:
 	free(argv);
 
+DISPOSE_LIST:
 	for (i = 0; i < dispose_list.size(); i++) {
 		delete dispose_list[i];
 	}

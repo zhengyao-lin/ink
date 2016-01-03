@@ -84,7 +84,8 @@ typedef enum {
 	INTER_NONE = 1 << 1,
 	INTER_RETURN = 1 << 2,
 	INTER_BREAK = 1 << 3,
-	INTER_CONTINUE = 1 << 4
+	INTER_CONTINUE = 1 << 4,
+	INTER_DROP = 1 << 5
 } InterruptSignal;
 
 inline bool hasSignal(int set, InterruptSignal sign)
@@ -95,6 +96,18 @@ inline bool hasSignal(int set, InterruptSignal sign)
 inline int addSignal(int set, InterruptSignal sign)
 {
 	return set | sign;
+}
+
+class Ink_Object;
+extern InterruptSignal CGC_interrupt_signal;
+extern Ink_Object *CGC_interrupt_value;
+
+inline Ink_Object *trapSignal()
+{
+	Ink_Object *tmp = CGC_interrupt_value;
+	CGC_interrupt_signal = INTER_NONE;
+	CGC_interrupt_value = NULL;
+	return tmp;
 }
 
 std::string *StrPool_addStr(const char *str);

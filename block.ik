@@ -498,20 +498,24 @@ glob = 10;
 
 a = fn () {
 	glob = inl () {
-		retn 20;
-	} ()
+		retn inl () { retn }();
+	} (), glob = 20;
 }
 
 a();
 p(glob);
 
-/*
-gene = gen () {
-	while (1) {
-		yield 1
-	}
+inline = inl () {
+	drop 10; // drop signal
 }
 
-start = gene();
-p(start.send());
-*/
+inline.'drop' = inl () {
+	// this return won't work
+	retn 100;
+}
+
+a = {
+	a: 10,
+	b: inline()
+}
+p(a.b)
