@@ -535,19 +535,17 @@ p("final value(100?): " + a.b)
 p("################ try/catch test ################");
 
 try = fn (block, args...) {
-	let final = fn () {};
+	let final = fn () {}
+	block.'throw' = fn () { where(); drop }
 	for (let i = 0, i < args.size(), i++) {
 		if (typename(args[i]) == "string") {
 			if (args[i] == "catch" && i + 1 < args.size()) {
-				block.'throw' = args[i + 1];
-				block.'throw' << fn () { where(); drop; } // rewrite signal
-				i++;
-				continue;
+				block.'throw' = (args[i + 1] << block.'throw');
+				continue i++;
 			} else {
 				if (args[i] == "final" && i + 1 < args.size()) {
 					final = args[i + 1];
-					i++;
-					continue;
+					continue i++;
 				}
 			}
 		}
