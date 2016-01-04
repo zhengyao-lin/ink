@@ -5,7 +5,7 @@
 #include "../includes/switches.h"
 using namespace std;
 
-vector<string *> string_pool;
+static vector<string *> string_pool;
 Ink_ExpressionList native_exp_list = Ink_ExpressionList();
 
 string *StrPool_addStr(const char *str)
@@ -13,6 +13,12 @@ string *StrPool_addStr(const char *str)
 	string *tmp;
 	string_pool.push_back(tmp = new string(str ? str : ""));
 	return tmp;
+}
+
+string *StrPool_addStr(string *str)
+{
+	string_pool.push_back(str);
+	return str;
 }
 
 void StrPool_dispose()

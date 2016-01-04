@@ -14,8 +14,6 @@
 	}
 #endif
 
-extern std::vector<std::string *> string_pool;
-
 template <typename T1, typename T2, typename T3>
 class triple {
 public:
@@ -112,6 +110,7 @@ inline Ink_Object *trapSignal()
 }
 
 std::string *StrPool_addStr(const char *str);
+std::string *StrPool_addStr(std::string *str);
 void StrPool_dispose();
 
 #endif

@@ -8,8 +8,10 @@ LDFLAGS=-shared
 for mod in $modules
 do
 	if [ ! $mod = "." ]; then
+		echo "find mod ${mod}"
 		cd $mod
 		make
 		cp build/*.so "../${mod}.so"
+		cd ../
 	fi
 done

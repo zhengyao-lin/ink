@@ -579,3 +579,13 @@ obj = {
 
 delete obj.hello?
 p(obj.hello?);
+
+//import json
+
+p(json.stringify(
+{
+	hello? : "wow!",
+	["haha"] : "eh..",
+	yes : ["I'm elem1", "I'm elem2"],
+	'I shouldn\'t appear' : fn(){}
+}));
