@@ -28,6 +28,7 @@
 	Ink_ExpressionList *expression_list;
 	Ink_ArgumentList *argument_list;
 	Ink_HashTableMapping *hash_table_mapping;
+	Ink_HashTableMappingSingle *hash_table_mapping_single;
 	std::string *string;
 	IDContextType context_type;
 	InterruptSignal signal;
@@ -36,7 +37,7 @@
 
 %token <string> TIDENTIFIER TNUMERIC TSTRING
 
-%token <token> TVAR TGLOBAL TLET TRETURN TNEW TCLONE
+%token <token> TVAR TGLOBAL TLET TRETURN TNEW TDELETE TCLONE
 			   TFUNC TINLINE TDO TEND TGO TYIELD TGEN
 			   TIMPORT TBREAK TCONTINUE TDROP TTHROW TWITH
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
@@ -62,6 +63,7 @@
 %type <argument_list> argument_list argument_list_opt
 					  argument_attachment argument_list_without_paren
 %type <hash_table_mapping> hash_table_mapping hash_table_mapping_opt
+%type <hash_table_mapping_single> hash_table_mapping_single
 %type <context_type> id_context_type
 %type <signal> interrupt_signal
 
@@ -495,6 +497,13 @@ unary_expression
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
+	| TDELETE nllo unary_expression
+	{
+		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("delete")),
+									Ink_ArgumentList());
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
 	| TADD nllo unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("+u")),
@@ -792,15 +801,28 @@ element_list_opt
 	}
 	;
 
+hash_table_mapping_single
+	: TIDENTIFIER nllo TCOLON nllo nestable_expression
+	{
+		$$ = new Ink_HashTableMappingSingle($1, $5);
+		SET_LINE_NO($$);
+	}
+	| TLBRAKT nestable_expression TRBRAKT nllo TCOLON nllo nestable_expression
+	{
+		$$ = new Ink_HashTableMappingSingle($2, $7);
+		SET_LINE_NO($$);
+	}
+	;
+
 hash_table_mapping
-	: TIDENTIFIER TCOLON nestable_expression
+	: hash_table_mapping_single
 	{
 		$$ = new Ink_HashTableMapping();
-		$$->push_back(Ink_HashTableMappingSingle($1, $3));
+		$$->push_back($1);
 	}
-	| hash_table_mapping nllo TCOMMA nllo TIDENTIFIER TCOLON nestable_expression
+	| hash_table_mapping nllo TCOMMA nllo hash_table_mapping_single
 	{
-		$1->push_back(Ink_HashTableMappingSingle($5, $7));
+		$1->push_back($5);
 		$$ = $1;
 	}
 	;

@@ -95,6 +95,19 @@ Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, I
 	return new_obj;
 }
 
+Ink_Object *InkNative_Object_Delete(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+
+	if (!base->address) {
+		InkWarn_Delete_Function_Argument_Require();
+		return NULL_OBJ;
+	}
+	base->address->setValue(NULL);
+
+	return NULL_OBJ;
+}
+
 Ink_Object *InkNative_Object_Clone(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");

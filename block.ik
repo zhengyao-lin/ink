@@ -571,3 +571,11 @@ try () {
 	p("finally!!");
 	p("a = " + a);
 }
+
+a = "hello?"
+obj = {
+	[a] : "papa"
+}
+
+delete obj.hello?
+p(obj.hello?);

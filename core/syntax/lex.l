@@ -111,6 +111,7 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"let"						return TOKEN(TLET);
 <INITIAL>"retn"						return TOKEN(TRETURN);
 <INITIAL>"new"						return TOKEN(TNEW);
+<INITIAL>"delete"					return TOKEN(TDELETE);
 <INITIAL>"clone"					return TOKEN(TCLONE);
 <INITIAL>"fn"						return TOKEN(TFUNC);
 <INITIAL>"inl"						return TOKEN(TINLINE);

@@ -364,7 +364,7 @@ InkNative_MethodTable string_native_method_table[] = {
 	{"length", new Ink_FunctionObject(InkNative_String_Length)}
 };
 
-int object_native_method_table_count = 11;
+int object_native_method_table_count = 12;
 InkNative_MethodTable object_native_method_table[] = {
 	{"->", new Ink_FunctionObject(InkNative_Object_Bond)},
 	{"!!", new Ink_FunctionObject(InkNative_Object_Debond)},
@@ -373,6 +373,7 @@ InkNative_MethodTable object_native_method_table[] = {
 	{"!=", new Ink_FunctionObject(InkNative_Object_NotEqual)},
 	{"[]", new Ink_FunctionObject(InkNative_Object_Index)},
 	{"new", new Ink_FunctionObject(InkNative_Object_New)},
+	{"delete", new Ink_FunctionObject(InkNative_Object_Delete)},
 	{"clone", new Ink_FunctionObject(InkNative_Object_Clone)},
 	{"getter", new Ink_FunctionObject(InkNative_Object_SetGetter)},
 	{"setter", new Ink_FunctionObject(InkNative_Object_SetSetter)},

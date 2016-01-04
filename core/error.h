@@ -362,4 +362,18 @@ InkWarn_Failed_Find_Loader(const char *name)
 	return;
 }
 
+inline void
+InkWarn_Hash_Table_Mapping_Expect_String()
+{
+	InkWarn_doPrintWarning("Hash table mapping expects string as argument");
+	return;
+}
+
+inline void
+InkWarn_Delete_Function_Argument_Require()
+{
+	InkWarn_doPrintWarning("Delete function require at least one argument");
+	return;
+}
+
 #endif

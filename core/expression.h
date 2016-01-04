@@ -345,8 +345,32 @@ public:
 	}
 };
 
-typedef pair<string *, Ink_Expression *> Ink_HashTableMappingSingle;
-typedef vector<Ink_HashTableMappingSingle> Ink_HashTableMapping;
+// typedef pair<string *, Ink_Expression *> Ink_HashTableMappingSingle;
+
+class Ink_HashTableMappingSingle {
+public:
+	int line_number;
+	string *name;
+	Ink_Expression *key;
+	Ink_Expression *value;
+
+	Ink_HashTableMappingSingle(string *name, Ink_Expression *value)
+	: name(name), key(NULL), value(value)
+	{ }
+
+	Ink_HashTableMappingSingle(Ink_Expression *key, Ink_Expression *value)
+	: name(NULL), key(key), value(value)
+	{ }
+
+	~Ink_HashTableMappingSingle()
+	{
+		if (name) delete name;
+		if (key) delete key;
+		delete value;
+	}
+};
+
+typedef vector<Ink_HashTableMappingSingle *> Ink_HashTableMapping;
 
 class Ink_HashTableExpression: public Ink_Expression {
 public:
@@ -361,14 +385,31 @@ public:
 		int line_num_back;
 		SET_LINE_NUM;
 
-		Ink_Object *ret = new Ink_Object();
+		Ink_Object *ret = new Ink_Object(), *key;
 		unsigned int i;
 
 		for (i = 0; i < mapping.size(); i++) {
-			ret->setSlot(mapping[i].first->c_str(), mapping[i].second->eval(context_chain));
-			if (INTER_SIGNAL_RECEIVED) {
-				RESTORE_LINE_NUM;
-				return CGC_interrupt_value;
+			if (mapping[i]->name) {
+				ret->setSlot(mapping[i]->name->c_str(), mapping[i]->value->eval(context_chain));
+				if (INTER_SIGNAL_RECEIVED) {
+					RESTORE_LINE_NUM;
+					return CGC_interrupt_value;
+				}
+			} else {
+				key = mapping[i]->key->eval(context_chain);
+				if (INTER_SIGNAL_RECEIVED) {
+					RESTORE_LINE_NUM;
+					return CGC_interrupt_value;
+				}
+				if (key->type != INK_STRING) {
+					InkWarn_Hash_Table_Mapping_Expect_String();
+					return new Ink_NullObject();
+				}
+				ret->setSlot(as<Ink_String>(key)->value.c_str(), mapping[i]->value->eval(context_chain));
+				if (INTER_SIGNAL_RECEIVED) {
+					RESTORE_LINE_NUM;
+					return CGC_interrupt_value;
+				}
 			}
 		}
 
@@ -380,8 +421,7 @@ public:
 	{
 		unsigned int i;
 		for (i = 0; i < mapping.size(); i++) {
-			delete mapping[i].first;
-			delete mapping[i].second;
+			delete mapping[i];
 		}
 	}
 };
