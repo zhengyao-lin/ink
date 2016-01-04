@@ -376,4 +376,11 @@ InkWarn_Delete_Function_Argument_Require()
 	return;
 }
 
+inline void
+InkWarn_Eval_Called_Without_Current_Engine()
+{
+	InkWarn_doPrintWarning("Eval: No current engine created. stopped");
+	return;
+}
+
 #endif

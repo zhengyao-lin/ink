@@ -150,7 +150,11 @@ Ink_Object *Ink_Eval(Ink_ContextChain *context, unsigned int argc, Ink_Object **
 	int line_num_backup = current_line_number;
 	Ink_InterpreteEngine *current_engine = Ink_getCurrentEngine();
 
-	if (current_engine && argc && argv[0]->type == INK_STRING) {
+	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+		return ret;
+	}
+
+	if (current_engine) {
 		context->removeLast();
 
 		top_level_backup = current_engine->top_level;
@@ -166,6 +170,8 @@ Ink_Object *Ink_Eval(Ink_ContextChain *context, unsigned int argc, Ink_Object **
 		current_engine->top_level = top_level_backup;
 
 		context->addContext(new Ink_ContextObject());
+	} else {
+		InkWarn_Eval_Called_Without_Current_Engine();
 	}
 	current_line_number = line_num_backup;
 
@@ -179,6 +185,10 @@ bool defined(Ink_Object *obj)
 
 Ink_Object *Ink_Print(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
+	if (!checkArgument(argc, 1)) {
+		return NULL_OBJ;
+	}
+
 	if (argv[0]->type == INK_NUMERIC)
 		printf("print(numeric): %f\n", as<Ink_Numeric>(argv[0])->value);
 	else if (argv[0]->type == INK_STRING)
@@ -190,7 +200,7 @@ Ink_Object *Ink_Print(Ink_ContextChain *context, unsigned int argc, Ink_Object *
 	else
 		printf("print: non-printable type: %d\n", argv[0]->type);
 
-	return new Ink_NullObject();
+	return NULL_OBJ;
 }
 
 Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)

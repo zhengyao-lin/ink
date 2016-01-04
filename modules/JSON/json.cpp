@@ -33,6 +33,11 @@ string *JSON_stringifyObject(Ink_Object *obj)
 		} case INK_STRING: {
 			ret += "\"" + as<Ink_String>(obj)->value + "\"";
 			break;
+		} case INK_NULL: {
+			ret += "null";
+			break;
+		} case INK_UNDEFINED: {
+			break;
 		} default: {
 			ret += "{";
 			for (hash_i = obj->hash_table; hash_i;

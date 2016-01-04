@@ -587,5 +587,9 @@ p(json.stringify(
 	hello? : "wow!",
 	["haha"] : "eh..",
 	yes : ["I'm elem1", "I'm elem2"],
-	'I shouldn\'t appear' : fn(){}
+	'I shouldn\'t appear' : fn () {},
+	'is it null?' : null
 }));
+p(json.stringify("this is a string"));
+p(json.stringify(undefined));
+p();
