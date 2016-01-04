@@ -10,5 +10,6 @@ do
 	if [ ! $mod = "." ]; then
 		cd $mod
 		make clean
+		cd ../
 	fi
 done
