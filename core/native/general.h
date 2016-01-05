@@ -134,4 +134,13 @@ inline Ink_Object *addPackage(Ink_ContextChain *context, const char *name, Ink_O
 	return addPackage(context->context, name, loader);
 }
 
+inline void cleanArrayHashTable(Ink_ArrayValue val)
+{
+	unsigned int i;
+	for (i = 0; i < val.size(); i++) {
+		delete val[i];
+	}
+	return;
+}
+
 #endif

@@ -774,6 +774,7 @@ public:
 		return new Ink_Numeric(value);
 	}
 
+	static double parseNumeric(string code, bool *is_success = NULL);
 	static Ink_Expression *parse(string code);
 	virtual ~Ink_NumericConstant() { }
 };

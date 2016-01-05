@@ -1,6 +1,7 @@
 TARGET=build/JSON.so
 REQUIRE=\
-	json.o
+	json.o \
+	parser.o
 
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld

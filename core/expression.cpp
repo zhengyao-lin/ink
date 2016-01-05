@@ -6,10 +6,42 @@
 /* interrupt signal */
 InterruptSignal CGC_interrupt_signal = INTER_NONE;
 
+double Ink_NumericConstant::parseNumeric(string code, bool *is_success)
+{
+	unsigned long val = 0;
+	double fval = 0.0;
+	int flag = 1;
+
+	if (code[0] == '-') {
+		flag = -1;
+		code = code.substr(1);
+	}
+
+	if (sscanf(code.c_str(), "%lf", &fval) > 0) {
+		if (is_success)
+			*is_success = true;
+		return fval * flag;
+	}
+	if (sscanf(code.c_str(), "0x%lx", &val) > 0
+		|| sscanf(code.c_str(), "0X%lX", &val) > 0
+		|| sscanf(code.c_str(), "0%lo", &val) > 0
+		|| sscanf(code.c_str(), "%lu", &val) > 0) {
+		if (is_success)
+			*is_success = true;
+		return val * flag;
+	}
+
+	if (is_success)
+		*is_success = false;
+
+	return 0.0;
+}
+
 Ink_Expression *Ink_NumericConstant::parse(string code)
 {
-	unsigned long val = 0, flag = 1;
+	unsigned long val = 0;
 	double fval = 0.0;
+	int flag = 1;
 
 	if (code[0] == '-') {
 		flag = -1;

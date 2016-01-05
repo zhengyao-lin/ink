@@ -70,15 +70,6 @@ void cleanArrayHashTable(Ink_ArrayValue val, int begin, int end) // assume that 
 	return;
 }
 
-void cleanArrayHashTable(Ink_ArrayValue val)
-{
-	unsigned int i;
-	for (i = 0; i < val.size(); i++) {
-		delete val[i];
-	}
-	return;
-}
-
 Ink_Object *InkNative_Array_Each(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");

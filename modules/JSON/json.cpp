@@ -77,6 +77,7 @@ Ink_Object *InkMod_JSON_Loader(Ink_ContextChain *context, unsigned int argc, Ink
 	Ink_Object *global_context = context->getGlobal()->context;
 
 	global_context->setSlot("stringify", new Ink_FunctionObject(InkNative_JSON_Stringify));
+	global_context->setSlot("parse", new Ink_FunctionObject(InkNative_JSON_Parse));
 
 	return NULL_OBJ;
 }
@@ -86,6 +87,7 @@ extern "C" {
 	{
 		Ink_Object *json_obj = addPackage(context, "json", new Ink_FunctionObject(InkMod_JSON_Loader));
 		json_obj->setSlot("stringify", new Ink_FunctionObject(InkNative_JSON_Stringify));
+		json_obj->setSlot("parse", new Ink_FunctionObject(InkNative_JSON_Parse));
 		return;
 	}
 }

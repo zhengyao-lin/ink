@@ -592,4 +592,52 @@ p(json.stringify(
 }));
 p(json.stringify("this is a string"));
 p(json.stringify(undefined));
-p();
+p(-10.1);
+//json.parse("{\"hello\" : \"how are you?\\\"\", \"hey\" : -10.1 }");
+debug(json.parse("{\"hi\":\"hi\", \"a\" : \"o\"}"));
+debug(json.parse("{\"hi\" : null}"));
+debug(json.parse("[\"hi\"]"));
+//debug(json.parse("[\"I'm elem1\"]"));
+
+p(json.stringify(json.parse(json.stringify(
+{
+	hello? : "wow!",
+	["haha"] : "eh..",
+	yes : ["I'm elem1", "I'm elem2"],
+	'I shouldn\'t appear' : fn () {},
+	'is it null?' : null
+}))));
+
+p(json.stringify(json.parse("
+
+
+{
+	\"glossary\": {
+		\"title\": \"example glossary\",
+		\"GlossDiv\": {
+			\"title\": \"S\",
+			\"GlossList\": {
+				\"GlossEntry\": {
+				\"ID\": \"SGML\",
+				\"SortAs\": \"SGML\",
+				\"GlossTerm\": \"Standard Generalized Markup Language\",
+				\"Acronym\": \"SGML\",
+				\"Abbrev\": \"ISO 8879:1986\",
+				\"GlossDef\": {
+					\"para\": \"A meta-markup language, used to create markup languages such as DocBook.\",
+					\"GlossSeeAlso\": [
+							\"GML\",
+							\"XML\"
+						]
+					},
+				\"GlossSee\": \"markup\"
+				}
+			}
+		}
+	}
+}
+
+
+")));
+
+p(json.parse("\"\\\"\\\"\\n\\\"\\\"\""));
