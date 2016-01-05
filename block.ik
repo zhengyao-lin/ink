@@ -640,4 +640,4 @@ p(json.stringify(json.parse("
 
 ")));
 
-p(json.parse("\"\\\"\\\"\\n\\\"\\\"\""));
+p(json.parse(json.stringify("\"\"\\n\"\"")));

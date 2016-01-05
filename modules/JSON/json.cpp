@@ -6,6 +6,30 @@
 
 using namespace std;
 
+inline string JSON_escapeString(string str)
+{
+	string ret = "";
+	unsigned int i;
+
+	for (i = 0; i < str.length(); i++) {
+		switch (str[i]) {
+			case '\\':
+				ret += "\\\\";
+				break;
+			case '\t':
+				ret += "\\\t";
+				break;
+			case '\"':
+				ret += "\\\"";
+				break;
+			default:
+				ret += str.substr(i, 1);
+		}
+	}
+
+	return ret;
+} 
+
 string *JSON_stringifyObject(Ink_Object *obj)
 {
 	string ret = "", *tmp_str;
@@ -31,7 +55,7 @@ string *JSON_stringifyObject(Ink_Object *obj)
 			ret += "]";
 			break;
 		} case INK_STRING: {
-			ret += "\"" + as<Ink_String>(obj)->value + "\"";
+			ret += "\"" + JSON_escapeString(as<Ink_String>(obj)->value) + "\"";
 			break;
 		} case INK_NULL: {
 			ret += "null";
