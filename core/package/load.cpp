@@ -3,7 +3,7 @@
 
 DLHandlerPool dl_handler_pool;
 
-void addHandler(void *handler)
+void addHandler(INK_DL_HANDLER handler)
 {
 	dl_handler_pool.push_back(handler);
 	return;
@@ -98,7 +98,7 @@ string *InkPack_FileBlock::bufferToTmp() // return: tmp file path
 void Ink_Package::load(Ink_ContextChain *context, const char *path)
 {
 #ifndef INK_STATIC
-	void *handler;
+	INK_DL_HANDLER handler;
 	FILE *fp = fopen(path, "rb");
 	string *tmp;
 
@@ -109,14 +109,14 @@ void Ink_Package::load(Ink_ContextChain *context, const char *path)
 
 	Ink_Package *pack = Ink_Package::readFrom(fp);
 	tmp = pack->so_file->bufferToTmp();
-	handler = dlopen(tmp->c_str(), RTLD_NOW);
+	handler = INK_DL_OPEN(tmp->c_str(), RTLD_NOW);
 	delete tmp;
-	InkMod_Loader loader = (InkMod_Loader)dlsym(handler, "InkMod_Loader");
+	InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
 
 	if (!handler || !loader) {
 		InkWarn_Failed_Load_Mod(path);
-		if (handler) dlclose(handler);
-		printf("%s\n", dlerror());
+		if (handler) INK_DL_CLOSE(handler);
+		printf("%s\n", INK_DL_ERROR());
 
 		delete pack;
 		fclose(fp);

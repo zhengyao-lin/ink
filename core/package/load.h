@@ -10,6 +10,14 @@
 #include "../../includes/switches.h"
 #include "../error.h"
 
+#ifdef __linux__
+	#define INK_DL_HANDLER void *
+	#define INK_DL_OPEN(path, p) (dlopen((path), (p)))
+	#define INK_DL_SYMBOL(handler, name) (dlsym((handler), (name)))
+	#define INK_DL_CLOSE(handler) (dlclose(handler))
+	#define INK_DL_ERROR() (dlerror())
+#endif
+
 using namespace std;
 
 inline bool
@@ -26,12 +34,12 @@ hasSuffix(const char *path, const char *suf)
 }
 
 typedef void (*InkMod_Loader)(Ink_ContextChain *context);
-typedef vector<void *> DLHandlerPool;
+typedef vector<INK_DL_HANDLER> DLHandlerPool;
 typedef long int Ink_MagicNumber;
 typedef size_t InkPack_Size;
 typedef char byte;
 
-void addHandler(void *handler);
+void addHandler(INK_DL_HANDLER handler);
 void closeAllHandler();
 
 class InkPack_String {
@@ -133,12 +141,6 @@ public:
 	}
 };
 
-#ifdef __linux__
-	#include <sys/types.h>
-	#include <dirent.h>
-	#include <dlfcn.h>
-#endif
-
 class Ink_Package {
 public:
 	Ink_MagicNumber magic_num;
@@ -183,12 +185,16 @@ public:
 };
 
 #ifdef __linux__
+	#include <sys/types.h>
+	#include <dirent.h>
+	#include <dlfcn.h>
+
 	inline void loadAllModules(Ink_ContextChain *context)
 	{
 	#ifndef INK_STATIC
 		DIR *mod_dir = opendir(INK_MODULE_DIR);
 		struct dirent *child;
-		void *handler;
+		INK_DL_HANDLER handler;
 
 		if (!mod_dir) {
 			InkWarn_Failed_Find_Mod(INK_MODULE_DIR);
@@ -199,18 +205,18 @@ public:
 			if (hasSuffix(child->d_name, "mod")) {
 				Ink_Package::load(context, (string(INK_MODULE_DIR INK_PATH_SPLIT) + string(child->d_name)).c_str());
 			} else if (hasSuffix(child->d_name, "so")) {
-				handler = dlopen((string(INK_MODULE_DIR INK_PATH_SPLIT) + string(child->d_name)).c_str(), RTLD_NOW);
+				handler = INK_DL_OPEN((string(INK_MODULE_DIR INK_PATH_SPLIT) + string(child->d_name)).c_str(), RTLD_NOW);
 				if (!handler) {
 					InkWarn_Failed_Load_Mod(child->d_name);
-					printf("\t%s\n", dlerror());
+					printf("\t%s\n", INK_DL_ERROR());
 					continue;
 				}
 
-				InkMod_Loader loader = (InkMod_Loader)dlsym(handler, "InkMod_Loader");
+				InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
 				if (!loader) {
 					InkWarn_Failed_Find_Loader(child->d_name);
-					dlclose(handler);
-					printf("\t%s\n", dlerror());
+					INK_DL_CLOSE(handler);
+					printf("\t%s\n", INK_DL_ERROR());
 				} else {
 					loader(context);
 					addHandler(handler);
