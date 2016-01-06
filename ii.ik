@@ -7,10 +7,10 @@ p("end\n");
 
 src.close();*/
 
-/*
+
 while (1) {
-	stdout.putc(getch());
-}*/
+	stdout.puts(stdin.getc());
+}
 
 fun = fn (n, o) {
   p(o)

@@ -467,7 +467,9 @@ if (file_exist("test_file.ik")) {
 }
 
 import "test_file.ik"
-
+fp.close();
+fp = new File("test_file.ik", "rw");
+p("from fp: " + fp.gets());
 fp.close();
 file_remove("test_file.ik");
 p(typename(fp));
@@ -641,3 +643,12 @@ p(json.encode(json.decode("
 ")));
 
 p(json.decode(json.encode("\"\"\\n\"\"")));
+
+obj = {
+	to_str: fn () {
+		retn "cannot turn myself to string"
+	}	
+};
+
+p("" + obj);
+p(1.to_str());

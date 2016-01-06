@@ -10,14 +10,6 @@ using namespace std;
 
 Ink_TypeTag file_pointer_type_tag;
 
-inline string getStringVal(Ink_Object *str)
-{
-	if (str->type == INK_STRING) {
-		return as<Ink_String>(str)->value;
-	}
-	return "";
-}
-
 inline Ink_NumericValue getNumVal(Ink_Object *num)
 {
 	if (num->type == INK_NUMERIC) {
@@ -32,7 +24,7 @@ Ink_Object *InkNative_File_Exist(Ink_ContextChain *context, unsigned int argc, I
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(!access(getStringVal(argv[0]).c_str(), 0));
+	return new Ink_Numeric(!access(getStringVal(context, argv[0])->value.c_str(), 0));
 }
 
 Ink_Object *InkNative_File_Remove(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -41,7 +33,7 @@ Ink_Object *InkNative_File_Remove(Ink_ContextChain *context, unsigned int argc, 
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(!remove(getStringVal(argv[0]).c_str()));
+	return new Ink_Numeric(!remove(getStringVal(context, argv[0])->value.c_str()));
 }
 
 Ink_Object *InkNative_File_Constructor(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -51,12 +43,12 @@ Ink_Object *InkNative_File_Constructor(Ink_ContextChain *context, unsigned int a
 	const char *tmp;
 
 	if (checkArgument(false, argc, argv, 2, INK_STRING, INK_STRING)) {
-		fp = fopen(tmp = getStringVal(argv[0]).c_str(), getStringVal(argv[1]).c_str());
+		fp = fopen(tmp = getStringVal(context, argv[0])->value.c_str(), getStringVal(context, argv[1])->value.c_str());
 		if (!fp) {
 			InkWarn_Failed_Open_File(tmp);
 		}
 	} else if (checkArgument(false, argc, argv, 1, INK_STRING)) {
-		fp = fopen(tmp = getStringVal(argv[0]).c_str(), "r");
+		fp = fopen(tmp = getStringVal(context, argv[0])->value.c_str(), "r");
 		if (!fp) {
 			InkWarn_Failed_Open_File(tmp);
 		}
@@ -95,7 +87,7 @@ Ink_Object *InkNative_File_PutString(Ink_ContextChain *context, unsigned int arg
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp)
-		fputs(getStringVal(argv[0]).c_str(), tmp);
+		fputs(getStringVal(context, argv[0])->value.c_str(), tmp);
 
 	return NULL_OBJ;
 }
@@ -108,7 +100,7 @@ Ink_Object *InkNative_File_PutC(Ink_ContextChain *context, unsigned int argc, In
 
 	ASSUME_BASE_TYPE(file_pointer_type_tag);
 	if (checkArgument(false, argc, argv, 1, INK_STRING)) {
-		ch = getStringVal(argv[0]).c_str()[0];
+		ch = getStringVal(context, argv[0])->value.c_str()[0];
 	} else if (checkArgument(argc, argv, 1, INK_NUMERIC)) {
 		ch = getNumVal(argv[0]);
 	} else {

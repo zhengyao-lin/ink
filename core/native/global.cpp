@@ -345,7 +345,7 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	loadAllModules(context);
 }
 
-int numeric_native_method_table_count = 13;
+int numeric_native_method_table_count = 14;
 InkNative_MethodTable numeric_native_method_table[] = {
 	{"+", new Ink_FunctionObject(InkNative_Numeric_Add)},
 	{"-", new Ink_FunctionObject(InkNative_Numeric_Sub)},
@@ -359,7 +359,8 @@ InkNative_MethodTable numeric_native_method_table[] = {
 	{">=", new Ink_FunctionObject(InkNative_Numeric_GreaterOrEqual)},
 	{"<=", new Ink_FunctionObject(InkNative_Numeric_LessOrEqual)},
 	{"+u", new Ink_FunctionObject(InkNative_Numeric_Add_Unary)},
-	{"-u", new Ink_FunctionObject(InkNative_Numeric_Sub_Unary)}
+	{"-u", new Ink_FunctionObject(InkNative_Numeric_Sub_Unary)},
+	{"to_str", new Ink_FunctionObject(InkNative_Numeric_ToString)}
 };
 
 int string_native_method_table_count = 8;

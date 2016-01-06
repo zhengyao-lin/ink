@@ -6,17 +6,19 @@
 Ink_Object *InkNative_String_Add(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
+	Ink_String *tmp;
 
 	ASSUME_BASE_TYPE(INK_STRING);
 
-	if (checkArgument(false, argc, argv, 1, INK_STRING)) {
-		return new Ink_String(as<Ink_String>(base)->value + as<Ink_String>(argv[0])->value);
-	} else if (checkArgument(argc, argv, 1, INK_NUMERIC)) {
-		stringstream ss;
-		ss << as<Ink_Numeric>(argv[0])->value;
-		return new Ink_String(as<Ink_String>(base)->value + ss.str());
+	if (!checkArgument(argc, 1)) {
+		return NULL_OBJ;
 	}
 
+	if ((tmp = getStringVal(context, argv[0])) != NULL) {
+		return new Ink_String(as<Ink_String>(base)->value + tmp->value);
+	}
+
+	InkWarn_Invalid_Argument_For_String_Add(argv[0]->type);
 	return NULL_OBJ;
 }
 

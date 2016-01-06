@@ -383,4 +383,18 @@ InkWarn_Eval_Called_Without_Current_Engine()
 	return;
 }
 
+inline void
+InkWarn_Invalid_Argument_For_String_Add(Ink_TypeTag type)
+{
+	InkWarn_doPrintWarning("Invalid argument of type '$(type)', expecting numeric, string or object with to_str method", getTypeName(type));
+	return;
+}
+
+inline void
+InkWarn_Invalid_Return_Value_Of_To_String(Ink_TypeTag type)
+{
+	InkWarn_doPrintWarning("Invalid return value of type '$(type)' of to_str method, expecting string", getTypeName(type));
+	return;
+}
+
 #endif

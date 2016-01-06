@@ -143,4 +143,25 @@ inline void cleanArrayHashTable(Ink_ArrayValue val)
 	return;
 }
 
+inline Ink_String *getStringVal(Ink_ContextChain *context, Ink_Object *obj)
+{
+	Ink_Object *tmp;
+	if (obj->type == INK_STRING) {
+		return as<Ink_String>(obj);
+	} else if (obj->type == INK_NUMERIC) {
+		stringstream ss;
+		ss << as<Ink_Numeric>(obj)->value;
+		return new Ink_String(string(ss.str()));
+	} else if ((tmp = getSlotWithProto(context, obj, "to_str"))
+			   ->type == INK_FUNCTION) {
+		if ((tmp = tmp->call(context))->type != INK_STRING) {
+			InkWarn_Invalid_Return_Value_Of_To_String(tmp->type);
+			return NULL;
+		}
+		return as<Ink_String>(tmp);
+
+	}
+	return NULL;
+}
+
 #endif
