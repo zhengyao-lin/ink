@@ -80,7 +80,7 @@ string *JSON_stringifyObject(Ink_Object *obj)
 	return (ret != "") ? new string(ret) : NULL;
 }
 
-Ink_Object *InkNative_JSON_Stringify(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_JSON_Encode(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(argc, 1)) {
 		return NULL_OBJ;
@@ -100,8 +100,8 @@ Ink_Object *InkMod_JSON_Loader(Ink_ContextChain *context, unsigned int argc, Ink
 {
 	Ink_Object *global_context = context->getGlobal()->context;
 
-	global_context->setSlot("stringify", new Ink_FunctionObject(InkNative_JSON_Stringify));
-	global_context->setSlot("parse", new Ink_FunctionObject(InkNative_JSON_Parse));
+	global_context->setSlot("encode", new Ink_FunctionObject(InkNative_JSON_Encode));
+	global_context->setSlot("decode", new Ink_FunctionObject(InkNative_JSON_Decode));
 
 	return NULL_OBJ;
 }
@@ -110,8 +110,8 @@ extern "C" {
 	void InkMod_Loader(Ink_ContextChain *context)
 	{
 		Ink_Object *json_obj = addPackage(context, "json", new Ink_FunctionObject(InkMod_JSON_Loader));
-		json_obj->setSlot("stringify", new Ink_FunctionObject(InkNative_JSON_Stringify));
-		json_obj->setSlot("parse", new Ink_FunctionObject(InkNative_JSON_Parse));
+		json_obj->setSlot("encode", new Ink_FunctionObject(InkNative_JSON_Encode));
+		json_obj->setSlot("decode", new Ink_FunctionObject(InkNative_JSON_Decode));
 		return;
 	}
 }

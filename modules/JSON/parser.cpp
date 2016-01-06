@@ -291,22 +291,11 @@ Ink_Object *JSON_parse(string str)
 	if (ret_val.ret) {
 		return ret_val.ret;
 	}
-#if 0
-	for (i = 0; i < token_stack.size(); i++) {
-		printf("%d", token_stack[i].token);
-		if (token_stack[i].token == JT_STRING) {
-			printf(": string: %s", token_stack[i].value.str->c_str());
-		} else if (token_stack[i].token == JT_NUMERIC) {
-			printf(": numeric: %f", token_stack[i].value.num);
-		}
-		printf("\n");
-	}
-#endif
 
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_JSON_Parse(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_JSON_Decode(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(argc, argv, 1, INK_STRING)) {
 		return UNDEFINED;

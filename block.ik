@@ -582,7 +582,7 @@ p(obj.hello?);
 
 //import json
 
-p(json.stringify(
+p(json.encode(
 {
 	hello? : "wow!",
 	["haha"] : "eh..",
@@ -590,16 +590,16 @@ p(json.stringify(
 	'I shouldn\'t appear' : fn () {},
 	'is it null?' : null
 }));
-p(json.stringify("this is a string"));
-p(json.stringify(undefined));
+p(json.encode("this is a string"));
+p(json.encode(undefined));
 p(-10.1);
-//json.parse("{\"hello\" : \"how are you?\\\"\", \"hey\" : -10.1 }");
-debug(json.parse("{\"hi\":\"hi\", \"a\" : \"o\"}"));
-debug(json.parse("{\"hi\" : null}"));
-debug(json.parse("[\"hi\"]"));
-//debug(json.parse("[\"I'm elem1\"]"));
+//json.decode("{\"hello\" : \"how are you?\\\"\", \"hey\" : -10.1 }");
+debug(json.decode("{\"hi\":\"hi\", \"a\" : \"o\"}"));
+debug(json.decode("{\"hi\" : null}"));
+debug(json.decode("[\"hi\"]"));
+//debug(json.decode("[\"I'm elem1\"]"));
 
-p(json.stringify(json.parse(json.stringify(
+p(json.encode(json.decode(json.encode(
 {
 	hello? : "wow!",
 	["haha"] : "eh..",
@@ -608,7 +608,7 @@ p(json.stringify(json.parse(json.stringify(
 	'is it null?' : null
 }))));
 
-p(json.stringify(json.parse("
+p(json.encode(json.decode("
 
 
 {
@@ -640,4 +640,4 @@ p(json.stringify(json.parse("
 
 ")));
 
-p(json.parse(json.stringify("\"\"\\n\"\"")));
+p(json.decode(json.encode("\"\"\\n\"\"")));
