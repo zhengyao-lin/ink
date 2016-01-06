@@ -10,5 +10,6 @@ do
 	if [ ! $app = "." ]; then
 		cd $app
 		make clean
+		cd ../
 	fi
 done

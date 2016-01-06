@@ -11,5 +11,6 @@ do
 		cd $app
 		make
 		cp build/* "../../bin/"
+		cd ../
 	fi
 done
