@@ -1,4 +1,4 @@
-TARGET=build/JSON.so
+TARGET=build/JSON.$(GLOBAL_LIB_SUFFIX)
 REQUIRE=\
 	json.o \
 	parser.o
@@ -18,4 +18,4 @@ $(TARGET): $(REQUIRE)
 	$(CC) -c $^ $(CPPFLAGS) $(INCLUDES)
 
 clean:
-	$(RM) -r *.o *.so build
+	$(RM) -r *.o *.$(GLOBAL_LIB_SUFFIX) build

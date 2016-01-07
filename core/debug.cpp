@@ -172,7 +172,7 @@ void DBG_printDebugInfo(FILE *fp, Ink_Object *obj, string prefix, string slot_pr
 		slot_name = obj->getDebugName();
 	}
 
-	fprintf(fp, "%sobject@%lx of type \'%s\' in slot \'%s\'", prefix.c_str(), (unsigned long int)obj,
+	fprintf(fp, "%sobject@%lx of type \'%s\' in slot \'%s\'", prefix.c_str(), obj,
 			obj ? getTypeName(obj->type) : "unpointed",
 			(!slot_name || !strlen(slot_name) ? "anonymous slot" : slot_name));
 	if (obj && obj->type == INK_FUNCTION) {

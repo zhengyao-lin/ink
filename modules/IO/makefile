@@ -1,4 +1,4 @@
-TARGET=build/IO.so
+TARGET=build/IO.$(GLOBAL_LIB_SUFFIX)
 REQUIRE=\
 	file.o
 
@@ -17,4 +17,4 @@ $(TARGET): $(REQUIRE)
 	$(CC) -c $^ $(CPPFLAGS) $(INCLUDES)
 
 clean:
-	$(RM) -r *.o *.so build
+	$(RM) -r *.o *.$(GLOBAL_LIB_SUFFIX) build

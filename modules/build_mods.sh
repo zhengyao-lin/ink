@@ -12,6 +12,7 @@ do
 		cd $mod
 		make
 		cp build/*.so "../${mod}.so"
+		cp build/*.dll "../${mod}.dll"
 		cd ../
 	fi
 done

@@ -21,7 +21,10 @@ REQUIRE=\
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld
 CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -fPIC $(GLOBAL_CPPFLAGS)
-LDFLAGS=-shared -ldl -pthread
+LDFLAGS=-shared
+ifneq ($(PLATFORM), win64)
+	LDFLAGS+=-ldl -pthread
+endif
 STATIC_LDFLAGS=
 
 $(TARGET): $(REQUIRE)
@@ -66,6 +69,6 @@ clean:
 	cd msg; $(MAKE) clean
 	cd interface; $(MAKE) clean
 	cd syntax; $(MAKE) clean
-	$(RM) *.o *.so
+	$(RM) *.o *.so *.dll
 
 FORCE:

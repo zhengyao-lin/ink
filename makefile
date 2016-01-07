@@ -4,11 +4,13 @@ else
 	export ARCH_PREFIX=
 endif
 
-ifeq ($(PLATFORM), win64)
-	export ARCH_PREFIX=i686-w64-mingw32-
-endif
-
 include makefile.head
+
+ifeq ($(PLATFORM), win64)
+	export PLATFORM = win64
+	export ARCH_PREFIX = x86_64-w64-mingw32-
+	export GLOBAL_LIB_SUFFIX = dll
+endif
 
 LIB_LD_NAME = $(GLOBAL_CORE_LIB_NAME)
 LIB_NAME = $(GLOBAL_CORE_LIB_SONAME)
@@ -34,7 +36,10 @@ CPPFLAGS=$(GLOBAL_CPPFLAGS)
 STATIC_CPPFLAGS=$(CPPFLAGS) $(GLOBAL_STATIC_CPPFLAGS)
 
 LDFLAGS=-Lcore -l$(LIB_LD_NAME)
-STATIC_LDFLAGS=-ldl -pthread
+STATIC_LDFLAGS=-static
+ifneq ($(PLATFORM), win64)
+STATIC_LDFLAGS+=-ldl -pthread
+endif
 
 CREATE_OUTPUT_DIR = \
 	if [ ! -d $(BIN_OUTPUT) ]; then \

@@ -8,10 +8,10 @@
 #if defined(INK_PLATFORM_WIN32)
 	#include <string.h>
 	#include <fileapi.h>
-	#define INK_PATH_SPLIT "\\"
-	#define INK_PATH_SPLIT_C '\\'
+	#define INK_PATH_SPLIT "/"
+	#define INK_PATH_SPLIT_C '/'
 
-	#define INK_TMP_PATH ".\\tmp"
+	#define INK_TMP_PATH "./tmp"
 #else
 	#ifdef INK_INSTALL_PATH
 		#define INK_MODULE_DIR INK_INSTALL_PATH "/lib/ink/modules"
