@@ -65,10 +65,7 @@ string *InkPack_FileBlock::bufferToTmp() // return: tmp file path
 	int current_bit = 1;
 	string path;
 
-#ifdef __linux__
-	if (!isDirExist(INK_TMP_PATH))
-		mkdir(INK_TMP_PATH, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-#endif
+	createDirIfNotExist(INK_TMP_PATH);
 
 	suffix = (char *)malloc(sizeof(char) * (current_bit + 1));
 	for (suffix[0] = 'a', suffix[1] = '\0';

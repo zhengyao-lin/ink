@@ -6,10 +6,11 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <pthread.h>
+#include "../../includes/universal.h"
 
-#ifdef __linux__
+#if defined(INK_PLATFORM_LINUX)
 	#define getThreadID_raw() (pthread_self())
-#else
+#elif defined(INK_PLATFORM_WIN32)
 	#define getThreadID_raw() (::GetCurrentThreadId())
 #endif
 

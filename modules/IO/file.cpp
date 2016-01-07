@@ -145,7 +145,7 @@ Ink_Object *InkNative_File_GetC(Ink_ContextChain *context, unsigned int argc, In
 	return NULL_OBJ;
 }
 
-#ifdef __linux__
+#if defined(INK_PLATFORM_LINUX)
 
 Ink_Object *InkNative_File_GetCh(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
@@ -229,7 +229,7 @@ Ink_Object *InkMod_File_Loader(Ink_ContextChain *context, unsigned int argc, Ink
 	global_context->setSlot("File", new Ink_FunctionObject(InkNative_File_Constructor));
 	global_context->setSlot("file_exist", new Ink_FunctionObject(InkNative_File_Exist));
 	global_context->setSlot("file_remove", new Ink_FunctionObject(InkNative_File_Remove));
-#ifdef __linux__
+#if defined(INK_PLATFORM_LINUX)
 	global_context->setSlot("getch", new Ink_FunctionObject(InkNative_File_GetCh)); // no buffering getc
 #endif
 

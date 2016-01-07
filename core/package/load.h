@@ -7,15 +7,21 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../context.h"
-#include "../../includes/switches.h"
 #include "../error.h"
+#include "../../includes/switches.h"
+#include "../../includes/universal.h"
 
-#ifdef __linux__
+#if defined(INK_PLATFORM_LINUX)
+	#include <sys/types.h>
+	#include <dirent.h>
+	#include <dlfcn.h>
+
 	#define INK_DL_HANDLER void *
 	#define INK_DL_OPEN(path, p) (dlopen((path), (p)))
 	#define INK_DL_SYMBOL(handler, name) (dlsym((handler), (name)))
 	#define INK_DL_CLOSE(handler) (dlclose(handler))
 	#define INK_DL_ERROR() (dlerror())
+#elif defined(INK_PLATFORM_WIN32)
 #endif
 
 using namespace std;
@@ -184,11 +190,7 @@ public:
 	}
 };
 
-#ifdef __linux__
-	#include <sys/types.h>
-	#include <dirent.h>
-	#include <dlfcn.h>
-
+#if defined(INK_PLATFORM_LINUX)
 	inline void loadAllModules(Ink_ContextChain *context)
 	{
 	#ifndef INK_STATIC
@@ -228,6 +230,28 @@ public:
 	#endif
 		
 		return;
+	}
+
+	inline bool /* return: if exist */
+	createDirIfNotExist(const char *path)
+	{
+		if (!isDirExist(path)) {
+			mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+			return true;
+		}
+		return false;
+	}
+#elif defined(INK_PLATFORM_WIN32)
+	#include <direct.h>
+
+	inline bool /* return: if exist */
+	createDirIfNotExist(const char *path)
+	{
+		if (!_access(path)) {
+			_mkdir(path);
+			return true;
+		}
+		return false;
 	}
 #endif
 

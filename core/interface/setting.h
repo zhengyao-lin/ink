@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include "../../includes/switches.h"
 
-#ifdef __linux__
+#if defined(INK_PLATFORM_LINUX)
 	#include <unistd.h>
 
 	inline char *getCurrentDir()
@@ -18,7 +18,7 @@
 	{
 		return chdir(path);
 	}
-#else
+#elif defined(INK_PLATFORM_WIN32)
 	#include <direct.h>
 
 	inline char *getCurrentDir()

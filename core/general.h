@@ -4,14 +4,73 @@
 #include <vector>
 #include <string>
 #include <stdlib.h>
+#include "../includes/universal.h"
 
-#ifdef __linux__
-	#include <unistd.h>
+#if defined(INK_PLATFORM_LINUX)
 
-	inline void removeDir(std::string path)
+	inline int removeDir(const std::string path)
 	{
-		system(("rm -r \"" + path + "\"").c_str());
+		return system(("rm -r \"" + path + "\"").c_str());
 	}
+
+#elif defined(INK_PLATFORM_WIN32)
+	#include <windows.h>
+	#include <conio.h>
+
+	inline int removeDir(const std::string path, bool if_delete_sub = true)
+	{
+		bool has_sub_dir = false;
+		HANDLE file_handle;
+		std::string tmp_file_path;
+		std::string pattern;
+		WIN32_FIND_DATA file_info;
+
+		pattern = path + "\\*.*";
+		file_handle = ::FindFirstFile(pattern.c_str(), &file_info);
+		if(file_handle != INVALID_HANDLE_VALUE) {
+			do {
+				if(file_info.cFileName[0] != '.') {
+					tmp_file_path.erase();
+					tmp_file_path = path + "\\" + file_info.cFileName;
+
+					if(file_info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+						if(if_delete_sub) {
+							int i = removeDir(tmp_file_path, if_delete_sub);
+							if(i)
+							  return i;
+						}
+						else has_sub_dir = true;
+					} else {
+					  if(::SetFileAttributes(tmp_file_path.c_str(),
+					                         FILE_ATTRIBUTE_NORMAL) == false)
+					    return ::GetLastError();
+
+					  if(::DeleteFile(tmp_file_path.c_str()) == false)
+					    return ::GetLastError();
+					}
+				}
+			} while(::FindNextFile(file_handle, &file_info) == true);
+
+			::FindClose(file_handle);
+
+			DWORD dwError = ::GetLastError();
+			if(dwError != ERROR_NO_MORE_FILES)
+				return dwError;
+			else {
+				if(!has_sub_dir) {
+					if(::SetFileAttributes(path.c_str(),
+										   FILE_ATTRIBUTE_NORMAL) == false)
+					return ::GetLastError();
+
+					if(::RemoveDirectory(path.c_str()) == false)
+						return ::GetLastError();
+				}
+			}
+		}
+
+		return 0;
+	}
+
 #endif
 
 template <typename T1, typename T2, typename T3>

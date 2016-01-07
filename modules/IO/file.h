@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include "core/object.h"
+#include "../../includes/universal.h"
 
 #define FILE_GETS_BUFFER_SIZE 1000
 
@@ -22,7 +23,7 @@ public:
 	void setMethod();
 };
 
-#ifdef __linux__
+#if defined(INK_PLATFORM_LINUX)
 	#include <termios.h>
 
 	typedef struct termios ttyMode;
