@@ -38,7 +38,7 @@
 %token <string> TIDENTIFIER TNUMERIC TSTRING
 
 %token <token> TVAR TGLOBAL TLET TRETURN TNEW TDELETE TCLONE
-			   TFUNC TINLINE TDO TEND TGO TYIELD TGEN
+			   TFUNC TINLINE TDO TEND TGEN
 			   TIMPORT TBREAK TCONTINUE TDROP TTHROW TWITH
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
 %token <token> TDADD TDSUB TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND TAT
@@ -550,11 +550,11 @@ unary_expression
 												  arg), false, false);
 		SET_LINE_NO($$);
 	}
-	| TYIELD nllo unary_expression
+	/*| TYIELD nllo unary_expression
 	{
 		$$ = new Ink_YieldExpression($3);
 		SET_LINE_NO($$);
-	}
+	}*/
 	;
 
 argument_attachment

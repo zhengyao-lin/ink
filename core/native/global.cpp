@@ -342,7 +342,9 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("null", new Ink_NullObject());
 	context->context->setSlot("_", new Ink_Unknown());
 
+#ifdef INK_PLATFORM_LINUX
 	loadAllModules(context);
+#endif
 }
 
 int numeric_native_method_table_count = 14;

@@ -104,6 +104,7 @@ public:
 	}
 };
 
+/*
 class Ink_GoExpression: public Ink_Expression {
 public:
 	Ink_Expression *exp;
@@ -114,7 +115,7 @@ public:
 
 	static void *shell(void *p)
 	{
-		registerThread();
+		//registerThread();
 		
 		EvalArgument *arg = (EvalArgument *)p;
 		Ink_ContextChain *context = arg->context;
@@ -151,7 +152,9 @@ public:
 			delete exp;
 	}
 };
+*/
 
+/*
 extern Ink_Object *CGC_yield_value;
 extern ucontext CGC_yield_from;
 extern Ink_Object *CGC_send_back_value;
@@ -187,6 +190,7 @@ public:
 		delete ret_val;
 	}
 };
+*/
 
 class Ink_InterruptExpression: public Ink_Expression {
 public:

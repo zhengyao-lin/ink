@@ -4,6 +4,10 @@ else
 	export ARCH_PREFIX=
 endif
 
+ifeq ($(PLATFORM), win64)
+	export ARCH_PREFIX=i686-w64-mingw32-
+endif
+
 include makefile.head
 
 LIB_LD_NAME = $(GLOBAL_CORE_LIB_NAME)

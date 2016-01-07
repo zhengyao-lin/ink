@@ -13,7 +13,7 @@ void closeAllHandler()
 {
 	unsigned int i;
 	for (i = 0; i < dl_handler_pool.size(); i++) {
-		dlclose(dl_handler_pool[i]);
+		INK_DL_CLOSE(dl_handler_pool[i]);
 	}
 	return;
 }

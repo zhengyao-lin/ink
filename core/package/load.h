@@ -22,6 +22,13 @@
 	#define INK_DL_CLOSE(handler) (dlclose(handler))
 	#define INK_DL_ERROR() (dlerror())
 #elif defined(INK_PLATFORM_WIN32)
+	#include "winbase.h"
+
+	#define INK_DL_HANDLER HINSTANCE
+	#define INK_DL_OPEN(path, p) (LoadLibrary(path))
+	#define INK_DL_SYMBOL(handler, name) (GetProcAddress((handler), (name)))
+	#define INK_DL_CLOSE(handler) (FreeLibrary(handler))
+	#define INK_DL_ERROR() ("")
 #endif
 
 using namespace std;
@@ -43,7 +50,7 @@ typedef void (*InkMod_Loader)(Ink_ContextChain *context);
 typedef vector<INK_DL_HANDLER> DLHandlerPool;
 typedef long int Ink_MagicNumber;
 typedef size_t InkPack_Size;
-typedef char byte;
+typedef unsigned char byte;
 
 void addHandler(INK_DL_HANDLER handler);
 void closeAllHandler();
@@ -247,7 +254,7 @@ public:
 	inline bool /* return: if exist */
 	createDirIfNotExist(const char *path)
 	{
-		if (!_access(path)) {
+		if (!_access(path, 0)) {
 			_mkdir(path);
 			return true;
 		}

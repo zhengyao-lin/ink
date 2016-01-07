@@ -204,7 +204,7 @@ inline Ink_Object **linkArgv(int argc1, Ink_Object **argv1, int argc2, Ink_Objec
 	memcpy(&ret[argc1], argv2, sizeof(Ink_Object *) * argc2);
 	return ret;
 }
-
+/*
 Ink_Object *CGC_yield_value = NULL;
 ucontext CGC_yield_from;
 Ink_Object *CGC_send_back_value = NULL;
@@ -232,7 +232,7 @@ Ink_Object *InkNative_Generator_Send(Ink_ContextChain *context, unsigned int arg
 	}
 	return ret;
 }
-
+*/
 Ink_Object *CGC_interrupt_value = NULL;
 // ucontext *CGC_interrupt_address = NULL;
 
