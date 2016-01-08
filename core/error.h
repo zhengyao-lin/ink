@@ -397,4 +397,11 @@ InkWarn_Invalid_Return_Value_Of_To_String(Ink_TypeTag type)
 	return;
 }
 
+inline void
+InkWarn_Load_Mod_On_Wrong_OS(const char *path)
+{
+	InkWarn_doPrintWarning("Loading module of wrong system version($(path))", path);
+	return;
+}
+
 #endif

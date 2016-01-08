@@ -54,22 +54,22 @@ Ink_Package *Ink_Package::readFrom(FILE *fp)
 	Ink_MagicNumber tmp_magic_num;
 	fread(&tmp_magic_num, sizeof(Ink_MagicNumber), 1, fp);
 	InkPack_Info *tmp_pack_info = InkPack_Info::readFrom(fp);
-	InkPack_FileBlock *tmp_so_file = InkPack_FileBlock::readFrom(fp);
-	return new Ink_Package(tmp_magic_num, tmp_pack_info, tmp_so_file);
+	InkPack_FileBlock *tmp_dl_file = InkPack_FileBlock::readFrom(fp);
+	return new Ink_Package(tmp_magic_num, tmp_pack_info, tmp_dl_file);
 }
 
-string *InkPack_FileBlock::bufferToTmp() // return: tmp file path
+string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp file path
 {
 	FILE *fp;
 	char *suffix;
 	int current_bit = 1;
 	string path;
 
-	createDirIfNotExist(INK_TMP_PATH);
+	createDirIfNotExist(string(INK_TMP_PATH).c_str());
 
 	suffix = (char *)malloc(sizeof(char) * (current_bit + 1));
 	for (suffix[0] = 'a', suffix[1] = '\0';
-		 !(fp = fopen((path = string(INK_TMP_PATH INK_PATH_SPLIT) + string(suffix)).c_str(), "wbx"));) {
+		 !(fp = fopen((path = string(INK_TMP_PATH) + INK_PATH_SPLIT + string(suffix) + file_suffix).c_str(), "wbx"));) {
 		int i = current_bit - 1;
 		for (; i >= 0 && suffix[i] >= 'z'; i--) ;
 
@@ -105,19 +105,33 @@ void Ink_Package::load(Ink_ContextChain *context, const char *path)
 	}
 
 	Ink_Package *pack = Ink_Package::readFrom(fp);
-	tmp = pack->so_file->bufferToTmp();
+
+	if (pack->magic_num != INK_DEFAULT_MAGIC_NUM) {
+		InkWarn_Load_Mod_On_Wrong_OS(path);
+		delete pack;
+		return;
+	}
+
+	tmp = pack->dl_file->bufferToTmp();
 	handler = INK_DL_OPEN(tmp->c_str(), RTLD_NOW);
 	delete tmp;
 	InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
 
-	if (!handler || !loader) {
+	if (!handler) {
 		InkWarn_Failed_Load_Mod(path);
-		if (handler) INK_DL_CLOSE(handler);
 		printf("%s\n", INK_DL_ERROR());
 
 		delete pack;
 		fclose(fp);
+		return;
+	}
+	if (!loader) {
+		InkWarn_Failed_Find_Loader(path);
+		INK_DL_CLOSE(handler);
+		printf("%s\n", INK_DL_ERROR());
 
+		delete pack;
+		fclose(fp);
 		return;
 	}
 	loader(context);

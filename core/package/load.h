@@ -22,6 +22,8 @@
 	#define INK_DL_SYMBOL(handler, name) (dlsym((handler), (name)))
 	#define INK_DL_CLOSE(handler) (dlclose(handler))
 	#define INK_DL_ERROR() (dlerror())
+
+	#define INK_DEFAULT_MAGIC_NUM INK_0_LINUX
 #elif defined(INK_PLATFORM_WIN32)
 	#include "winbase.h"
 
@@ -31,6 +33,8 @@
 	#define INK_DL_SYMBOL(handler, name) (GetProcAddress((handler), (name)))
 	#define INK_DL_CLOSE(handler) (FreeLibrary(handler))
 	#define INK_DL_ERROR() ("")
+
+	#define INK_DEFAULT_MAGIC_NUM INK_0_WINDOWS
 #endif
 
 using namespace std;
@@ -50,9 +54,13 @@ hasSuffix(const char *path, const char *suf)
 
 typedef void (*InkMod_Loader)(Ink_ContextChain *context);
 typedef vector<INK_DL_HANDLER> DLHandlerPool;
-typedef long int Ink_MagicNumber;
 typedef size_t InkPack_Size;
 typedef unsigned char byte;
+
+enum Ink_MagicNumber {
+	INK_0_LINUX = 0,
+	INK_0_WINDOWS
+};
 
 void addHandler(INK_DL_HANDLER handler);
 void closeAllHandler();
@@ -147,7 +155,7 @@ public:
 		fwrite(data, sizeof(byte) * file_size, 1, fp);
 	}
 
-	string *bufferToTmp(); // return: tmp file path
+	string *bufferToTmp(const char *file_suffix = "." INK_DL_SUFFIX); // return: tmp file path
 	static InkPack_FileBlock *readFrom(FILE *fp);
 
 	~InkPack_FileBlock()
@@ -160,32 +168,32 @@ class Ink_Package {
 public:
 	Ink_MagicNumber magic_num;
 	InkPack_Info *pack_info;
-	InkPack_FileBlock *so_file;
+	InkPack_FileBlock *dl_file;
 
-	Ink_Package(const char *pack_name, const char *author, const char *so_file_path)
+	Ink_Package(const char *pack_name, const char *author, const char *dl_file_path, Ink_MagicNumber magic_num = INK_DEFAULT_MAGIC_NUM)
+	: magic_num(magic_num)
 	{
 		FILE *fp;
 
-		magic_num = 0;
 		pack_info = new InkPack_Info(pack_name, author);
-		fp = fopen(so_file_path, "rb");
+		fp = fopen(dl_file_path, "rb");
 		if (fp) {
-			so_file = new InkPack_FileBlock(fp);
+			dl_file = new InkPack_FileBlock(fp);
 		} else {
-			InkErr_Failed_Open_File(so_file_path);
+			InkErr_Failed_Open_File(dl_file_path);
 			// unreachable
 		}
 	}
 
 	Ink_Package(Ink_MagicNumber magic, InkPack_Info *info, InkPack_FileBlock *so)
-	: magic_num(magic), pack_info(info), so_file(so)
+	: magic_num(magic), pack_info(info), dl_file(so)
 	{ }
 	
 	void writeTo(FILE *fp)
 	{
 		fwrite(&magic_num, sizeof(Ink_MagicNumber), 1, fp);
 		pack_info->writeTo(fp);
-		so_file->writeTo(fp);
+		dl_file->writeTo(fp);
 		return;
 	}
 
@@ -195,7 +203,7 @@ public:
 	~Ink_Package()
 	{
 		delete pack_info;
-		delete so_file;
+		delete dl_file;
 	}
 };
 
@@ -214,9 +222,9 @@ public:
 
 		while ((child = readdir(mod_dir)) != NULL) {
 			if (hasSuffix(child->d_name, "mod")) {
-				Ink_Package::load(context, (string(INK_MODULE_DIR INK_PATH_SPLIT) + string(child->d_name)).c_str());
+				Ink_Package::load(context, (string(INK_MODULE_DIR) + INK_PATH_SPLIT + child->d_name).c_str());
 			} else if (hasSuffix(child->d_name, INK_DL_SUFFIX)) {
-				handler = INK_DL_OPEN((string(INK_MODULE_DIR INK_PATH_SPLIT) + string(child->d_name)).c_str(), RTLD_NOW);
+				handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(child->d_name)).c_str(), RTLD_NOW);
 				if (!handler) {
 					InkWarn_Failed_Load_Mod(child->d_name);
 					printf("\t%s\n", INK_DL_ERROR());
@@ -259,15 +267,15 @@ public:
 	    HANDLE dir_handle = NULL;
 	    INK_DL_HANDLER handler;
 
-	    dir_handle = FindFirstFile(INK_MODULE_DIR "/*", &data);  // find for all files
+	    dir_handle = FindFirstFile((INK_MODULE_DIR + "/*").c_str(), &data);  // find for all files
 	    if (dir_handle == INVALID_HANDLE_VALUE)
 	        return;
 
 	    do {
 	        if (hasSuffix(data.cFileName, "mod")) {
-				Ink_Package::load(context, (string(INK_MODULE_DIR INK_PATH_SPLIT) + string(data.cFileName)).c_str());
+				Ink_Package::load(context, (string(INK_MODULE_DIR + INK_PATH_SPLIT) + string(data.cFileName)).c_str());
 			} else if (hasSuffix(data.cFileName, INK_DL_SUFFIX)) {
-				handler = INK_DL_OPEN((string(INK_MODULE_DIR INK_PATH_SPLIT) + string(data.cFileName)).c_str(), RTLD_NOW);
+				handler = INK_DL_OPEN((string(INK_MODULE_DIR + INK_PATH_SPLIT) + string(data.cFileName)).c_str(), RTLD_NOW);
 				if (!handler) {
 					InkWarn_Failed_Load_Mod(data.cFileName);
 					printf("\t%s\n", INK_DL_ERROR());
@@ -292,7 +300,7 @@ public:
 	inline bool /* return: if exist */
 	createDirIfNotExist(const char *path)
 	{
-		if (!_access(path, 0)) {
+		if (!isDirExist(path)) {
 			_mkdir(path);
 			return true;
 		}

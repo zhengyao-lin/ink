@@ -5,14 +5,26 @@
 
 #define INK_DEBUG_FLAG 1
 
+extern char *tmp_prog_path;
+
 #if defined(INK_PLATFORM_WIN32)
+	#include <string>
 	#include <string.h>
 	#include <windows.h>
-	#define INK_MODULE_DIR "./modules"
-	#define INK_PATH_SPLIT "/"
-	#define INK_PATH_SPLIT_C '/'
+	#define INK_MODULE_DIR (getProgPath() + "modules")
+	#define INK_PATH_SPLIT "\\"
+	#define INK_PATH_SPLIT_C '\\'
 
-	#define INK_TMP_PATH "./tmp"
+	#define INK_TMP_PATH (getProgPath() + "tmp")
+
+	inline char *getBasePath(const char *path);
+	inline std::string getProgPath()
+	{
+		if (tmp_prog_path) return std::string(tmp_prog_path);
+		char buffer[MAX_PATH + 1];
+		GetModuleFileName(NULL, buffer, MAX_PATH);
+		return std::string(tmp_prog_path = getBasePath(buffer));
+	}
 #else
 	#ifdef INK_INSTALL_PATH
 		#define INK_MODULE_DIR INK_INSTALL_PATH "/lib/ink/modules"
@@ -23,6 +35,25 @@
 	#define INK_PATH_SPLIT "/"
 	#define INK_PATH_SPLIT_C '/'
 #endif
+
+inline char *getBasePath(const char *path)
+{
+	char *ret = NULL;
+	int i;
+
+	for (i = strlen(path) - 1; i > 0; i--) {
+		if (path[i] == INK_PATH_SPLIT_C)
+			break;
+	}
+
+	if (i >= 0) {
+		ret = (char *)malloc(sizeof(char) * (i + 2));
+		memset(ret, 0x0, sizeof(char) * (i + 2));
+		strncpy(ret, path, i + 1);
+	}
+
+	return ret;
+}
 
 
 #if defined(INK_PLATFORM_LINUX)

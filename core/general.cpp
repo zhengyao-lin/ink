@@ -7,6 +7,7 @@ using namespace std;
 
 static vector<string *> string_pool;
 Ink_ExpressionList native_exp_list = Ink_ExpressionList();
+char *tmp_prog_path = NULL;
 
 string *StrPool_addStr(const char *str)
 {
@@ -34,6 +35,7 @@ void StrPool_dispose()
 void cleanAll()
 {
 	unsigned int i;
+	const char *tmp;
 	for (i = 0; i < native_exp_list.size(); i++) {
 		delete native_exp_list[i];
 	}
@@ -41,8 +43,10 @@ void cleanAll()
 	// remove(INK_TMP_PATH);
 	StrPool_dispose();
 
-	if (isDirExist(INK_TMP_PATH))
-		removeDir(INK_TMP_PATH);
+	if (isDirExist(tmp = string(INK_TMP_PATH).c_str()))
+		removeDir(tmp);
+	if (tmp_prog_path)
+		free(tmp_prog_path);
 }
 
 Ink_Argument::~Ink_Argument()
