@@ -22,12 +22,12 @@ INSTALL_LIB_PATH = $(GLOBAL_INSTALL_PATH)/lib
 INSTALL_LIB_NAME = ink
 INSTALL_MODULE_PATH = modules
 
-BIN_OUTPUT = bin
-LIB_OUTPUT = lib
-WIN_OUTPUT = output
+export BIN_OUTPUT = bin
+export LIB_OUTPUT = lib
+export WIN_OUTPUT = output
 ifeq ($(PLATFORM), win64)
-	BIN_OUTPUT = $(WIN_OUTPUT)
-	LIB_OUTPUT = $(WIN_OUTPUT)
+	export BIN_OUTPUT = $(WIN_OUTPUT)
+	export LIB_OUTPUT = $(WIN_OUTPUT)
 endif
 MOD_OUTPUT = modules
 

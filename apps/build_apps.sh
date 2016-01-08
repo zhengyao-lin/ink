@@ -10,7 +10,7 @@ do
 	if [ ! $app = "." ]; then
 		cd $app
 		make
-		cp build/* "../../bin/"
+		cp build/* $1
 		cd ../
 	fi
 done
