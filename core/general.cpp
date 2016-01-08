@@ -35,7 +35,6 @@ void StrPool_dispose()
 void cleanAll()
 {
 	unsigned int i;
-	const char *tmp;
 	for (i = 0; i < native_exp_list.size(); i++) {
 		delete native_exp_list[i];
 	}
@@ -43,8 +42,8 @@ void cleanAll()
 	// remove(INK_TMP_PATH);
 	StrPool_dispose();
 
-	if (isDirExist(tmp = string(INK_TMP_PATH).c_str()))
-		removeDir(tmp);
+	if (isDirExist(string(INK_TMP_PATH).c_str()))
+		removeDir(string(INK_TMP_PATH).c_str());
 	if (tmp_prog_path)
 		free(tmp_prog_path);
 }
