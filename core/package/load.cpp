@@ -65,7 +65,7 @@ string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp f
 	int current_bit = 1;
 	string path;
 
-	createDirIfNotExist(string(INK_TMP_PATH).c_str());
+	createDirIfNotExist(INK_TMP_PATH);
 
 	suffix = (char *)malloc(sizeof(char) * (current_bit + 1));
 	for (suffix[0] = 'a', suffix[1] = '\0';

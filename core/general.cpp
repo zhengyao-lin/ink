@@ -42,8 +42,8 @@ void cleanAll()
 	// remove(INK_TMP_PATH);
 	StrPool_dispose();
 
-	if (isDirExist(string(INK_TMP_PATH).c_str()))
-		removeDir(string(INK_TMP_PATH).c_str());
+	if (isDirExist(INK_TMP_PATH))
+		removeDir(INK_TMP_PATH);
 	if (tmp_prog_path)
 		free(tmp_prog_path);
 }

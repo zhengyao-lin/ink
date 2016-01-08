@@ -11,11 +11,11 @@ extern char *tmp_prog_path;
 	#include <string>
 	#include <string.h>
 	#include <windows.h>
-	#define INK_MODULE_DIR (getProgPath() + "modules")
+	#define INK_MODULE_DIR ((getProgPath() + "modules").c_str())
 	#define INK_PATH_SPLIT "\\"
 	#define INK_PATH_SPLIT_C '\\'
 
-	#define INK_TMP_PATH (getProgPath() + "tmp")
+	#define INK_TMP_PATH ((getProgPath() + "tmp").c_str())
 
 	inline char *getBasePath(const char *path);
 	inline std::string getProgPath()

@@ -267,15 +267,15 @@ public:
 	    HANDLE dir_handle = NULL;
 	    INK_DL_HANDLER handler;
 
-	    dir_handle = FindFirstFile((INK_MODULE_DIR + "/*").c_str(), &data);  // find for all files
+	    dir_handle = FindFirstFile((string(INK_MODULE_DIR) + "/*").c_str(), &data);  // find for all files
 	    if (dir_handle == INVALID_HANDLE_VALUE)
 	        return;
 
 	    do {
 	        if (hasSuffix(data.cFileName, "mod")) {
-				Ink_Package::load(context, (string(INK_MODULE_DIR + INK_PATH_SPLIT) + string(data.cFileName)).c_str());
+				Ink_Package::load(context, (string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(data.cFileName)).c_str());
 			} else if (hasSuffix(data.cFileName, INK_DL_SUFFIX)) {
-				handler = INK_DL_OPEN((string(INK_MODULE_DIR + INK_PATH_SPLIT) + string(data.cFileName)).c_str(), RTLD_NOW);
+				handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(data.cFileName)).c_str(), RTLD_NOW);
 				if (!handler) {
 					InkWarn_Failed_Load_Mod(data.cFileName);
 					printf("\t%s\n", INK_DL_ERROR());
