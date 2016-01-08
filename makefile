@@ -8,13 +8,11 @@ include makefile.head
 
 ifeq ($(PLATFORM), win64)
 	export PLATFORM = win64
-ifneq ($(shell uname), Windows)
+ifneq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
 	export ARCH_PREFIX = x86_64-w64-mingw32-
 endif
 	export GLOBAL_LIB_SUFFIX = dll
 endif
-
-PLATFORM_NAME = $(shell uname)
 
 LIB_LD_NAME = $(GLOBAL_CORE_LIB_NAME)
 LIB_NAME = $(GLOBAL_CORE_LIB_SONAME)
