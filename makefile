@@ -8,9 +8,11 @@ include makefile.head
 
 ifeq ($(PLATFORM), win64)
 	export PLATFORM = win64
-	# export ARCH_PREFIX = x86_64-w64-mingw32-
+	export ARCH_PREFIX = x86_64-w64-mingw32-
 	export GLOBAL_LIB_SUFFIX = dll
 endif
+
+PLATFORM_NAME = $(shell uname)
 
 LIB_LD_NAME = $(GLOBAL_CORE_LIB_NAME)
 LIB_NAME = $(GLOBAL_CORE_LIB_SONAME)
@@ -22,6 +24,11 @@ INSTALL_MODULE_PATH = modules
 
 BIN_OUTPUT = bin
 LIB_OUTPUT = lib
+WIN_OUTPUT = output
+ifeq ($(PLATFORM), win64)
+	BIN_OUTPUT = $(WIN_OUTPUT)
+	LIB_OUTPUT = $(WIN_OUTPUT)
+endif
 MOD_OUTPUT = modules
 
 TARGET=$(BIN_OUTPUT)/ink
@@ -35,7 +42,7 @@ LD=$(ARCH_PREFIX)ld
 CPPFLAGS=$(GLOBAL_CPPFLAGS)
 STATIC_CPPFLAGS=$(CPPFLAGS) $(GLOBAL_STATIC_CPPFLAGS)
 
-LDFLAGS=-Lcore -l$(LIB_LD_NAME)
+LDFLAGS=-Lcore -l$(LIB_LD_NAME) -static-libgcc -static-libstdc++
 STATIC_LDFLAGS=-static
 ifneq ($(PLATFORM), win64)
 STATIC_LDFLAGS+=-ldl -pthread
@@ -92,6 +99,6 @@ clean:
 	cd core; $(MAKE) clean
 	cd modules; $(MAKE) clean
 	cd apps; $(MAKE) clean
-	$(RM) -r *.o $(TARGET) $(BIN_OUTPUT) $(LIB_OUTPUT)
+	$(RM) -r *.o $(TARGET) $(BIN_OUTPUT) $(LIB_OUTPUT) $(WIN_OUTPUT)
 
 FORCE:
