@@ -1,5 +1,5 @@
 export GLOBAL_ROOT_PATH = $(shell pwd)
-export GLOBAL_LIB_PATH = $(GLOBAL_ROOT_PATH)/lib
+export GLOBAL_LIB_PATH = $(GLOBAL_ROOT_PATH)/core
 
 export GLOBAL_LIB_SUFFIX = so
 

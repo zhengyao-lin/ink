@@ -16,6 +16,7 @@
 	#include <dirent.h>
 	#include <dlfcn.h>
 
+	#define INK_DL_SUFFIX "so"
 	#define INK_DL_HANDLER void *
 	#define INK_DL_OPEN(path, p) (dlopen((path), (p)))
 	#define INK_DL_SYMBOL(handler, name) (dlsym((handler), (name)))
@@ -24,6 +25,7 @@
 #elif defined(INK_PLATFORM_WIN32)
 	#include "winbase.h"
 
+	#define INK_DL_SUFFIX "dll"
 	#define INK_DL_HANDLER HINSTANCE
 	#define INK_DL_OPEN(path, p) (LoadLibrary(path))
 	#define INK_DL_SYMBOL(handler, name) (GetProcAddress((handler), (name)))
@@ -213,7 +215,7 @@ public:
 		while ((child = readdir(mod_dir)) != NULL) {
 			if (hasSuffix(child->d_name, "mod")) {
 				Ink_Package::load(context, (string(INK_MODULE_DIR INK_PATH_SPLIT) + string(child->d_name)).c_str());
-			} else if (hasSuffix(child->d_name, "so")) {
+			} else if (hasSuffix(child->d_name, INK_DL_SUFFIX)) {
 				handler = INK_DL_OPEN((string(INK_MODULE_DIR INK_PATH_SPLIT) + string(child->d_name)).c_str(), RTLD_NOW);
 				if (!handler) {
 					InkWarn_Failed_Load_Mod(child->d_name);
@@ -249,7 +251,43 @@ public:
 		return false;
 	}
 #elif defined(INK_PLATFORM_WIN32)
+	#include <windows.h>
 	#include <direct.h>
+
+	inline void loadAllModules(Ink_ContextChain *context) {
+	    WIN32_FIND_DATA data;
+	    HANDLE dir_handle = NULL;
+	    INK_DL_HANDLER handler;
+
+	    dir_handle = FindFirstFile(INK_MODULE_DIR "/*", &data);  // find for all files
+	    if (dir_handle == INVALID_HANDLE_VALUE)
+	        return;
+
+	    do {
+	        if (hasSuffix(data.cFileName, "mod")) {
+				Ink_Package::load(context, (string(INK_MODULE_DIR INK_PATH_SPLIT) + string(data.cFileName)).c_str());
+			} else if (hasSuffix(data.cFileName, INK_DL_SUFFIX)) {
+				handler = INK_DL_OPEN((string(INK_MODULE_DIR INK_PATH_SPLIT) + string(data.cFileName)).c_str(), RTLD_NOW);
+				if (!handler) {
+					InkWarn_Failed_Load_Mod(data.cFileName);
+					printf("\t%s\n", INK_DL_ERROR());
+					continue;
+				}
+
+				InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
+				if (!loader) {
+					InkWarn_Failed_Find_Loader(data.cFileName);
+					INK_DL_CLOSE(handler);
+					printf("\t%s\n", INK_DL_ERROR());
+				} else {
+					loader(context);
+					addHandler(handler);
+				}
+			}
+	    } while (FindNextFile(dir_handle, &data));
+
+	    FindClose(dir_handle);
+	}
 
 	inline bool /* return: if exist */
 	createDirIfNotExist(const char *path)

@@ -85,6 +85,10 @@ apps: main_prog FORCE
 modules: main_prog FORCE
 	cd modules; $(MAKE)
 
+output: FORCE
+	mkdir -p $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
+	-cp -af modules/*.dll modules/*.so $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
+
 install:
 	cp -a $(BIN_OUTPUT)/* $(INSTALL_BIN_PATH)
 
