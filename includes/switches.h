@@ -7,7 +7,7 @@
 
 #if defined(INK_PLATFORM_WIN32)
 	#include <string.h>
-	#include <fileapi.h>
+	#include <windows.h>
 	#define INK_PATH_SPLIT "/"
 	#define INK_PATH_SPLIT_C '/'
 

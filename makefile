@@ -8,7 +8,7 @@ include makefile.head
 
 ifeq ($(PLATFORM), win64)
 	export PLATFORM = win64
-	export ARCH_PREFIX = x86_64-w64-mingw32-
+	# export ARCH_PREFIX = x86_64-w64-mingw32-
 	export GLOBAL_LIB_SUFFIX = dll
 endif
 
