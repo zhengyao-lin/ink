@@ -710,3 +710,36 @@ if (cond1, "else", "if", new Array(null), fn(){}, "else", "if")
 // warning: if function ended with else if(requires condition and block)
 
 if (cond) // no warning
+
+// switch implementation
+
+switch = inl (&cond, args...) {
+	for (let i = 0, i < args.size(), null) {
+		if (args[i] == "case" &&
+			typename(args[i + 1]) == "array" &&
+			typename(args[i + 2]) == "function") {
+			if (args[i + 1][0] == cond()) {
+				args[i + 2]();
+			}
+		} else if (args[i] == "default" &&
+				   typename(args[i + 1]) == "function") {
+			args[i + 1]();
+			break;
+		}
+		i = i + 3;
+	}
+}
+
+cond = 10;
+switch (cond) \
+case (5) {
+  	p("cond is 5");
+  	// break;
+} case (10) {
+	p("cond is 10");
+	// break; // fallthrough!!
+} default {
+	p("default: cond is " + cond);
+}
+
+p("all ended");

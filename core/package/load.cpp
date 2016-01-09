@@ -23,9 +23,13 @@ InkPack_String *InkPack_String::readFrom(FILE *fp)
 	InkPack_Size tmp_len;
 	char *tmp_str;
 
-	fread(&tmp_len, sizeof(InkPack_Size), 1, fp);
+	if (!fread(&tmp_len, sizeof(InkPack_Size), 1, fp)) {
+		return NULL;
+	}
 	tmp_str = (char *)malloc(sizeof(char) * (tmp_len + 1));
-	fread(tmp_str, sizeof(char) * (tmp_len + 1), 1, fp);
+	if (!fread(tmp_str, sizeof(char), tmp_len + 1, fp)) {
+		return NULL;
+	}
 
 	return new InkPack_String(tmp_str, false);
 }
@@ -42,9 +46,11 @@ InkPack_FileBlock *InkPack_FileBlock::readFrom(FILE *fp)
 	InkPack_Size tmp_size;
 	byte *data;
 
-	fread(&tmp_size, sizeof(InkPack_Size), 1, fp);
+	if (!fread(&tmp_size, sizeof(InkPack_Size), 1, fp))
+		return NULL;
 	data = (byte *)malloc(sizeof(byte) * tmp_size);
-	fread(data, sizeof(byte) * tmp_size, 1, fp);
+	if (!fread(data, sizeof(byte), tmp_size, fp))
+		return NULL;
 
 	return new InkPack_FileBlock(tmp_size, data);
 }
@@ -52,7 +58,8 @@ InkPack_FileBlock *InkPack_FileBlock::readFrom(FILE *fp)
 Ink_Package *Ink_Package::readFrom(FILE *fp)
 {
 	Ink_MagicNumber tmp_magic_num;
-	fread(&tmp_magic_num, sizeof(Ink_MagicNumber), 1, fp);
+	if (!fread(&tmp_magic_num, sizeof(Ink_MagicNumber), 1, fp))
+		return NULL;
 	InkPack_Info *tmp_pack_info = InkPack_Info::readFrom(fp);
 	InkPack_FileBlock *tmp_dl_file = InkPack_FileBlock::readFrom(fp);
 	return new Ink_Package(tmp_magic_num, tmp_pack_info, tmp_dl_file);
@@ -86,7 +93,7 @@ string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp f
 		}
 	}
 	free(suffix);
-	fwrite(data, sizeof(byte) * file_size, 1, fp);
+	fwrite(data, sizeof(byte), file_size, fp);
 	fclose(fp);
 
 	return new string(path);

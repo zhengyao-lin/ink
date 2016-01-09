@@ -142,7 +142,7 @@ public:
 
 		data = (byte *)malloc(sizeof(byte) * file_size);
 		fseek(fp, 0L, SEEK_SET);
-		fread(data, sizeof(byte) * file_size, 1, fp);
+		fread(data, sizeof(byte), file_size, fp);
 	}
 
 	InkPack_FileBlock(InkPack_Size size, byte *d)
