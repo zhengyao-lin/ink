@@ -84,7 +84,7 @@ if you haven't installed git on your Windows, you can download zip file from [Gi
 	mkdir ink-src && cd ink-src
 	git clone https://github.com/Rod-Lin/ink.git
 	
-#####Secondly, install [MinGW](http://www.mingw.org, "MinGW")(requires base package, g++ bin package, msys bison package and msys flex package)
+#####Secondly, install [MinGW](http://www.mingw.org "MinGW")(requires base package, g++ bin package, msys bison package and msys flex package)
 Before compiling, make link yacc and lex to bison and flex
 
 	ln -s /bin/bison /bin/yacc
