@@ -167,7 +167,7 @@ int ink_yyinput(char *buf, int max_size)
 
 <INITIAL>"@"						return TOKEN(TAT);
 
-<INITIAL>"\\"{NEWLINE} {
+<INITIAL>"\\"{SP}*{NEWLINE} {
 	LINE_NUMBER_INC();
 }
 <INITIAL>{NEWLINE} {

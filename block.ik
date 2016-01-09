@@ -732,7 +732,7 @@ switch = inl (&cond, args...) {
 
 cond = 10;
 switch (cond) \
-case (5) {
+  case (5) {
   	p("cond is 5");
   	// break;
 } case (10) {
