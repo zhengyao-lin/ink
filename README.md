@@ -78,7 +78,28 @@ The correct output should be
 	hello, how are you?
 
 ####1.2 Windows on x86
-Transplantation is under processing. Please wait tight
+#####First, create a temp dir and clone the source code using git
+if you haven't installed git on your Windows, you can download zip file from [GitHub](https://github.com/Rod-Lin/ink "ink") directly
+
+	mkdir ink-src && cd ink-src
+	git clone https://github.com/Rod-Lin/ink.git
+	
+#####Secondly, install [MinGW](http://www.mingw.org "MinGW")(requires base package, g++ bin package, msys bison package and msys flex package)
+Before compiling, make link yacc and lex to bison and flex
+
+	ln -s /bin/bison /bin/yacc
+	ln -s /bin/flex /bin/lex
+	
+#####Then, cd in source dir and compile with the following command
+
+	cd ink
+	make PLATFORM=win64
+	make output
+
+#####All executable file will be in output, you can run example code for test
+
+	./output/ink block.ik
+
 
 ####1.3 Linux on ARM
 Similar process. Install g++ cross-compiler in the host(with Linux on x86) first, and make with argument ARCH=arm
