@@ -27,9 +27,9 @@ int main(int argc, char **argv)
 	// joinAllThread();
 
 	delete engine;
-	closeAllHandler();
 	cleanAll();
 	DBG_disposeTypeMapping();
+	closeAllHandler();
 
 	return 0;
 }

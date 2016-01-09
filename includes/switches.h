@@ -36,13 +36,15 @@ extern char *tmp_prog_path;
 	#define INK_PATH_SPLIT_C '/'
 #endif
 
+#define INK_IS_BOTH_SPLIT(c) ((c) == '/' || (c) == '\\')
+
 inline char *getBasePath(const char *path)
 {
 	char *ret = NULL;
 	int i;
 
 	for (i = strlen(path) - 1; i > 0; i--) {
-		if (path[i] == INK_PATH_SPLIT_C)
+		if (INK_IS_BOTH_SPLIT(path[i]))
 			break;
 	}
 

@@ -210,7 +210,6 @@ public:
 #if defined(INK_PLATFORM_LINUX)
 	inline void loadAllModules(Ink_ContextChain *context)
 	{
-	#ifndef INK_STATIC
 		DIR *mod_dir = opendir(INK_MODULE_DIR);
 		struct dirent *child;
 		INK_DL_HANDLER handler;
@@ -244,7 +243,6 @@ public:
 		}
 
 		closedir(mod_dir);
-	#endif
 		
 		return;
 	}

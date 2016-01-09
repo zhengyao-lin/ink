@@ -8,18 +8,18 @@ include makefile.head
 
 ifeq ($(PLATFORM), win64)
 	export GLOBAL_PLATFORM = windows
-ifneq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
-	export ARCH_PREFIX = x86_64-w64-mingw32-
-endif
+	ifneq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
+		export ARCH_PREFIX = x86_64-w64-mingw32-
+	endif
 	export GLOBAL_LIB_SUFFIX = dll
 else
-ifeq ($(PLATFORM), win32)
-	export GLOBAL_PLATFORM = windows
-ifneq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
-	export ARCH_PREFIX = i686-w64-mingw32-
-endif
-	export GLOBAL_LIB_SUFFIX = dll
-endif
+	ifeq ($(PLATFORM), win32)
+		export GLOBAL_PLATFORM = windows
+		ifneq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
+			export ARCH_PREFIX = i686-w64-mingw32-
+		endif
+		export GLOBAL_LIB_SUFFIX = dll
+	endif
 endif
 
 LIB_LD_NAME = $(GLOBAL_CORE_LIB_NAME)
@@ -95,7 +95,7 @@ modules: main_prog FORCE
 
 output: FORCE
 	mkdir -p $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
-	-cp -af modules/*.dll modules/*.so $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
+	cp -af modules/*.dll $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
 
 install:
 	cp -a $(BIN_OUTPUT)/* $(INSTALL_BIN_PATH)

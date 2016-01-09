@@ -101,7 +101,6 @@ string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp f
 
 void Ink_Package::load(Ink_ContextChain *context, const char *path)
 {
-#ifndef INK_STATIC
 	INK_DL_HANDLER handler;
 	FILE *fp = fopen(path, "rb");
 	string *tmp;
@@ -148,7 +147,6 @@ void Ink_Package::load(Ink_ContextChain *context, const char *path)
 		   pack->pack_info->author->str);
 	delete pack;
 	fclose(fp);
-#endif
 
 	return;
 }
