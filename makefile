@@ -7,11 +7,19 @@ endif
 include makefile.head
 
 ifeq ($(PLATFORM), win64)
-	export PLATFORM = win64
+	export GLOBAL_PLATFORM = windows
 ifneq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
 	export ARCH_PREFIX = x86_64-w64-mingw32-
 endif
 	export GLOBAL_LIB_SUFFIX = dll
+else
+ifeq ($(PLATFORM), win32)
+	export GLOBAL_PLATFORM = windows
+ifneq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
+	export ARCH_PREFIX = i686-w64-mingw32-
+endif
+	export GLOBAL_LIB_SUFFIX = dll
+endif
 endif
 
 LIB_LD_NAME = $(GLOBAL_CORE_LIB_NAME)
@@ -25,7 +33,7 @@ INSTALL_MODULE_PATH = modules
 export BIN_OUTPUT = bin
 export LIB_OUTPUT = lib
 export WIN_OUTPUT = output
-ifeq ($(PLATFORM), win64)
+ifeq ($(GLOBAL_PLATFORM), windows)
 	export BIN_OUTPUT = $(WIN_OUTPUT)
 	export LIB_OUTPUT = $(WIN_OUTPUT)
 endif
@@ -44,7 +52,7 @@ STATIC_CPPFLAGS=$(CPPFLAGS) $(GLOBAL_STATIC_CPPFLAGS)
 
 LDFLAGS=-Lcore -l$(LIB_LD_NAME) -static-libgcc -static-libstdc++
 STATIC_LDFLAGS=-static
-ifneq ($(PLATFORM), win64)
+ifneq ($(GLOBAL_PLATFORM), windows)
 STATIC_LDFLAGS+=-ldl -pthread
 endif
 

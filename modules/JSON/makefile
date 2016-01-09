@@ -7,7 +7,7 @@ CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld
 CPPFLAGS=-c -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=-shared -static-libgcc -static-libstdc++
-ifeq ($(PLATFORM), win64)
+ifeq ($(GLOBAL_PLATFORM), windows)
 	LDFLAGS+= -L$(GLOBAL_LIB_PATH) -l$(GLOBAL_CORE_LIB_NAME)
 endif
 INCLUDES=-I$(GLOBAL_ROOT_PATH)

@@ -14,3 +14,4 @@ export GLOBAL_CPPFLAGS = -g -Wall -pedantic -DINK_INSTALL_PATH="\"$(GLOBAL_INSTA
 export GLOBAL_STATIC_CPPFLAGS = -DINK_STATIC
 
 export GLOBAL_PLATFORM_NAME = $(shell uname)
+export GLOBAL_PLATFORM =
