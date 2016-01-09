@@ -29,7 +29,6 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 {
 	Ink_Object *cond;
 	Ink_Object *ret;
-	Ink_Object *true_block = NULL, *false_block = NULL;
 	unsigned int i;
 
 	if (!argc) {
@@ -37,23 +36,67 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 		return new Ink_NullObject();
 	}
 
-	for (i = 1; i < argc; i++) {
-		if (argv[i]->type == INK_FUNCTION) {
-			if (!true_block) true_block = argv[i];
-			else {
-				false_block = argv[i];
+	i = 0;
+	ret = cond = argv[0];
+	if (isTrue(cond)) {
+		i++;
+		if (i < argc && argv[i]->type == INK_FUNCTION) {
+			ret = argv[i]->call(context);
+		}
+	} else {
+		if (i + 1 < argc && argv[i + 1]->type == INK_FUNCTION) {
+			i += 2;
+		} else {
+			i++;
+		}
+		for (; i < argc; i++) {
+			if (argv[i]->type == INK_STRING) {
+				if (as<Ink_String>(argv[i])->value == "else") {
+					if (++i < argc) {
+						if (argv[i]->type == INK_STRING) {
+							if (as<Ink_String>(argv[i])->value == "if") {
+								if (++i < argc) {
+									if (argv[i]->type == INK_ARRAY) {
+										if (as<Ink_Array>(argv[i])->value.size() && as<Ink_Array>(argv[i])->value[0]) {
+											if (isTrue(as<Ink_Array>(argv[i])->value[0]->getValue())) {
+												if (++i < argc) {
+													if (argv[i]->type == INK_FUNCTION) {
+														ret = argv[i]->call(context);
+														break;
+													}
+												} else {
+													InkWarn_If_End_With_Else_If_Has_Condition();
+												}
+											} else {
+												i++;
+												continue;
+											}
+										} else {
+											InkWarn_Else_If_Has_No_Condition();
+											return ret;
+										}
+									} else {
+										InkWarn_Else_If_Has_No_Condition();
+										return ret;
+									}
+								} else {
+									InkWarn_If_End_With_Else_If();
+									return ret;
+								}
+							}
+						} else if (argv[i]->type == INK_FUNCTION) {
+							ret = argv[i]->call(context);
+						}
+					} else {
+						InkWarn_If_End_With_Else();
+						return ret;
+					}
+				}
+			} else if (argv[i]->type == INK_FUNCTION) {
+				ret = argv[i]->call(context);
 				break;
 			}
 		}
-	}
-
-	ret = cond = argv[0];
-	if (isTrue(cond)) {
-		if (true_block)
-			ret = true_block->call(context);
-	} else {
-		if (false_block)
-			ret = false_block->call(context);
 	}
 
 	return ret;

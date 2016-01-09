@@ -563,30 +563,47 @@ argument_attachment
 		$$ = new Ink_ArgumentList();
 		$$->push_back(new Ink_Argument($1));
 	}
-	| TIDENTIFIER
+	| TIDENTIFIER nllo TLPAREN element_list_opt TRPAREN
 	{
 		$$ = new Ink_ArgumentList();
 		$$->push_back(new Ink_Argument(new Ink_StringConstant($1)));
+		$$->push_back(new Ink_Argument(new Ink_TableExpression(*$4)));
+		delete $4;
 	}
 	| TWITH nllo function_expression
 	{
 		$$ = new Ink_ArgumentList();
 		$$->push_back(new Ink_Argument(true, $3));
 	}
-	| argument_attachment block
+	| block argument_attachment
 	{
-		$1->push_back(new Ink_Argument($2));
-		$$ = $1;
+		$$ = new Ink_ArgumentList();
+		$$->push_back(new Ink_Argument($1));
+		$$->insert($$->end(), $2->begin(), $2->end());
+		delete $2;
 	}
-	| argument_attachment TIDENTIFIER
+	| TIDENTIFIER nllo argument_attachment
 	{
-		$1->push_back(new Ink_Argument(new Ink_StringConstant($2)));
-		$$ = $1;
+		$$ = new Ink_ArgumentList();
+		$$->push_back(new Ink_Argument(new Ink_StringConstant($1)));
+		$$->insert($$->end(), $3->begin(), $3->end());
+		delete $3;
 	}
-	| argument_attachment TWITH nllo function_expression
+	| TIDENTIFIER nllo TLPAREN element_list_opt TRPAREN argument_attachment
 	{
-		$1->push_back(new Ink_Argument(true, $4));
-		$$ = $1;
+		$$ = new Ink_ArgumentList();
+		$$->push_back(new Ink_Argument(new Ink_StringConstant($1)));
+		$$->push_back(new Ink_Argument(new Ink_TableExpression(*$4)));
+		$$->insert($$->end(), $6->begin(), $6->end());
+		delete $4;
+		delete $6;
+	}
+	| TWITH nllo function_expression argument_attachment
+	{
+		$$ = new Ink_ArgumentList();
+		$$->push_back(new Ink_Argument(true, $3));
+		$$->insert($$->end(), $4->begin(), $4->end());
+		delete $4;
 	}
 	;
 

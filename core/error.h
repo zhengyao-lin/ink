@@ -174,7 +174,7 @@ InkWarn_Require_Lazy_Expression()
 inline void
 InkWarn_If_Argument_Fault()
 {
-	InkWarn_doPrintWarning("If function need at least 2 arguments");
+	InkWarn_doPrintWarning("If function need at least 1 argument");
 	return;
 }
 
@@ -401,6 +401,34 @@ inline void
 InkWarn_Load_Mod_On_Wrong_OS(const char *path)
 {
 	InkWarn_doPrintWarning("Loading module of wrong system version($(path))", path);
+	return;
+}
+
+inline void
+InkWarn_If_End_With_Else()
+{
+	InkWarn_doPrintWarning("if function ended with else");
+	return;
+}
+
+inline void
+InkWarn_If_End_With_Else_If()
+{
+	InkWarn_doPrintWarning("if function ended with else if(requires condition and block)");
+	return;
+}
+
+inline void
+InkWarn_If_End_With_Else_If_Has_Condition()
+{
+	InkWarn_doPrintWarning("if function ended with else if(requires block)");
+	return;
+}
+
+inline void
+InkWarn_Else_If_Has_No_Condition()
+{
+	InkWarn_doPrintWarning("Condition for else if missing");
 	return;
 }
 

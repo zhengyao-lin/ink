@@ -239,7 +239,7 @@ yieldHost = fn (yieldFunction) {
 		yield_f = fn (result) { 
 			processer(result)
 		};
-        yieldFunction(yield_f);
+		yieldFunction(yield_f);
 	};
 }
 
@@ -408,11 +408,6 @@ a.each () { | name, value |
 	p(name + " = value of type \"" + typename(value) + "\"");
 }
 
-func = fn (id) {
-	p(id)
-}
-
-func() hhhh;
 
 if (0) {
 	p("yeha");
@@ -652,3 +647,66 @@ obj = {
 
 p("" + obj);
 p(1.to_str());
+
+test_if = inl (cond, args...) {
+	let i = 0;
+	if (cond) {
+		if (typename(args[i]) == "function") {
+			args[i]();
+		}
+	} else {
+		for (i++, i < args.size(), i++) {
+			if (args[i] == "else") {
+				if (args[i + 1] == "if" && typename(args[i + 2]) == "array") {
+					if (args[i + 2][0]) {
+						if (typename(args[i + 3]) == "function") {
+							args[i + 3]();
+						}
+						break;
+					}
+				} else {
+					if (typename(args[i + 1]) == "function") {
+						args[i + 1]();
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
+test_if(0) {
+	p("haha");
+} else {
+	p("yes!!");
+} else if (1) {
+	p("no!!!!wrong!!");
+}
+
+cond1 = 0;
+cond2 = 0;
+cond3 = 1;
+// new if
+if (cond1) {
+	p("cond1 is true");
+} else if (cond2) {
+	p("cond2 is true");
+} else if (cond3) {
+	p("cond3 is true");
+}
+
+if (cond1) else if (cond2) {
+	p("cond1 is not true while cond2 is true");
+} else if (cond3) {
+	p("cond1 is not true while cond3 is true");
+}
+
+if (cond1, "else") // warning: if function ended with else
+if (cond1, "else", "if") // warning: if function ended with else if(requires condition and block)
+if (cond1, "else", "if", new Array()) // warning: condition for else if missing
+if (cond1, "else", "if", new Array("hi")) // warning: if function ended with else if(requires block)
+
+if (cond1, "else", "if", new Array(null), fn(){}, "else", "if")
+// warning: if function ended with else if(requires condition and block)
+
+if (cond) // no warning
