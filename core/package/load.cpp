@@ -76,7 +76,7 @@ string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp f
 
 	suffix = (char *)malloc(sizeof(char) * (current_bit + 1));
 	for (suffix[0] = 'a', suffix[1] = '\0';
-		 !(fp = fopen((path = string(INK_TMP_PATH) + INK_PATH_SPLIT + string(suffix) + file_suffix).c_str(), "wbx"));) {
+		 !(fp = fopen((path = string(INK_TMP_PATH) + INK_PATH_SPLIT + string(suffix) + file_suffix).c_str(), "wb"));) {
 		int i = current_bit - 1;
 		for (; i >= 0 && suffix[i] >= 'z'; i--) ;
 

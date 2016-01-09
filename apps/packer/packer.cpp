@@ -135,7 +135,7 @@ int main(int argc, char **argv)
 	}
 
 	FILE *fp;
-	fp = fopen(target, "wbx");
+	fp = fopen(target, "wb");
 
 	if (!fp) {
 		InkErr_Could_Not_Create_File(target);
