@@ -40,6 +40,7 @@ public:
 	Ink_ContextChain *global_context;
 
 	Ink_InputMode input_mode;
+	const char *input_file_path;
 
 	Ink_ContextChain *trace;
 
@@ -67,6 +68,17 @@ public:
 	inline IGC_CollectEngine *getCurrentGC()
 	{
 		return current_gc_engine;
+	}
+
+	inline void setFilePath(const char *path)
+	{
+		input_file_path = path;
+		return;
+	}
+
+	inline const char *getFilePath()
+	{
+		return  input_file_path;
 	}
 
 	void startParse(Ink_InputSetting setting);

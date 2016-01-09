@@ -42,9 +42,10 @@ public:
 	bool close_fp;
 	FILE *input_file_pointer;
 	Ink_CodeMode code_mode;
+	const char *input_file_path;
 
-	Ink_InputSetting(FILE *fp = stdin, bool close_fp = false)
-	: close_fp(close_fp), input_file_pointer(fp), code_mode(SOURCE_CODE)
+	Ink_InputSetting(const char *input_file_path = NULL, FILE *fp = stdin, bool close_fp = false)
+	: close_fp(close_fp), input_file_pointer(fp), code_mode(SOURCE_CODE), input_file_path(input_file_path)
 	{ }
 
 	void setInput(FILE *fp)
@@ -67,6 +68,17 @@ public:
 	Ink_CodeMode getMode()
 	{
 		return code_mode;
+	}
+
+	inline void setFilePath(const char *path)
+	{
+		input_file_path = path;
+		return;
+	}
+
+	inline const char *getFilePath()
+	{
+		return  input_file_path;
 	}
 
 	void clean()

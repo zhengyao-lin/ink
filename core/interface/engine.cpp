@@ -61,6 +61,8 @@ void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
 	Ink_setCurrentEngine(this);
 	
+	setFilePath(setting.getFilePath());
+
 	input_mode = INK_FILE_INPUT;
 	CGC_code_mode = setting.getMode();
 	// cleanTopLevel();
@@ -121,8 +123,18 @@ void Ink_InterpreteEngine::startParse(string code)
 
 Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 {
+	char *current_dir = NULL, *redirect = NULL;
 	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
 	Ink_setCurrentEngine(this);
+
+	if (getFilePath()) {
+		current_dir = getCurrentDir();
+		redirect = getBasePath(getFilePath());
+		if (redirect) {
+			changeDir(redirect);
+			free(redirect);
+		}
+	}
 
 	Ink_Object *ret = new Ink_NullObject();
 	unsigned int i;
@@ -135,6 +147,11 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 			trapSignal(); // trap all
 			break;
 		}
+	}
+
+	if (current_dir) {
+		changeDir(current_dir);
+		free(current_dir);
 	}
 
 	Ink_setCurrentEngine(backup);

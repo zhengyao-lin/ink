@@ -24,6 +24,7 @@ Ink_InputSetting Ink_InputSetting::parseArg(int argc, char **argv)
 				InkErr_Failed_Open_File(argv[i]);
 				break;
 			}
+			ret.setFilePath(argv[i]);
 			ret.setInput(fp);
 			ret.close_fp = true;
 		}
