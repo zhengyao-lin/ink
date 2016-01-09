@@ -119,7 +119,7 @@ int main(int argc, char **argv)
 	for (i = 0; i < argi; i++) {
 		if (arg[i]->instr == PACKAGE_NAME) {
 			pack_name = arg[i]->arg;
-		} else if (arg[i]->instr == PACKAGE_NAME) {
+		} else if (arg[i]->instr == AUTHOR) {
 			author = arg[i]->arg;
 		}
 	}
