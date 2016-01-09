@@ -6,22 +6,26 @@
 /* interrupt signal */
 InterruptSignal CGC_interrupt_signal = INTER_NONE;
 
-double Ink_NumericConstant::parseNumeric(string code, bool *is_success)
+Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success)
 {
 	unsigned long val = 0;
 	double fval = 0.0;
 	int flag = 1;
 
+	/* is minus */
 	if (code[0] == '-') {
 		flag = -1;
 		code = code.substr(1);
 	}
 
+	/* is float */
 	if (sscanf(code.c_str(), "%lf", &fval) > 0) {
 		if (is_success)
 			*is_success = true;
 		return fval * flag;
 	}
+
+	/* is integer */
 	if (sscanf(code.c_str(), "0x%lx", &val) > 0
 		|| sscanf(code.c_str(), "0X%lX", &val) > 0
 		|| sscanf(code.c_str(), "0%lo", &val) > 0
@@ -39,22 +43,11 @@ double Ink_NumericConstant::parseNumeric(string code, bool *is_success)
 
 Ink_Expression *Ink_NumericConstant::parse(string code)
 {
-	unsigned long val = 0;
-	double fval = 0.0;
-	int flag = 1;
+	bool is_success = false;
+	Ink_NumericValue val = Ink_NumericConstant::parseNumeric(code, &is_success);
 
-	if (code[0] == '-') {
-		flag = -1;
-		code = code.substr(1);
-	}
-
-	if (sscanf(code.c_str(), "%lf", &fval) > 0)
-		return new Ink_NumericConstant(fval * flag);
-	if (sscanf(code.c_str(), "0x%lx", &val) > 0
-		|| sscanf(code.c_str(), "0X%lX", &val) > 0
-		|| sscanf(code.c_str(), "0%lo", &val) > 0
-		|| sscanf(code.c_str(), "%lu", &val) > 0)
-		return new Ink_NumericConstant(val * flag);
+	if (is_success)
+		return new Ink_NumericConstant(val);
 
 	return NULL;
 }
@@ -65,17 +58,23 @@ Ink_Object *Ink_LogicExpression::eval(Ink_ContextChain *context_chain, Ink_EvalF
 	bool ret_val = false;
 	SET_LINE_NUM;
 
+	/* first eval left hand side */
 	Ink_Object *lhs = lval->eval(context_chain);
 	Ink_Object *rhs;
 
+	/* interrupt signal received */
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
 		return CGC_interrupt_value;
 	}
 
 	if (isTrue(lhs)) {
-		if (type == LOGIC_OR) ret_val = true;
+		/* left hand side true */
+		if (type == LOGIC_OR)
+			/* if operator is or, return true directly */
+			ret_val = true;
 		else {
+			/* if operator is and, make sure the right hand side is true, too */
 			rhs = rval->eval(context_chain);
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
@@ -86,6 +85,7 @@ Ink_Object *Ink_LogicExpression::eval(Ink_ContextChain *context_chain, Ink_EvalF
 			}
 		}
 	} else {
+		/* if operator is or, judge right hand side */
 		if (type == LOGIC_OR && isTrue(rval->eval(context_chain))) {
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
@@ -110,11 +110,14 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_ContextChain *context_chain, Ink_
 	Ink_Object **tmp;
 
 	rval_ret = rval->eval(context_chain);
+	/* eval right hand side first */
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
 		return CGC_interrupt_value;
 	}
+
 	lval_ret = lval->eval(context_chain, Ink_EvalFlag(true));
+	/* left hand side next */
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
 		return CGC_interrupt_value;
@@ -128,6 +131,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_ContextChain *context_chain, Ink_
 			CGC_interrupt_signal = INTER_NONE;
 			free(tmp);
 		} else {
+			/* no setter, directly assign */
 			lval_ret->address->setValue(rval_ret);
 		}
 		return is_return_lval ? lval_ret : rval_ret;
@@ -148,6 +152,7 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_ContextChain *context_chain, Ink_E
 	unsigned int i;
 
 	for (i = 0; i < mapping.size(); i++) {
+		/* two possibility: 1. identifier key; 2. expression key with brackets */
 		if (mapping[i]->name) {
 			ret->setSlot(mapping[i]->name->c_str(), mapping[i]->value->eval(context_chain));
 			if (INTER_SIGNAL_RECEIVED) {
@@ -300,6 +305,7 @@ Ink_Object *Ink_FunctionExpression::eval(Ink_ContextChain *context_chain, Ink_Ev
 	return new Ink_FunctionObject(param, exp_list, context_chain->copyContextChain(), is_inline, is_generator);
 }
 
+/* expand argument -- expand array object to parameter */
 inline Ink_ArgumentList expandArgument(Ink_Object *obj)
 {
 	Ink_ArgumentList ret = Ink_ArgumentList();
@@ -327,6 +333,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 	unsigned int i;
 	Ink_Object **argv = NULL;
 	Ink_Object *ret_val, *expandee;
+	/* eval callee to get parameter declaration */
 	Ink_Object *func = callee->eval(context_chain);
 	if (INTER_SIGNAL_RECEIVED)
 		return CGC_interrupt_value;
@@ -340,32 +347,46 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 	for (i = 0, tmp_arg_list = Ink_ArgumentList();
 		 i < arg_list.size(); i++) {
 		if (arg_list[i]->is_expand) {
+			/* if the argument is 'with' argument attachment */
+
+			/* eval expandee */
 			expandee = arg_list[i]->expandee->eval(context_chain);
 			if (INTER_SIGNAL_RECEIVED) {
 				ret_val = CGC_interrupt_value;
 				goto DISPOSE_LIST;
 			}
+
+			/* expand argument */
 			another_tmp_arg_list = expandArgument(expandee);
+
+			/* insert expanded argument to dispose list and temporary argument list */
 			dispose_list.insert(dispose_list.end(), another_tmp_arg_list.begin(), another_tmp_arg_list.end());
 			tmp_arg_list.insert(tmp_arg_list.end(), another_tmp_arg_list.begin(), another_tmp_arg_list.end());
 		} else {
+			/* normal argument, directly push to argument list */
 			tmp_arg_list.push_back(arg_list[i]);
 		}
 	}
 
 	if (tmp_arg_list.size()) {
+		/* allocate argument list */
 		argv = (Ink_Object **)malloc(tmp_arg_list.size() * sizeof(Ink_Object *));
+
+		/* set argument list, according to the parameter declaration */
 		for (i = 0; i < tmp_arg_list.size(); i++) {
 			if (i < param_list.size() && param_list[i].is_ref) {
+				/* if the paramete is declared as reference, seal the expression to a anonymous function */
 				Ink_ExpressionList exp_list = Ink_ExpressionList();
 				exp_list.push_back(tmp_arg_list[i]->arg);
 				argv[i] = new Ink_FunctionObject(Ink_ParamList(), exp_list,
 												 context_chain->copyContextChain(),
 												 true);
 			} else {
+				/* normal argument */
 				argv[i] = tmp_arg_list[i]->arg->eval(context_chain);
 				if (INTER_SIGNAL_RECEIVED) {
 					ret_val = CGC_interrupt_value;
+					/* goto dispose and interrupt */
 					goto DISPOSE_ARGV;
 				}
 			}
@@ -383,11 +404,6 @@ DISPOSE_LIST:
 	}
 
 	RESTORE_LINE_NUM;
-
-	/*if (CGC_interrupt_signal != INTER_NONE && CGC_interrupt_address) {
-		param_list = Ink_ParamList();
-		setcontext(CGC_interrupt_address);
-	}*/
 
 	return ret_val;
 }

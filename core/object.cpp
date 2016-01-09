@@ -53,6 +53,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 		}
 	}
 
+	/* search native methods */
 	switch (type) {
 		case INK_NUMERIC:
 			method = getMethod(this, key, numeric_native_method_table,
@@ -84,6 +85,8 @@ Ink_HashTable *Ink_Object::getSlotMapping(const char *key)
 			break;
 		default: break;
 	}
+
+	/* no specific method for type, try searching object */
 	if (!ret) {
 		method = getMethod(this, key, object_native_method_table,
 						   object_native_method_table_count);
@@ -527,7 +530,7 @@ Ink_Object *Ink_Array::clone()
 Ink_Object *Ink_FunctionObject::clone()
 {
 	Ink_FunctionObject *new_obj = new Ink_FunctionObject();
-
+	
 	new_obj->is_native = is_native;
 	new_obj->is_inline = is_inline;
 	new_obj->is_generator = is_generator;

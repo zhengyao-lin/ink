@@ -471,9 +471,9 @@ public:
 
 class Ink_NumericConstant: public Ink_Expression {
 public:
-	double value;
+	Ink_NumericValue value;
 
-	Ink_NumericConstant(double value)
+	Ink_NumericConstant(Ink_NumericValue value)
 	: value(value)
 	{ }
 
@@ -485,7 +485,7 @@ public:
 		return new Ink_Numeric(value);
 	}
 
-	static double parseNumeric(string code, bool *is_success = NULL);
+	static Ink_NumericValue parseNumeric(string code, bool *is_success = NULL);
 	static Ink_Expression *parse(string code);
 	virtual ~Ink_NumericConstant() { }
 };
