@@ -137,6 +137,7 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"!"						return TOKEN(TNOT);
 <INITIAL>","						return TOKEN(TCOMMA);
 <INITIAL>";"						return TOKEN(TSEMICOLON);
+<INITIAL>"::"						return TOKEN(TDCOLON);
 <INITIAL>":"						return TOKEN(TCOLON);
 <INITIAL>"."						return TOKEN(TDOT);
 

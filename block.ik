@@ -743,3 +743,16 @@ case (5) {
 } @
 
 p("all ended");
+
+//local_val = 10;
+func = fn () {
+	//local_val = 20;
+	retn fn () {
+		p(local_val);
+	}
+}
+
+(f = func())();								// (undefined)
+f::local_val = "haha, it's been changed";
+f()											// "haha, it's been changed"
+p(local_val);								// (undefined)

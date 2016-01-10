@@ -438,6 +438,10 @@ public:
 	{ }
 
 	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	static Ink_Object *getContextSlot(Ink_ContextChain *context_chain,
+									  const char *name,
+									  IDContextType context_type,
+									  Ink_EvalFlag flags, bool if_create_slot);
 
 	virtual ~Ink_IdentifierExpression()
 	{

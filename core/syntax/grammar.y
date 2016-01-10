@@ -40,7 +40,7 @@
 %token <token> TVAR TGLOBAL TLET TRETURN TNEW TDELETE TCLONE
 			   TFUNC TINLINE TDO TEND TGEN
 			   TIMPORT TBREAK TCONTINUE TDROP TTHROW TWITH
-%token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
+%token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TDCOLON TCOLON TASSIGN
 %token <token> TDADD TDSUB TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
 %token <token> TARR TINS TOUT
@@ -664,6 +664,14 @@ postfix_expression
 												  new Ink_HashExpression($1, new string("-")),
 												  arg), true, false);
 		SET_LINE_NO($$);
+	}
+	| postfix_expression TDCOLON nllo TIDENTIFIER
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument(new Ink_StringConstant($4)));
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("::")), arg);
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	;
 

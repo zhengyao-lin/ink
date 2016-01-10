@@ -113,6 +113,25 @@ Ink_Object *InkNative_Function_GetExp(Ink_ContextChain *context, unsigned int ar
 	return new Ink_Array(ret_val);
 }
 
+Ink_Object *InkNative_Function_GetScope(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot("base");
+	Ink_FunctionObject *func;
+
+	ASSUME_BASE_TYPE(INK_FUNCTION);
+
+	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	func = as<Ink_FunctionObject>(base);
+	if (!func->closure_context) {
+		func->closure_context = new Ink_ContextChain(new Ink_ContextObject());
+	}
+
+	return searchContextSlot(func->closure_context, as<Ink_String>(argv[0])->value.c_str());
+}
+
 extern int function_native_method_table_count;
 extern InkNative_MethodTable function_native_method_table[];
 

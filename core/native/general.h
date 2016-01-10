@@ -25,6 +25,11 @@ inline Ink_Object *getSlotWithProto(Ink_ContextChain *context, Ink_Object *base,
 	return Ink_HashExpression::getSlot(context, base, name);
 }
 
+inline Ink_Object *searchContextSlot(Ink_ContextChain *context, const char *name)
+{
+	return Ink_IdentifierExpression::getContextSlot(context, name, ID_COMMON, Ink_EvalFlag(), false);
+}
+
 inline Ink_Object *callMethod(Ink_ContextChain *context, Ink_Object *base, const char *method_name,
 							  unsigned int argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL)
 {

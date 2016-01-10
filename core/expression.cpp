@@ -413,6 +413,16 @@ Ink_Object *Ink_IdentifierExpression::eval(Ink_ContextChain *context_chain, Ink_
 	int line_num_back;
 	SET_LINE_NUM;
 
+	Ink_Object *ret;
+	ret = getContextSlot(context_chain, id->c_str(), context_type, flags, if_create_slot);
+
+	RESTORE_LINE_NUM;
+	return ret;
+}
+
+Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_ContextChain *context_chain, const char *name,
+													 IDContextType context_type, Ink_EvalFlag flags, bool if_create_slot)
+{
 	/* Variables */
 	Ink_HashTable *hash, *missing;
 	Ink_ContextChain *local = context_chain->getLocal();
@@ -431,16 +441,16 @@ Ink_Object *Ink_IdentifierExpression::eval(Ink_ContextChain *context_chain, Ink_
 	 */
 	switch (context_type) {
 		case ID_LOCAL:
-			hash = local->context->getSlotMapping(id->c_str());
+			hash = local->context->getSlotMapping(name);
 			missing = local->context->getSlotMapping("missing");
 			break;
 		case ID_GLOBAL:
-			hash = global->context->getSlotMapping(id->c_str());
+			hash = global->context->getSlotMapping(name);
 			missing = global->context->getSlotMapping("missing");
 			dest_context = global;
 			break;
 		default:
-			hash = context_chain->searchSlotMapping(id->c_str());
+			hash = context_chain->searchSlotMapping(name);
 			missing = context_chain->searchSlotMapping("missing");
 			break;
 	}
@@ -449,17 +459,17 @@ Ink_Object *Ink_IdentifierExpression::eval(Ink_ContextChain *context_chain, Ink_
 	if (!hash) {
 		if (if_create_slot) { /* if has the "var" keyword */
 			ret = new Ink_Object();
-			hash = dest_context->context->setSlot(id->c_str(), ret);
+			hash = dest_context->context->setSlot(name, ret);
 		} else { /* generate a undefined value */
 			if (missing && missing->getValue()->type == INK_FUNCTION) {
 				argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
-				argv[0] = new Ink_String(id->c_str());
+				argv[0] = new Ink_String(name);
 				ret = missing->getValue()->call(context_chain, 1, argv);
 				free(argv);
 			} else {
 				ret = new Ink_Undefined();
 			}
-			hash = dest_context->context->setSlot(id->c_str(), NULL);
+			hash = dest_context->context->setSlot(name, NULL);
 		}
 	} else {
 		ret = hash->getValue(); /* get value */
@@ -476,12 +486,10 @@ Ink_Object *Ink_IdentifierExpression::eval(Ink_ContextChain *context_chain, Ink_
 		/* trap all interrupt signal */
 		CGC_interrupt_signal = INTER_NONE;
 
-		RESTORE_LINE_NUM;
 		return tmp;
 	}
 	// hash->value->setSlot("this", hash->value);
 
-	RESTORE_LINE_NUM;
 	return ret;
 }
 
