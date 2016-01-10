@@ -28,6 +28,7 @@ SPS				({SP})+
 int current_line_number = 1;
 string *id_literal = NULL;
 string *string_literal = NULL;
+bool if_ignore_nl = false;
 
 int file_input(char *buf, int max_size)
 {
@@ -165,14 +166,17 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"/"						return TOKEN(TDIV);
 <INITIAL>"%"						return TOKEN(TMOD);
 
-<INITIAL>"@"						return TOKEN(TAT);
+<INITIAL>"@" {
+	if_ignore_nl = !if_ignore_nl;
+}
 
 <INITIAL>"\\"{SP}*{NEWLINE} {
 	LINE_NUMBER_INC();
 }
 <INITIAL>{NEWLINE} {
 	LINE_NUMBER_INC();
-	return TOKEN(TNL);
+	if (!if_ignore_nl)
+		return TOKEN(TNL);
 }
 <INITIAL>{SP}						/* Blank */;
 

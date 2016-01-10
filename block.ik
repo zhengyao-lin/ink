@@ -731,8 +731,8 @@ switch = inl (&cond, args...) {
 }
 
 cond = 10;
-switch (cond) \
-  case (5) {
+switch (cond) @
+case (5) {
   	p("cond is 5");
   	// break;
 } case (10) {
@@ -740,6 +740,6 @@ switch (cond) \
 	// break; // fallthrough!!
 } default {
 	p("default: cond is " + cond);
-}
+} @
 
 p("all ended");

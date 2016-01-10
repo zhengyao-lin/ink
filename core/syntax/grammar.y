@@ -41,7 +41,7 @@
 			   TFUNC TINLINE TDO TEND TGEN
 			   TIMPORT TBREAK TCONTINUE TDROP TTHROW TWITH
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TCOLON TASSIGN
-%token <token> TDADD TDSUB TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND TAT
+%token <token> TDADD TDSUB TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND
 %token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
 %token <token> TARR TINS TOUT
 %token <token> TCLE TCLT TCGE TCGT TCEQ TCNE TCAND TCOR
@@ -62,6 +62,7 @@
 						element_list element_list_opt
 %type <argument_list> argument_list argument_list_opt
 					  argument_attachment argument_list_without_paren
+					  insert_list
 %type <hash_table_mapping> hash_table_mapping hash_table_mapping_opt
 %type <hash_table_mapping_single> hash_table_mapping_single
 %type <context_type> id_context_type
@@ -233,14 +234,25 @@ field_expression
 	}
 	;
 
+insert_list
+	: TINS nllo logical_or_expression
+	{
+		$$ = new Ink_ArgumentList();
+		$$->push_back(new Ink_Argument($3));
+	}
+	| insert_list TINS nllo logical_or_expression
+	{
+		$1->push_back(new Ink_Argument($4));
+		$$ = $1;
+	}
+	;
+
 insert_expression
 	: logical_or_expression
-	| insert_expression TINS nllo logical_or_expression
+	| logical_or_expression insert_list
 	{
-		Ink_ArgumentList arg = Ink_ArgumentList();
-		arg.push_back(new Ink_Argument($4));
-
-		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<<")), arg);
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<<")), *$2);
+		delete $2;
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}

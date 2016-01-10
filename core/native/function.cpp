@@ -7,7 +7,7 @@
 Ink_Object *InkNative_Function_Insert(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
-	Ink_Object *arg;
+	unsigned int i;
 
 	ASSUME_BASE_TYPE(INK_FUNCTION);
 
@@ -16,14 +16,21 @@ Ink_Object *InkNative_Function_Insert(Ink_ContextChain *context, unsigned int ar
 		return NULL_OBJ;
 	}
 
-	arg = argv[0];
-
 	Ink_FunctionObject *func = as<Ink_FunctionObject>(base);
-	Ink_FunctionObject *insert = as<Ink_FunctionObject>(arg);
-	func->exp_list.insert(func->exp_list.end(), insert->exp_list.begin(), insert->exp_list.end());
-	return func;
+	Ink_FunctionObject *insert;
 
-	return NULL_OBJ;
+	for (i = 0; i < argc; i++) {
+		if (argv[i]->type != INK_FUNCTION) {
+			InkWarn_Insert_Non_Function_Object();
+			return func;
+		}
+		insert = as<Ink_FunctionObject>(argv[i]);
+		func->exp_list.insert(func->exp_list.end(),
+							  insert->exp_list.begin(),
+							  insert->exp_list.end());
+	}
+
+	return func;
 }
 
 Ink_Object **arrayValueToObject(Ink_ArrayValue val)
