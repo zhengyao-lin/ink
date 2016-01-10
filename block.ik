@@ -756,3 +756,11 @@ func = fn () {
 f::local_val = "haha, it's been changed";
 f()											// "haha, it's been changed"
 p(local_val);								// (undefined)
+
+p((start, 20, 30));
+
+f::(
+	local_val = "changed again!!",
+	p("hello")
+)											// "hello?"
+f()											// "changed again!!"

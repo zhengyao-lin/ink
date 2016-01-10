@@ -665,10 +665,10 @@ postfix_expression
 												  arg), true, false);
 		SET_LINE_NO($$);
 	}
-	| postfix_expression TDCOLON nllo TIDENTIFIER
+	| postfix_expression TDCOLON nllo function_expression
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();
-		arg.push_back(new Ink_Argument(new Ink_StringConstant($4)));
+		arg.push_back(new Ink_Argument($4));
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("::")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
@@ -913,9 +913,14 @@ primary_expression
 		$$ = new Ink_IdentifierExpression($5, $1, true);
 		SET_LINE_NO($$);
 	}
-	| TLPAREN nestable_expression TRPAREN
+	| TLPAREN nllo nestable_expression nllo TRPAREN
 	{
-		$$ = $2;
+		$$ = $3;
+		SET_LINE_NO($$);
+	}
+	| TLPAREN nllo comma_expression nllo TRPAREN
+	{
+		$$ = $3;
 		SET_LINE_NO($$);
 	}
 	| TLBRAKT element_list_opt TRBRAKT

@@ -26,7 +26,7 @@ Ink_Object *getMethod(Ink_Object *obj, const char *name, InkNative_MethodTable *
 	int i;
 	for (i = 0; i < count; i++) {
 		if (!strcmp(name, table[i].name)) {
-			return new Ink_FunctionObject(as<Ink_FunctionObject>(table[i].func)->native);
+			return table[i].func->clone();
 		}
 	}
 	return NULL;

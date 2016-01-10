@@ -439,15 +439,22 @@ InkNative_MethodTable array_native_method_table[] = {
 	{"[]", new Ink_FunctionObject(InkNative_Array_Index)},
 	{"push", new Ink_FunctionObject(InkNative_Array_Push)},
 	{"size", new Ink_FunctionObject(InkNative_Array_Size)},
-	{"each", new Ink_FunctionObject(InkNative_Array_Each, true)},
+	{"each", new Ink_FunctionObject(InkNative_Array_Each)},
 	{"remove", new Ink_FunctionObject(InkNative_Array_Remove)},
 	{"rebuild", new Ink_FunctionObject(InkNative_Array_Rebuild)}
 };
+
+inline Ink_ParamList InkNative_Function_GetScope_ParamGenerator()
+{
+	Ink_ParamList ret = Ink_ParamList();
+	ret.push_back(Ink_Parameter(NULL, true));
+	return ret;
+}
 
 int function_native_method_table_count = 4;
 InkNative_MethodTable function_native_method_table[] = {
 	{"<<", new Ink_FunctionObject(InkNative_Function_Insert)},
 	{"exp", new Ink_FunctionObject(InkNative_Function_GetExp)},
 	{"[]", new Ink_FunctionObject(InkNative_Function_RangeCall)},
-	{"::", new Ink_FunctionObject(InkNative_Function_GetScope)}
+	{"::", new Ink_FunctionObject(InkNative_Function_GetScope, InkNative_Function_GetScope_ParamGenerator())}
 };

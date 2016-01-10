@@ -116,20 +116,25 @@ Ink_Object *InkNative_Function_GetExp(Ink_ContextChain *context, unsigned int ar
 Ink_Object *InkNative_Function_GetScope(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot("base");
-	Ink_FunctionObject *func;
+	Ink_FunctionObject *func, *expr;
+	Ink_Object *ret;
 
 	ASSUME_BASE_TYPE(INK_FUNCTION);
 
-	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+	if (!checkArgument(argc, argv, 1, INK_FUNCTION)) {
 		return NULL_OBJ;
 	}
 
 	func = as<Ink_FunctionObject>(base);
-	if (!func->closure_context) {
-		func->closure_context = new Ink_ContextChain(new Ink_ContextObject());
+	expr = as<Ink_FunctionObject>(argv[0]);
+
+	if (func->closure_context && expr->exp_list.size()) {
+		ret = expr->exp_list[0]->eval(func->closure_context);
+	} else {
+		ret = expr->exp_list[0]->eval(context);
 	}
 
-	return searchContextSlot(func->closure_context, as<Ink_String>(argv[0])->value.c_str());
+	return ret;
 }
 
 extern int function_native_method_table_count;

@@ -211,6 +211,17 @@ public:
 		}
 	}
 
+	Ink_FunctionObject(Ink_NativeFunction native, Ink_ParamList param)
+	: is_native(true), is_inline(false), is_generator(false), native(native),
+	  param(param), exp_list(Ink_ExpressionList()), closure_context(NULL),
+	  attr(Ink_FunctionAttribution()), partial_applied_argc(0), partial_applied_argv(NULL)
+	{
+		type = INK_FUNCTION;
+		if (is_inline) {
+			setAttr(Ink_FunctionAttribution(INTER_DROP));
+		}
+	}
+
 	Ink_FunctionObject(Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context,
 					   bool is_inline = false, bool is_generator = false)
 	: is_native(false), is_inline(is_inline), is_generator(is_generator), native(NULL),
