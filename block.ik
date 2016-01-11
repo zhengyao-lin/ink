@@ -767,20 +767,24 @@ f::(
 f()											// "changed again!!"
 
 f1 = fn () {
-	p("once apon a time");
+	p("1");
 	yield
-	p("he is strong and flexible");
+	p("4");
 }
 f2 = fn () {
-	p("there is a knight");
-	yield
-	p("he eats a little");
+	p("2");
+	if (1) {
+		yield
+		p("5");
+	}
 }
 
 f3 = fn () {
-	p("his name is lancelot");
-	yield
-	p("yet he is strong");
+		p("3");
+	if (1) {
+		yield
+		p("6");
+	}
 }
 
 call_sync(f1, [], f2, [], f3, []);

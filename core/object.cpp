@@ -273,6 +273,13 @@ inline Ink_Object *callWithAttr(Ink_Object *obj, Ink_FunctionAttribution attr, I
 #define CURRENT_GC_ENGINE (CURRENT_SLICE.engine)
 #define CURRENT_ATTR (CURRENT_SLICE.func->attr)
 
+#define SWITCH_COROUTINE() (ink_current_coroutine = (ink_current_coroutine + 1 >= ink_coroutine_list.size()) ? 0 : ++ink_current_coroutine)
+
+Ink_CoroutineList ink_coroutine_list;
+unsigned int ink_current_coroutine;
+
+inline IGC_CollectEngine *popCurrentSlice();
+
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
 {
@@ -412,6 +419,55 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 		if (argi > argc) { /* still some parameter remaining */
 			InkWarn_Unfit_Argument();
+		}
+
+		if (ink_coroutine_list.size()) { // in sync call
+			IGC_CollectEngine *tmp_eng;
+			CURRENT_COROUTINE.push_back(Ink_CoroutineSlice(this, context, gc_engine, exp_list, 0));
+			CONTINUE:
+			for (; CURRENT_PC < CURRENT_EXP_LIST.size();) {
+				CURRENT_GC_ENGINE->checkGC();
+				CURRENT_EXP_LIST[CURRENT_PC]->eval(CURRENT_CONTEXT);
+
+				if (CGC_interrupt_signal != INTER_NONE) {
+					/* whether trap the signal */
+					if (CGC_interrupt_signal == INTER_YIELD) {
+						CURRENT_PC++;
+						SWITCH_COROUTINE();
+						IGC_initGC(CURRENT_GC_ENGINE);
+						printf("*** switch to coroutine %d\n", ink_current_coroutine);
+						trapSignal();
+						continue;
+					}
+					if (CURRENT_ATTR.hasTrap(CGC_interrupt_signal)) {
+						trapSignal();
+					}
+					break;
+				}
+				CURRENT_PC++;
+			}
+			printf("*** coroutine %d:%d ended\n", ink_current_coroutine, CURRENT_COROUTINE.size() - 1);
+			printf("%d, %d\n", CURRENT_SLICE.func, this);
+			/*if (CURRENT_SLICE.func == this) {
+				// self ended
+				printf("haha\n");
+				tmp_eng = popCurrentSlice();
+				IGC_initGC(CURRENT_GC_ENGINE);
+				return NULL_OBJ;
+			}*/
+			tmp_eng = popCurrentSlice();
+			if (ink_coroutine_list.size()) {
+				IGC_initGC(CURRENT_GC_ENGINE);
+				printf("*** continue on coroutine %d\n", ink_current_coroutine);
+				goto CONTINUE;
+			}
+			if (tmp_eng) {
+				engine_backup->link(tmp_eng);
+				delete tmp_eng;
+			}
+			IGC_initGC(engine_backup);
+
+			return NULL_OBJ;
 		}
 
 		for (j = 0; j < exp_list.size(); j++) {
@@ -578,9 +634,6 @@ Ink_Object *Ink_Unknown::clone()
 //////////////////////////// Experimental //////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
-Ink_CoroutineList ink_coroutine_list;
-unsigned int ink_current_coroutine;
-
 inline Ink_CoroutineSlice generateSlice(Ink_ContextChain *context,
 										Ink_SyncCall sync_call)
 {
@@ -645,26 +698,6 @@ inline Ink_CoroutineSlice generateSlice(Ink_ContextChain *context,
 							  sync_call.func->exp_list, 0);
 }
 
-#define CURRENT_COROUTINE (ink_coroutine_list[ink_current_coroutine])
-#define CURRENT_SLICE (CURRENT_COROUTINE[CURRENT_COROUTINE.size() - 1])
-#define CURRENT_CONTEXT (CURRENT_SLICE.context)
-#define CURRENT_EXP_LIST (CURRENT_SLICE.exp_list)
-#define CURRENT_PC (CURRENT_SLICE.current_pc)
-#define CURRENT_GC_ENGINE (CURRENT_SLICE.engine)
-#define CURRENT_ATTR (CURRENT_SLICE.func->attr)
-
-#define SWITCH_COROUTINE() (ink_current_coroutine = (ink_current_coroutine + 1 >= ink_coroutine_list.size()) ? 0 : ++ink_current_coroutine)
-
-inline void disposeSlice(Ink_CoroutineSlice slice)
-{
-	Ink_getCurrentEngine()->removeTrace(slice.context->getLocal());
-	Ink_ContextChain::disposeContextChain(slice.context);
-
-	slice.engine->collectGarbage();
-	delete slice.engine;
-	return;
-}
-
 inline IGC_CollectEngine *popCurrentSlice()
 {
 	Ink_getCurrentEngine()->removeTrace(CURRENT_SLICE.context->getLocal());
@@ -726,7 +759,7 @@ CONTINUE:
 		}
 		CURRENT_PC++;
 	}
-	printf("*** coroutine %d ended\n", ink_current_coroutine);
+	printf("*** coroutine %d:%d ended\n", ink_current_coroutine, CURRENT_COROUTINE.size() - 1);
 	tmp_eng = popCurrentSlice();
 	if (ink_coroutine_list.size()) {
 		IGC_initGC(CURRENT_GC_ENGINE);
