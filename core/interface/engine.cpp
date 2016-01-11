@@ -56,6 +56,23 @@ void Ink_InterpreteEngine::removeLastTrace()
 	return;
 }
 
+void Ink_InterpreteEngine::removeTrace(Ink_ContextChain *context)
+{
+	Ink_ContextChain *i;
+
+	for (i = trace->getGlobal(); i && i != context; i = i->inner) ;
+	if (i) {
+		if (i->inner) {
+			i->inner->outer = i->outer;
+		}
+		if (i->outer) {
+			i->outer->inner = i->inner;
+		}
+		delete i;
+	}
+	return;
+}
+
 void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 {
 	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();

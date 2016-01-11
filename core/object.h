@@ -11,6 +11,7 @@
 #include "hash.h"
 #include "error.h"
 #include "general.h"
+#include "coroutine/coroutine.h"
 using namespace std;
 
 void IGC_addObject(Ink_Object *obj);
@@ -334,6 +335,8 @@ public:
 
 	virtual Ink_Object *clone();
 };
+
+Ink_Object *Ink_callSync(Ink_ContextChain *context, Ink_SyncCallList call_list);
 
 template <class T> T *as(Ink_Object *obj)
 {

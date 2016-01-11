@@ -61,4 +61,6 @@ Ink_Object *InkNative_String_Less(Ink_ContextChain *context, unsigned int argc, 
 Ink_Object *InkNative_String_GreaterOrEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_String_LessOrEqual(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 
+Ink_Object **arrayValueToObject(Ink_ArrayValue val);
+
 #endif

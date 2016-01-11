@@ -55,6 +55,7 @@ public:
 
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
+	void removeTrace(Ink_ContextChain *context);
 
 	inline Ink_ContextChain *getTrace()
 	{ return trace; }
