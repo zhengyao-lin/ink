@@ -6,6 +6,7 @@
 #include "native/native.h"
 #include "interface/engine.h"
 #include "coroutine/coroutine.h"
+#include "thread/thread.h"
 #include "native/general.h"
 
 extern int numeric_native_method_table_count;
@@ -278,7 +279,7 @@ inline Ink_Object *callWithAttr(Ink_Object *obj, Ink_FunctionAttribution attr, I
 Ink_CoroutineList ink_coroutine_list;
 unsigned int ink_current_coroutine;
 
-inline IGC_CollectEngine *popCurrentSlice();
+extern IGC_CollectEngine *ink_sync_call_tmp_engine;
 
 Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
@@ -421,55 +422,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 			InkWarn_Unfit_Argument();
 		}
 
-		if (ink_coroutine_list.size()) { // in sync call
-			IGC_CollectEngine *tmp_eng;
-			CURRENT_COROUTINE.push_back(Ink_CoroutineSlice(this, context, gc_engine, exp_list, 0));
-			CONTINUE:
-			for (; CURRENT_PC < CURRENT_EXP_LIST.size();) {
-				CURRENT_GC_ENGINE->checkGC();
-				CURRENT_EXP_LIST[CURRENT_PC]->eval(CURRENT_CONTEXT);
-
-				if (CGC_interrupt_signal != INTER_NONE) {
-					/* whether trap the signal */
-					if (CGC_interrupt_signal == INTER_YIELD) {
-						CURRENT_PC++;
-						SWITCH_COROUTINE();
-						IGC_initGC(CURRENT_GC_ENGINE);
-						printf("*** switch to coroutine %d\n", ink_current_coroutine);
-						trapSignal();
-						continue;
-					}
-					if (CURRENT_ATTR.hasTrap(CGC_interrupt_signal)) {
-						trapSignal();
-					}
-					break;
-				}
-				CURRENT_PC++;
-			}
-			printf("*** coroutine %d:%d ended\n", ink_current_coroutine, CURRENT_COROUTINE.size() - 1);
-			printf("%d, %d\n", CURRENT_SLICE.func, this);
-			/*if (CURRENT_SLICE.func == this) {
-				// self ended
-				printf("haha\n");
-				tmp_eng = popCurrentSlice();
-				IGC_initGC(CURRENT_GC_ENGINE);
-				return NULL_OBJ;
-			}*/
-			tmp_eng = popCurrentSlice();
-			if (ink_coroutine_list.size()) {
-				IGC_initGC(CURRENT_GC_ENGINE);
-				printf("*** continue on coroutine %d\n", ink_current_coroutine);
-				goto CONTINUE;
-			}
-			if (tmp_eng) {
-				engine_backup->link(tmp_eng);
-				delete tmp_eng;
-			}
-			IGC_initGC(engine_backup);
-
-			return NULL_OBJ;
-		}
-
 		for (j = 0; j < exp_list.size(); j++) {
 			gc_engine->checkGC();
 			ret_val = exp_list[j]->eval(context); // eval each expression
@@ -547,7 +499,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 	/* remove local context from chain and trace */
 	context->removeLast();
-	Ink_getCurrentEngine()->removeLastTrace();
+	Ink_getCurrentEngine()->removeTrace(local);
 	
 	/* mark return value before sweeping */
 	if (ret_val)
@@ -559,7 +511,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 	if (closure_context) Ink_ContextChain::disposeContextChain(context);
 
 	/* link remaining objects to previous GC engine */
-	if (engine_backup) engine_backup->link(gc_engine);
+	if (ink_sync_call_tmp_engine) ink_sync_call_tmp_engine->link(gc_engine);
+	else if (engine_backup) engine_backup->link(gc_engine);
 
 	/* restore GC engine */
 	IGC_initGC(engine_backup);
@@ -634,6 +587,7 @@ Ink_Object *Ink_Unknown::clone()
 //////////////////////////// Experimental //////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////
 
+#if 0
 inline Ink_CoroutineSlice generateSlice(Ink_ContextChain *context,
 										Ink_SyncCall sync_call)
 {
@@ -720,7 +674,132 @@ inline IGC_CollectEngine *popCurrentSlice()
 
 	return tmp_eng;
 }
+#endif
 
+IGC_CollectEngine *ink_sync_call_tmp_engine = NULL;
+pthread_mutex_t ink_sync_call_mutex = PTHREAD_MUTEX_INITIALIZER;
+int ink_sync_call_max_thread;
+int ink_sync_call_current_thread;
+int ink_sync_call_ended;
+
+class InkSyncCall_Argument {
+public:
+	Ink_ContextChain *context;
+	Ink_SyncCall sync_call;
+	int id;
+
+	InkSyncCall_Argument(Ink_ContextChain *context, Ink_SyncCall sync_call, int id)
+	: context(context), sync_call(sync_call), id(id)
+	{ }
+};
+
+void *InkSyncCall_PrimaryCall(void *arg)
+{
+	InkSyncCall_Argument *tmp = (InkSyncCall_Argument *)arg;
+	int self_id = registerThread(tmp->id);
+	unsigned int self_layer = getCurrentLayer();
+	printf("id %d at layer %u registered, current %d\n", self_id, self_layer, ink_sync_call_current_thread);
+
+REWAIT:
+	do {
+		while (ink_sync_call_current_thread != self_id) ;
+	} while (getCurrentLayer() != self_layer);
+	if (ink_sync_call_current_thread != self_id) goto REWAIT;
+
+	Ink_Object *ret_val = tmp->sync_call.func->call(tmp->context, tmp->sync_call.argc,
+													tmp->sync_call.argv);
+
+	pthread_mutex_lock(&ink_sync_call_mutex);
+	// removeThread();
+	if (++ink_sync_call_current_thread >= ink_sync_call_max_thread)
+		ink_sync_call_current_thread = 0;
+	ink_sync_call_ended++;
+	pthread_mutex_unlock(&ink_sync_call_mutex);
+
+	printf("id %d at layer %u ended\n", self_id, self_layer);
+
+	return ret_val;
+}
+
+/*
+void *InkSyncCall_SecondaryCall(void *arg)
+{
+	int self_id = registerThread();
+
+	pthread_mutex_lock(&ink_sync_call_mutex);
+	pthread_cond_wait(&ink_sync_call_cond, &ink_sync_call_mutex);
+	pthread_mutex_unlock(&ink_sync_call_mutex);
+
+	InkSyncCall_Argument *tmp = (InkSyncCall_Argument *)arg;
+	Ink_Object *ret_val = tmp->sync_call.func->call(tmp->context, tmp->sync_call.argc,
+													tmp->sync_call.argv);
+
+	pthread_mutex_lock(&ink_sync_call_mutex);
+	pthread_cond_signal(&ink_sync_call_cond);
+	pthread_mutex_unlock(&ink_sync_call_mutex);
+
+	return ret_val;
+}
+*/
+
+Ink_Object *Ink_callSync(Ink_ContextChain *context,
+						 Ink_SyncCallList call_list)
+{
+	pthread_t *thread_pool;
+	unsigned int i;
+	InkSyncCall_Argument *tmp;
+	vector<InkSyncCall_Argument *> dispose_list;
+
+	addLayer();
+
+	int ink_sync_call_max_thread_back = ink_sync_call_max_thread;
+	int ink_sync_call_current_thread_back = ink_sync_call_current_thread;
+	int ink_sync_call_ended_back = ink_sync_call_ended;
+	IGC_CollectEngine *ink_sync_call_tmp_engine_back = ink_sync_call_tmp_engine;
+	
+	IGC_CollectEngine *engine_backup = Ink_getCurrentEngine()->getCurrentGC();
+	
+	thread_pool = (pthread_t *)malloc(sizeof(pthread_t) * call_list.size());
+
+	pthread_mutex_lock(&ink_sync_call_mutex);
+	ink_sync_call_tmp_engine = engine_backup;
+	ink_sync_call_current_thread = -1;
+	ink_sync_call_ended = 0;
+	ink_sync_call_max_thread = call_list.size();
+	pthread_mutex_unlock(&ink_sync_call_mutex);
+
+	for (i = 0; i < call_list.size(); i++) {
+		tmp = new InkSyncCall_Argument(context, call_list[i], i);
+		pthread_create(&thread_pool[i], NULL, InkSyncCall_PrimaryCall, tmp);
+		dispose_list.push_back(tmp);
+	}
+
+	pthread_mutex_lock(&ink_sync_call_mutex);
+	ink_sync_call_current_thread = 0;
+	pthread_mutex_unlock(&ink_sync_call_mutex);
+	
+	for (i = 0; i < call_list.size(); i++) {
+		pthread_join(thread_pool[i], NULL);
+	}
+	for (i = 0; i < dispose_list.size(); i++) {
+		delete dispose_list[i];
+	}
+	free(thread_pool);
+	IGC_initGC(engine_backup);
+
+	pthread_mutex_lock(&ink_sync_call_mutex);
+	ink_sync_call_tmp_engine = ink_sync_call_tmp_engine_back;
+	ink_sync_call_max_thread = ink_sync_call_max_thread_back;
+	ink_sync_call_current_thread = ink_sync_call_current_thread_back;
+	ink_sync_call_ended = ink_sync_call_ended_back;
+	pthread_mutex_unlock(&ink_sync_call_mutex);
+
+	removeLayer();
+
+	return NULL_OBJ;
+}
+
+/*
 Ink_Object *Ink_callSync(Ink_ContextChain *context,
 						 Ink_SyncCallList call_list)
 {
@@ -743,7 +822,6 @@ CONTINUE:
 		CURRENT_EXP_LIST[CURRENT_PC]->eval(CURRENT_CONTEXT);
 
 		if (CGC_interrupt_signal != INTER_NONE) {
-			/* whether trap the signal */
 			if (CGC_interrupt_signal == INTER_YIELD) {
 				CURRENT_PC++;
 				SWITCH_COROUTINE();
@@ -777,3 +855,4 @@ CONTINUE:
 
 	return NULL_OBJ;
 }
+*/

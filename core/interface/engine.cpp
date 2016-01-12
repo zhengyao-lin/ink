@@ -56,11 +56,11 @@ void Ink_InterpreteEngine::removeLastTrace()
 	return;
 }
 
-void Ink_InterpreteEngine::removeTrace(Ink_ContextChain *context)
+void Ink_InterpreteEngine::removeTrace(Ink_ContextObject *context)
 {
 	Ink_ContextChain *i;
 
-	for (i = trace->getGlobal(); i && i != context; i = i->inner) ;
+	for (i = trace->getGlobal(); i && i->context != context; i = i->inner) ;
 	if (i) {
 		if (i->inner) {
 			i->inner->outer = i->outer;

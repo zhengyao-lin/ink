@@ -3,12 +3,15 @@
 #if defined(INK_PLATFORM_LINUX)
 	MutexLock thread_lock;
 	int current_id = 0;
-	ThreadIDMap thread_id_map;
+	ThreadIDMapStack thread_id_map_stack;
 	ThreadPool thread_pool;
+
+#define CURRENT_LAYER (thread_id_map_stack.size() - 1)
 
 	int initThread()
 	{
 		thread_lock.init();
+		//thread_id_map_stack.push_back(ThreadIDMap());
 		return 0;
 	}
 
@@ -17,21 +20,72 @@
 		int id;
 
 		thread_lock.lock();
-		id = thread_id_map[getThreadID_raw()];
+		id = thread_id_map_stack[CURRENT_LAYER][getThreadID_raw()];
 		thread_lock.unlock();
 
 		return id;
 	}
 
-	int registerThread()
+	int registerThread(int id)
 	{
-		int id;
-
 		thread_lock.lock();
-		id = thread_id_map[getThreadID_raw()] = current_id++;
+
+		/*if (!thread_id_map_stack.size()) {
+			thread_id_map_stack.push_back(ThreadIDMap());
+		} else {
+			ThreadIDMap::iterator map_pos;
+			ThreadIDMap current_map = thread_id_map_stack[CURRENT_LAYER];
+
+			for (map_pos = current_map.begin();
+				 map_pos != current_map.end(); map_pos++) {
+				if (map_pos->second == id) {
+					printf("new layer created\n");
+					thread_id_map_stack.push_back(ThreadIDMap());
+					break;
+				}
+			}
+		}*/
+
+		/*if (thread_id_map_stack[CURRENT_LAYER].find(id)
+			!= thread_id_map_stack[CURRENT_LAYER].end()) {
+			thread_id_map_stack.push_back(ThreadIDMap());
+		}*/
+		thread_id_map_stack[CURRENT_LAYER][getThreadID_raw()] = id;
 		thread_lock.unlock();
 
 		return id;
+	}
+
+	void addLayer()
+	{
+		thread_lock.lock();
+		thread_id_map_stack.push_back(ThreadIDMap());
+		thread_lock.unlock();
+	}
+
+	void removeLayer()
+	{
+		thread_lock.lock();
+		thread_id_map_stack.pop_back();
+		thread_lock.unlock();
+	}
+
+	int removeThread()
+	{
+		thread_lock.lock();
+		thread_id_map_stack[CURRENT_LAYER].erase(getThreadID_raw());
+		if (!thread_id_map_stack[CURRENT_LAYER].size()) {
+			thread_id_map_stack.pop_back();
+		}
+		thread_lock.unlock();
+	}
+
+	unsigned int getCurrentLayer()
+	{
+		thread_lock.lock();
+		unsigned int ret = CURRENT_LAYER;
+		thread_lock.unlock();
+		return ret;
 	}
 
 	void addThread(pthread_t *thread)

@@ -766,28 +766,53 @@ f::(
 )											// "hello?"
 f()											// "changed again!!"
 
+
 f1 = fn () {
 	p("1");
 	yield
-	p("4");
+	p("8");
 }
 f2 = fn () {
 	p("2");
+	if (1) {
+		yield
+		p("9");
+	}
+}
+
+f3 = fn () {
+	//call_sync(f4, [], f5, []);
+	p("7");
+	if (1) {
+		yield
+		p("10");
+	}
+}
+
+f4 = fn () {
+
+	p("3");
 	if (1) {
 		yield
 		p("5");
 	}
 }
 
-f3 = fn () {
-		p("3");
+f5 = fn () {
+
+	p("4");
 	if (1) {
 		yield
 		p("6");
 	}
 }
 
-call_sync(f1, [], f2, [], f3, []);
+i = 1
+while (1) {
+	p("run " + i++);
+	call_sync(f1, [], f2, [], f3, []);
+}
+
 
 /*****
 

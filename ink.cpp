@@ -14,7 +14,7 @@
 
 int main(int argc, char **argv)
 {
-	// initThread();
+	initThread();
 	// registerThread();
 
 	DBG_initTypeMapping();

@@ -192,6 +192,12 @@ public:
 };
 */
 
+extern pthread_cond_t ink_sync_call_cond;
+extern pthread_mutex_t ink_sync_call_mutex;
+extern int ink_sync_call_max_thread;
+extern int ink_sync_call_current_thread;
+extern int ink_sync_call_ended;
+
 class Ink_InterruptExpression: public Ink_Expression {
 public:
 	InterruptSignal signal;
@@ -201,23 +207,7 @@ public:
 	: signal(signal), ret_val(ret_val)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
-	{
-		int line_num_back;
-		SET_LINE_NUM;
-
-		Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
-		if (INTER_SIGNAL_RECEIVED) {
-			RESTORE_LINE_NUM;
-			return CGC_interrupt_value;
-		}
-
-		RESTORE_LINE_NUM;
-		CGC_interrupt_signal = signal;
-		CGC_interrupt_value = ret;
-
-		return ret;
-	}
+	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	~Ink_InterruptExpression()
 	{
