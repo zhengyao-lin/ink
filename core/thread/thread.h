@@ -54,7 +54,6 @@
 	int registerThread(int id);
 	void addLayer();
 	void removeLayer();
-	int removeThread();
 	unsigned int getCurrentLayer();
 	void addThread(pthread_t *thread);
 	void joinAllThread();

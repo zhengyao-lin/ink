@@ -108,6 +108,7 @@ Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, In
 	Ink_Object *cond;
 	Ink_Object *block;
 	Ink_Object *ret;
+	IGC_CollectEngine *gc_engine = Ink_getCurrentEngine()->getCurrentGC();
 
 	if (argc < 2) {
 		InkWarn_While_Argument_Require();
@@ -126,6 +127,7 @@ Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, In
 
 	ret = new Ink_NullObject();
 	while (isTrue(cond->call(context))) {
+		gc_engine->checkGC();
 		ret = block->call(context);
 		switch (CGC_interrupt_signal) {
 			case INTER_RETURN:

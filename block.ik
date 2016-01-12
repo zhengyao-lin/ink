@@ -769,22 +769,22 @@ f()											// "changed again!!"
 
 f1 = fn () {
 	p("1");
-	yield
+	yield null
 	p("8");
 }
 f2 = fn () {
 	p("2");
 	if (1) {
-		yield
+		yield null
 		p("9");
 	}
 }
 
 f3 = fn () {
-	//call_sync(f4, [], f5, []);
+	call_sync(f4, [], f5, []);
 	p("7");
 	if (1) {
-		yield
+		yield null
 		p("10");
 	}
 }
@@ -793,7 +793,7 @@ f4 = fn () {
 
 	p("3");
 	if (1) {
-		yield
+		yield null
 		p("5");
 	}
 }
@@ -802,17 +802,46 @@ f5 = fn () {
 
 	p("4");
 	if (1) {
-		yield
+		yield null
 		p("6");
 	}
 }
 
-i = 1
-while (1) {
+i = 1;
+while (0) {
 	p("run " + i++);
 	call_sync(f1, [], f2, [], f3, []);
 }
 
+consumer = fn (n) {
+	let i = 0;
+	while (i < n) {
+		p(yield null);
+		i++
+	}
+}
+
+producer = fn (n) {
+	let a = 0;
+	let b = 1;
+	let tmp;
+	let i = 0;
+
+	while (i < n) {
+		tmp = b
+		b = a + b;
+		a = tmp;
+
+		yield b;
+		i++
+	}
+}
+
+fib_async = fn (n) {
+	call_sync(consumer, [n], producer, [n]);
+}
+
+fib_async(1475);
 
 /*****
 

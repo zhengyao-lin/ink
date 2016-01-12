@@ -176,10 +176,6 @@ interrupt_signal
 	{
 		$$ = INTER_THROW;
 	}
-	| TYIELD
-	{
-		$$ = INTER_YIELD;
-	}
 	;
 
 interrupt_expression
@@ -566,11 +562,11 @@ unary_expression
 												  arg), false, false);
 		SET_LINE_NO($$);
 	}
-	/*| TYIELD nllo unary_expression
+	| TYIELD unary_expression
 	{
-		$$ = new Ink_YieldExpression($3);
+		$$ = new Ink_YieldExpression($2);
 		SET_LINE_NO($$);
-	}*/
+	}
 	;
 
 argument_attachment

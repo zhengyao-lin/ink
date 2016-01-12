@@ -70,16 +70,6 @@
 		thread_lock.unlock();
 	}
 
-	int removeThread()
-	{
-		thread_lock.lock();
-		thread_id_map_stack[CURRENT_LAYER].erase(getThreadID_raw());
-		if (!thread_id_map_stack[CURRENT_LAYER].size()) {
-			thread_id_map_stack.pop_back();
-		}
-		thread_lock.unlock();
-	}
-
 	unsigned int getCurrentLayer()
 	{
 		thread_lock.lock();

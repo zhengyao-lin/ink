@@ -512,7 +512,9 @@ Ink_Object *Ink_FunctionObject::call(Ink_ContextChain *context, unsigned int arg
 
 	/* link remaining objects to previous GC engine */
 	if (ink_sync_call_tmp_engine) ink_sync_call_tmp_engine->link(gc_engine);
-	else if (engine_backup) engine_backup->link(gc_engine);
+	else if (engine_backup) {
+		engine_backup->link(gc_engine);
+	}
 
 	/* restore GC engine */
 	IGC_initGC(engine_backup);

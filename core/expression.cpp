@@ -53,6 +53,41 @@ Ink_Expression *Ink_NumericConstant::parse(string code)
 	return NULL;
 }
 
+Ink_Object *Ink_YieldExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+{
+	int line_num_back;
+	SET_LINE_NUM;
+
+	Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
+	if (INTER_SIGNAL_RECEIVED) {
+		RESTORE_LINE_NUM;
+		return CGC_interrupt_value;
+	}
+	CGC_interrupt_value = ret;
+
+	unsigned int self_layer = getCurrentLayer();
+	int self_id = getThreadID();
+	IGC_CollectEngine *engine_backup = Ink_getCurrentEngine()->getCurrentGC();
+
+	printf("id %d at layer %d yield\n", self_id, self_layer);
+
+	pthread_mutex_lock(&ink_sync_call_mutex);
+	if (++ink_sync_call_current_thread >= ink_sync_call_max_thread)
+		ink_sync_call_current_thread = 0;
+	pthread_mutex_unlock(&ink_sync_call_mutex);
+
+REWAIT:
+	do {
+		while (ink_sync_call_current_thread != self_id) ;
+	} while (getCurrentLayer() != self_layer);
+	if (ink_sync_call_current_thread != self_id) goto REWAIT;
+
+	IGC_initGC(engine_backup);
+
+	RESTORE_LINE_NUM;
+	return CGC_interrupt_value;
+}
+
 Ink_Object *Ink_InterruptExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
@@ -67,28 +102,6 @@ Ink_Object *Ink_InterruptExpression::eval(Ink_ContextChain *context_chain, Ink_E
 	RESTORE_LINE_NUM;
 
 	CGC_interrupt_value = ret;
-	if (signal == INTER_YIELD) {
-		unsigned int self_layer = getCurrentLayer();
-		int self_id = getThreadID();
-		IGC_CollectEngine *engine_backup = Ink_getCurrentEngine()->getCurrentGC();
-
-		printf("id %d at layer %d yield\n", self_id, self_layer);
-
-		pthread_mutex_lock(&ink_sync_call_mutex);
-		if (++ink_sync_call_current_thread >= ink_sync_call_max_thread)
-			ink_sync_call_current_thread = 0;
-		pthread_mutex_unlock(&ink_sync_call_mutex);
-
-REWAIT:
-		do {
-			while (ink_sync_call_current_thread != self_id) ;
-		} while (getCurrentLayer() != self_layer);
-		if (ink_sync_call_current_thread != self_id) goto REWAIT;
-
-		IGC_initGC(engine_backup);
-
-		return CGC_interrupt_value;
-	}
 	CGC_interrupt_signal = signal;
 
 	return ret;

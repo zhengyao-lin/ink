@@ -60,7 +60,7 @@ void Ink_InterpreteEngine::removeTrace(Ink_ContextObject *context)
 {
 	Ink_ContextChain *i;
 
-	for (i = trace->getGlobal(); i && i->context != context; i = i->inner) ;
+	for (i = trace->getLocal(); i && i->context != context; i = i->outer) ;
 	if (i) {
 		if (i->inner) {
 			i->inner->outer = i->outer;
