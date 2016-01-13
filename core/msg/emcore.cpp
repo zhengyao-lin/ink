@@ -302,5 +302,3 @@ ErrorMessage::tmpNote(string msg)
 	delete note;
 	return;
 }
-
-

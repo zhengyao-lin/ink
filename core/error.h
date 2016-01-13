@@ -262,8 +262,6 @@ InkWarn_Failed_Finding_Method(const char *name)
 	return;
 }
 
-enum Ink_TypeTag;
-
 inline void
 InkWarn_Wrong_Type(Ink_TypeTag expect, Ink_TypeTag type)
 {

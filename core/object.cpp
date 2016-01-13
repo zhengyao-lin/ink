@@ -755,7 +755,7 @@ Ink_Object *InkCoCall_call(Ink_ContextChain *context,
 	Ink_Object *ret_val;
 	Ink_ArrayValue arr_val;
 
-	printf("***Scheduler Started: %u coroutines are going to be created\n", call_list.size());
+	printf("***Scheduler Started: %lu coroutines are going to be created\n", call_list.size());
 	addLayer();
 
 	int ink_sync_call_max_thread_back = ink_sync_call_max_thread;

@@ -16,3 +16,7 @@ export GLOBAL_STATIC_CPPFLAGS = -DINK_STATIC
 export GLOBAL_PLATFORM_NAME = $(shell uname)
 export GLOBAL_PLATFORM =
 export GLOBAL_PLATFORM_ARCH =
+
+export ARCH_PREFIX=
+export CC=$(ARCH_PREFIX)g++
+export LD=$(ARCH_PREFIX)ld

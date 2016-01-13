@@ -1,8 +1,6 @@
 TARGET = build/inki
 REQUIRE = interface.o
 
-CC=$(ARCH_PREFIX)g++
-LD=$(ARCH_PREFIX)g++
 CPPFLAGS=-c -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=-L$(GLOBAL_LIB_PATH) -l$(GLOBAL_CORE_LIB_NAME) -static-libgcc -static-libstdc++
 INCLUDES=-I$(GLOBAL_ROOT_PATH)
