@@ -25,7 +25,7 @@ LDFLAGS=-shared -static-libgcc -static-libstdc++
 STATIC_LDFLAGS=
 
 ifneq ($(GLOBAL_PLATFORM), windows)
-	LDFLAGS+= -ldl -lpthread
+	LDFLAGS+= -ldl -pthread
 else
 	LDFLAGS+= -Wl,-Bstatic -lwinpthread
 endif
