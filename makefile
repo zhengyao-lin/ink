@@ -12,6 +12,7 @@ ifeq ($(PLATFORM), win64)
 		export ARCH_PREFIX = x86_64-w64-mingw32-
 	endif
 	export GLOBAL_LIB_SUFFIX = dll
+	export GLOBAL_PLATFORM_ARCH = x64
 else
 	ifeq ($(PLATFORM), win32)
 		export GLOBAL_PLATFORM = windows
@@ -19,6 +20,7 @@ else
 			export ARCH_PREFIX = i686-w64-mingw32-
 		endif
 		export GLOBAL_LIB_SUFFIX = dll
+		export GLOBAL_PLATFORM_ARCH = x86
 	endif
 endif
 
@@ -51,9 +53,11 @@ CPPFLAGS=$(GLOBAL_CPPFLAGS)
 STATIC_CPPFLAGS=$(CPPFLAGS) $(GLOBAL_STATIC_CPPFLAGS)
 
 LDFLAGS=-Lcore -l$(LIB_LD_NAME) -static-libgcc -static-libstdc++
-STATIC_LDFLAGS=-static
+STATIC_LDFLAGS=-static -pthread
+
 ifneq ($(GLOBAL_PLATFORM), windows)
-STATIC_LDFLAGS+=-ldl -pthread
+	LDFLAGS+= -ldl
+	STATIC_LDFLAGS+= -ldl
 endif
 
 CREATE_OUTPUT_DIR = \
@@ -96,6 +100,7 @@ modules: main_prog FORCE
 output: FORCE
 	mkdir -p $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
 	cp -af modules/*.dll $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
+	cp -af $(GLOBAL_ROOT_PATH)/third_parties/winpthread/$(GLOBAL_PLATFORM_ARCH)/* $(WIN_OUTPUT)
 
 install:
 	cp -a $(BIN_OUTPUT)/* $(INSTALL_BIN_PATH)

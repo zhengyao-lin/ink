@@ -21,11 +21,14 @@ REQUIRE=\
 CC=$(ARCH_PREFIX)g++
 LD=$(ARCH_PREFIX)ld
 CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -fPIC $(GLOBAL_CPPFLAGS)
-LDFLAGS=-shared -static-libgcc -static-libstdc++
-ifneq ($(GLOBAL_PLATFORM), windows)
-	LDFLAGS+=-ldl -pthread
-endif
+LDFLAGS=-shared -static-libgcc -static-libstdc++ -pthread
 STATIC_LDFLAGS=
+
+ifneq ($(GLOBAL_PLATFORM), windows)
+	LDFLAGS+= -ldl
+else
+	#LDFLAGS+= -static -L$(GLOBAL_ROOT_PATH)/third_parties/pthreads-win32/$(GLOBAL_PLATFORM_ARCH)/ -lpthreadGC2
+endif
 
 $(TARGET): $(REQUIRE)
 	$(CC) -o $@ $(REQUIRE) $(LDFLAGS)
