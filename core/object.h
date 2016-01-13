@@ -336,7 +336,8 @@ public:
 	virtual Ink_Object *clone();
 };
 
-Ink_Object *Ink_callSync(Ink_ContextChain *context, Ink_SyncCallList call_list);
+Ink_Object *InkCoCall_call(Ink_ContextChain *context, Ink_CoCallList call_list);
+bool InkCoCall_switchCoroutine();
 
 template <class T> T *as(Ink_Object *obj)
 {

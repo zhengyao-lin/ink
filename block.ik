@@ -781,7 +781,7 @@ f2 = fn () {
 }
 
 f3 = fn () {
-	call_sync(f4, [], f5, []);
+	cocall(f4, [], f5, []);
 	p("7");
 	if (1) {
 		yield null
@@ -810,9 +810,9 @@ f5 = fn () {
 i = 1;
 while (0) {
 	p("run " + i++);
-	call_sync(f1, [], f2, [], f3, []);
+	cocall(f1, [], f2, [], f3, []);
 }
-//call_sync(f1, [], f2, [], f3, []);
+//cocall(f1, [], f2, [], f3, []);
 
 consumer = fn (n) {
 	let i = 0;
@@ -839,7 +839,7 @@ producer = fn (n) {
 }
 
 fib_async = fn (n) {
-	call_sync(consumer, [n], producer, [n]);
+	cocall(consumer, [n], producer, [n]);
 }
 
 //fib_async(1476);
@@ -869,7 +869,7 @@ Coroutine = fn (&args...) {
 			routines.push(base.routines[i++]);
 			routines.push([]);
 		}
-		call_sync() with routines;
+		cocall() with routines;
 	}
 
 	this.add = fn (&exp) {
@@ -880,6 +880,18 @@ Coroutine = fn (&args...) {
 cor = new Coroutine(f1(), f2());
 cor.add(f3());
 cor.start();
+
+echo = fn () {
+	let text = yield null
+	p("received: " + text);
+	yield text
+}
+
+sender = fn () {
+	p(yield "I'm text");
+}
+
+cocall(echo, [], sender, []);
 
 /*****
 

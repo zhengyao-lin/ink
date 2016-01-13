@@ -591,7 +591,7 @@ Ink_Object *Ink_Unknown::clone()
 
 #if 0
 inline Ink_CoroutineSlice generateSlice(Ink_ContextChain *context,
-										Ink_SyncCall sync_call)
+										Ink_CoCall sync_call)
 {
 	Ink_ParamList param;
 	unsigned int i, argi;
@@ -683,24 +683,46 @@ pthread_mutex_t ink_sync_call_mutex = PTHREAD_MUTEX_INITIALIZER;
 int ink_sync_call_max_thread;
 int ink_sync_call_current_thread;
 int ink_sync_call_ended;
+vector<bool> ink_sync_call_end_flag;
 
-class InkSyncCall_Argument {
+class InkCoCall_Argument {
 public:
 	Ink_ContextChain *context;
-	Ink_SyncCall sync_call;
+	Ink_CoCall sync_call;
 	int id;
 
-	InkSyncCall_Argument(Ink_ContextChain *context, Ink_SyncCall sync_call, int id)
+	InkCoCall_Argument(Ink_ContextChain *context, Ink_CoCall sync_call, int id)
 	: context(context), sync_call(sync_call), id(id)
 	{ }
 };
 
-void *InkSyncCall_PrimaryCall(void *arg)
+bool /* if found idling coroutine */ InkCoCall_switchCoroutine()
 {
-	InkSyncCall_Argument *tmp = (InkSyncCall_Argument *)arg;
+	int id = ink_sync_call_current_thread + 1;
+	while (id < ink_sync_call_max_thread) {
+		if (!ink_sync_call_end_flag[id]) {
+			ink_sync_call_current_thread = id;
+			return true;
+		}
+		id++;
+	}
+	id = 0;
+	while (id < ink_sync_call_current_thread) {
+		if (!ink_sync_call_end_flag[id]) {
+			ink_sync_call_current_thread = id;
+			return true;
+		}
+		id++;
+	}
+	return false;
+}
+
+void *InkCoCall_primaryCall(void *arg)
+{
+	InkCoCall_Argument *tmp = (InkCoCall_Argument *)arg;
 	int self_id = registerThread(tmp->id);
 	unsigned int self_layer = getCurrentLayer();
-	printf("id %d at layer %u registered, current %d\n", self_id, self_layer, ink_sync_call_current_thread);
+	printf("***Coroutine created: id %d at layer %u\n", self_id, self_layer);
 
 REWAIT:
 	do {
@@ -713,51 +735,34 @@ REWAIT:
 
 	pthread_mutex_lock(&ink_sync_call_mutex);
 	// removeThread();
-	if (++ink_sync_call_current_thread >= ink_sync_call_max_thread)
-		ink_sync_call_current_thread = 0;
+	InkCoCall_switchCoroutine();
 	ink_sync_call_ended++;
+	ink_sync_call_end_flag[self_id] = true;
 	pthread_mutex_unlock(&ink_sync_call_mutex);
 
-	printf("id %d at layer %u ended\n", self_id, self_layer);
+	printf("***Coroutine ended: id %d at layer %u\n", self_id, self_layer);
 
 	return ret_val;
 }
 
-/*
-void *InkSyncCall_SecondaryCall(void *arg)
-{
-	int self_id = registerThread();
-
-	pthread_mutex_lock(&ink_sync_call_mutex);
-	pthread_cond_wait(&ink_sync_call_cond, &ink_sync_call_mutex);
-	pthread_mutex_unlock(&ink_sync_call_mutex);
-
-	InkSyncCall_Argument *tmp = (InkSyncCall_Argument *)arg;
-	Ink_Object *ret_val = tmp->sync_call.func->call(tmp->context, tmp->sync_call.argc,
-													tmp->sync_call.argv);
-
-	pthread_mutex_lock(&ink_sync_call_mutex);
-	pthread_cond_signal(&ink_sync_call_cond);
-	pthread_mutex_unlock(&ink_sync_call_mutex);
-
-	return ret_val;
-}
-*/
-
-Ink_Object *Ink_callSync(Ink_ContextChain *context,
-						 Ink_SyncCallList call_list)
+Ink_Object *InkCoCall_call(Ink_ContextChain *context,
+					   Ink_CoCallList call_list)
 {
 	pthread_t *thread_pool;
 	unsigned int i;
-	InkSyncCall_Argument *tmp;
-	vector<InkSyncCall_Argument *> dispose_list;
+	InkCoCall_Argument *tmp;
+	vector<InkCoCall_Argument *> dispose_list;
+	Ink_Object *ret_val;
+	Ink_ArrayValue arr_val;
 
+	printf("***Scheduler Started: %u coroutines are going to be created\n", call_list.size());
 	addLayer();
 
 	int ink_sync_call_max_thread_back = ink_sync_call_max_thread;
 	int ink_sync_call_current_thread_back = ink_sync_call_current_thread;
 	int ink_sync_call_ended_back = ink_sync_call_ended;
 	IGC_CollectEngine *ink_sync_call_tmp_engine_back = ink_sync_call_tmp_engine;
+	vector<bool> ink_sync_call_end_flag_back = ink_sync_call_end_flag;
 	
 	IGC_CollectEngine *engine_backup = Ink_getCurrentEngine()->getCurrentGC();
 	
@@ -768,11 +773,12 @@ Ink_Object *Ink_callSync(Ink_ContextChain *context,
 	ink_sync_call_current_thread = -1;
 	ink_sync_call_ended = 0;
 	ink_sync_call_max_thread = call_list.size();
+	ink_sync_call_end_flag = vector<bool>(call_list.size(), false);
 	pthread_mutex_unlock(&ink_sync_call_mutex);
 
 	for (i = 0; i < call_list.size(); i++) {
-		tmp = new InkSyncCall_Argument(context, call_list[i], i);
-		pthread_create(&thread_pool[i], NULL, InkSyncCall_PrimaryCall, tmp);
+		tmp = new InkCoCall_Argument(context, call_list[i], i);
+		pthread_create(&thread_pool[i], NULL, InkCoCall_primaryCall, tmp);
 		dispose_list.push_back(tmp);
 	}
 
@@ -781,8 +787,12 @@ Ink_Object *Ink_callSync(Ink_ContextChain *context,
 	pthread_mutex_unlock(&ink_sync_call_mutex);
 	
 	for (i = 0; i < call_list.size(); i++) {
-		pthread_join(thread_pool[i], NULL);
+		pthread_join(thread_pool[i], (void **)&ret_val);
+		if (ret_val) {
+			arr_val.push_back(new Ink_HashTable(ret_val));
+		}
 	}
+	printf("***Scheduler: All coroutine ended. Existing.\n");
 	for (i = 0; i < dispose_list.size(); i++) {
 		delete dispose_list[i];
 	}
@@ -794,16 +804,17 @@ Ink_Object *Ink_callSync(Ink_ContextChain *context,
 	ink_sync_call_max_thread = ink_sync_call_max_thread_back;
 	ink_sync_call_current_thread = ink_sync_call_current_thread_back;
 	ink_sync_call_ended = ink_sync_call_ended_back;
+	ink_sync_call_end_flag = ink_sync_call_end_flag_back;
 	pthread_mutex_unlock(&ink_sync_call_mutex);
 
 	removeLayer();
 
-	return NULL_OBJ;
+	return new Ink_Array(arr_val);
 }
 
 /*
 Ink_Object *Ink_callSync(Ink_ContextChain *context,
-						 Ink_SyncCallList call_list)
+						 Ink_CoCallList call_list)
 {
 	Ink_CoroutineList ink_coroutine_list_back = ink_coroutine_list;
 	unsigned int ink_current_coroutine_back = ink_current_coroutine;

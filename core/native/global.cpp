@@ -361,23 +361,24 @@ Ink_Object *Ink_Where(Ink_ContextChain *context, unsigned int argc, Ink_Object *
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_CallSync(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_CoroutineCall(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_SyncCallList sync_call_list = Ink_SyncCallList();
+	Ink_CoCallList co_call_list = Ink_CoCallList();
 	unsigned int i;
 	Ink_Object **tmp_argv;
 	Ink_Object *ret_val;
 
 	for (i = 0; i < argc; i += 2) {
 		tmp_argv = arrayValueToObject(as<Ink_Array>(argv[i + 1])->value);
-		sync_call_list.push_back(Ink_SyncCall(as<Ink_FunctionObject>(argv[i]), as<Ink_Array>(argv[i + 1])->value.size(),
-											  tmp_argv));
+		co_call_list.push_back(Ink_CoCall(as<Ink_FunctionObject>(argv[i]),
+										  as<Ink_Array>(argv[i + 1])->value.size(),
+										  tmp_argv));
 	}
 
-	ret_val = Ink_callSync(context, sync_call_list);
+	ret_val = InkCoCall_call(context, co_call_list);
 
-	for (i = 0; i < sync_call_list.size(); i++) {
-		free(sync_call_list[i].argv);
+	for (i = 0; i < co_call_list.size(); i++) {
+		free(co_call_list[i].argv);
 	}
 
 	return ret_val;
@@ -398,7 +399,7 @@ void Ink_GlobalMethodInit(Ink_ContextChain *context)
 	context->context->setSlot("import", new Ink_FunctionObject(Ink_Import));
 	context->context->setSlot("typename", new Ink_FunctionObject(Ink_TypeName));
 	context->context->setSlot("numval", new Ink_FunctionObject(Ink_NumVal));
-	context->context->setSlot("call_sync", new Ink_FunctionObject(Ink_CallSync));
+	context->context->setSlot("cocall", new Ink_FunctionObject(Ink_CoroutineCall));
 
 	context->context->setSlot("debug", new Ink_FunctionObject(Ink_Debug));
 	context->context->setSlot("where", new Ink_FunctionObject(Ink_Where));

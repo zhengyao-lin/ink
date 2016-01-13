@@ -12,18 +12,18 @@ class Ink_ContextChain;
 class IGC_CollectEngine;
 typedef std::vector<Ink_Expression *> Ink_ExpressionList;
 
-class Ink_SyncCall {
+class Ink_CoCall {
 public:
 	Ink_FunctionObject *func;
 	unsigned int argc;
 	Ink_Object **argv;
 
-	Ink_SyncCall(Ink_FunctionObject *func,
+	Ink_CoCall(Ink_FunctionObject *func,
 					unsigned int argc, Ink_Object **argv)
 	: func(func), argc(argc), argv(argv)
 	{ }
 };
-typedef std::vector<Ink_SyncCall> Ink_SyncCallList;
+typedef std::vector<Ink_CoCall> Ink_CoCallList;
 
 class Ink_CoroutineSlice {
 public:

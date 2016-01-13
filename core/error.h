@@ -432,4 +432,11 @@ InkWarn_Else_If_Has_No_Condition()
 	return;
 }
 
+inline void
+InkErr_Yield_Without_Coroutine()
+{
+	InkErr_doPrintError("Function yield, but no coroutine is created");
+	return;
+}
+
 #endif
