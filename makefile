@@ -53,11 +53,13 @@ CPPFLAGS=$(GLOBAL_CPPFLAGS)
 STATIC_CPPFLAGS=$(CPPFLAGS) $(GLOBAL_STATIC_CPPFLAGS)
 
 LDFLAGS=-Lcore -l$(LIB_LD_NAME) -static-libgcc -static-libstdc++
-STATIC_LDFLAGS=-static -pthread
+STATIC_LDFLAGS=-static
 
 ifneq ($(GLOBAL_PLATFORM), windows)
 	LDFLAGS+= -ldl
-	STATIC_LDFLAGS+= -ldl
+	STATIC_LDFLAGS+= -ldl -pthread
+else
+	STATIC_LDFLAGS+= -Wl,-Bstatic -lwinpthread
 endif
 
 CREATE_OUTPUT_DIR = \
@@ -100,7 +102,7 @@ modules: main_prog FORCE
 output: FORCE
 	mkdir -p $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
 	cp -af modules/*.dll $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
-	cp -af $(GLOBAL_ROOT_PATH)/third_parties/winpthread/$(GLOBAL_PLATFORM_ARCH)/* $(WIN_OUTPUT)
+	# cp -af $(GLOBAL_ROOT_PATH)/third_parties/winpthread/$(GLOBAL_PLATFORM_ARCH)/* $(WIN_OUTPUT)
 
 install:
 	cp -a $(BIN_OUTPUT)/* $(INSTALL_BIN_PATH)
