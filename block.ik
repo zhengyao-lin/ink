@@ -812,6 +812,7 @@ while (0) {
 	p("run " + i++);
 	call_sync(f1, [], f2, [], f3, []);
 }
+//call_sync(f1, [], f2, [], f3, []);
 
 consumer = fn (n) {
 	let i = 0;
@@ -832,7 +833,7 @@ producer = fn (n) {
 		b = a + b;
 		a = tmp;
 
-		yield b;
+		yield tmp;
 		i++
 	}
 }
@@ -841,7 +842,44 @@ fib_async = fn (n) {
 	call_sync(consumer, [n], producer, [n]);
 }
 
-fib_async(1475);
+//fib_async(1476);
+
+func = fn (&a...) {
+	p(typename(a[0]));
+	p(typename(a[1]));
+}
+
+func("no s**t", "wooo");
+
+Coroutine = fn (&args...) {
+	this.routines = new Array();
+
+	let i = 0;
+	p("haha");
+	while (i < args.size()) {
+		p(typename(args[i]))
+		this.routines.push(args[i++]);
+	}
+
+	this.start = fn () {
+		let routines = new Array();
+		let i = 0;
+
+		while (i < base.routines.size()) {
+			routines.push(base.routines[i++]);
+			routines.push([]);
+		}
+		call_sync() with routines;
+	}
+
+	this.add = fn (&exp) {
+		base.routines.push(exp);
+	}
+}
+
+cor = new Coroutine(f1(), f2());
+cor.add(f3());
+cor.start();
 
 /*****
 

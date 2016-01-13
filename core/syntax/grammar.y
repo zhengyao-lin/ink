@@ -487,8 +487,7 @@ unary_expression
 	: postfix_expression
 	| TNEW nllo postfix_expression TLPAREN argument_list_opt TRPAREN
 	{
-		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("new")),
-									*$5);
+		$$ = new Ink_CallExpression($3, *$5, true);
 		delete $5;
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
@@ -496,11 +495,11 @@ unary_expression
 	| TNEW nllo postfix_expression TLPAREN argument_list_opt TRPAREN argument_attachment
 	{
 		$5->insert($5->end(), $7->begin(), $7->end());
-		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("new")),
-									*$5);
+		$$ = new Ink_CallExpression($3, *$5, true);
 		delete $5;
 		delete $7;
 		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	| TCLONE nllo unary_expression
 	{
@@ -739,10 +738,20 @@ param_list
 		$$ = new Ink_ParamList();
 		$$->push_back(Ink_Parameter($1, false, true));
 	}
+	| TLAND nllo TIDENTIFIER TECLI
+	{
+		$$ = new Ink_ParamList();
+		$$->push_back(Ink_Parameter($3, true, true));
+	}
 	| TECLI
 	{
 		$$ = new Ink_ParamList();
-		$$->push_back(Ink_Parameter(new string("arg"), false, true));
+		$$->push_back(Ink_Parameter(new string("args"), false, true));
+	}
+	| TLAND nllo TECLI
+	{
+		$$ = new Ink_ParamList();
+		$$->push_back(Ink_Parameter(new string("args"), true, true));
 	}
 	;
 

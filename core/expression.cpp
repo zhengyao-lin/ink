@@ -398,6 +398,9 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 	if (func->type == INK_FUNCTION) {
 		param_list = as<Ink_FunctionObject>(func)->param;
 	}
+	if (is_new) {
+		func = Ink_HashExpression::getSlot(context_chain, func, "new");
+	}
 
 	for (i = 0, tmp_arg_list = Ink_ArgumentList();
 		 i < arg_list.size(); i++) {
@@ -431,11 +434,21 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 		for (i = 0; i < tmp_arg_list.size(); i++) {
 			if (i < param_list.size() && param_list[i].is_ref) {
 				/* if the paramete is declared as reference, seal the expression to a anonymous function */
-				Ink_ExpressionList exp_list = Ink_ExpressionList();
-				exp_list.push_back(tmp_arg_list[i]->arg);
-				argv[i] = new Ink_FunctionObject(Ink_ParamList(), exp_list,
-												 context_chain->copyContextChain(),
-												 true);
+				if (param_list[i].is_variant) {
+					for (; i < tmp_arg_list.size(); i++) {
+						Ink_ExpressionList exp_list = Ink_ExpressionList();
+						exp_list.push_back(tmp_arg_list[i]->arg);
+						argv[i] = new Ink_FunctionObject(Ink_ParamList(), exp_list,
+														 context_chain->copyContextChain(),
+														 true);
+					}
+				} else {
+					Ink_ExpressionList exp_list = Ink_ExpressionList();
+					exp_list.push_back(tmp_arg_list[i]->arg);
+					argv[i] = new Ink_FunctionObject(Ink_ParamList(), exp_list,
+													 context_chain->copyContextChain(),
+													 true);
+				}
 			} else {
 				/* normal argument */
 				argv[i] = tmp_arg_list[i]->arg->eval(context_chain);
