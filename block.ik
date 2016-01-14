@@ -879,7 +879,7 @@ Coroutine = fn (&args...) {
 
 cor = new Coroutine(f1(), f2());
 cor.add(f3());
-cor.start();
+//cor.start();
 
 echo = fn () {
 	let text = yield null
@@ -891,64 +891,4 @@ sender = fn () {
 	p(yield "I'm text");
 }
 
-cocall(echo, [], sender, []);
-
-/*****
-
-NOTES: IMPLEMENT COROUTINE IN INK
-
-1. We can call two or more functions at the time, and create a structure Ink_Coroutine for each routine
-it could be like this:
-typedef vector<Ink_CoroutineSlice> Ink_Coroutine;
-
-class Ink_CoroutineSlice {
-public:
-	Ink_FunctionObject *func;
-	Ink_ContextChain *context;
-	Ink_CollectEngine *engine;
-	Ink_ExpressionList exp_list;
-	unsigned int current_pc;
-};
-
-2. And there will be a global coroutine chain, containing all coroutine present
-typedef vector<Ink_Coroutine> Ink_CoroutineChain;
-
-Ink_CoroutineChain ink_coroutine_chain;
-unsigned int current_coroutine;
-
-3. So when a function call is sync, it will create one slice for each function
-like:
-Ink_CoroutineSlice slice1 = getSlice(func1);
-Ink_CoroutineSlice slice2 = getSlice(func2);
-Ink_CoroutineSlice slice3 = getSlice(func3);
-
-4. And backup the global coroutine chain, create a new one with the size of the number of function
-like:
-
-Ink_CoroutineChain coroutine_chain_back = ink_coroutine_chain;
-unsigned int current_back = current_coroutine;
-
-ink_coroutine_chain = Ink_CoroutineChain();
-ink_coroutine_chain.push_back(Ink_Coroutine(1, slice1));
-ink_coroutine_chain.push_back(Ink_Coroutine(1, slice2));
-ink_coroutine_chain.push_back(Ink_Coroutine(1, slice3));
-current_coroutine = 0;
-
-5. Then, start executing
-#define CURRENT_PC (ink_coroutine_chain[current_coroutine][ink_coroutine_chain[current_coroutine].size() - 1].current_pc)
-#define CURRENT_EXP (ink_coroutine_chain[current_coroutine][ink_coroutine_chain[current_coroutine].size() - 1].exp_list)
-#define CURRENT_CONTEXT (ink_coroutine_chain[current_coroutine][ink_coroutine_chain[current_coroutine].size() - 1].context)
-
-AGAIN:
-for (; CURRENT_PC < CURRENT_EXP.size(); CURRENT_EXP++) {
-	CURRENT_EXP[CURRENT_PC]->eval(CURRENT_CONTEXT);
-	// ...
-}
-
-// end
-if (current_coroutine != caller_coroutine) {
-	// TODO: pop the top of current_coroutine
-	goto AGAIN;
-}
-
-*****/
+//cocall(echo, [], sender, []);

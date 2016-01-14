@@ -405,7 +405,6 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 
 	Ink_Object *array_cons = new Ink_FunctionObject(engine, Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);
-	array_cons->setSlot("new", new Ink_FunctionObject(engine, InkNative_Object_New));
 
 	context->context->setSlot("undefined", new Ink_Undefined(engine));
 	context->context->setSlot("null", new Ink_NullObject(engine));

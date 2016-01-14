@@ -162,7 +162,7 @@ void Ink_Object::cloneHashTable(Ink_Object *src, Ink_Object *dest)
 	Ink_HashTable *i;
 	for (i = src->hash_table; i; i = i->next) {
 		if (i->getValue())
-			dest->setSlot(i->key, i->getValue());
+			dest->setSlot(i->key, i->getValue(), false);
 	}
 
 	return;

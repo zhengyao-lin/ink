@@ -6,18 +6,20 @@
 #include "core/general.h"
 #include "core/thread/thread.h"
 
-static Ink_InterpreteEngine *ink_engine_for_parse = NULL;
+static Ink_InterpreteEngine *ink_parse_engine = NULL;
 extern InterruptSignal CGC_interrupt_signal;
 extern Ink_CodeMode CGC_code_mode;
 
+pthread_mutex_t ink_parse_lock = PTHREAD_MUTEX_INITIALIZER;
+
 Ink_InterpreteEngine *Ink_getParseEngine()
 {
-	return ink_engine_for_parse;
+	return ink_parse_engine;
 }
 
 void Ink_setParseEngine(Ink_InterpreteEngine *engine)
 {
-	ink_engine_for_parse = engine;
+	ink_parse_engine = engine;
 	return;
 }
 
@@ -74,6 +76,7 @@ void Ink_InterpreteEngine::removeTrace(Ink_ContextObject *context)
 
 void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 {
+	pthread_mutex_lock(&ink_parse_lock);
 	Ink_InterpreteEngine *backup = Ink_getParseEngine();
 	Ink_setParseEngine(this);
 	
@@ -90,12 +93,14 @@ void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 	setting.clean();
 
 	Ink_setParseEngine(backup);
+	pthread_mutex_unlock(&ink_parse_lock);
 
 	return;
 }
 
 void Ink_InterpreteEngine::startParse(FILE *input, bool close_fp)
 {
+	pthread_mutex_lock(&ink_parse_lock);
 	Ink_InterpreteEngine *backup = Ink_getParseEngine();
 	Ink_setParseEngine(this);
 	
@@ -109,12 +114,14 @@ void Ink_InterpreteEngine::startParse(FILE *input, bool close_fp)
 	if (close_fp) fclose(input);
 
 	Ink_setParseEngine(backup);
+	pthread_mutex_unlock(&ink_parse_lock);
 
 	return;
 }
 
 void Ink_InterpreteEngine::startParse(string code)
 {
+	pthread_mutex_lock(&ink_parse_lock);
 	Ink_InterpreteEngine *backup = Ink_getParseEngine();
 	Ink_setParseEngine(this);
 
@@ -133,6 +140,7 @@ void Ink_InterpreteEngine::startParse(string code)
 	free(input);
 
 	Ink_setParseEngine(backup);
+	pthread_mutex_unlock(&ink_parse_lock);
 
 	return;
 }
@@ -140,8 +148,6 @@ void Ink_InterpreteEngine::startParse(string code)
 Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 {
 	char *current_dir = NULL, *redirect = NULL;
-	Ink_InterpreteEngine *backup = Ink_getParseEngine();
-	Ink_setParseEngine(this);
 
 	if (getFilePath()) {
 		current_dir = getCurrentDir();
@@ -170,24 +176,17 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 		free(current_dir);
 	}
 
-	Ink_setParseEngine(backup);
-
 	return ret;
 }
 
 Ink_Object *Ink_InterpreteEngine::execute(Ink_Expression *exp)
 {
-	Ink_InterpreteEngine *backup = Ink_getParseEngine();
-	Ink_setParseEngine(this);
-
 	Ink_Object *ret;
 	Ink_ContextChain *context = NULL;
 
 	if (!context) context = global_context;
 	getCurrentGC()->checkGC();
 	ret = exp->eval(this, context);
-
-	Ink_setParseEngine(backup);
 
 	return ret;
 }
@@ -217,9 +216,6 @@ void Ink_InterpreteEngine::cleanContext(Ink_ContextChain *context)
 
 Ink_InterpreteEngine::~Ink_InterpreteEngine()
 {
-	Ink_InterpreteEngine *backup = Ink_getParseEngine();
-	Ink_setParseEngine(this);
-
 	gc_engine->collectGarbage(true);
 	delete gc_engine;
 
@@ -227,6 +223,4 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 	cleanContext(global_context);
 	cleanContext(trace);
 	StrPool_dispose();
-
-	Ink_setParseEngine(backup);
 }
