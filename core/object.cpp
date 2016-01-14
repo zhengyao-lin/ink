@@ -20,8 +20,6 @@ extern InkNative_MethodTable array_native_method_table[];
 extern int function_native_method_table_count;
 extern InkNative_MethodTable function_native_method_table[];
 
-extern int inkerr_current_line_number;
-
 Ink_Object *getMethod(Ink_InterpreteEngine *engine,
 					  Ink_Object *obj, const char *name, InkNative_MethodTable *table, int count)
 {
@@ -101,9 +99,16 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 
 Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_check_exist)
 {
-	Ink_HashTable *slot = NULL;
+	Ink_HashTable *i, *slot = NULL, *bond_tracer;
 
-	if (if_check_exist) slot = getSlotMapping(NULL, key);
+	if (if_check_exist)
+		for (i = hash_table; i; i = i->next) {
+			if (!strcmp(i->key, key)) {
+				for (bond_tracer = i; bond_tracer->bonding; bond_tracer = bond_tracer->bonding) ;
+				bond_tracer->bondee = i;
+				slot = bond_tracer;
+			}
+		}
 
 	if (slot) {
 		slot->setValue(value);
@@ -355,7 +360,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	context->addContext(local);
 
 	/* set trace(unsed for mark&sweep GC) and set debug info */
-	engine->addTrace(local)->setDebug(inkerr_current_line_number, this);
+	engine->addTrace(local)->setDebug(engine->current_line_number, this);
 
 	/* set local context */
 	// gc_engine->initContext(context);

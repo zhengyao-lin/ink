@@ -12,15 +12,13 @@
 #include "thread/thread.h"
 #include "coroutine/coroutine.h"
 #include "general.h"
-#define SET_LINE_NUM (line_num_back = inkerr_current_line_number = (line_number != -1 ? line_number : inkerr_current_line_number))
-#define RESTORE_LINE_NUM (inkerr_current_line_number = line_num_back)
+#define SET_LINE_NUM (line_num_back = engine->current_line_number = (line_number != -1 ? line_number : engine->current_line_number))
+#define RESTORE_LINE_NUM (engine->current_line_number = line_num_back)
 #define INTER_SIGNAL_RECEIVED (engine->CGC_interrupt_signal != INTER_NONE)
 
 using namespace std;
 
 class Ink_Expression;
-
-extern int inkerr_current_line_number;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
 // typedef triple<string *, bool, bool> Ink_Parameter;
@@ -407,25 +405,13 @@ public:
 class Ink_NullConstant: public Ink_Expression {
 public:
 	Ink_NullConstant() { }
-	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
-	{
-		int line_num_back;
-		SET_LINE_NUM;
-		RESTORE_LINE_NUM;
-		return new Ink_NullObject(engine);
-	}
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 };
 
 class Ink_UndefinedConstant: public Ink_Expression {
 public:
 	Ink_UndefinedConstant() { }
-	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
-	{
-		int line_num_back;
-		SET_LINE_NUM;
-		RESTORE_LINE_NUM;
-		return new Ink_Undefined(engine);
-	}
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 };
 
 class Ink_NumericConstant: public Ink_Expression {
@@ -436,13 +422,7 @@ public:
 	: value(value)
 	{ }
 
-	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
-	{
-		int line_num_back;
-		SET_LINE_NUM;
-		RESTORE_LINE_NUM;
-		return new Ink_Numeric(engine, value);
-	}
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	static Ink_NumericValue parseNumeric(string code, bool *is_success = NULL);
 	static Ink_Expression *parse(string code);
@@ -457,13 +437,7 @@ public:
 	: value(value)
 	{ }
 
-	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
-	{
-		int line_num_back;
-		SET_LINE_NUM;
-		RESTORE_LINE_NUM;
-		return new Ink_String(engine, *value);
-	}
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	virtual ~Ink_StringConstant()
 	{

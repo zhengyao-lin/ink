@@ -183,7 +183,6 @@ Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain 
 }
 
 extern int current_line_number;
-extern int inkerr_current_line_number;
 extern const char *yyerror_prefix;
 
 Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -202,7 +201,7 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, un
 
 		top_level_backup = current_engine->top_level;
 
-		current_line_number = inkerr_current_line_number;
+		current_line_number = engine->current_line_number;
 		yyerror_prefix = "from eval: ";
 		current_engine->startParse(as<Ink_String>(argv[0])->value);
 		ret = current_engine->execute(context);
@@ -256,6 +255,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	Ink_InterpreteEngine *current_engine = engine;
 	Ink_ExpressionList top_level_backup;
 	int line_num_backup = current_line_number;
+	const char *file_path_backup = engine->input_file_path;
 
 	for (i = 0; i < argc; i++) {
 		if (argv[i]->type == INK_STRING) {
@@ -264,6 +264,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 				InkErr_Failed_Open_File(NULL, tmp);
 				continue;
 			}
+			engine->input_file_path = tmp;
 			current_dir = getCurrentDir();
 			redirect = getBasePath(tmp);
 			if (redirect) {
@@ -274,7 +275,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 			if (current_engine) {
 				context->removeLast();
 				top_level_backup = current_engine->top_level;
-				current_line_number = inkerr_current_line_number;
+				current_line_number = 0;
 
 				yyerror_prefix = "from import: ";
 				current_engine->startParse(fp);
@@ -309,6 +310,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 		}
 	}
 	current_line_number = line_num_backup;
+	engine->input_file_path = file_path_backup;
 
 	return NULL_OBJ;
 }

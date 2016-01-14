@@ -42,6 +42,7 @@ public:
 
 	Ink_InputMode input_mode;
 	const char *input_file_path;
+	int current_line_number;
 
 	Ink_ContextChain *trace;
 

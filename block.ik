@@ -362,7 +362,7 @@ String = fn (str) {
 	this = clone str;
 	this.size = 10;
 	this.getter("size") {
-		retn this.base.length();
+		retn this.length();
 	}
 	this.setter("size") {
 		p("readonly!!");
@@ -375,9 +375,11 @@ str.size = 10;
 p(str.size);
 p(str);
 
-
 this.setter("value") { | val |
-	this = val;
+	top __value = val;
+}
+this.getter("value") {
+	top __value
 }
 
 value = 10;

@@ -9,16 +9,12 @@ class Ink_ContextChain;
 class Ink_InterpreteEngine;
 
 void cleanAll();
-extern int inkerr_current_line_number;
 
 void InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg);
-
 void InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg, const char *arg1);
 
 void InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg);
-
 void InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char *arg1);
-
 void InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char *arg1, const char *arg2);
 
 inline void

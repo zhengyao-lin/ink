@@ -11,7 +11,6 @@
 	#define YYDEBUG 1
 
 	extern int current_line_number;
-	extern int inkerr_current_line_number;
 
 	const char *yyerror_prefix = "";
 

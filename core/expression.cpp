@@ -189,6 +189,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	Ink_Object *rval_ret;
 	Ink_Object *lval_ret;
 	Ink_Object **tmp;
+	Ink_Object *ret;
 
 	rval_ret = rval->eval(engine, context_chain);
 	/* eval right hand side first */
@@ -208,9 +209,11 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 		if (lval_ret->address->setter) { /* if has setter, call it */
 			tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			tmp[0] = rval_ret;
-			lval_ret->address->setValue(lval_ret->address->setter->call(engine, context_chain, 1, tmp, lval_ret));
+			lval_ret->address->setter->setSlot("base", lval_ret);
+			ret = lval_ret->address->setter->call(engine, context_chain, 1, tmp);
 			engine->CGC_interrupt_signal = INTER_NONE;
 			free(tmp);
+			return ret;
 		} else {
 			/* no setter, directly assign */
 			lval_ret->address->setValue(rval_ret);
@@ -370,7 +373,8 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 
 	/* call getter if has one */
 	if (!flags.is_left_value && address->getter) {
-		ret = address->getter->call(engine, context_chain, 0, NULL, ret);
+		address->getter->setSlot("base", address->getValue());
+		ret = address->getter->call(engine, context_chain, 0, NULL);
 		/* trap all interrupt signal */
 		engine->CGC_interrupt_signal = INTER_NONE;
 	}
@@ -572,10 +576,8 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 
 	/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
 	if (!flags.is_left_value && hash->getter) {
-		tmp = hash->getter->call(engine, context_chain, 0, NULL,
-								 hash->getValue(),
-								 /* don't return "this" pointer anyway */
-								 false);
+		hash->getter->setSlot("base", hash->getter);
+		tmp = hash->getter->call(engine, context_chain, 0, NULL);
 
 		/* trap all interrupt signal */
 		engine->CGC_interrupt_signal = INTER_NONE;
@@ -605,4 +607,24 @@ Ink_Object *Ink_ArrayLiteral::eval(Ink_InterpreteEngine *engine, Ink_ContextChai
 
 	RESTORE_LINE_NUM;
 	return new Ink_Array(engine, val);
+}
+
+Ink_Object *Ink_NullConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+{
+	return new Ink_NullObject(engine);
+}
+
+Ink_Object *Ink_UndefinedConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+{
+	return new Ink_Undefined(engine);
+}
+
+Ink_Object *Ink_NumericConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+{
+	return new Ink_Numeric(engine, value);
+}
+
+Ink_Object *Ink_StringConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+{
+	return new Ink_String(engine, *value);
 }
