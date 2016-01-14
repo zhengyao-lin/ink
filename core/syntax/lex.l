@@ -87,7 +87,7 @@ int ink_yyinput(char *buf, int max_size)
 {
 	int result;
 
-	switch (Ink_getCurrentEngine()->input_mode) {
+	switch (Ink_getParseEngine()->input_mode) {
 		case INK_STRING_INPUT:
 			result = string_input(buf, max_size);
 			break;

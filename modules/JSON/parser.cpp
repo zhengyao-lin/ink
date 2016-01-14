@@ -189,7 +189,7 @@ JSON_lexer(string str)
 }
 
 JSON_ParserReturnVal
-JSON_parser(INKJSON_TokenStack token_stack, unsigned int start_index = 0)
+JSON_parser(Ink_InterpreteEngine *engine, INKJSON_TokenStack token_stack, unsigned int start_index = 0)
 {
 	Ink_Object *ret = NULL;
 	JSON_ParserReturnVal tmp_ret;
@@ -200,7 +200,7 @@ JSON_parser(INKJSON_TokenStack token_stack, unsigned int start_index = 0)
 
 	switch (token_stack[i].token) {
 		case JT_LBRACE: {
-			ret = new Ink_Object();
+			ret = new Ink_Object(engine);
 			if (token_stack[i + 1].token == JT_RBRACE) {
 				return JSON_ParserReturnVal(ret, i + 1);
 			}
@@ -209,7 +209,7 @@ JSON_parser(INKJSON_TokenStack token_stack, unsigned int start_index = 0)
 				if (token_stack[j].token == JT_STRING
 					&& token_stack[j + 1].token == JT_COLON) {
 					tmp_str = StrPool_addStr(token_stack[j].value.str)->c_str();
-					tmp_ret = JSON_parser(token_stack, j + 2);
+					tmp_ret = JSON_parser(engine, token_stack, j + 2);
 					j = tmp_ret.end_index;
 
 					if (tmp_ret.ret) {
@@ -235,17 +235,17 @@ JSON_parser(INKJSON_TokenStack token_stack, unsigned int start_index = 0)
 		case JT_LBRACKET: {
 			arr_val = Ink_ArrayValue();
 			if (token_stack[i + 1].token == JT_RBRACKET) {
-				return JSON_ParserReturnVal(new Ink_Array(arr_val), i + 1);
+				return JSON_ParserReturnVal(new Ink_Array(engine, arr_val), i + 1);
 			}
 			for (j = i + 1;
 				 j + 1 < token_stack.size();) {
-				tmp_ret = JSON_parser(token_stack, j);
+				tmp_ret = JSON_parser(engine, token_stack, j);
 				j = tmp_ret.end_index;
 
 				if (tmp_ret.ret) {
 					arr_val.push_back(new Ink_HashTable(tmp_ret.ret));
 					if (token_stack[tmp_ret.end_index + 1].token == JT_RBRACKET) {
-						return JSON_ParserReturnVal(new Ink_Array(arr_val), j + 1);
+						return JSON_ParserReturnVal(new Ink_Array(engine, arr_val), j + 1);
 					} else if (token_stack[tmp_ret.end_index + 1].token == JT_COMMA) {
 						j += 2;
 						continue;
@@ -265,11 +265,11 @@ JSON_parser(INKJSON_TokenStack token_stack, unsigned int start_index = 0)
 			return JSON_ParserReturnVal(NULL, i);
 		}
 		case JT_STRING:
-			return JSON_ParserReturnVal(new Ink_String(*StrPool_addStr(token_stack[i].value.str)), i);
+			return JSON_ParserReturnVal(new Ink_String(engine, *StrPool_addStr(token_stack[i].value.str)), i);
 		case JT_NUMERIC:
-			return JSON_ParserReturnVal(new Ink_Numeric(token_stack[i].value.num), i);
+			return JSON_ParserReturnVal(new Ink_Numeric(engine, token_stack[i].value.num), i);
 		case JT_NULL:
-			return JSON_ParserReturnVal(new Ink_NullObject(), i);
+			return JSON_ParserReturnVal(new Ink_NullObject(engine), i);
 		default: ;
 			//fprintf(stderr, "Unexpected %d, expecting ending\n", token_stack[i].token);
 	}
@@ -277,10 +277,10 @@ JSON_parser(INKJSON_TokenStack token_stack, unsigned int start_index = 0)
 	return JSON_ParserReturnVal(NULL, i);
 }
 
-Ink_Object *JSON_parse(string str)
+Ink_Object *JSON_parse(Ink_InterpreteEngine *engine, string str)
 {
 	INKJSON_TokenStack token_stack = JSON_lexer(str);
-	JSON_ParserReturnVal ret_val = JSON_parser(token_stack);
+	JSON_ParserReturnVal ret_val = JSON_parser(engine, token_stack);
 	// unsigned int i;
 
 	if (ret_val.end_index + 1 < token_stack.size()) {
@@ -295,11 +295,11 @@ Ink_Object *JSON_parse(string str)
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_JSON_Decode(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_JSON_Decode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(argc, argv, 1, INK_STRING)) {
 		return UNDEFINED;
 	}
 
-	return JSON_parse(as<Ink_String>(argv[0])->value);
+	return JSON_parse(engine, as<Ink_String>(argv[0])->value);
 }

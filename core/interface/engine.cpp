@@ -6,38 +6,37 @@
 #include "core/general.h"
 #include "core/thread/thread.h"
 
-static Ink_InterpreteEngine *current_interprete_engine = NULL;
+static Ink_InterpreteEngine *ink_engine_for_parse = NULL;
 extern InterruptSignal CGC_interrupt_signal;
 extern Ink_CodeMode CGC_code_mode;
 
-Ink_InterpreteEngine *Ink_getCurrentEngine()
+Ink_InterpreteEngine *Ink_getParseEngine()
 {
-	return current_interprete_engine;
+	return ink_engine_for_parse;
 }
 
-void Ink_setCurrentEngine(Ink_InterpreteEngine *engine)
+void Ink_setParseEngine(Ink_InterpreteEngine *engine)
 {
-	current_interprete_engine = engine;
+	ink_engine_for_parse = engine;
 	return;
 }
 
 Ink_InterpreteEngine::Ink_InterpreteEngine()
 {
 	// gc_lock.init();
-	Ink_setCurrentEngine(this);
 
 	igc_object_count = 0;
 	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
 	igc_mark_period = 1;
 	trace = NULL;
 
-	gc_engine = new IGC_CollectEngine();
+	gc_engine = new IGC_CollectEngine(this);
 	setCurrentGC(gc_engine);
-	global_context = new Ink_ContextChain(new Ink_ContextObject());
+	global_context = new Ink_ContextChain(new Ink_ContextObject(this));
 	// gc_engine->initContext(global_context);
 
 	global_context->context->setSlot("this", global_context->context);
-	Ink_GlobalMethodInit(global_context);
+	Ink_GlobalMethodInit(this, global_context);
 
 	global_context->context->setDebugName("__global_context__");
 	addTrace(global_context->context)->setDebug(-1, global_context->context);
@@ -75,8 +74,8 @@ void Ink_InterpreteEngine::removeTrace(Ink_ContextObject *context)
 
 void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 {
-	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
-	Ink_setCurrentEngine(this);
+	Ink_InterpreteEngine *backup = Ink_getParseEngine();
+	Ink_setParseEngine(this);
 	
 	setFilePath(setting.getFilePath());
 
@@ -90,15 +89,15 @@ void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 
 	setting.clean();
 
-	Ink_setCurrentEngine(backup);
+	Ink_setParseEngine(backup);
 
 	return;
 }
 
 void Ink_InterpreteEngine::startParse(FILE *input, bool close_fp)
 {
-	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
-	Ink_setCurrentEngine(this);
+	Ink_InterpreteEngine *backup = Ink_getParseEngine();
+	Ink_setParseEngine(this);
 	
 	input_mode = INK_FILE_INPUT;
 	// cleanTopLevel();
@@ -109,15 +108,15 @@ void Ink_InterpreteEngine::startParse(FILE *input, bool close_fp)
 
 	if (close_fp) fclose(input);
 
-	Ink_setCurrentEngine(backup);
+	Ink_setParseEngine(backup);
 
 	return;
 }
 
 void Ink_InterpreteEngine::startParse(string code)
 {
-	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
-	Ink_setCurrentEngine(this);
+	Ink_InterpreteEngine *backup = Ink_getParseEngine();
+	Ink_setParseEngine(this);
 
 	const char **input = (const char **)malloc(2 * sizeof(char *));
 
@@ -133,7 +132,7 @@ void Ink_InterpreteEngine::startParse(string code)
 
 	free(input);
 
-	Ink_setCurrentEngine(backup);
+	Ink_setParseEngine(backup);
 
 	return;
 }
@@ -141,8 +140,8 @@ void Ink_InterpreteEngine::startParse(string code)
 Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 {
 	char *current_dir = NULL, *redirect = NULL;
-	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
-	Ink_setCurrentEngine(this);
+	Ink_InterpreteEngine *backup = Ink_getParseEngine();
+	Ink_setParseEngine(this);
 
 	if (getFilePath()) {
 		current_dir = getCurrentDir();
@@ -153,13 +152,13 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 		}
 	}
 
-	Ink_Object *ret = new Ink_NullObject();
+	Ink_Object *ret = new Ink_NullObject(this);
 	unsigned int i;
 
 	if (!context) context = global_context;
 	for (i = 0; i < top_level.size(); i++) {
 		getCurrentGC()->checkGC();
-		ret = top_level[i]->eval(context);
+		ret = top_level[i]->eval(this, context);
 		if (CGC_interrupt_signal != INTER_NONE) {
 			trapSignal(); // trap all
 			break;
@@ -171,24 +170,24 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 		free(current_dir);
 	}
 
-	Ink_setCurrentEngine(backup);
+	Ink_setParseEngine(backup);
 
 	return ret;
 }
 
 Ink_Object *Ink_InterpreteEngine::execute(Ink_Expression *exp)
 {
-	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
-	Ink_setCurrentEngine(this);
+	Ink_InterpreteEngine *backup = Ink_getParseEngine();
+	Ink_setParseEngine(this);
 
 	Ink_Object *ret;
 	Ink_ContextChain *context = NULL;
 
 	if (!context) context = global_context;
 	getCurrentGC()->checkGC();
-	ret = exp->eval(context);
+	ret = exp->eval(this, context);
 
-	Ink_setCurrentEngine(backup);
+	Ink_setParseEngine(backup);
 
 	return ret;
 }
@@ -218,8 +217,8 @@ void Ink_InterpreteEngine::cleanContext(Ink_ContextChain *context)
 
 Ink_InterpreteEngine::~Ink_InterpreteEngine()
 {
-	Ink_InterpreteEngine *backup = Ink_getCurrentEngine();
-	Ink_setCurrentEngine(this);
+	Ink_InterpreteEngine *backup = Ink_getParseEngine();
+	Ink_setParseEngine(this);
 
 	gc_engine->collectGarbage(true);
 	delete gc_engine;
@@ -229,5 +228,5 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 	cleanContext(trace);
 	StrPool_dispose();
 
-	Ink_setCurrentEngine(backup);
+	Ink_setParseEngine(backup);
 }

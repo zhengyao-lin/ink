@@ -22,11 +22,11 @@ typedef vector<Ink_Expression *> Ink_ExpressionList;
 extern FILE *yyin;
 int yyparse();
 int yylex_destroy();
-void Ink_GlobalMethodInit(Ink_ContextChain *context);
+void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
 void Ink_setStringInput(const char **source);
-Ink_InterpreteEngine *Ink_getCurrentEngine();
-void Ink_setCurrentEngine(Ink_InterpreteEngine *engine);
-Ink_InterpreteEngine *Ink_getCurrentEngine();
+
+Ink_InterpreteEngine *Ink_getParseEngine();
+void Ink_setParseEngine(Ink_InterpreteEngine *engine);
 
 typedef enum {
 	INK_FILE_INPUT,

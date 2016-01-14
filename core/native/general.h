@@ -6,8 +6,8 @@
 #include "../context.h"
 #include "../error.h"
 
-#define NULL_OBJ (new Ink_NullObject())
-#define UNDEFINED (new Ink_Undefined())
+#define NULL_OBJ (new Ink_NullObject(engine))
+#define UNDEFINED (new Ink_Undefined(engine))
 
 #define RETURN_FLAG (CGC_interrupt_signal == INTER_RETURN)
 #define BREAK_FLAG (CGC_interrupt_signal == INTER_BREAK)
@@ -20,24 +20,24 @@
 	} \
 } while (0)
 
-inline Ink_Object *getSlotWithProto(Ink_ContextChain *context, Ink_Object *base, const char *name)
+inline Ink_Object *getSlotWithProto(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, const char *name)
 {
-	return Ink_HashExpression::getSlot(context, base, name);
+	return Ink_HashExpression::getSlot(engine, context, base, name);
 }
 
-inline Ink_Object *searchContextSlot(Ink_ContextChain *context, const char *name)
+inline Ink_Object *searchContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *name)
 {
-	return Ink_IdentifierExpression::getContextSlot(context, name, ID_COMMON, Ink_EvalFlag(), false);
+	return Ink_IdentifierExpression::getContextSlot(engine, context, name, ID_COMMON, Ink_EvalFlag(), false);
 }
 
-inline Ink_Object *callMethod(Ink_ContextChain *context, Ink_Object *base, const char *method_name,
+inline Ink_Object *callMethod(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, const char *method_name,
 							  unsigned int argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL)
 {
-	if ((base = getSlotWithProto(context, base, method_name))->type != INK_FUNCTION) {
+	if ((base = getSlotWithProto(engine, context, base, method_name))->type != INK_FUNCTION) {
 		InkWarn_Failed_Finding_Method(method_name);
 		return NULL;
 	}
-	return base->call(context, argc, argv, this_p);
+	return base->call(engine, context, argc, argv, this_p);
 }
 
 inline bool assumeType(Ink_Object *obj, Ink_TypeTag type_tag)
@@ -125,18 +125,18 @@ inline bool checkArgument(bool if_output, unsigned int argc, Ink_Object **argv,
 	return true;
 }
 
-inline Ink_Object *addPackage(Ink_Object *obj, const char *name, Ink_Object *loader)
+inline Ink_Object *addPackage(Ink_InterpreteEngine *engine, Ink_Object *obj, const char *name, Ink_Object *loader)
 {
 	Ink_Object *pkg;
-	obj->setSlot(name, pkg = new Ink_Object());
+	obj->setSlot(name, pkg = new Ink_Object(engine));
 	pkg->setSlot("load", loader);
 
 	return pkg;
 }
 
-inline Ink_Object *addPackage(Ink_ContextChain *context, const char *name, Ink_Object *loader)
+inline Ink_Object *addPackage(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *name, Ink_Object *loader)
 {
-	return addPackage(context->context, name, loader);
+	return addPackage(engine, context->context, name, loader);
 }
 
 inline void cleanArrayHashTable(Ink_ArrayValue val)
@@ -148,7 +148,7 @@ inline void cleanArrayHashTable(Ink_ArrayValue val)
 	return;
 }
 
-inline Ink_String *getStringVal(Ink_ContextChain *context, Ink_Object *obj)
+inline Ink_String *getStringVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *obj)
 {
 	Ink_Object *tmp;
 	if (obj->type == INK_STRING) {
@@ -156,10 +156,10 @@ inline Ink_String *getStringVal(Ink_ContextChain *context, Ink_Object *obj)
 	} else if (obj->type == INK_NUMERIC) {
 		stringstream ss;
 		ss << as<Ink_Numeric>(obj)->value;
-		return new Ink_String(string(ss.str()));
-	} else if ((tmp = getSlotWithProto(context, obj, "to_str"))
+		return new Ink_String(engine, string(ss.str()));
+	} else if ((tmp = getSlotWithProto(engine, context, obj, "to_str"))
 			   ->type == INK_FUNCTION) {
-		if ((tmp = tmp->call(context))->type != INK_STRING) {
+		if ((tmp = tmp->call(engine, context))->type != INK_STRING) {
 			InkWarn_Invalid_Return_Value_Of_To_String(tmp->type);
 			return NULL;
 		}

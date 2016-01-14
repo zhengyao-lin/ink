@@ -99,7 +99,7 @@ string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp f
 	return new string(path);
 }
 
-void Ink_Package::load(Ink_ContextChain *context, const char *path)
+void Ink_Package::load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *path)
 {
 	INK_DL_HANDLER handler;
 	FILE *fp = fopen(path, "rb");
@@ -140,7 +140,7 @@ void Ink_Package::load(Ink_ContextChain *context, const char *path)
 		fclose(fp);
 		return;
 	}
-	loader(context);
+	loader(engine, context);
 	addHandler(handler);
 	printf("Package Loader: Loading package: %s by %s\n",
 		   pack->pack_info->pack_name->str,

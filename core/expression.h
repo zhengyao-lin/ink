@@ -49,8 +49,8 @@ public:
 	Ink_Expression()
 	: line_number(-1)
 	{ }
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain) { return eval(context_chain, Ink_EvalFlag()); }
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags) { return NULL; }
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain) { return eval(engine, context_chain, Ink_EvalFlag()); }
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags) { return NULL; }
 	virtual Ink_Expression *clone() { return NULL; }
 	virtual ~Ink_Expression() { }
 };
@@ -63,7 +63,7 @@ public:
 	: obj(obj)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{ return obj; }
 };
 
@@ -75,16 +75,16 @@ public:
 	: exp_list(Ink_ExpressionList())
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
 
-		Ink_Object *ret = new Ink_NullObject();
+		Ink_Object *ret = new Ink_NullObject(engine);
 		unsigned int i;
 
 		for (i = 0; i < exp_list.size(); i++) {
-			ret = exp_list[i]->eval(context_chain);
+			ret = exp_list[i]->eval(engine, context_chain);
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
 				return CGC_interrupt_value;
@@ -133,7 +133,7 @@ public:
 		return NULL;
 	}
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		pthread_t *thd = (pthread_t *)malloc(sizeof(pthread_t));
 
@@ -174,7 +174,7 @@ public:
 	: ret_val(ret_val)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	~Ink_YieldExpression()
 	{
@@ -191,7 +191,7 @@ public:
 	: signal(signal), ret_val(ret_val)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	~Ink_InterruptExpression()
 	{
@@ -217,7 +217,7 @@ public:
 	: lval(lval), rval(rval), type(type)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	virtual ~Ink_LogicExpression()
 	{
@@ -238,7 +238,7 @@ public:
 	: lval(lval), rval(rval), is_return_lval(is_return_lval), is_dispose_lval(is_dispose_lval)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	virtual ~Ink_AssignmentExpression()
 	{
@@ -283,7 +283,7 @@ public:
 	: mapping(mapping)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	~Ink_HashTableExpression()
 	{
@@ -302,7 +302,7 @@ public:
 	: elem_list(elem_list)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	virtual ~Ink_TableExpression()
 	{
@@ -322,7 +322,7 @@ public:
 	: base(base), slot_id(slot_id)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	class ProtoSearchRet {
 	public:
@@ -334,13 +334,13 @@ public:
 		{ }
 	};
 
-	static ProtoSearchRet searchPrototype(Ink_Object *obj, const char *id);
+	static ProtoSearchRet searchPrototype(Ink_InterpreteEngine *engine, Ink_Object *obj, const char *id);
 
-	static Ink_Object *getSlot(Ink_ContextChain *context_chain, Ink_Object *obj, const char *id)
+	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_Object *obj, const char *id)
 	{
-		return getSlot(context_chain, obj, id, Ink_EvalFlag());
+		return getSlot(engine, context_chain, obj, id, Ink_EvalFlag());
 	}
-	static Ink_Object *getSlot(Ink_ContextChain *context_chain, Ink_Object *obj, const char *id, Ink_EvalFlag flags);
+	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_Object *obj, const char *id, Ink_EvalFlag flags);
 
 	virtual ~Ink_HashExpression()
 	{
@@ -360,7 +360,7 @@ public:
 	: param(param), exp_list(exp_list), is_inline(is_inline), is_generator(is_generator)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	virtual ~Ink_FunctionExpression()
 	{
@@ -384,7 +384,7 @@ public:
 	: callee(callee), arg_list(arg_list), is_new(is_new)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	virtual ~Ink_CallExpression()
 	{
@@ -412,8 +412,8 @@ public:
 	: id(id), context_type(context_type), if_create_slot(if_create_slot)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
-	static Ink_Object *getContextSlot(Ink_ContextChain *context_chain,
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	static Ink_Object *getContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
 									  const char *name,
 									  IDContextType context_type,
 									  Ink_EvalFlag flags, bool if_create_slot);
@@ -427,24 +427,24 @@ public:
 class Ink_NullConstant: public Ink_Expression {
 public:
 	Ink_NullConstant() { }
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
 		RESTORE_LINE_NUM;
-		return new Ink_NullObject();
+		return new Ink_NullObject(engine);
 	}
 };
 
 class Ink_UndefinedConstant: public Ink_Expression {
 public:
 	Ink_UndefinedConstant() { }
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
 		RESTORE_LINE_NUM;
-		return new Ink_Undefined();
+		return new Ink_Undefined(engine);
 	}
 };
 
@@ -456,12 +456,12 @@ public:
 	: value(value)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
 		RESTORE_LINE_NUM;
-		return new Ink_Numeric(value);
+		return new Ink_Numeric(engine, value);
 	}
 
 	static Ink_NumericValue parseNumeric(string code, bool *is_success = NULL);
@@ -477,12 +477,12 @@ public:
 	: value(value)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 	{
 		int line_num_back;
 		SET_LINE_NUM;
 		RESTORE_LINE_NUM;
-		return new Ink_String(*value);
+		return new Ink_String(engine, *value);
 	}
 
 	virtual ~Ink_StringConstant()
@@ -499,7 +499,7 @@ public:
 	: elem_list(elem_list)
 	{ }
 
-	virtual Ink_Object *eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags);
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	virtual ~Ink_ArrayLiteral()
 	{

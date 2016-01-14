@@ -38,11 +38,13 @@ public:
 	// IGC_CollectUnit *pardon_chain;
 	IGC_CollectUnit *object_chain;
 	IGC_CollectUnit *object_chain_last;
+	Ink_InterpreteEngine *engine;
 	// Ink_ContextChain *local_context;
 
 	// IGC_CollectEngine *outer_engine;
 
-	IGC_CollectEngine()
+	IGC_CollectEngine(Ink_InterpreteEngine *engine)
+	: engine(engine)
 	{
 		mark = 0;
 		type = INK_NULL;
@@ -59,9 +61,9 @@ public:
 	} */
 	void addUnit(IGC_CollectUnit *unit);
 	// void addPardon(Ink_Object *obj);
-	static void doMark(Ink_Object *obj);
-	static void deleteObject(IGC_CollectUnit *unit);
-	static void disposeChainWithoutDelete(IGC_CollectUnit *chain);
+	void doMark(Ink_Object *obj);
+	void deleteObject(IGC_CollectUnit *unit);
+	void disposeChainWithoutDelete(IGC_CollectUnit *chain);
 
 	void doCollect();
 	void collectGarbage(bool delete_all = false);
@@ -87,9 +89,7 @@ public:
 	{ }
 };
 
-void IGC_initGC(IGC_CollectEngine *engine);
 void IGC_checkGC();
-void IGC_addObject(Ink_Object *obj);
-void IGC_collectGarbage(Ink_ContextChain *context, bool delete_all = false, bool if_clean_mark = true);
+void IGC_addObject(Ink_InterpreteEngine *current_engine, Ink_Object *obj);
 
 #endif

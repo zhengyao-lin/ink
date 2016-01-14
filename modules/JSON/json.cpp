@@ -80,7 +80,7 @@ string *JSON_stringifyObject(Ink_Object *obj)
 	return (ret != "") ? new string(ret) : NULL;
 }
 
-Ink_Object *InkNative_JSON_Encode(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_JSON_Encode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(argc, 1)) {
 		return NULL_OBJ;
@@ -90,28 +90,28 @@ Ink_Object *InkNative_JSON_Encode(Ink_ContextChain *context, unsigned int argc, 
 	Ink_Object *ret;
 
 	if (tmp_str)
-		ret = new Ink_String(*StrPool_addStr(tmp_str));
+		ret = new Ink_String(engine, *StrPool_addStr(tmp_str));
 	else ret = NULL_OBJ;
 
 	return ret;
 }
 
-Ink_Object *InkMod_JSON_Loader(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_JSON_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *global_context = context->getGlobal()->context;
 
-	global_context->setSlot("encode", new Ink_FunctionObject(InkNative_JSON_Encode));
-	global_context->setSlot("decode", new Ink_FunctionObject(InkNative_JSON_Decode));
+	global_context->setSlot("encode", new Ink_FunctionObject(engine, InkNative_JSON_Encode));
+	global_context->setSlot("decode", new Ink_FunctionObject(engine, InkNative_JSON_Decode));
 
 	return NULL_OBJ;
 }
 
 extern "C" {
-	void InkMod_Loader(Ink_ContextChain *context)
+	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
-		Ink_Object *json_obj = addPackage(context, "json", new Ink_FunctionObject(InkMod_JSON_Loader));
-		json_obj->setSlot("encode", new Ink_FunctionObject(InkNative_JSON_Encode));
-		json_obj->setSlot("decode", new Ink_FunctionObject(InkNative_JSON_Decode));
+		Ink_Object *json_obj = addPackage(engine, context, "json", new Ink_FunctionObject(engine, InkMod_JSON_Loader));
+		json_obj->setSlot("encode", new Ink_FunctionObject(engine, InkNative_JSON_Encode));
+		json_obj->setSlot("decode", new Ink_FunctionObject(engine, InkNative_JSON_Decode));
 		return;
 	}
 }

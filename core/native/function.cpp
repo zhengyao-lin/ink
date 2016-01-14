@@ -4,9 +4,9 @@
 #include "../error.h"
 #include "native.h"
 
-Ink_Object *InkNative_Function_Insert(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Function_Insert(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot("base");
+	Ink_Object *base = context->searchSlot(engine, "base");
 	unsigned int i;
 
 	ASSUME_BASE_TYPE(INK_FUNCTION);
@@ -45,9 +45,9 @@ Ink_Object **arrayValueToObject(Ink_ArrayValue val)
 	return ret;
 }
 
-Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot("base");
+	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_Object *range;
 	Ink_ArrayValue range_val, tmp_arr_val;
 	Ink_ArrayValue ret_val;
@@ -61,13 +61,13 @@ Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int
 		return NULL_OBJ;
 	}
 
-	range = getSlotWithProto(context, argv[0], "range");
+	range = getSlotWithProto(engine, context, argv[0], "range");
 	if (range->type != INK_FUNCTION) {
 		InkWarn_Method_Fallthrough(INK_OBJECT);
-		return InkNative_Object_Index(context, argc, argv, this_p);
+		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
 
-	range = range->call(context);
+	range = range->call(engine, context);
 	if (range->type != INK_ARRAY) {
 		InkWarn_Incorrect_Range_Type();
 		return NULL_OBJ;
@@ -81,7 +81,7 @@ Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int
 			&& range_val[i]->getValue()->type == INK_ARRAY) {
 			tmp_arr_val = as<Ink_Array>(range_val[i]->getValue())->value;
 			tmp = arrayValueToObject(tmp_arr_val);
-			ret_val.push_back(new Ink_HashTable("", base->call(context, tmp_arr_val.size(), tmp)));
+			ret_val.push_back(new Ink_HashTable("", base->call(engine, context, tmp_arr_val.size(), tmp)));
 			free(tmp);
 		} else {
 			InkWarn_Incorrect_Range_Type();
@@ -89,12 +89,12 @@ Ink_Object *InkNative_Function_RangeCall(Ink_ContextChain *context, unsigned int
 		}
 	}
 
-	return new Ink_Array(ret_val);
+	return new Ink_Array(engine, ret_val);
 }
 
-Ink_Object *InkNative_Function_GetExp(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Function_GetExp(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot("base");
+	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_FunctionObject *tmp;
 	Ink_ExpressionList tmp_exp;
 	Ink_ArrayValue ret_val;
@@ -106,16 +106,16 @@ Ink_Object *InkNative_Function_GetExp(Ink_ContextChain *context, unsigned int ar
 	for (i = 0; i < tmp->exp_list.size(); i++) {
 		tmp_exp = Ink_ExpressionList();
 		tmp_exp.push_back(tmp->exp_list[i]);
-		ret_val.push_back(new Ink_HashTable("", new Ink_FunctionObject(Ink_ParamList(), tmp_exp,
+		ret_val.push_back(new Ink_HashTable("", new Ink_FunctionObject(engine, Ink_ParamList(), tmp_exp,
 																	   tmp->closure_context->copyContextChain(), true)));
 	}
 
-	return new Ink_Array(ret_val);
+	return new Ink_Array(engine, ret_val);
 }
 
-Ink_Object *InkNative_Function_GetScope(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Function_GetScope(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot("base");
+	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_FunctionObject *func, *expr;
 	Ink_Object *ret;
 
@@ -129,9 +129,9 @@ Ink_Object *InkNative_Function_GetScope(Ink_ContextChain *context, unsigned int 
 	expr = as<Ink_FunctionObject>(argv[0]);
 
 	if (func->closure_context && expr->exp_list.size()) {
-		ret = expr->exp_list[0]->eval(func->closure_context);
+		ret = expr->exp_list[0]->eval(engine, func->closure_context);
 	} else {
-		ret = expr->exp_list[0]->eval(context);
+		ret = expr->exp_list[0]->eval(engine, context);
 	}
 
 	return ret;

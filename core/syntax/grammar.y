@@ -75,7 +75,7 @@
 compile_unit
 	: top_level_expression_list_opt
 	{
-		Ink_getCurrentEngine()->top_level = *$1;
+		Ink_getParseEngine()->top_level = *$1;
 		delete $1;
 	}
 	;

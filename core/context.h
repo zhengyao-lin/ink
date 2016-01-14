@@ -12,27 +12,9 @@ public:
 	int debug_lineno;
 	Ink_Object *debug_creater;
 
-	Ink_ContextChain()
-	{
-		context = new Ink_ContextObject();
-		outer = NULL;
-		inner = NULL;
-		debug_lineno = -1;
-		debug_creater = NULL;
-	}
-
 	Ink_ContextChain(Ink_ContextObject *context)
 	: context(context)
 	{
-		outer = NULL;
-		inner = NULL;
-		debug_lineno = -1;
-		debug_creater = NULL;
-	}
-
-	Ink_ContextChain(Ink_HashTable *hash_table)
-	{
-		context = new Ink_ContextObject(hash_table);
 		outer = NULL;
 		inner = NULL;
 		debug_lineno = -1;
@@ -55,8 +37,8 @@ public:
 	void removeLast(bool if_delete = true);
 	Ink_ContextChain *getGlobal();
 	Ink_ContextChain *getLocal();
-	Ink_Object *searchSlot(const char *slot_id); // from local
-	Ink_HashTable *searchSlotMapping(const char *slot_id); // from local
+	Ink_Object *searchSlot(Ink_InterpreteEngine *engine, const char *slot_id); // from local
+	Ink_HashTable *searchSlotMapping(Ink_InterpreteEngine *engine, const char *slot_id); // from local
 	Ink_ContextChain *copyContextChain();
 
 	static void disposeContextChain(Ink_ContextChain *head);

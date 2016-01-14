@@ -52,7 +52,7 @@ hasSuffix(const char *path, const char *suf)
 	return false;
 }
 
-typedef void (*InkMod_Loader)(Ink_ContextChain *context);
+typedef void (*InkMod_Loader)(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
 typedef vector<INK_DL_HANDLER> DLHandlerPool;
 typedef size_t InkPack_Size;
 typedef unsigned char byte;
@@ -198,7 +198,7 @@ public:
 	}
 
 	static Ink_Package *readFrom(FILE *fp);
-	static void load(Ink_ContextChain *context, const char *path);
+	static void load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *path);
 
 	~Ink_Package()
 	{
@@ -208,7 +208,7 @@ public:
 };
 
 #if defined(INK_PLATFORM_LINUX)
-	inline void loadAllModules(Ink_ContextChain *context)
+	inline void loadAllModules(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
 		DIR *mod_dir = opendir(INK_MODULE_DIR);
 		struct dirent *child;
@@ -221,7 +221,7 @@ public:
 
 		while ((child = readdir(mod_dir)) != NULL) {
 			if (hasSuffix(child->d_name, "mod")) {
-				Ink_Package::load(context, (string(INK_MODULE_DIR) + INK_PATH_SPLIT + child->d_name).c_str());
+				Ink_Package::load(engine, context, (string(INK_MODULE_DIR) + INK_PATH_SPLIT + child->d_name).c_str());
 			} else if (hasSuffix(child->d_name, INK_DL_SUFFIX)) {
 				handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(child->d_name)).c_str(), RTLD_NOW);
 				if (!handler) {
@@ -236,7 +236,7 @@ public:
 					INK_DL_CLOSE(handler);
 					printf("\t%s\n", INK_DL_ERROR());
 				} else {
-					loader(context);
+					loader(engine, context);
 					addHandler(handler);
 				}
 			}
@@ -260,7 +260,7 @@ public:
 	#include <windows.h>
 	#include <direct.h>
 
-	inline void loadAllModules(Ink_ContextChain *context) {
+	inline void loadAllModules(Ink_InterpreteEngine *engine, Ink_ContextChain *context) {
 	    WIN32_FIND_DATA data;
 	    HANDLE dir_handle = NULL;
 	    INK_DL_HANDLER handler;
@@ -271,7 +271,7 @@ public:
 
 	    do {
 	        if (hasSuffix(data.cFileName, "mod")) {
-				Ink_Package::load(context, (string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(data.cFileName)).c_str());
+				Ink_Package::load(engine, context, (string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(data.cFileName)).c_str());
 			} else if (hasSuffix(data.cFileName, INK_DL_SUFFIX)) {
 				handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(data.cFileName)).c_str(), RTLD_NOW);
 				if (!handler) {

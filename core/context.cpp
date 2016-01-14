@@ -38,26 +38,26 @@ Ink_ContextChain *Ink_ContextChain::getLocal()
 	return i;
 }
 
-Ink_Object *Ink_ContextChain::searchSlot(const char *slot_id)
+Ink_Object *Ink_ContextChain::searchSlot(Ink_InterpreteEngine *engine, const char *slot_id)
 {
 	Ink_ContextChain *local = getLocal();
 	Ink_ContextChain *i = local;
 	Ink_Object *ret = NULL;
 
-	while (i && !(ret = i->context->getSlot(slot_id))) {
+	while (i && !(ret = i->context->getSlot(engine, slot_id))) {
 		i = i->outer;
 	}
 
 	return ret;
 }
 
-Ink_HashTable *Ink_ContextChain::searchSlotMapping(const char *slot_id)
+Ink_HashTable *Ink_ContextChain::searchSlotMapping(Ink_InterpreteEngine *engine, const char *slot_id)
 {
 	Ink_ContextChain *local = getLocal();
 	Ink_ContextChain *i = local;
 	Ink_HashTable *ret = NULL;
 
-	while (i && !(ret = i->context->getSlotMapping(slot_id))) {
+	while (i && !(ret = i->context->getSlotMapping(engine, slot_id))) {
 		i = i->outer;
 	}
 

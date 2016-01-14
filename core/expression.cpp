@@ -55,7 +55,7 @@ Ink_Expression *Ink_NumericConstant::parse(string code)
 
 extern IGC_CollectEngine *ink_sync_call_tmp_engine;
 
-Ink_Object *Ink_YieldExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	SET_LINE_NUM;
@@ -66,7 +66,7 @@ Ink_Object *Ink_YieldExpression::eval(Ink_ContextChain *context_chain, Ink_EvalF
 		// unreachable
 	}
 
-	Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
+	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : new Ink_NullObject(engine);
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
 		return CGC_interrupt_value;
@@ -75,7 +75,7 @@ Ink_Object *Ink_YieldExpression::eval(Ink_ContextChain *context_chain, Ink_EvalF
 
 	unsigned int self_layer = getCurrentLayer();
 	int self_id = getThreadID();
-	IGC_CollectEngine *engine_backup = Ink_getCurrentEngine()->getCurrentGC();
+	IGC_CollectEngine *gc_engine_backup = engine->getCurrentGC();
 
 	printf("***Coroutine yield: id %d at layer %u\n", self_id, self_layer);
 
@@ -89,18 +89,18 @@ REWAIT:
 	} while (getCurrentLayer() != self_layer);
 	if (ink_sync_call_current_thread != self_id) goto REWAIT;
 
-	IGC_initGC(engine_backup);
+	engine->setCurrentGC(gc_engine_backup);
 
 	RESTORE_LINE_NUM;
 	return CGC_interrupt_value;
 }
 
-Ink_Object *Ink_InterruptExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_InterruptExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	SET_LINE_NUM;
 
-	Ink_Object *ret = ret_val ? ret_val->eval(context_chain) : new Ink_NullObject();
+	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : new Ink_NullObject(engine);
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
 		return CGC_interrupt_value;
@@ -114,14 +114,14 @@ Ink_Object *Ink_InterruptExpression::eval(Ink_ContextChain *context_chain, Ink_E
 	return ret;
 }
 
-Ink_Object *Ink_LogicExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	bool ret_val = false;
 	SET_LINE_NUM;
 
 	/* first eval left hand side */
-	Ink_Object *lhs = lval->eval(context_chain);
+	Ink_Object *lhs = lval->eval(engine, context_chain);
 	Ink_Object *rhs;
 
 	/* interrupt signal received */
@@ -137,7 +137,7 @@ Ink_Object *Ink_LogicExpression::eval(Ink_ContextChain *context_chain, Ink_EvalF
 			ret_val = true;
 		else {
 			/* if operator is and, make sure the right hand side is true, too */
-			rhs = rval->eval(context_chain);
+			rhs = rval->eval(engine, context_chain);
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
 				return CGC_interrupt_value;
@@ -148,7 +148,7 @@ Ink_Object *Ink_LogicExpression::eval(Ink_ContextChain *context_chain, Ink_EvalF
 		}
 	} else {
 		/* if operator is or, judge right hand side */
-		if (type == LOGIC_OR && isTrue(rval->eval(context_chain))) {
+		if (type == LOGIC_OR && isTrue(rval->eval(engine, context_chain))) {
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
 				return CGC_interrupt_value;
@@ -159,10 +159,10 @@ Ink_Object *Ink_LogicExpression::eval(Ink_ContextChain *context_chain, Ink_EvalF
 
 	RESTORE_LINE_NUM;
 
-	return new Ink_Numeric(ret_val);
+	return new Ink_Numeric(engine, ret_val);
 }
 
-Ink_Object *Ink_AssignmentExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	SET_LINE_NUM;
@@ -171,14 +171,14 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_ContextChain *context_chain, Ink_
 	Ink_Object *lval_ret;
 	Ink_Object **tmp;
 
-	rval_ret = rval->eval(context_chain);
+	rval_ret = rval->eval(engine, context_chain);
 	/* eval right hand side first */
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
 		return CGC_interrupt_value;
 	}
 
-	lval_ret = lval->eval(context_chain, Ink_EvalFlag(true));
+	lval_ret = lval->eval(engine, context_chain, Ink_EvalFlag(true));
 	/* left hand side next */
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
@@ -189,7 +189,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_ContextChain *context_chain, Ink_
 		if (lval_ret->address->setter) { /* if has setter, call it */
 			tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			tmp[0] = rval_ret;
-			lval_ret->address->setValue(lval_ret->address->setter->call(context_chain, 1, tmp, lval_ret));
+			lval_ret->address->setValue(lval_ret->address->setter->call(engine, context_chain, 1, tmp, lval_ret));
 			CGC_interrupt_signal = INTER_NONE;
 			free(tmp);
 		} else {
@@ -205,33 +205,33 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_ContextChain *context_chain, Ink_
 	RESTORE_LINE_NUM;
 }
 
-Ink_Object *Ink_HashTableExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	SET_LINE_NUM;
 
-	Ink_Object *ret = new Ink_Object(), *key;
+	Ink_Object *ret = new Ink_Object(engine), *key;
 	unsigned int i;
 
 	for (i = 0; i < mapping.size(); i++) {
 		/* two possibility: 1. identifier key; 2. expression key with brackets */
 		if (mapping[i]->name) {
-			ret->setSlot(mapping[i]->name->c_str(), mapping[i]->value->eval(context_chain));
+			ret->setSlot(mapping[i]->name->c_str(), mapping[i]->value->eval(engine, context_chain));
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
 				return CGC_interrupt_value;
 			}
 		} else {
-			key = mapping[i]->key->eval(context_chain);
+			key = mapping[i]->key->eval(engine, context_chain);
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
 				return CGC_interrupt_value;
 			}
 			if (key->type != INK_STRING) {
 				InkWarn_Hash_Table_Mapping_Expect_String();
-				return new Ink_NullObject();
+				return new Ink_NullObject(engine);
 			}
-			ret->setSlot(as<Ink_String>(key)->value.c_str(), mapping[i]->value->eval(context_chain));
+			ret->setSlot(as<Ink_String>(key)->value.c_str(), mapping[i]->value->eval(engine, context_chain));
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
 				return CGC_interrupt_value;
@@ -243,7 +243,7 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_ContextChain *context_chain, Ink_E
 	return ret;
 }
 
-Ink_Object *Ink_TableExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_TableExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	SET_LINE_NUM;
@@ -252,7 +252,7 @@ Ink_Object *Ink_TableExpression::eval(Ink_ContextChain *context_chain, Ink_EvalF
 	unsigned int i;
 
 	for (i = 0; i < elem_list.size(); i++) {
-		val.push_back(new Ink_HashTable("", elem_list[i]->eval(context_chain)));
+		val.push_back(new Ink_HashTable("", elem_list[i]->eval(engine, context_chain)));
 		if (INTER_SIGNAL_RECEIVED) {
 			RESTORE_LINE_NUM;
 			Ink_Array::disposeArrayValue(val);
@@ -261,39 +261,39 @@ Ink_Object *Ink_TableExpression::eval(Ink_ContextChain *context_chain, Ink_EvalF
 	}
 
 	RESTORE_LINE_NUM;
-	return new Ink_Array(val);
+	return new Ink_Array(engine, val);
 }
 
-Ink_Object *Ink_HashExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_HashExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	SET_LINE_NUM;
 
-	Ink_Object *base_obj = base->eval(context_chain);
+	Ink_Object *base_obj = base->eval(engine, context_chain);
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
 		return CGC_interrupt_value;
 	}
 
 	RESTORE_LINE_NUM;
-	return getSlot(context_chain, base_obj, slot_id->c_str(), flags);
+	return getSlot(engine, context_chain, base_obj, slot_id->c_str(), flags);
 }
 
-Ink_HashExpression::ProtoSearchRet Ink_HashExpression::searchPrototype(Ink_Object *obj, const char *id)
+Ink_HashExpression::ProtoSearchRet Ink_HashExpression::searchPrototype(Ink_InterpreteEngine *engine, Ink_Object *obj, const char *id)
 {
-	Ink_HashTable *hash = obj->getSlotMapping(id);
+	Ink_HashTable *hash = obj->getSlotMapping(engine, id);
 	Ink_HashTable *proto;
 	Ink_Object *proto_obj = NULL;
 	Ink_HashExpression::ProtoSearchRet search_res;
 
 	if (!hash) { /* cannot find slot in object itself */
 		/* get prototype */
-		proto = obj->getSlotMapping("prototype");
+		proto = obj->getSlotMapping(engine, "prototype");
 
 		/* prototype exists and it's not undefined */
 		if (proto && proto->getValue()->type != INK_UNDEFINED) {
 			/* search the slot in prototype, and get the result */
-			hash = (search_res = searchPrototype(proto->getValue(), id)).hash;
+			hash = (search_res = searchPrototype(engine, proto->getValue(), id)).hash;
 			proto_obj = search_res.base;
 		}
 	}
@@ -304,7 +304,7 @@ Ink_HashExpression::ProtoSearchRet Ink_HashExpression::searchPrototype(Ink_Objec
 	return Ink_HashExpression::ProtoSearchRet(hash, proto_obj ? proto_obj : obj);
 }
 
-Ink_Object *Ink_HashExpression::getSlot(Ink_ContextChain *context_chain, Ink_Object *obj, const char *id, Ink_EvalFlag flags)
+Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_Object *obj, const char *id, Ink_EvalFlag flags)
 {
 	Ink_HashTable *hash, *address;
 	Ink_Object *base = obj, *ret, *tmp;
@@ -315,9 +315,9 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_ContextChain *context_chain, Ink_Obj
 		InkWarn_Get_Undefined_Hash();
 	}
 
-	if (!(hash = obj->getSlotMapping(id)) /* cannot find slot in the origin object */) {
+	if (!(hash = obj->getSlotMapping(engine, id)) /* cannot find slot in the origin object */) {
 		/* search prototype */
-		hash = (search_res = searchPrototype(obj, id)).hash;
+		hash = (search_res = searchPrototype(engine, obj, id)).hash;
 
 		/* create barrier to prevent changes on prototype */
 		address = obj->setSlot(id, NULL);
@@ -325,15 +325,15 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_ContextChain *context_chain, Ink_Obj
 			base = search_res.base; /* set base as the prototype(to make some native method run correctly) */
 			ret = hash->getValue();
 		} else {
-			if ((tmp = obj->getSlot("missing"))->type == INK_FUNCTION) {
+			if ((tmp = obj->getSlot(engine, "missing"))->type == INK_FUNCTION) {
 				/* has missing method, call it */
 				argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
-				argv[0] = new Ink_String(string(id));
-				ret = tmp->call(context_chain, 1, argv);
+				argv[0] = new Ink_String(engine, string(id));
+				ret = tmp->call(engine, context_chain, 1, argv);
 				free(argv);
 			} else {
 				/* return undefined */
-				ret = new Ink_Undefined();
+				ret = new Ink_Undefined(engine);
 			}
 		}
 	} else {
@@ -351,7 +351,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_ContextChain *context_chain, Ink_Obj
 
 	/* call getter if has one */
 	if (!flags.is_left_value && address->getter) {
-		ret = address->getter->call(context_chain, 0, NULL, ret);
+		ret = address->getter->call(engine, context_chain, 0, NULL, ret);
 		/* trap all interrupt signal */
 		CGC_interrupt_signal = INTER_NONE;
 	}
@@ -359,12 +359,12 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_ContextChain *context_chain, Ink_Obj
 	return ret;
 }
 
-Ink_Object *Ink_FunctionExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_FunctionExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	SET_LINE_NUM;
 	RESTORE_LINE_NUM;
-	return new Ink_FunctionObject(param, exp_list, context_chain->copyContextChain(), is_inline, is_generator);
+	return new Ink_FunctionObject(engine, param, exp_list, context_chain->copyContextChain(), is_inline, is_generator);
 }
 
 /* expand argument -- expand array object to parameter */
@@ -387,7 +387,7 @@ inline Ink_ArgumentList expandArgument(Ink_Object *obj)
 	return ret;
 }
 
-Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	SET_LINE_NUM;
@@ -396,7 +396,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 	Ink_Object **argv = NULL;
 	Ink_Object *ret_val, *expandee;
 	/* eval callee to get parameter declaration */
-	Ink_Object *func = callee->eval(context_chain);
+	Ink_Object *func = callee->eval(engine, context_chain);
 	if (INTER_SIGNAL_RECEIVED)
 		return CGC_interrupt_value;
 	Ink_ParamList param_list = Ink_ParamList();
@@ -406,7 +406,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 		param_list = as<Ink_FunctionObject>(func)->param;
 	}
 	if (is_new) {
-		func = Ink_HashExpression::getSlot(context_chain, func, "new");
+		func = Ink_HashExpression::getSlot(engine, context_chain, func, "new");
 	}
 
 	for (i = 0, tmp_arg_list = Ink_ArgumentList();
@@ -415,7 +415,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 			/* if the argument is 'with' argument attachment */
 
 			/* eval expandee */
-			expandee = arg_list[i]->expandee->eval(context_chain);
+			expandee = arg_list[i]->expandee->eval(engine, context_chain);
 			if (INTER_SIGNAL_RECEIVED) {
 				ret_val = CGC_interrupt_value;
 				goto DISPOSE_LIST;
@@ -445,20 +445,20 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 					for (; i < tmp_arg_list.size(); i++) {
 						Ink_ExpressionList exp_list = Ink_ExpressionList();
 						exp_list.push_back(tmp_arg_list[i]->arg);
-						argv[i] = new Ink_FunctionObject(Ink_ParamList(), exp_list,
+						argv[i] = new Ink_FunctionObject(engine, Ink_ParamList(), exp_list,
 														 context_chain->copyContextChain(),
 														 true);
 					}
 				} else {
 					Ink_ExpressionList exp_list = Ink_ExpressionList();
 					exp_list.push_back(tmp_arg_list[i]->arg);
-					argv[i] = new Ink_FunctionObject(Ink_ParamList(), exp_list,
+					argv[i] = new Ink_FunctionObject(engine, Ink_ParamList(), exp_list,
 													 context_chain->copyContextChain(),
 													 true);
 				}
 			} else {
 				/* normal argument */
-				argv[i] = tmp_arg_list[i]->arg->eval(context_chain);
+				argv[i] = tmp_arg_list[i]->arg->eval(engine, context_chain);
 				if (INTER_SIGNAL_RECEIVED) {
 					ret_val = CGC_interrupt_value;
 					/* goto dispose and interrupt */
@@ -468,7 +468,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFl
 		}
 	}
 
-	ret_val = func->call(context_chain, tmp_arg_list.size(), argv);
+	ret_val = func->call(engine, context_chain, tmp_arg_list.size(), argv);
 
 DISPOSE_ARGV:
 	free(argv);
@@ -483,19 +483,19 @@ DISPOSE_LIST:
 	return ret_val;
 }
 
-Ink_Object *Ink_IdentifierExpression::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_IdentifierExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	SET_LINE_NUM;
 
 	Ink_Object *ret;
-	ret = getContextSlot(context_chain, id->c_str(), context_type, flags, if_create_slot);
+	ret = getContextSlot(engine, context_chain, id->c_str(), context_type, flags, if_create_slot);
 
 	RESTORE_LINE_NUM;
 	return ret;
 }
 
-Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_ContextChain *context_chain, const char *name,
+Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, const char *name,
 													 IDContextType context_type, Ink_EvalFlag flags, bool if_create_slot)
 {
 	/* Variables */
@@ -516,33 +516,33 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_ContextChain *context_c
 	 */
 	switch (context_type) {
 		case ID_LOCAL:
-			hash = local->context->getSlotMapping(name);
-			missing = local->context->getSlotMapping("missing");
+			hash = local->context->getSlotMapping(engine, name);
+			missing = local->context->getSlotMapping(engine, "missing");
 			break;
 		case ID_GLOBAL:
-			hash = global->context->getSlotMapping(name);
-			missing = global->context->getSlotMapping("missing");
+			hash = global->context->getSlotMapping(engine, name);
+			missing = global->context->getSlotMapping(engine, "missing");
 			dest_context = global;
 			break;
 		default:
-			hash = context_chain->searchSlotMapping(name);
-			missing = context_chain->searchSlotMapping("missing");
+			hash = context_chain->searchSlotMapping(engine, name);
+			missing = context_chain->searchSlotMapping(engine, "missing");
 			break;
 	}
 
 	/* if the slot cannot be found */
 	if (!hash) {
 		if (if_create_slot) { /* if has the "var" keyword */
-			ret = new Ink_Object();
+			ret = new Ink_Object(engine);
 			hash = dest_context->context->setSlot(name, ret);
 		} else { /* generate a undefined value */
 			if (missing && missing->getValue()->type == INK_FUNCTION) {
 				argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
-				argv[0] = new Ink_String(name);
-				ret = missing->getValue()->call(context_chain, 1, argv);
+				argv[0] = new Ink_String(engine, name);
+				ret = missing->getValue()->call(engine, context_chain, 1, argv);
 				free(argv);
 			} else {
-				ret = new Ink_Undefined();
+				ret = new Ink_Undefined(engine);
 			}
 			hash = dest_context->context->setSlot(name, NULL);
 		}
@@ -553,7 +553,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_ContextChain *context_c
 
 	/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
 	if (!flags.is_left_value && hash->getter) {
-		tmp = hash->getter->call(context_chain, 0, NULL,
+		tmp = hash->getter->call(engine, context_chain, 0, NULL,
 								 hash->getValue(),
 								 /* don't return "this" pointer anyway */
 								 false);
@@ -568,7 +568,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_ContextChain *context_c
 	return ret;
 }
 
-Ink_Object *Ink_ArrayLiteral::eval(Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_ArrayLiteral::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	int line_num_back;
 	SET_LINE_NUM;
@@ -576,7 +576,7 @@ Ink_Object *Ink_ArrayLiteral::eval(Ink_ContextChain *context_chain, Ink_EvalFlag
 	unsigned int i;
 
 	for (i = 0; i < elem_list.size(); i++) {
-		val.push_back(new Ink_HashTable("", elem_list[i]->eval(context_chain)));
+		val.push_back(new Ink_HashTable("", elem_list[i]->eval(engine, context_chain)));
 		if (INTER_SIGNAL_RECEIVED) {
 			RESTORE_LINE_NUM;
 			Ink_Array::disposeArrayValue(val);
@@ -585,5 +585,5 @@ Ink_Object *Ink_ArrayLiteral::eval(Ink_ContextChain *context_chain, Ink_EvalFlag
 	}
 
 	RESTORE_LINE_NUM;
-	return new Ink_Array(val);
+	return new Ink_Array(engine, val);
 }

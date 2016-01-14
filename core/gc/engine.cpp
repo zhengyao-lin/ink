@@ -5,9 +5,9 @@
 #include "core/interface/engine.h"
 #include "includes/switches.h"
 
-#define CURRENT_OBJECT_COUNT (Ink_getCurrentEngine()->igc_object_count)
-#define CURRENT_COLLECT_TRESHOLD (Ink_getCurrentEngine()->igc_collect_treshold)
-#define CURRENT_MARK_PERIOD (Ink_getCurrentEngine()->igc_mark_period)
+#define CURRENT_OBJECT_COUNT (engine->igc_object_count)
+#define CURRENT_COLLECT_TRESHOLD (engine->igc_collect_treshold)
+#define CURRENT_MARK_PERIOD (engine->igc_mark_period)
 
 void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
 {
@@ -120,7 +120,7 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 
 	//st = clock();
 	if (!delete_all) {
-		for (i = Ink_getCurrentEngine()->trace->getGlobal();
+		for (i = engine->trace->getGlobal();
 			 i; i = i->inner) {
 			doMark(i->context);
 		}

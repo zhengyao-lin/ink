@@ -26,7 +26,7 @@ bool isTrue(Ink_Object *cond)
 	return cond->type != INK_NULL && cond->type != INK_UNDEFINED;
 }
 
-Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_IfExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *cond;
 	Ink_Object *ret;
@@ -34,7 +34,7 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 
 	if (!argc) {
 		InkWarn_If_Argument_Fault();
-		return new Ink_NullObject();
+		return NULL_OBJ;
 	}
 
 	i = 0;
@@ -42,7 +42,7 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 	if (isTrue(cond)) {
 		i++;
 		if (i < argc && argv[i]->type == INK_FUNCTION) {
-			ret = argv[i]->call(context);
+			ret = argv[i]->call(engine, context);
 		}
 	} else {
 		if (i + 1 < argc && argv[i + 1]->type == INK_FUNCTION) {
@@ -62,7 +62,7 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 											if (isTrue(as<Ink_Array>(argv[i])->value[0]->getValue())) {
 												if (++i < argc) {
 													if (argv[i]->type == INK_FUNCTION) {
-														ret = argv[i]->call(context);
+														ret = argv[i]->call(engine, context);
 														break;
 													}
 												} else {
@@ -86,7 +86,7 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 								}
 							}
 						} else if (argv[i]->type == INK_FUNCTION) {
-							ret = argv[i]->call(context);
+							ret = argv[i]->call(engine, context);
 						}
 					} else {
 						InkWarn_If_End_With_Else();
@@ -94,7 +94,7 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 					}
 				}
 			} else if (argv[i]->type == INK_FUNCTION) {
-				ret = argv[i]->call(context);
+				ret = argv[i]->call(engine, context);
 				break;
 			}
 		}
@@ -103,32 +103,32 @@ Ink_Object *Ink_IfExpression(Ink_ContextChain *context, unsigned int argc, Ink_O
 	return ret;
 }
 
-Ink_Object *Ink_WhileExpression(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_WhileExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *cond;
 	Ink_Object *block;
 	Ink_Object *ret;
-	IGC_CollectEngine *gc_engine = Ink_getCurrentEngine()->getCurrentGC();
+	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
 
 	if (argc < 2) {
 		InkWarn_While_Argument_Require();
-		return new Ink_NullObject();
+		return NULL_OBJ;
 	}
 
 	cond = argv[0];
 	block = argv[1];
 	if (cond->type != INK_FUNCTION) {
 		InkWarn_Require_Lazy_Expression();
-		return new Ink_NullObject();
+		return NULL_OBJ;
 	} else if (block->type != INK_FUNCTION) {
 		InkWarn_While_Block_Require();
-		return new Ink_NullObject();
+		return NULL_OBJ;
 	}
 
-	ret = new Ink_NullObject();
-	while (isTrue(cond->call(context))) {
+	ret = NULL_OBJ;
+	while (isTrue(cond->call(engine, context))) {
 		gc_engine->checkGC();
-		ret = block->call(context);
+		ret = block->call(engine, context);
 		switch (CGC_interrupt_signal) {
 			case INTER_RETURN:
 				return CGC_interrupt_value; // fallthrough the signal
@@ -158,26 +158,26 @@ Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val)
 	return ret;
 }
 
-Ink_Object *Ink_ArrayConstructor(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_ContextChain *local = context->getLocal();
 	Ink_Object *ret;
 
 	if (argc) {
 		if (argv[0]->type == INK_NUMERIC && argc == 1) {
-			ret = new Ink_Array(Ink_ArrayValue(as<Ink_Numeric>(argv[0])->value, NULL));
+			ret = new Ink_Array(engine, Ink_ArrayValue(as<Ink_Numeric>(argv[0])->value, NULL));
 		} else if (argv[0]->type == INK_ARRAY && argc == 1) {
-			ret = new Ink_Array(cloneArrayValue(as<Ink_Array>(argv[0])->value));
+			ret = new Ink_Array(engine, cloneArrayValue(as<Ink_Array>(argv[0])->value));
 		}else {
 			Ink_ArrayValue val = Ink_ArrayValue();
 			unsigned int i;
 			for (i = 0; i < argc; i++) {
 				val.push_back(new Ink_HashTable("", argv[i]));
 			}
-			ret = new Ink_Array(val);
+			ret = new Ink_Array(engine, val);
 		}
 	} else {
-		ret = new Ink_Array();
+		ret = new Ink_Array(engine);
 	}
 
 	local->context->setSlot("this", ret);
@@ -189,12 +189,12 @@ extern int current_line_number;
 extern int inkerr_current_line_number;
 extern const char *yyerror_prefix;
 
-Ink_Object *Ink_Eval(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret = NULL_OBJ;
 	Ink_ExpressionList top_level_backup;
 	int line_num_backup = current_line_number;
-	Ink_InterpreteEngine *current_engine = Ink_getCurrentEngine();
+	Ink_InterpreteEngine *current_engine = engine;
 
 	if (!checkArgument(argc, argv, 1, INK_STRING)) {
 		return ret;
@@ -215,7 +215,7 @@ Ink_Object *Ink_Eval(Ink_ContextChain *context, unsigned int argc, Ink_Object **
 							   current_engine->top_level.end());
 		current_engine->top_level = top_level_backup;
 
-		context->addContext(new Ink_ContextObject());
+		context->addContext(new Ink_ContextObject(engine));
 	} else {
 		InkWarn_Eval_Called_Without_Current_Engine();
 	}
@@ -229,7 +229,7 @@ bool defined(Ink_Object *obj)
 	return obj->type != INK_UNDEFINED;
 }
 
-Ink_Object *Ink_Print(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(argc, 1)) {
 		return NULL_OBJ;
@@ -249,14 +249,14 @@ Ink_Object *Ink_Print(Ink_ContextChain *context, unsigned int argc, Ink_Object *
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	unsigned int i;
 	FILE *fp;
 	Ink_Object *load, **tmp_argv;
 	const char *tmp;
 	char *current_dir = NULL, *redirect = NULL;
-	Ink_InterpreteEngine *current_engine = Ink_getCurrentEngine();
+	Ink_InterpreteEngine *current_engine = engine;
 	Ink_ExpressionList top_level_backup;
 	int line_num_backup = current_line_number;
 
@@ -290,7 +290,7 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 									   current_engine->top_level.end());
 				current_engine->top_level = top_level_backup;
 
-				context->addContext(new Ink_ContextObject());
+				context->addContext(new Ink_ContextObject(engine));
 			}
 			fclose(fp);
 
@@ -301,10 +301,10 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 			// run file
 		} else {
 			// call load method
-			if ((load = getSlotWithProto(context, argv[i], "load"))->type == INK_FUNCTION) {
+			if ((load = getSlotWithProto(engine, context, argv[i], "load"))->type == INK_FUNCTION) {
 				tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 				tmp_argv[0] = argv[i];
-				load->call(context, 1, tmp_argv);
+				load->call(engine, context, 1, tmp_argv);
 				free(tmp_argv);
 			} else {
 				InkWarn_Not_Package();
@@ -316,17 +316,17 @@ Ink_Object *Ink_Import(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_TypeName(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_TypeName(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (argc < 1) {
 		InkWarn_Type_Name_Argument_Require();
 		return NULL_OBJ;
 	}
 
-	return new Ink_String(getTypeName(argv[0]->type));
+	return new Ink_String(engine, getTypeName(argv[0]->type));
 }
 
-Ink_Object *Ink_NumVal(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Expression *tmp;
 
@@ -338,10 +338,10 @@ Ink_Object *Ink_NumVal(Ink_ContextChain *context, unsigned int argc, Ink_Object 
 		return NULL_OBJ;
 
 	native_exp_list.push_back(tmp);
-	return tmp->eval(context);
+	return tmp->eval(engine, context);
 }
 
-Ink_Object *Ink_Debug(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	unsigned int i;
 	if (!checkArgument(argc, 1))
@@ -355,13 +355,13 @@ Ink_Object *Ink_Debug(Ink_ContextChain *context, unsigned int argc, Ink_Object *
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_Where(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_Where(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	DBG_printTrace(stderr, Ink_getCurrentEngine()->getTrace());
+	DBG_printTrace(stderr, engine->getTrace());
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_CoroutineCall(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *Ink_CoroutineCall(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_CoCallList co_call_list = Ink_CoCallList();
 	unsigned int i;
@@ -375,7 +375,7 @@ Ink_Object *Ink_CoroutineCall(Ink_ContextChain *context, unsigned int argc, Ink_
 										  tmp_argv));
 	}
 
-	ret_val = InkCoCall_call(context, co_call_list);
+	ret_val = InkCoCall_call(engine, context, co_call_list);
 
 	for (i = 0; i < co_call_list.size(); i++) {
 		free(co_call_list[i].argv);
@@ -384,91 +384,90 @@ Ink_Object *Ink_CoroutineCall(Ink_ContextChain *context, unsigned int argc, Ink_
 	return ret_val;
 }
 
-Ink_Object *InkNative_Object_New(Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p);
-void Ink_GlobalMethodInit(Ink_ContextChain *context)
+void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 {
-	context->context->setSlot("if", new Ink_FunctionObject(Ink_IfExpression, true));
+	context->context->setSlot("if", new Ink_FunctionObject(engine, Ink_IfExpression, true));
 
 	Ink_ParamList param_list = Ink_ParamList();
 	param_list.push_back(Ink_Parameter(NULL, true));
-	Ink_Object *while_func = new Ink_FunctionObject(Ink_WhileExpression, true);
+	Ink_Object *while_func = new Ink_FunctionObject(engine, Ink_WhileExpression, true);
 	as<Ink_FunctionObject>(while_func)->param = param_list;
 	context->context->setSlot("while", while_func);
-	context->context->setSlot("p", new Ink_FunctionObject(Ink_Print));
-	context->context->setSlot("eval", new Ink_FunctionObject(Ink_Eval));
-	context->context->setSlot("import", new Ink_FunctionObject(Ink_Import));
-	context->context->setSlot("typename", new Ink_FunctionObject(Ink_TypeName));
-	context->context->setSlot("numval", new Ink_FunctionObject(Ink_NumVal));
-	context->context->setSlot("cocall", new Ink_FunctionObject(Ink_CoroutineCall));
+	context->context->setSlot("p", new Ink_FunctionObject(engine, Ink_Print));
+	context->context->setSlot("eval", new Ink_FunctionObject(engine, Ink_Eval));
+	context->context->setSlot("import", new Ink_FunctionObject(engine, Ink_Import));
+	context->context->setSlot("typename", new Ink_FunctionObject(engine, Ink_TypeName));
+	context->context->setSlot("numval", new Ink_FunctionObject(engine, Ink_NumVal));
+	context->context->setSlot("cocall", new Ink_FunctionObject(engine, Ink_CoroutineCall));
 
-	context->context->setSlot("debug", new Ink_FunctionObject(Ink_Debug));
-	context->context->setSlot("where", new Ink_FunctionObject(Ink_Where));
+	context->context->setSlot("debug", new Ink_FunctionObject(engine, Ink_Debug));
+	context->context->setSlot("where", new Ink_FunctionObject(engine, Ink_Where));
 
-	Ink_Object *array_cons = new Ink_FunctionObject(Ink_ArrayConstructor);
+	Ink_Object *array_cons = new Ink_FunctionObject(engine, Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);
-	array_cons->setSlot("new", new Ink_FunctionObject(InkNative_Object_New));
+	array_cons->setSlot("new", new Ink_FunctionObject(engine, InkNative_Object_New));
 
-	context->context->setSlot("undefined", new Ink_Undefined());
-	context->context->setSlot("null", new Ink_NullObject());
-	context->context->setSlot("_", new Ink_Unknown());
+	context->context->setSlot("undefined", new Ink_Undefined(engine));
+	context->context->setSlot("null", new Ink_NullObject(engine));
+	context->context->setSlot("_", new Ink_Unknown(engine));
 
-	loadAllModules(context);
+	loadAllModules(engine, context);
 }
 
 int numeric_native_method_table_count = 14;
 InkNative_MethodTable numeric_native_method_table[] = {
-	{"+", new Ink_FunctionObject(InkNative_Numeric_Add)},
-	{"-", new Ink_FunctionObject(InkNative_Numeric_Sub)},
-	{"*", new Ink_FunctionObject(InkNative_Numeric_Mul)},
-	{"/", new Ink_FunctionObject(InkNative_Numeric_Div)},
-	{"%", new Ink_FunctionObject(InkNative_Numeric_Mod)},
-	{"==", new Ink_FunctionObject(InkNative_Numeric_Equal)},
-	{"!=", new Ink_FunctionObject(InkNative_Numeric_NotEqual)},
-	{">", new Ink_FunctionObject(InkNative_Numeric_Greater)},
-	{"<", new Ink_FunctionObject(InkNative_Numeric_Less)},
-	{">=", new Ink_FunctionObject(InkNative_Numeric_GreaterOrEqual)},
-	{"<=", new Ink_FunctionObject(InkNative_Numeric_LessOrEqual)},
-	{"+u", new Ink_FunctionObject(InkNative_Numeric_Add_Unary)},
-	{"-u", new Ink_FunctionObject(InkNative_Numeric_Sub_Unary)},
-	{"to_str", new Ink_FunctionObject(InkNative_Numeric_ToString)}
+	{"+", new Ink_FunctionObject(NULL, InkNative_Numeric_Add)},
+	{"-", new Ink_FunctionObject(NULL, InkNative_Numeric_Sub)},
+	{"*", new Ink_FunctionObject(NULL, InkNative_Numeric_Mul)},
+	{"/", new Ink_FunctionObject(NULL, InkNative_Numeric_Div)},
+	{"%", new Ink_FunctionObject(NULL, InkNative_Numeric_Mod)},
+	{"==", new Ink_FunctionObject(NULL, InkNative_Numeric_Equal)},
+	{"!=", new Ink_FunctionObject(NULL, InkNative_Numeric_NotEqual)},
+	{">", new Ink_FunctionObject(NULL, InkNative_Numeric_Greater)},
+	{"<", new Ink_FunctionObject(NULL, InkNative_Numeric_Less)},
+	{">=", new Ink_FunctionObject(NULL, InkNative_Numeric_GreaterOrEqual)},
+	{"<=", new Ink_FunctionObject(NULL, InkNative_Numeric_LessOrEqual)},
+	{"+u", new Ink_FunctionObject(NULL, InkNative_Numeric_Add_Unary)},
+	{"-u", new Ink_FunctionObject(NULL, InkNative_Numeric_Sub_Unary)},
+	{"to_str", new Ink_FunctionObject(NULL, InkNative_Numeric_ToString)}
 };
 
 int string_native_method_table_count = 8;
 InkNative_MethodTable string_native_method_table[] = {
-	{"+", new Ink_FunctionObject(InkNative_String_Add)},
-	{"<", new Ink_FunctionObject(InkNative_String_Index)},
-	{">", new Ink_FunctionObject(InkNative_String_Greater)},
-	{"<", new Ink_FunctionObject(InkNative_String_Less)},
-	{">=", new Ink_FunctionObject(InkNative_String_GreaterOrEqual)},
-	{"<=", new Ink_FunctionObject(InkNative_String_LessOrEqual)},
-	{"[]", new Ink_FunctionObject(InkNative_String_Index)},
-	{"length", new Ink_FunctionObject(InkNative_String_Length)}
+	{"+", new Ink_FunctionObject(NULL, InkNative_String_Add)},
+	{"<", new Ink_FunctionObject(NULL, InkNative_String_Index)},
+	{">", new Ink_FunctionObject(NULL, InkNative_String_Greater)},
+	{"<", new Ink_FunctionObject(NULL, InkNative_String_Less)},
+	{">=", new Ink_FunctionObject(NULL, InkNative_String_GreaterOrEqual)},
+	{"<=", new Ink_FunctionObject(NULL, InkNative_String_LessOrEqual)},
+	{"[]", new Ink_FunctionObject(NULL, InkNative_String_Index)},
+	{"length", new Ink_FunctionObject(NULL, InkNative_String_Length)}
 };
 
 int object_native_method_table_count = 12;
 InkNative_MethodTable object_native_method_table[] = {
-	{"->", new Ink_FunctionObject(InkNative_Object_Bond)},
-	{"!!", new Ink_FunctionObject(InkNative_Object_Debond)},
-	{"!", new Ink_FunctionObject(InkNative_Object_Not)},
-	{"==", new Ink_FunctionObject(InkNative_Object_Equal)},
-	{"!=", new Ink_FunctionObject(InkNative_Object_NotEqual)},
-	{"[]", new Ink_FunctionObject(InkNative_Object_Index)},
-	{"new", new Ink_FunctionObject(InkNative_Object_New)},
-	{"delete", new Ink_FunctionObject(InkNative_Object_Delete)},
-	{"clone", new Ink_FunctionObject(InkNative_Object_Clone)},
-	{"getter", new Ink_FunctionObject(InkNative_Object_SetGetter)},
-	{"setter", new Ink_FunctionObject(InkNative_Object_SetSetter)},
-	{"each", new Ink_FunctionObject(InkNative_Object_Each)},
+	{"->", new Ink_FunctionObject(NULL, InkNative_Object_Bond)},
+	{"!!", new Ink_FunctionObject(NULL, InkNative_Object_Debond)},
+	{"!", new Ink_FunctionObject(NULL, InkNative_Object_Not)},
+	{"==", new Ink_FunctionObject(NULL, InkNative_Object_Equal)},
+	{"!=", new Ink_FunctionObject(NULL, InkNative_Object_NotEqual)},
+	{"[]", new Ink_FunctionObject(NULL, InkNative_Object_Index)},
+	{"new", new Ink_FunctionObject(NULL, InkNative_Object_New)},
+	{"delete", new Ink_FunctionObject(NULL, InkNative_Object_Delete)},
+	{"clone", new Ink_FunctionObject(NULL, InkNative_Object_Clone)},
+	{"getter", new Ink_FunctionObject(NULL, InkNative_Object_SetGetter)},
+	{"setter", new Ink_FunctionObject(NULL, InkNative_Object_SetSetter)},
+	{"each", new Ink_FunctionObject(NULL, InkNative_Object_Each)},
 };
 
 int array_native_method_table_count = 6;
 InkNative_MethodTable array_native_method_table[] = {
-	{"[]", new Ink_FunctionObject(InkNative_Array_Index)},
-	{"push", new Ink_FunctionObject(InkNative_Array_Push)},
-	{"size", new Ink_FunctionObject(InkNative_Array_Size)},
-	{"each", new Ink_FunctionObject(InkNative_Array_Each)},
-	{"remove", new Ink_FunctionObject(InkNative_Array_Remove)},
-	{"rebuild", new Ink_FunctionObject(InkNative_Array_Rebuild)}
+	{"[]", new Ink_FunctionObject(NULL, InkNative_Array_Index)},
+	{"push", new Ink_FunctionObject(NULL, InkNative_Array_Push)},
+	{"size", new Ink_FunctionObject(NULL, InkNative_Array_Size)},
+	{"each", new Ink_FunctionObject(NULL, InkNative_Array_Each)},
+	{"remove", new Ink_FunctionObject(NULL, InkNative_Array_Remove)},
+	{"rebuild", new Ink_FunctionObject(NULL, InkNative_Array_Rebuild)}
 };
 
 inline Ink_ParamList InkNative_Function_GetScope_ParamGenerator()
@@ -480,8 +479,8 @@ inline Ink_ParamList InkNative_Function_GetScope_ParamGenerator()
 
 int function_native_method_table_count = 4;
 InkNative_MethodTable function_native_method_table[] = {
-	{"<<", new Ink_FunctionObject(InkNative_Function_Insert)},
-	{"exp", new Ink_FunctionObject(InkNative_Function_GetExp)},
-	{"[]", new Ink_FunctionObject(InkNative_Function_RangeCall)},
-	{"::", new Ink_FunctionObject(InkNative_Function_GetScope, InkNative_Function_GetScope_ParamGenerator())}
+	{"<<", new Ink_FunctionObject(NULL, InkNative_Function_Insert)},
+	{"exp", new Ink_FunctionObject(NULL, InkNative_Function_GetExp)},
+	{"[]", new Ink_FunctionObject(NULL, InkNative_Function_RangeCall)},
+	{"::", new Ink_FunctionObject(NULL, InkNative_Function_GetScope, InkNative_Function_GetScope_ParamGenerator())}
 };

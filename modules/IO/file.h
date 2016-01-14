@@ -13,14 +13,14 @@ class Ink_FilePointer: public Ink_Object {
 public:
 	FILE *fp;
 
-	Ink_FilePointer(FILE *fp = NULL)
-	: fp(fp)
+	Ink_FilePointer(Ink_InterpreteEngine *engine, FILE *fp = NULL)
+	: Ink_Object(engine), fp(fp)
 	{
 		type = file_pointer_type_tag;
-		setMethod();
+		setMethod(engine);
 	}
 
-	void setMethod();
+	void setMethod(Ink_InterpreteEngine *engine);
 };
 
 #if defined(INK_PLATFORM_LINUX)
