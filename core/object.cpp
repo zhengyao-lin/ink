@@ -389,7 +389,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 		}
 
 		if (argi > argc) { /* still some parameter remaining */
-			InkWarn_Unfit_Argument();
+			InkWarn_Unfit_Argument(engine);
 		}
 
 		for (j = 0; j < exp_list.size(); j++) {

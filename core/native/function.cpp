@@ -9,10 +9,10 @@ Ink_Object *InkNative_Function_Insert(Ink_InterpreteEngine *engine, Ink_ContextC
 	Ink_Object *base = context->searchSlot(engine, "base");
 	unsigned int i;
 
-	ASSUME_BASE_TYPE(INK_FUNCTION);
+	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 
 	if (!checkArgument(false, argc, argv, 1, INK_FUNCTION)) {
-		InkWarn_Insert_Non_Function_Object();
+		InkWarn_Insert_Non_Function_Object(engine);
 		return NULL_OBJ;
 	}
 
@@ -21,7 +21,7 @@ Ink_Object *InkNative_Function_Insert(Ink_InterpreteEngine *engine, Ink_ContextC
 
 	for (i = 0; i < argc; i++) {
 		if (argv[i]->type != INK_FUNCTION) {
-			InkWarn_Insert_Non_Function_Object();
+			InkWarn_Insert_Non_Function_Object(engine);
 			return func;
 		}
 		insert = as<Ink_FunctionObject>(argv[i]);
@@ -54,22 +54,22 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 	Ink_Object **tmp;
 	unsigned int i;
 
-	ASSUME_BASE_TYPE(INK_FUNCTION);
+	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 
 	if (!argc) {
-		InkWarn_Function_Range_Call_Argument_Error();
+		InkWarn_Function_Range_Call_Argument_Error(engine);
 		return NULL_OBJ;
 	}
 
 	range = getSlotWithProto(engine, context, argv[0], "range");
 	if (range->type != INK_FUNCTION) {
-		InkWarn_Method_Fallthrough(INK_OBJECT);
+		InkWarn_Method_Fallthrough(engine, INK_OBJECT);
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
 
 	range = range->call(engine, context);
 	if (range->type != INK_ARRAY) {
-		InkWarn_Incorrect_Range_Type();
+		InkWarn_Incorrect_Range_Type(engine);
 		return NULL_OBJ;
 	}
 
@@ -84,7 +84,7 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 			ret_val.push_back(new Ink_HashTable("", base->call(engine, context, tmp_arr_val.size(), tmp)));
 			free(tmp);
 		} else {
-			InkWarn_Incorrect_Range_Type();
+			InkWarn_Incorrect_Range_Type(engine);
 			return NULL_OBJ;
 		}
 	}
@@ -100,7 +100,7 @@ Ink_Object *InkNative_Function_GetExp(Ink_InterpreteEngine *engine, Ink_ContextC
 	Ink_ArrayValue ret_val;
 	unsigned int i;
 
-	ASSUME_BASE_TYPE(INK_FUNCTION);
+	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 
 	tmp = as<Ink_FunctionObject>(base);
 	for (i = 0; i < tmp->exp_list.size(); i++) {
@@ -119,9 +119,9 @@ Ink_Object *InkNative_Function_GetScope(Ink_InterpreteEngine *engine, Ink_Contex
 	Ink_FunctionObject *func, *expr;
 	Ink_Object *ret;
 
-	ASSUME_BASE_TYPE(INK_FUNCTION);
+	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 
-	if (!checkArgument(argc, argv, 1, INK_FUNCTION)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_FUNCTION)) {
 		return NULL_OBJ;
 	}
 

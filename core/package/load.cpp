@@ -106,14 +106,14 @@ void Ink_Package::load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	string *tmp;
 
 	if (!fp) {
-		InkErr_Failed_Open_File(path);
+		InkErr_Failed_Open_File(engine, path);
 		// unreachable
 	}
 
 	Ink_Package *pack = Ink_Package::readFrom(fp);
 
 	if (pack->magic_num != INK_DEFAULT_MAGIC_NUM) {
-		InkWarn_Load_Mod_On_Wrong_OS(path);
+		InkWarn_Load_Mod_On_Wrong_OS(engine, path);
 		delete pack;
 		return;
 	}
@@ -124,7 +124,7 @@ void Ink_Package::load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
 
 	if (!handler) {
-		InkWarn_Failed_Load_Mod(path);
+		InkWarn_Failed_Load_Mod(engine, path);
 		printf("%s\n", INK_DL_ERROR());
 
 		delete pack;
@@ -132,7 +132,7 @@ void Ink_Package::load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 		return;
 	}
 	if (!loader) {
-		InkWarn_Failed_Find_Loader(path);
+		InkWarn_Failed_Find_Loader(engine, path);
 		INK_DL_CLOSE(handler);
 		printf("%s\n", INK_DL_ERROR());
 

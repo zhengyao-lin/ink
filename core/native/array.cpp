@@ -18,9 +18,9 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 	Ink_HashTable *hash;
 	unsigned int index;
 
-	ASSUME_BASE_TYPE(INK_ARRAY);
+	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
 
@@ -33,7 +33,7 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 		ret->address = hash;
 		ret->setSlot("base", base);
 	} else {
-		InkWarn_Index_Exceed();
+		InkWarn_Index_Exceed(engine);
 		return UNDEFINED;
 	}
 
@@ -44,7 +44,7 @@ Ink_Object *InkNative_Array_Push(Ink_InterpreteEngine *engine, Ink_ContextChain 
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_ARRAY);
+	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
 	if (argc) {
 		Ink_Array *obj = as<Ink_Array>(base);
@@ -58,7 +58,7 @@ Ink_Object *InkNative_Array_Push(Ink_InterpreteEngine *engine, Ink_ContextChain 
 Ink_Object *InkNative_Array_Size(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
-	ASSUME_BASE_TYPE(INK_ARRAY);
+	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 	return new Ink_Numeric(engine, as<Ink_Array>(base)->value.size());
 }
 
@@ -80,9 +80,9 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	Ink_ArrayValue ret_val;
 	unsigned int i;
 
-	ASSUME_BASE_TYPE(INK_ARRAY);
+	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
-	if (!checkArgument(argc, argv, 1, INK_FUNCTION)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_FUNCTION)) {
 		return NULL_OBJ;
 	}
 
@@ -117,9 +117,9 @@ Ink_Object *InkNative_Array_Remove(Ink_InterpreteEngine *engine, Ink_ContextChai
 	Ink_Object *ret = NULL_OBJ;
 	unsigned int index_begin, index_end, tmp_val;
 
-	ASSUME_BASE_TYPE(INK_ARRAY);
+	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
 	}
 
@@ -133,7 +133,7 @@ Ink_Object *InkNative_Array_Remove(Ink_InterpreteEngine *engine, Ink_ContextChai
 	} else index_end = index_begin;
 
 	if (index_end > tmp->value.size() || index_end > tmp->value.size()) {
-		InkWarn_Too_Huge_Index();
+		InkWarn_Too_Huge_Index(engine);
 		return NULL_OBJ;
 	}
 
@@ -164,7 +164,7 @@ Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextCha
 	Ink_ExpressionList ret_val;
 	unsigned int i;
 
-	ASSUME_BASE_TYPE(INK_ARRAY);
+	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
 	tmp = as<Ink_Array>(base);
 	ret_val = Ink_ExpressionList();
@@ -173,7 +173,7 @@ Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextCha
 			if (tmp_func->type == INK_FUNCTION) {
 				ret_val.push_back(tmp_func->exp_list[0]);
 			} else {
-				InkWarn_Invalid_Element_For_Rebuild();
+				InkWarn_Invalid_Element_For_Rebuild(engine);
 			}
 		}
 	}

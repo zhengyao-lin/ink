@@ -8,9 +8,9 @@ Ink_Object *InkNative_String_Add(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_String *tmp;
 
-	ASSUME_BASE_TYPE(INK_STRING);
+	ASSUME_BASE_TYPE(engine, INK_STRING);
 
-	if (!checkArgument(argc, 1)) {
+	if (!checkArgument(engine, argc, 1)) {
 		return NULL_OBJ;
 	}
 
@@ -18,7 +18,7 @@ Ink_Object *InkNative_String_Add(Ink_InterpreteEngine *engine, Ink_ContextChain 
 		return new Ink_String(engine, as<Ink_String>(base)->value + tmp->value);
 	}
 
-	InkWarn_Invalid_Argument_For_String_Add(argv[0]->type);
+	InkWarn_Invalid_Argument_For_String_Add(engine, argv[0]->type);
 	return NULL_OBJ;
 }
 
@@ -27,10 +27,10 @@ Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 	Ink_Object *base = context->searchSlot(engine, "base");
 	int index;
 
-	ASSUME_BASE_TYPE(INK_STRING);
+	ASSUME_BASE_TYPE(engine, INK_STRING);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
-		InkWarn_Method_Fallthrough(INK_OBJECT);
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		InkWarn_Method_Fallthrough(engine, INK_OBJECT);
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
 	index = as<Ink_Numeric>(argv[0])->value;
@@ -42,7 +42,7 @@ Ink_Object *InkNative_String_Length(Ink_InterpreteEngine *engine, Ink_ContextCha
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_STRING);
+	ASSUME_BASE_TYPE(engine, INK_STRING);
 
 	return new Ink_Numeric(engine, as<Ink_String>(base)->value.length());
 }
@@ -51,8 +51,8 @@ Ink_Object *InkNative_String_Greater(Ink_InterpreteEngine *engine, Ink_ContextCh
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_STRING);
-	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+	ASSUME_BASE_TYPE(engine, INK_STRING);
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
 
@@ -63,8 +63,8 @@ Ink_Object *InkNative_String_Less(Ink_InterpreteEngine *engine, Ink_ContextChain
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_STRING);
-	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+	ASSUME_BASE_TYPE(engine, INK_STRING);
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
 
@@ -75,8 +75,8 @@ Ink_Object *InkNative_String_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_Co
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_STRING);
-	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+	ASSUME_BASE_TYPE(engine, INK_STRING);
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
 
@@ -87,8 +87,8 @@ Ink_Object *InkNative_String_LessOrEqual(Ink_InterpreteEngine *engine, Ink_Conte
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_STRING);
-	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+	ASSUME_BASE_TYPE(engine, INK_STRING);
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
 

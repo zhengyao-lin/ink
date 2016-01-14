@@ -82,7 +82,7 @@ string *JSON_stringifyObject(Ink_Object *obj)
 
 Ink_Object *InkNative_JSON_Encode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	if (!checkArgument(argc, 1)) {
+	if (!checkArgument(engine, argc, 1)) {
 		return NULL_OBJ;
 	}
 

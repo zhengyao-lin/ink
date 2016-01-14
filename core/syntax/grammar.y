@@ -17,7 +17,9 @@
 
 	extern int yylex();
 	void yyerror(const char *msg) {
-		fprintf(stderr, "%sline %d: %s\n", yyerror_prefix, current_line_number, msg);
+		const char *tmp = Ink_getParseEngine()->getFilePath();
+		fprintf(stderr, "%s: %sline %d: %s\n", tmp ? tmp : "<unknown input>",
+				yyerror_prefix, current_line_number, msg);
 	}
 %}
 

@@ -28,6 +28,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	igc_object_count = 0;
 	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
 	igc_mark_period = 1;
+	input_file_path = NULL;
 	trace = NULL;
 	CGC_interrupt_signal = INTER_NONE;
 	CGC_interrupt_value = NULL;

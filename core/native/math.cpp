@@ -8,9 +8,9 @@ Ink_Object *InkNative_Numeric_Add(Ink_InterpreteEngine *engine, Ink_ContextChain
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
 	}
 
@@ -21,9 +21,9 @@ Ink_Object *InkNative_Numeric_Sub(Ink_InterpreteEngine *engine, Ink_ContextChain
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
 	}
 
@@ -34,9 +34,9 @@ Ink_Object *InkNative_Numeric_Mul(Ink_InterpreteEngine *engine, Ink_ContextChain
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
 	}
 
@@ -47,9 +47,9 @@ Ink_Object *InkNative_Numeric_Div(Ink_InterpreteEngine *engine, Ink_ContextChain
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
 	}
 
@@ -60,9 +60,9 @@ Ink_Object *InkNative_Numeric_Mod(Ink_InterpreteEngine *engine, Ink_ContextChain
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
 	}
 
@@ -73,7 +73,7 @@ Ink_Object *InkNative_Numeric_Equal(Ink_InterpreteEngine *engine, Ink_ContextCha
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	if (!checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
 		return InkNative_Object_Equal(engine, context, argc, argv, this_p);
@@ -99,9 +99,9 @@ Ink_Object *InkNative_Numeric_Greater(Ink_InterpreteEngine *engine, Ink_ContextC
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
 	}
 
@@ -112,9 +112,9 @@ Ink_Object *InkNative_Numeric_Less(Ink_InterpreteEngine *engine, Ink_ContextChai
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
 	}
 
@@ -125,9 +125,9 @@ Ink_Object *InkNative_Numeric_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_C
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
 	}
 
@@ -138,9 +138,9 @@ Ink_Object *InkNative_Numeric_LessOrEqual(Ink_InterpreteEngine *engine, Ink_Cont
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	if (!checkArgument(argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
 	}
 
@@ -151,7 +151,7 @@ Ink_Object *InkNative_Numeric_Add_Unary(Ink_InterpreteEngine *engine, Ink_Contex
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->value);
 }
@@ -160,7 +160,7 @@ Ink_Object *InkNative_Numeric_Sub_Unary(Ink_InterpreteEngine *engine, Ink_Contex
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, -as<Ink_Numeric>(base)->value);
 }
@@ -170,7 +170,7 @@ Ink_Object *InkNative_Numeric_ToString(Ink_InterpreteEngine *engine, Ink_Context
 	Ink_Object *base = context->searchSlot(engine, "base");
 	stringstream ss;
 
-	ASSUME_BASE_TYPE(INK_NUMERIC);
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 	ss << as<Ink_Numeric>(base)->value;
 
 	return new Ink_String(engine, string(ss.str()));

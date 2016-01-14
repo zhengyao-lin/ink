@@ -7,37 +7,37 @@
 using namespace std;
 
 inline void
-InkWarn_Unknown_Argument(const char *name)
+InkWarn_Unknown_Argument(Ink_InterpreteEngine *engine, const char *name)
 {
-	InkWarn_doPrintWarning("Ink Packer: Unknown argument \"$(name)\"", name);
+	InkWarn_doPrintWarning(engine, "Ink Packer: Unknown argument \"$(name)\"", name);
 	return;
 }
 
 inline void
-InkWarn_Excess_Argument(const char *name)
+InkWarn_Excess_Argument(Ink_InterpreteEngine *engine, const char *name)
 {
-	InkWarn_doPrintWarning("Ink Packer: Excess argument \"$(name)\"", name);
+	InkWarn_doPrintWarning(engine, "Ink Packer: Excess argument \"$(name)\"", name);
 	return;
 }
 
 inline void
-InkErr_No_Lib_Given()
+InkErr_No_Lib_Given(Ink_InterpreteEngine *engine)
 {
-	InkErr_doPrintError("Ink Packer: No library file given");
+	InkErr_doPrintError(engine, "Ink Packer: No library file given");
 	return;
 }
 
 inline void
-InkErr_No_Dest_Given()
+InkErr_No_Dest_Given(Ink_InterpreteEngine *engine)
 {
-	InkErr_doPrintError("Ink Packer: No output file given");
+	InkErr_doPrintError(engine, "Ink Packer: No output file given");
 	return;
 }
 
 inline void
-InkErr_Could_Not_Create_File(const char *path)
+InkErr_Could_Not_Create_File(Ink_InterpreteEngine *engine, const char *path)
 {
-	InkErr_doPrintError("Ink Packer: Couldn't create file $(path)", path);
+	InkErr_doPrintError(engine, "Ink Packer: Couldn't create file $(path)", path);
 	return;
 }
 
@@ -80,7 +80,7 @@ public:
 			instr = AUTHOR;
 		} else {
 			instr = UNKNOWN;
-			InkWarn_Unknown_Argument(instr_str.c_str());
+			InkWarn_Unknown_Argument(NULL, instr_str.c_str());
 			return;
 		}
 
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 				so_file = argv[i];
 			else if (!target)
 				target = argv[i];
-			else InkWarn_Excess_Argument(argv[i]);
+			else InkWarn_Excess_Argument(NULL, argv[i]);
 		} else {
 			arg[argi++] = new Argument(argv[i]);
 		}
@@ -125,12 +125,12 @@ int main(int argc, char **argv)
 	}
 
 	if (!so_file) {
-		InkErr_No_Lib_Given();
+		InkErr_No_Lib_Given(NULL);
 		// unreachable
 	}
 
 	if (!target) {
-		InkErr_No_Dest_Given();
+		InkErr_No_Dest_Given(NULL);
 		// unreachable
 	}
 
@@ -138,7 +138,7 @@ int main(int argc, char **argv)
 	fp = fopen(target, "wb");
 
 	if (!fp) {
-		InkErr_Could_Not_Create_File(target);
+		InkErr_Could_Not_Create_File(NULL, target);
 		// unreachable
 	}
 

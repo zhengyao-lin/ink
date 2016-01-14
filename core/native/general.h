@@ -14,8 +14,8 @@
 #define CONTINUE_FLAG (engine->CGC_interrupt_signal == INTER_CONTINUE)
 #define DROP_FLAG (engine->CGC_interrupt_signal == INTER_DROP)
 
-#define ASSUME_BASE_TYPE(t) do { \
-	if (!assumeType(base, t)) { \
+#define ASSUME_BASE_TYPE(eng, t) do { \
+	if (!assumeType(eng, base, t)) { \
 		return NULL_OBJ; \
 	} \
 } while (0)
@@ -34,27 +34,27 @@ inline Ink_Object *callMethod(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 							  unsigned int argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL)
 {
 	if ((base = getSlotWithProto(engine, context, base, method_name))->type != INK_FUNCTION) {
-		InkWarn_Failed_Finding_Method(method_name);
+		InkWarn_Failed_Finding_Method(engine, method_name);
 		return NULL;
 	}
 	return base->call(engine, context, argc, argv, this_p);
 }
 
-inline bool assumeType(Ink_Object *obj, Ink_TypeTag type_tag)
+inline bool assumeType(Ink_InterpreteEngine *engine, Ink_Object *obj, Ink_TypeTag type_tag)
 {
 	if (!obj) return false;
 	if (obj->type != type_tag) {
-		InkWarn_Wrong_Type(type_tag, obj->type);
+		InkWarn_Wrong_Type(engine, type_tag, obj->type);
 		return false;
 	}
 
 	return true;
 }
 
-inline bool checkArgument(unsigned int argc, unsigned int min)
+inline bool checkArgument(Ink_InterpreteEngine *engine, unsigned int argc, unsigned int min)
 {
 	if (argc < min) {
-		InkWarn_Too_Less_Argument(min, argc);
+		InkWarn_Too_Less_Argument(engine, min, argc);
 		return false;
 	}
 	return true;
@@ -74,35 +74,35 @@ inline bool checkArgument(bool if_output, unsigned int argc, Ink_Object **argv,
 	return true;
 }
 
-inline bool checkArgument(unsigned int argc, Ink_Object **argv,
+inline bool checkArgument(Ink_InterpreteEngine *engine, unsigned int argc, Ink_Object **argv,
 						  unsigned int min, Ink_TypeTag type1)
 {
 	if (argc < min) {
-		InkWarn_Too_Less_Argument(min, argc);
+		InkWarn_Too_Less_Argument(engine, min, argc);
 		return false;
 	}
 
 	if (argv[0]->type != type1) {
-		InkWarn_Wrong_Argument_Type(type1, argv[0]->type);
+		InkWarn_Wrong_Argument_Type(engine, type1, argv[0]->type);
 		return false;
 	}
 
 	return true;
 }
 
-inline bool checkArgument(unsigned int argc, Ink_Object **argv,
+inline bool checkArgument(Ink_InterpreteEngine *engine, unsigned int argc, Ink_Object **argv,
 						  unsigned int min, Ink_TypeTag type1, Ink_TypeTag type2)
 {
 	if (argc < min) {
-		InkWarn_Too_Less_Argument(min, argc);
+		InkWarn_Too_Less_Argument(engine, min, argc);
 		return false;
 	}
 
 	if (argv[0]->type != type1) {
-		InkWarn_Wrong_Argument_Type(type1, argv[0]->type);
+		InkWarn_Wrong_Argument_Type(engine, type1, argv[0]->type);
 		return false;
 	} else if (argv[1]->type != type2) {
-		InkWarn_Wrong_Argument_Type(type2, argv[1]->type);
+		InkWarn_Wrong_Argument_Type(engine, type2, argv[1]->type);
 		return false;
 	}
 
@@ -160,7 +160,7 @@ inline Ink_String *getStringVal(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	} else if ((tmp = getSlotWithProto(engine, context, obj, "to_str"))
 			   ->type == INK_FUNCTION) {
 		if ((tmp = tmp->call(engine, context))->type != INK_STRING) {
-			InkWarn_Invalid_Return_Value_Of_To_String(tmp->type);
+			InkWarn_Invalid_Return_Value_Of_To_String(engine, tmp->type);
 			return NULL;
 		}
 		return as<Ink_String>(tmp);

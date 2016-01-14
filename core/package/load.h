@@ -180,7 +180,7 @@ public:
 		if (fp) {
 			dl_file = new InkPack_FileBlock(fp);
 		} else {
-			InkErr_Failed_Open_File(dl_file_path);
+			InkErr_Failed_Open_File(NULL, dl_file_path);
 			// unreachable
 		}
 	}
@@ -215,7 +215,7 @@ public:
 		INK_DL_HANDLER handler;
 
 		if (!mod_dir) {
-			InkWarn_Failed_Find_Mod(INK_MODULE_DIR);
+			InkWarn_Failed_Find_Mod(engine, INK_MODULE_DIR);
 			return;
 		}
 
@@ -225,14 +225,14 @@ public:
 			} else if (hasSuffix(child->d_name, INK_DL_SUFFIX)) {
 				handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(child->d_name)).c_str(), RTLD_NOW);
 				if (!handler) {
-					InkWarn_Failed_Load_Mod(child->d_name);
+					InkWarn_Failed_Load_Mod(engine, child->d_name);
 					printf("\t%s\n", INK_DL_ERROR());
 					continue;
 				}
 
 				InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
 				if (!loader) {
-					InkWarn_Failed_Find_Loader(child->d_name);
+					InkWarn_Failed_Find_Loader(engine, child->d_name);
 					INK_DL_CLOSE(handler);
 					printf("\t%s\n", INK_DL_ERROR());
 				} else {
@@ -275,14 +275,14 @@ public:
 			} else if (hasSuffix(data.cFileName, INK_DL_SUFFIX)) {
 				handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(data.cFileName)).c_str(), RTLD_NOW);
 				if (!handler) {
-					InkWarn_Failed_Load_Mod(data.cFileName);
+					InkWarn_Failed_Load_Mod(engine, data.cFileName);
 					printf("\t%s\n", INK_DL_ERROR());
 					continue;
 				}
 
 				InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
 				if (!loader) {
-					InkWarn_Failed_Find_Loader(data.cFileName);
+					InkWarn_Failed_Find_Loader(engine, data.cFileName);
 					INK_DL_CLOSE(handler);
 					printf("\t%s\n", INK_DL_ERROR());
 				} else {

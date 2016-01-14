@@ -81,7 +81,7 @@ Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 
 	// no temp engine means no coroutine
 	if (!engine->ink_sync_call_tmp_engine) {
-		InkErr_Yield_Without_Coroutine();
+		InkErr_Yield_Without_Coroutine(engine);
 		// unreachable
 	}
 
@@ -218,7 +218,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 		return is_return_lval ? lval_ret : rval_ret;
 	}
 
-	InkErr_Assigning_Unassignable_Expression();
+	InkErr_Assigning_Unassignable_Expression(engine);
 	abort();
 
 	RESTORE_LINE_NUM;
@@ -247,7 +247,7 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 				return engine->CGC_interrupt_value;
 			}
 			if (key->type != INK_STRING) {
-				InkWarn_Hash_Table_Mapping_Expect_String();
+				InkWarn_Hash_Table_Mapping_Expect_String(engine);
 				return new Ink_NullObject(engine);
 			}
 			ret->setSlot(as<Ink_String>(key)->value.c_str(), mapping[i]->value->eval(engine, context_chain));
@@ -331,7 +331,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 	ProtoSearchRet search_res;
 
 	if (obj->type == INK_UNDEFINED) {
-		InkWarn_Get_Undefined_Hash();
+		InkWarn_Get_Undefined_Hash(engine);
 	}
 
 	if (!(hash = obj->getSlotMapping(engine, id)) /* cannot find slot in the origin object */) {
@@ -387,14 +387,14 @@ Ink_Object *Ink_FunctionExpression::eval(Ink_InterpreteEngine *engine, Ink_Conte
 }
 
 /* expand argument -- expand array object to parameter */
-inline Ink_ArgumentList expandArgument(Ink_Object *obj)
+inline Ink_ArgumentList expandArgument(Ink_InterpreteEngine *engine, Ink_Object *obj)
 {
 	Ink_ArgumentList ret = Ink_ArgumentList();
 	Ink_ArrayValue arr_val;
 	unsigned int i;
 
 	if (!obj || obj->type != INK_ARRAY) {
-		InkWarn_With_Attachment_Require();
+		InkWarn_With_Attachment_Require(engine);
 		return ret;
 	}
 
@@ -441,7 +441,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 			}
 
 			/* expand argument */
-			another_tmp_arg_list = expandArgument(expandee);
+			another_tmp_arg_list = expandArgument(engine, expandee);
 
 			/* insert expanded argument to dispose list and temporary argument list */
 			dispose_list.insert(dispose_list.end(), another_tmp_arg_list.begin(), another_tmp_arg_list.end());

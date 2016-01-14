@@ -30,7 +30,7 @@ Ink_Object *Ink_IfExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 	unsigned int i;
 
 	if (!argc) {
-		InkWarn_If_Argument_Fault();
+		InkWarn_If_Argument_Fault(engine);
 		return NULL_OBJ;
 	}
 
@@ -63,22 +63,22 @@ Ink_Object *Ink_IfExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 														break;
 													}
 												} else {
-													InkWarn_If_End_With_Else_If_Has_Condition();
+													InkWarn_If_End_With_Else_If_Has_Condition(engine);
 												}
 											} else {
 												i++;
 												continue;
 											}
 										} else {
-											InkWarn_Else_If_Has_No_Condition();
+											InkWarn_Else_If_Has_No_Condition(engine);
 											return ret;
 										}
 									} else {
-										InkWarn_Else_If_Has_No_Condition();
+										InkWarn_Else_If_Has_No_Condition(engine);
 										return ret;
 									}
 								} else {
-									InkWarn_If_End_With_Else_If();
+									InkWarn_If_End_With_Else_If(engine);
 									return ret;
 								}
 							}
@@ -86,7 +86,7 @@ Ink_Object *Ink_IfExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 							ret = argv[i]->call(engine, context);
 						}
 					} else {
-						InkWarn_If_End_With_Else();
+						InkWarn_If_End_With_Else(engine);
 						return ret;
 					}
 				}
@@ -108,17 +108,17 @@ Ink_Object *Ink_WhileExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
 
 	if (argc < 2) {
-		InkWarn_While_Argument_Require();
+		InkWarn_While_Argument_Require(engine);
 		return NULL_OBJ;
 	}
 
 	cond = argv[0];
 	block = argv[1];
 	if (cond->type != INK_FUNCTION) {
-		InkWarn_Require_Lazy_Expression();
+		InkWarn_Require_Lazy_Expression(engine);
 		return NULL_OBJ;
 	} else if (block->type != INK_FUNCTION) {
-		InkWarn_While_Block_Require();
+		InkWarn_While_Block_Require(engine);
 		return NULL_OBJ;
 	}
 
@@ -193,7 +193,7 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, un
 	int line_num_backup = current_line_number;
 	Ink_InterpreteEngine *current_engine = engine;
 
-	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return ret;
 	}
 
@@ -214,7 +214,7 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, un
 
 		context->addContext(new Ink_ContextObject(engine));
 	} else {
-		InkWarn_Eval_Called_Without_Current_Engine();
+		InkWarn_Eval_Called_Without_Current_Engine(engine);
 	}
 	current_line_number = line_num_backup;
 
@@ -228,7 +228,7 @@ bool defined(Ink_Object *obj)
 
 Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	if (!checkArgument(argc, 1)) {
+	if (!checkArgument(engine, argc, 1)) {
 		return NULL_OBJ;
 	}
 
@@ -261,7 +261,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 		if (argv[i]->type == INK_STRING) {
 			tmp = as<Ink_String>(argv[i])->value.c_str();
 			if (!(fp = fopen(tmp, "r"))) {
-				InkErr_Failed_Open_File(tmp);
+				InkErr_Failed_Open_File(NULL, tmp);
 				continue;
 			}
 			current_dir = getCurrentDir();
@@ -304,7 +304,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 				load->call(engine, context, 1, tmp_argv);
 				free(tmp_argv);
 			} else {
-				InkWarn_Not_Package();
+				InkWarn_Not_Package(engine);
 			}
 		}
 	}
@@ -316,7 +316,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 Ink_Object *Ink_TypeName(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (argc < 1) {
-		InkWarn_Type_Name_Argument_Require();
+		InkWarn_Type_Name_Argument_Require(engine);
 		return NULL_OBJ;
 	}
 
@@ -327,7 +327,7 @@ Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 {
 	Ink_Expression *tmp;
 
-	if (!checkArgument(argc, argv, 1, INK_STRING) || as<Ink_String>(argv[0])->value == "") {
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING) || as<Ink_String>(argv[0])->value == "") {
 		return NULL_OBJ;
 	}
 
@@ -341,7 +341,7 @@ Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	unsigned int i;
-	if (!checkArgument(argc, 1))
+	if (!checkArgument(engine, argc, 1))
 		return NULL_OBJ;
 
 	for (i = 0; i < argc; i++) {

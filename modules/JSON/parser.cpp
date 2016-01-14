@@ -297,7 +297,7 @@ Ink_Object *JSON_parse(Ink_InterpreteEngine *engine, string str)
 
 Ink_Object *InkNative_JSON_Decode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	if (!checkArgument(argc, argv, 1, INK_STRING)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return UNDEFINED;
 	}
 
