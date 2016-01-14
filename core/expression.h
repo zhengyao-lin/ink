@@ -14,15 +14,13 @@
 #include "general.h"
 #define SET_LINE_NUM (line_num_back = inkerr_current_line_number = (line_number != -1 ? line_number : inkerr_current_line_number))
 #define RESTORE_LINE_NUM (inkerr_current_line_number = line_num_back)
-#define INTER_SIGNAL_RECEIVED (CGC_interrupt_signal != INTER_NONE)
+#define INTER_SIGNAL_RECEIVED (engine->CGC_interrupt_signal != INTER_NONE)
 
 using namespace std;
 
 class Ink_Expression;
 
 extern int inkerr_current_line_number;
-extern InterruptSignal CGC_interrupt_signal;
-extern Ink_Object *CGC_interrupt_value;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
 // typedef triple<string *, bool, bool> Ink_Parameter;
@@ -75,25 +73,7 @@ public:
 	: exp_list(Ink_ExpressionList())
 	{ }
 
-	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
-	{
-		int line_num_back;
-		SET_LINE_NUM;
-
-		Ink_Object *ret = new Ink_NullObject(engine);
-		unsigned int i;
-
-		for (i = 0; i < exp_list.size(); i++) {
-			ret = exp_list[i]->eval(engine, context_chain);
-			if (INTER_SIGNAL_RECEIVED) {
-				RESTORE_LINE_NUM;
-				return CGC_interrupt_value;
-			}
-		}
-
-		RESTORE_LINE_NUM;
-		return ret;
-	}
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	virtual ~Ink_CommaExpression()
 	{

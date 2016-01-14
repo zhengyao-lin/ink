@@ -879,7 +879,7 @@ Coroutine = fn (&args...) {
 
 cor = new Coroutine(f1(), f2());
 cor.add(f3());
-//cor.start();
+cor.start();
 
 echo = fn () {
 	let text = yield null
@@ -891,4 +891,4 @@ sender = fn () {
 	p(yield "I'm text");
 }
 
-//cocall(echo, [], sender, []);
+cocall(echo, [], sender, []);

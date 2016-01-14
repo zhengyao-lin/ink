@@ -2,6 +2,7 @@
 #include "../object.h"
 #include "../context.h"
 #include "native.h"
+#include "../interface/engine.h"
 
 unsigned int getRealIndex(int index, int size)
 {
@@ -89,16 +90,16 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	for (i = 0; i < array->value.size(); i++) {
 		args[0] = array->value[i] ? array->value[i]->getValue() : UNDEFINED;
 		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, 1, args)));
-		switch (CGC_interrupt_signal) {
+		switch (engine->CGC_interrupt_signal) {
 			case INTER_RETURN:
 				free(args);
 				cleanArrayHashTable(ret_val);
-				return CGC_interrupt_value; // signal penetrated
+				return engine->CGC_interrupt_value; // signal penetrated
 			case INTER_DROP:
 			case INTER_BREAK:
-				return trapSignal(); // trap the signal
+				return trapSignal(engine); // trap the signal
 			case INTER_CONTINUE:
-				trapSignal(); // trap the signal, but do not return
+				trapSignal(engine); // trap the signal, but do not return
 				continue;
 			default: ;
 		}

@@ -14,7 +14,6 @@
 	extern int inkerr_current_line_number;
 
 	const char *yyerror_prefix = "";
-	Ink_CodeMode CGC_code_mode;
 
 	extern int yylex();
 	void yyerror(const char *msg) {

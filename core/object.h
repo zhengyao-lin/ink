@@ -14,8 +14,6 @@
 #include "coroutine/coroutine.h"
 using namespace std;
 
-extern InterruptSignal CGC_interrupt_signal;
-
 class Ink_Expression;
 class Ink_ContextObject;
 class Ink_ContextChain;
@@ -354,7 +352,7 @@ public:
 };
 
 Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_CoCallList call_list);
-bool InkCoCall_switchCoroutine();
+bool InkCoCall_switchCoroutine(Ink_InterpreteEngine *engine);
 
 template <class T> T *as(Ink_Object *obj)
 {

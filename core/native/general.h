@@ -9,10 +9,10 @@
 #define NULL_OBJ (new Ink_NullObject(engine))
 #define UNDEFINED (new Ink_Undefined(engine))
 
-#define RETURN_FLAG (CGC_interrupt_signal == INTER_RETURN)
-#define BREAK_FLAG (CGC_interrupt_signal == INTER_BREAK)
-#define CONTINUE_FLAG (CGC_interrupt_signal == INTER_CONTINUE)
-#define DROP_FLAG (CGC_interrupt_signal == INTER_DROP)
+#define RETURN_FLAG (engine->CGC_interrupt_signal == INTER_RETURN)
+#define BREAK_FLAG (engine->CGC_interrupt_signal == INTER_BREAK)
+#define CONTINUE_FLAG (engine->CGC_interrupt_signal == INTER_CONTINUE)
+#define DROP_FLAG (engine->CGC_interrupt_signal == INTER_DROP)
 
 #define ASSUME_BASE_TYPE(t) do { \
 	if (!assumeType(base, t)) { \

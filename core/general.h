@@ -156,16 +156,8 @@ inline int addSignal(int set, InterruptSignal sign)
 }
 
 class Ink_Object;
-extern InterruptSignal CGC_interrupt_signal;
-extern Ink_Object *CGC_interrupt_value;
-
-inline Ink_Object *trapSignal()
-{
-	Ink_Object *tmp = CGC_interrupt_value;
-	CGC_interrupt_signal = INTER_NONE;
-	CGC_interrupt_value = NULL;
-	return tmp;
-}
+class Ink_InterpreteEngine;
+Ink_Object *trapSignal(Ink_InterpreteEngine *engine);
 
 std::string *StrPool_addStr(const char *str);
 std::string *StrPool_addStr(std::string *str);

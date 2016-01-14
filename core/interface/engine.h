@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "setting.h"
+#include "../general.h"
 
 using namespace std;
 
@@ -50,6 +51,18 @@ public:
 	IGC_CollectEngine *current_gc_engine;
 	int igc_mark_period;
 	// std::map<int, IGC_CollectEngine *> gc_engine_map;
+
+	InterruptSignal CGC_interrupt_signal;
+	Ink_Object *CGC_interrupt_value;
+
+	Ink_ExpressionList native_exp_list;
+	char *tmp_prog_path;
+
+	IGC_CollectEngine *ink_sync_call_tmp_engine;
+	pthread_mutex_t ink_sync_call_mutex = PTHREAD_MUTEX_INITIALIZER;
+	int ink_sync_call_max_thread;
+	int ink_sync_call_current_thread;
+	vector<bool> ink_sync_call_end_flag;
 
 	Ink_InterpreteEngine();
 

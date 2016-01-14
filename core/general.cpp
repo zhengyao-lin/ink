@@ -2,12 +2,11 @@
 #include "general.h"
 #include "object.h"
 #include "expression.h"
+#include "interface/engine.h"
 #include "../includes/switches.h"
 using namespace std;
 
 static vector<string *> string_pool;
-Ink_ExpressionList native_exp_list = Ink_ExpressionList();
-char *tmp_prog_path = NULL;
 
 string *StrPool_addStr(const char *str)
 {
@@ -32,20 +31,18 @@ void StrPool_dispose()
 	return;
 }
 
+Ink_Object *trapSignal(Ink_InterpreteEngine *engine)
+{
+	Ink_Object *tmp = engine->CGC_interrupt_value;
+	engine->CGC_interrupt_signal = INTER_NONE;
+	engine->CGC_interrupt_value = NULL;
+	return tmp;
+}
+
 void cleanAll()
 {
-	unsigned int i;
-	for (i = 0; i < native_exp_list.size(); i++) {
-		delete native_exp_list[i];
-	}
-
-	// remove(INK_TMP_PATH);
-	StrPool_dispose();
-
 	if (isDirExist(INK_TMP_PATH))
 		removeDir(INK_TMP_PATH);
-	if (tmp_prog_path)
-		free(tmp_prog_path);
 }
 
 Ink_Argument::~Ink_Argument()

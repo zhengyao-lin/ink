@@ -7,8 +7,6 @@
 #include "core/thread/thread.h"
 
 static Ink_InterpreteEngine *ink_parse_engine = NULL;
-extern InterruptSignal CGC_interrupt_signal;
-extern Ink_CodeMode CGC_code_mode;
 
 pthread_mutex_t ink_parse_lock = PTHREAD_MUTEX_INITIALIZER;
 
@@ -31,6 +29,15 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
 	igc_mark_period = 1;
 	trace = NULL;
+	CGC_interrupt_signal = INTER_NONE;
+	CGC_interrupt_value = NULL;
+	native_exp_list = Ink_ExpressionList();
+	tmp_prog_path = NULL;
+	ink_sync_call_tmp_engine = NULL;
+	ink_sync_call_mutex = PTHREAD_MUTEX_INITIALIZER;
+	ink_sync_call_max_thread = 0;
+	ink_sync_call_current_thread = -1;
+	ink_sync_call_end_flag = vector<bool>();
 
 	gc_engine = new IGC_CollectEngine(this);
 	setCurrentGC(gc_engine);
@@ -83,7 +90,7 @@ void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 	setFilePath(setting.getFilePath());
 
 	input_mode = INK_FILE_INPUT;
-	CGC_code_mode = setting.getMode();
+	// CGC_code_mode = setting.getMode();
 	// cleanTopLevel();
 	top_level = Ink_ExpressionList();
 	yyin = setting.getInput();
@@ -166,7 +173,7 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 		getCurrentGC()->checkGC();
 		ret = top_level[i]->eval(this, context);
 		if (CGC_interrupt_signal != INTER_NONE) {
-			trapSignal(); // trap all
+			trapSignal(this); // trap all
 			break;
 		}
 	}
@@ -219,8 +226,15 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 	gc_engine->collectGarbage(true);
 	delete gc_engine;
 
+	unsigned int i;
+	for (i = 0; i < native_exp_list.size(); i++) {
+		delete native_exp_list[i];
+	}
+
 	cleanExpressionList(top_level);
 	cleanContext(global_context);
 	cleanContext(trace);
 	StrPool_dispose();
+	if (tmp_prog_path)
+		free(tmp_prog_path);
 }

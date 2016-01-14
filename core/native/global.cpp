@@ -12,9 +12,6 @@
 #include "../coroutine/coroutine.h"
 #include "native.h"
 
-extern Ink_ExpressionList native_exp_list;
-extern InterruptSignal CGC_interrupt_signal;
-
 bool isTrue(Ink_Object *cond)
 {
 	if (cond->type == INK_NUMERIC) {
@@ -129,14 +126,14 @@ Ink_Object *Ink_WhileExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	while (isTrue(cond->call(engine, context))) {
 		gc_engine->checkGC();
 		ret = block->call(engine, context);
-		switch (CGC_interrupt_signal) {
+		switch (engine->CGC_interrupt_signal) {
 			case INTER_RETURN:
-				return CGC_interrupt_value; // fallthrough the signal
+				return engine->CGC_interrupt_value; // fallthrough the signal
 			case INTER_DROP:
 			case INTER_BREAK:
-				return trapSignal(); // trap the signal
+				return trapSignal(engine); // trap the signal
 			case INTER_CONTINUE:
-				trapSignal(); // trap the signal, but do not return
+				trapSignal(engine); // trap the signal, but do not return
 				continue;
 			default: ;
 		}
@@ -210,9 +207,9 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, un
 		current_engine->startParse(as<Ink_String>(argv[0])->value);
 		ret = current_engine->execute(context);
 
-		native_exp_list.insert(native_exp_list.end(),
-							   current_engine->top_level.begin(),
-							   current_engine->top_level.end());
+		engine->native_exp_list.insert(engine->native_exp_list.end(),
+									   current_engine->top_level.begin(),
+									   current_engine->top_level.end());
 		current_engine->top_level = top_level_backup;
 
 		context->addContext(new Ink_ContextObject(engine));
@@ -283,11 +280,11 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 				current_engine->startParse(fp);
 				current_engine->execute(context);
 
-				CGC_interrupt_signal = INTER_NONE;
+				engine->CGC_interrupt_signal = INTER_NONE;
 
-				native_exp_list.insert(native_exp_list.end(),
-									   current_engine->top_level.begin(),
-									   current_engine->top_level.end());
+				engine->native_exp_list.insert(engine->native_exp_list.end(),
+											   current_engine->top_level.begin(),
+											   current_engine->top_level.end());
 				current_engine->top_level = top_level_backup;
 
 				context->addContext(new Ink_ContextObject(engine));
@@ -337,7 +334,7 @@ Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	if (!(tmp = Ink_NumericConstant::parse(as<Ink_String>(argv[0])->value)))
 		return NULL_OBJ;
 
-	native_exp_list.push_back(tmp);
+	engine->native_exp_list.push_back(tmp);
 	return tmp->eval(engine, context);
 }
 

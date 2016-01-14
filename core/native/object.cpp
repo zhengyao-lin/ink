@@ -4,8 +4,7 @@
 #include "../expression.h"
 #include "../general.h"
 #include "native.h"
-
-extern Ink_ExpressionList native_exp_list;
+#include "../interface/engine.h"
 
 Ink_Object *InkNative_Object_Bond(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
@@ -77,7 +76,7 @@ Ink_Object *InkNative_Object_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 	
 	if (!base->getSlotMapping(engine, as<Ink_String>(argv[0])->value.c_str())) {
 		Ink_IdentifierExpression *id_exp = new Ink_IdentifierExpression(new string(as<Ink_String>(argv[0])->value.c_str()));
-		native_exp_list.push_back(id_exp);
+		engine->native_exp_list.push_back(id_exp);
 		return getSlotWithProto(engine, context, base, id_exp->id->c_str());
 	}
 
@@ -116,10 +115,10 @@ Ink_Object *InkNative_Object_Clone(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return base->clone(engine);
 }
 
-const char *createStrConstant(const char *str)
+const char *createStrConstant(Ink_InterpreteEngine *engine, const char *str)
 {
 	string *tmp;
-	native_exp_list.push_back(new Ink_StringConstant(tmp = new string(str)));
+	engine->native_exp_list.push_back(new Ink_StringConstant(tmp = new string(str)));
 	return tmp->c_str();
 }
 
@@ -135,7 +134,7 @@ Ink_Object *InkNative_Object_SetGetter(Ink_InterpreteEngine *engine, Ink_Context
 
 	tmp = as<Ink_String>(argv[0])->value.c_str();
 	if (!(hash = base->getSlotMapping(engine, tmp))) {
-		hash = base->setSlot(createStrConstant(tmp), NULL);
+		hash = base->setSlot(createStrConstant(engine, tmp), NULL);
 	}
 
 	hash->getter = argc > 1 ? argv[1] : NULL;
@@ -155,7 +154,7 @@ Ink_Object *InkNative_Object_SetSetter(Ink_InterpreteEngine *engine, Ink_Context
 
 	tmp = as<Ink_String>(argv[0])->value.c_str();
 	if (!(hash = base->getSlotMapping(engine, tmp))) {
-		hash = base->setSlot(createStrConstant(tmp), NULL);
+		hash = base->setSlot(createStrConstant(engine, tmp), NULL);
 	}
 
 	hash->setter = argc > 1 ? argv[1] : NULL;
@@ -182,16 +181,16 @@ Ink_Object *InkNative_Object_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 		args[0] = new Ink_String(engine, hash->key);
 		args[1] = hash->getValue() ? hash->getValue() : UNDEFINED;
 		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, 2, args)));
-		switch (CGC_interrupt_signal) {
+		switch (engine->CGC_interrupt_signal) {
 			case INTER_RETURN:
 				free(args);
 				cleanArrayHashTable(ret_val);
-				return CGC_interrupt_value; // signal penetrated
+				return engine->CGC_interrupt_value; // signal penetrated
 			case INTER_DROP:
 			case INTER_BREAK:
-				return trapSignal(); // trap the signal
+				return trapSignal(engine); // trap the signal
 			case INTER_CONTINUE:
-				trapSignal(); // trap the signal, but do not return
+				trapSignal(engine); // trap the signal, but do not return
 				continue;
 			default: ;
 		}
