@@ -7,6 +7,7 @@
 #include "../includes/switches.h"
 using namespace std;
 
+/*
 static vector<string *> string_pool;
 
 string *StrPool_addStr(const char *str)
@@ -31,6 +32,7 @@ void StrPool_dispose()
 	string_pool = vector<string *>();
 	return;
 }
+*/
 
 Ink_Object *trapSignal(Ink_InterpreteEngine *engine)
 {
