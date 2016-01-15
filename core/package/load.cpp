@@ -1,5 +1,10 @@
+#include <string>
 #include <stdio.h>
 #include "load.h"
+#include "../interface/engine.h"
+#include "../../includes/switches.h"
+
+using namespace std;
 
 DLHandlerPool dl_handler_pool;
 
@@ -65,7 +70,7 @@ Ink_Package *Ink_Package::readFrom(FILE *fp)
 	return new Ink_Package(tmp_magic_num, tmp_pack_info, tmp_dl_file);
 }
 
-string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp file path
+string *InkPack_FileBlock::bufferToTmp(Ink_InterpreteEngine *engine, const char *file_suffix) // return: tmp file path
 {
 	FILE *fp;
 	char *suffix;
@@ -118,7 +123,7 @@ void Ink_Package::load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 		return;
 	}
 
-	tmp = pack->dl_file->bufferToTmp();
+	tmp = pack->dl_file->bufferToTmp(engine);
 	handler = INK_DL_OPEN(tmp->c_str(), RTLD_NOW);
 	delete tmp;
 	InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
@@ -149,4 +154,12 @@ void Ink_Package::load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	fclose(fp);
 
 	return;
+}
+
+string getProgPath(Ink_InterpreteEngine *engine)
+{
+	if (engine->tmp_prog_path) return string(engine->tmp_prog_path);
+	char buffer[MAX_PATH + 1];
+	GetModuleFileName(NULL, buffer, MAX_PATH);
+	return string(engine->tmp_prog_path = getBasePath(buffer));
 }

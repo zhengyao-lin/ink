@@ -8,7 +8,7 @@
 class Ink_ContextChain;
 class Ink_InterpreteEngine;
 
-void cleanAll();
+void cleanAll(Ink_InterpreteEngine *engine);
 
 void InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg);
 void InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg, const char *arg1);

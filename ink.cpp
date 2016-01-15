@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	// joinAllThread();
 
 	delete engine;
-	cleanAll();
+	cleanAll(engine);
 	DBG_disposeTypeMapping();
 	closeAllHandler();
 

@@ -11,6 +11,28 @@
 #include "../../includes/switches.h"
 #include "../../includes/universal.h"
 
+#if defined(INK_PLATFORM_WIN32)
+	#include <string>
+	#include <string.h>
+	#include <windows.h>
+	#define INK_MODULE_DIR ((getProgPath(engine) + "modules").c_str())
+	#define INK_PATH_SPLIT "\\"
+	#define INK_PATH_SPLIT_C '\\'
+
+	#define INK_TMP_PATH ((getProgPath(engine) + "tmp").c_str())
+
+	std::string getProgPath(Ink_InterpreteEngine *engine);
+#else
+	#ifdef INK_INSTALL_PATH
+		#define INK_MODULE_DIR INK_INSTALL_PATH "/lib/ink/modules"
+	#else
+		#define INK_MODULE_DIR "/usr/lib/ink/modules"
+	#endif
+	#define INK_TMP_PATH "/tmp/ink_tmp"
+	#define INK_PATH_SPLIT "/"
+	#define INK_PATH_SPLIT_C '/'
+#endif
+
 #if defined(INK_PLATFORM_LINUX)
 	#include <sys/types.h>
 	#include <dirent.h>
@@ -155,7 +177,7 @@ public:
 		fwrite(data, sizeof(byte) * file_size, 1, fp);
 	}
 
-	string *bufferToTmp(const char *file_suffix = "." INK_DL_SUFFIX); // return: tmp file path
+	string *bufferToTmp(Ink_InterpreteEngine *engine, const char *file_suffix = "." INK_DL_SUFFIX); // return: tmp file path
 	static InkPack_FileBlock *readFrom(FILE *fp);
 
 	~InkPack_FileBlock()
@@ -286,7 +308,7 @@ public:
 					INK_DL_CLOSE(handler);
 					printf("\t%s\n", INK_DL_ERROR());
 				} else {
-					loader(context);
+					loader(engine, context);
 					addHandler(handler);
 				}
 			}

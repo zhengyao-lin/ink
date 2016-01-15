@@ -3,6 +3,7 @@
 #include "object.h"
 #include "expression.h"
 #include "interface/engine.h"
+#include "package/load.h"
 #include "../includes/switches.h"
 using namespace std;
 
@@ -39,7 +40,7 @@ Ink_Object *trapSignal(Ink_InterpreteEngine *engine)
 	return tmp;
 }
 
-void cleanAll()
+void cleanAll(Ink_InterpreteEngine *engine)
 {
 	if (isDirExist(INK_TMP_PATH))
 		removeDir(INK_TMP_PATH);

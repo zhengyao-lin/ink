@@ -5,36 +5,6 @@
 
 #define INK_DEBUG_FLAG 1
 
-#if defined(INK_PLATFORM_WIN32)
-	#include <string>
-	#include <string.h>
-	#include <windows.h>
-	#define INK_MODULE_DIR ((getProgPath(engine) + "modules").c_str())
-	#define INK_PATH_SPLIT "\\"
-	#define INK_PATH_SPLIT_C '\\'
-
-	#define INK_TMP_PATH ((getProgPath(engine) + "tmp").c_str())
-	class Ink_InterpreteEngine;
-
-	inline char *getBasePath(const char *path);
-	inline std::string getProgPath(Ink_InterpreteEngine *engine)
-	{
-		if (engine->tmp_prog_path) return std::string(engine->tmp_prog_path);
-		char buffer[MAX_PATH + 1];
-		GetModuleFileName(NULL, buffer, MAX_PATH);
-		return std::string(engine->tmp_prog_path = getBasePath(buffer));
-	}
-#else
-	#ifdef INK_INSTALL_PATH
-		#define INK_MODULE_DIR INK_INSTALL_PATH "/lib/ink/modules"
-	#else
-		#define INK_MODULE_DIR "/usr/lib/ink/modules"
-	#endif
-	#define INK_TMP_PATH "/tmp/ink_tmp"
-	#define INK_PATH_SPLIT "/"
-	#define INK_PATH_SPLIT_C '/'
-#endif
-
 #define INK_IS_BOTH_SPLIT(c) ((c) == '/' || (c) == '\\')
 
 inline char *getBasePath(const char *path)

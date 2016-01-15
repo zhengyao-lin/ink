@@ -8,6 +8,7 @@
 #include <string.h>
 #include "setting.h"
 #include "../general.h"
+#include "../thread/thread.h"
 
 using namespace std;
 

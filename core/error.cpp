@@ -10,7 +10,7 @@ InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg)
 			tmp : "<unknown input>") << ": "
 		 << "line " << engine->current_line_number << ": " << msg;
 	
-	cleanAll();
+	cleanAll(engine);
 	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, ErrorInfo::Exit1,
 										   strm.str().c_str()));
 	return;
@@ -25,7 +25,7 @@ InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg, const char *a
 			tmp : "<unknown input>") << ": "
 		 << "line " << engine->current_line_number << ": " << msg;
 
-	cleanAll();
+	cleanAll(engine);
 	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, ErrorInfo::Exit1,
 										   strm.str().c_str(), arg1));
 	return;
