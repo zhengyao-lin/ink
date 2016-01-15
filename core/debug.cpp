@@ -8,15 +8,11 @@
 #include "general.h"
 #include "type.h"
 #include "context.h"
+#include "interface/engine.h"
 
 using namespace std;
 
-int dbg_type_mapping_length = 0;
-DBG_TypeMapping *dbg_type_mapping = NULL;
-struct TempMapping {
-	Ink_TypeTag tag;
-	const char *name;
-} dbg_fixed_type_mapping[] = 
+DBG_FixedTypeMapping dbg_fixed_type_mapping[] = 
 {
 	{ INK_NULL,			"null" },
 	{ INK_UNDEFINED,	"undefined" },
@@ -28,86 +24,6 @@ struct TempMapping {
 	{ INK_ARRAY,		"array" },
 	{ INK_UNKNOWN,		"unknown" }
 };
-
-void DBG_initTypeMapping()
-{
-	int i;
-
-	dbg_type_mapping_length = INK_LAST;
-	dbg_type_mapping = (DBG_TypeMapping *)malloc(sizeof(DBG_TypeMapping) * dbg_type_mapping_length);
-
-	for (i = 0; i < INK_LAST; i++) {
-		dbg_type_mapping[i] = DBG_TypeMapping(i, dbg_fixed_type_mapping[i].name);
-	}
-
-	return;
-}
-
-void DBG_disposeTypeMapping()
-{
-	free(dbg_type_mapping);
-	return;
-}
-
-int DBG_registerType(const char *name)
-{
-	// StrPool_addStr(
-	int ret = dbg_type_mapping_length++;
-	dbg_type_mapping = (DBG_TypeMapping *)realloc(dbg_type_mapping,
-												  sizeof(DBG_TypeMapping) * dbg_type_mapping_length);
-	dbg_type_mapping[ret] = DBG_TypeMapping(ret, StrPool_addStr(name)->c_str());
-	return ret;
-}
-
-vector<Ink_Object *> traced_stack;
-
-void printSlotInfo(FILE *fp, Ink_Object *obj, string prefix = "")
-{
-	Ink_HashTable *i;
-	unsigned int j;
-	Ink_Array *arr;
-	string getter_setter_info = "";
-
-	if (!obj) {
-		fprintf(fp, "\n");
-		return;
-	}
-	fprintf(fp, " {\n");
-	for (i = obj->hash_table; i; i = i->next) {
-		getter_setter_info = i->getter ?
-							 string(" [ has getter") + (i->setter ? " and setter ]" : " ]") :
-							 (i->setter ? " [ has setter ]" : "");
-
-		fprintf(fp, "%s" DBG_TAB "\'%s\':%s ", prefix.c_str(),
-				(i->key && strlen(i->key) ? i->key : "anonymous"), getter_setter_info.c_str());
-		DBG_printDebugInfo(fp, i->getValue(), "", DBG_TAB + prefix);
-	}
-
-	if (obj->type == INK_ARRAY) {
-		arr = as<Ink_Array>(obj);
-		for (j = 0; j < arr->value.size(); j++) {
-			fprintf(fp, "%s" DBG_TAB "[%d]: ", prefix.c_str(), j);
-			if (arr->value[j]) {
-				DBG_printDebugInfo(fp, arr->value[j]->getValue(), "", DBG_TAB + prefix);
-			} else {
-				fprintf(fp, "(no value)\n");
-			}
-		}
-	}
-
-	if (i == obj->hash_table)
-		fprintf(fp, "%s" DBG_TAB "(empty)\n", prefix.c_str());
-
-	fprintf(fp, "%s}\n", prefix.c_str());
-
-	return;
-}
-
-void DBG_initPrintDebugInfo()
-{
-	traced_stack = vector<Ink_Object *>();
-	return;
-}
 
 #define btos(b) ((b) ? "true" : "false")
 
@@ -158,15 +74,57 @@ void printFunctionInfo(FILE *fp, Ink_FunctionObject *func, string prefix = "")
 	return;
 }
 
-void DBG_printDebugInfo(FILE *fp, Ink_Object *obj, string prefix, string slot_prefix, bool if_scan_slot)
+void Ink_InterpreteEngine::printSlotInfo(FILE *fp, Ink_Object *obj, string prefix)
+{
+	Ink_HashTable *i;
+	unsigned int j;
+	Ink_Array *arr;
+	string getter_setter_info = "";
+
+	if (!obj) {
+		fprintf(fp, "\n");
+		return;
+	}
+	fprintf(fp, " {\n");
+	for (i = obj->hash_table; i; i = i->next) {
+		getter_setter_info = i->getter ?
+							 string(" [ has getter") + (i->setter ? " and setter ]" : " ]") :
+							 (i->setter ? " [ has setter ]" : "");
+
+		fprintf(fp, "%s" DBG_TAB "\'%s\':%s ", prefix.c_str(),
+				(i->key && strlen(i->key) ? i->key : "anonymous"), getter_setter_info.c_str());
+		printDebugInfo(fp, i->getValue(), "", DBG_TAB + prefix);
+	}
+
+	if (obj->type == INK_ARRAY) {
+		arr = as<Ink_Array>(obj);
+		for (j = 0; j < arr->value.size(); j++) {
+			fprintf(fp, "%s" DBG_TAB "[%d]: ", prefix.c_str(), j);
+			if (arr->value[j]) {
+				printDebugInfo(fp, arr->value[j]->getValue(), "", DBG_TAB + prefix);
+			} else {
+				fprintf(fp, "(no value)\n");
+			}
+		}
+	}
+
+	if (i == obj->hash_table)
+		fprintf(fp, "%s" DBG_TAB "(empty)\n", prefix.c_str());
+
+	fprintf(fp, "%s}\n", prefix.c_str());
+
+	return;
+}
+
+void Ink_InterpreteEngine::printDebugInfo(FILE *fp, Ink_Object *obj, string prefix, string slot_prefix, bool if_scan_slot)
 {
 	const char *slot_name = NULL;
 
-	if (find(traced_stack.begin(), traced_stack.end(), obj) != traced_stack.end()) {
+	if (find(dbg_traced_stack.begin(), dbg_traced_stack.end(), obj) != dbg_traced_stack.end()) {
 		fprintf(fp, "traced\n");
 		return;
 	}
-	traced_stack.push_back(obj);
+	dbg_traced_stack.push_back(obj);
 
 	if (obj) {
 		slot_name = obj->getDebugName();
@@ -185,7 +143,7 @@ void DBG_printDebugInfo(FILE *fp, Ink_Object *obj, string prefix, string slot_pr
 	return;
 }
 
-void DBG_printTrace(FILE *fp, Ink_ContextChain *context, string prefix)
+void Ink_InterpreteEngine::printTrace(FILE *fp, Ink_ContextChain *context, string prefix)
 {
 	Ink_ContextChain *i;
 	Ink_ContextChain *inner_most = context->getLocal();
@@ -193,8 +151,8 @@ void DBG_printTrace(FILE *fp, Ink_ContextChain *context, string prefix)
 	fprintf(fp, "%srising from:\n", prefix.c_str());
 	for (i = inner_most; i; i = i->outer) {
 		fprintf(fp, DBG_TAB "line %d: ", i->getLineno());
-		DBG_initPrintDebugInfo();
-		DBG_printDebugInfo(false, fp, i->getCreater(), "", DBG_TAB);
+		initPrintDebugInfo();
+		printDebugInfo(false, fp, i->getCreater(), "", DBG_TAB);
 	}
 
 	return;

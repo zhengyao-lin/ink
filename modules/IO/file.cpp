@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <string>
-#include "core/native/native.h"
 #include "core/general.h"
 #include "core/debug.h"
+#include "core/native/native.h"
+#include "core/interface/engine.h"
 #include "includes/switches.h"
 #include "file.h"
 
@@ -125,7 +126,7 @@ Ink_Object *InkNative_File_GetString(Ink_InterpreteEngine *engine, Ink_ContextCh
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp) {
-		return new Ink_String(engine, *StrPool_addStr(fgets(buffer, FILE_GETS_BUFFER_SIZE, tmp)));
+		return new Ink_String(engine, *engine->addToStringPool(fgets(buffer, FILE_GETS_BUFFER_SIZE, tmp)));
 	}
 
 	return NULL_OBJ;
@@ -186,7 +187,7 @@ Ink_Object *InkNative_File_ReadAll(Ink_InterpreteEngine *engine, Ink_ContextChai
 		fread(buffer, len, 1, tmp);
 		buffer[len] = '\0';
 
-		ret = new Ink_String(engine, *StrPool_addStr(buffer));
+		ret = new Ink_String(engine, *engine->addToStringPool(buffer));
 		free(buffer);
 
 		return ret;
@@ -225,7 +226,7 @@ Ink_Object *InkMod_File_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *c
 {
 	Ink_Object *global_context = context->getGlobal()->context;
 
-	file_pointer_type_tag = (Ink_TypeTag)DBG_registerType("io.file.file_pointer");
+	file_pointer_type_tag = (Ink_TypeTag)engine->registerType("io.file.file_pointer");
 	
 	global_context->setSlot("File", new Ink_FunctionObject(engine, InkNative_File_Constructor));
 	global_context->setSlot("file_exist", new Ink_FunctionObject(engine, InkNative_File_Exist));

@@ -1,5 +1,6 @@
 #include "thread.h"
 
+/*
 MutexLock thread_lock;
 int current_id = 0;
 ThreadIDMapStack thread_id_map_stack;
@@ -81,3 +82,4 @@ void joinAllThread()
 	//thread_lock.unlock();
 	return;
 }
+*/

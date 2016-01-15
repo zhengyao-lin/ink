@@ -3,6 +3,7 @@
 #include "core/object.h"
 #include "core/general.h"
 #include "core/native/native.h"
+#include "core/interface/engine.h"
 
 using namespace std;
 
@@ -90,7 +91,7 @@ Ink_Object *InkNative_JSON_Encode(Ink_InterpreteEngine *engine, Ink_ContextChain
 	Ink_Object *ret;
 
 	if (tmp_str)
-		ret = new Ink_String(engine, *StrPool_addStr(tmp_str));
+		ret = new Ink_String(engine, *engine->addToStringPool(tmp_str));
 	else ret = NULL_OBJ;
 
 	return ret;

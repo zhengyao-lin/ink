@@ -592,14 +592,14 @@ InkCoCall_switchCoroutine(Ink_InterpreteEngine *engine)
 void *InkCoCall_primaryCall(void *arg)
 {
 	InkCoCall_Argument *tmp = (InkCoCall_Argument *)arg;
-	int self_id = registerThread(tmp->id);
-	unsigned int self_layer = getCurrentLayer();
+	int self_id = tmp->engine->registerThread(tmp->id);
+	unsigned int self_layer = tmp->engine->getCurrentLayer();
 	printf("***Coroutine created: id %d at layer %u\n", self_id, self_layer);
 
 REWAIT:
 	do {
 		while (tmp->engine->ink_sync_call_current_thread != self_id) ;
-	} while (getCurrentLayer() != self_layer);
+	} while (tmp->engine->getCurrentLayer() != self_layer);
 	if (tmp->engine->ink_sync_call_current_thread != self_id) goto REWAIT;
 
 	Ink_Object *ret_val = tmp->sync_call.func->call(tmp->engine, tmp->context, tmp->sync_call.argc,
@@ -628,7 +628,7 @@ Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine,
 	Ink_ArrayValue arr_val;
 
 	printf("***Scheduler Started: %lu coroutines are going to be created\n", call_list.size());
-	addLayer();
+	engine->addLayer();
 
 	int ink_sync_call_max_thread_back = engine->ink_sync_call_max_thread;
 	int ink_sync_call_current_thread_back = engine->ink_sync_call_current_thread;
@@ -676,7 +676,7 @@ Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine,
 	engine->ink_sync_call_end_flag = ink_sync_call_end_flag_back;
 	pthread_mutex_unlock(&engine->ink_sync_call_mutex);
 
-	removeLayer();
+	engine->removeLayer();
 
 	return new Ink_Array(engine, arr_val);
 }

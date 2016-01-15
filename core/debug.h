@@ -21,6 +21,12 @@ public:
 	{ }
 };
 
+struct DBG_FixedTypeMapping {
+	Ink_TypeTag tag;
+	const char *name;
+};
+
+/*
 extern DBG_TypeMapping *dbg_type_mapping;
 
 inline const char *getTypeName(int type_tag)
@@ -31,6 +37,7 @@ inline const char *getTypeName(int type_tag)
 void DBG_initTypeMapping();
 void DBG_disposeTypeMapping();
 int DBG_registerType(const char *name);
+
 void DBG_initPrintDebugInfo();
 void DBG_printDebugInfo(FILE *fp, Ink_Object *obj, std::string prefix = DBG_DEFAULT_PREFIX,
 						std::string slot_prefix = "", bool if_scan_slot = true);
@@ -40,6 +47,8 @@ inline void DBG_printDebugInfo(bool if_scan_slot, FILE *fp, Ink_Object *obj,
 	DBG_printDebugInfo(fp, obj, prefix, slot_prefix, if_scan_slot);
 	return;
 }
+
 void DBG_printTrace(FILE *fp, Ink_ContextChain *context, std::string prefix = DBG_DEFAULT_PREFIX);
+*/
 
 #endif

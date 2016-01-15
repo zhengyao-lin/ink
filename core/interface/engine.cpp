@@ -36,10 +36,17 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	native_exp_list = Ink_ExpressionList();
 	tmp_prog_path = NULL;
 	ink_sync_call_tmp_engine = NULL;
-	ink_sync_call_mutex = PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_init(&ink_sync_call_mutex, NULL);
 	ink_sync_call_max_thread = 0;
 	ink_sync_call_current_thread = -1;
 	ink_sync_call_end_flag = vector<bool>();
+	string_pool = vector<string *>();
+	dbg_type_mapping_length = 0;
+	dbg_type_mapping = NULL;
+
+	initThread();
+	initTypeMapping();
+	initPrintDebugInfo();
 
 	gc_engine = new IGC_CollectEngine(this);
 	setCurrentGC(gc_engine);
@@ -236,7 +243,10 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 	cleanExpressionList(top_level);
 	cleanContext(global_context);
 	cleanContext(trace);
-	StrPool_dispose();
+	
+	disposeTypeMapping();
+	disposeStringPool();
+
 	if (tmp_prog_path)
 		free(tmp_prog_path);
 }

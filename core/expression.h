@@ -82,68 +82,6 @@ public:
 	}
 };
 
-/*
-class Ink_GoExpression: public Ink_Expression {
-public:
-	Ink_Expression *exp;
-
-	Ink_GoExpression(Ink_Expression *exp)
-	: exp(exp)
-	{ }
-
-	static void *shell(void *p)
-	{
-		//registerThread();
-		
-		EvalArgument *arg = (EvalArgument *)p;
-		Ink_ContextChain *context = arg->context;
-
-		IGC_CollectEngine *gc_engine = new IGC_CollectEngine();
-		IGC_initGC(gc_engine);
-		// gc_engine->initContext(context);
-
-		arg->exp->eval(context);
-
-		gc_engine->collectGarbage(true);
-		delete gc_engine;
-		delete arg;
-
-		return NULL;
-	}
-
-	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
-	{
-		pthread_t *thd = (pthread_t *)malloc(sizeof(pthread_t));
-
-		pthread_create(thd, NULL, shell, new EvalArgument(exp, context_chain));
-		//sleep(1);
-		//pthread_join(thd, NULL);
-		//pthread_detach(*thd);
-		addThread(thd);
-
-		return new Ink_NullObject();
-	}
-
-	~Ink_GoExpression()
-	{
-		if (exp)
-			delete exp;
-	}
-};
-*/
-
-/*
-extern Ink_Object *CGC_yield_value;
-extern ucontext CGC_yield_from;
-extern Ink_Object *CGC_send_back_value;
-extern ucontext CGC_yield_to;
-*/
-
-extern pthread_mutex_t ink_sync_call_mutex;
-extern int ink_sync_call_max_thread;
-extern int ink_sync_call_current_thread;
-extern int ink_sync_call_ended;
-
 class Ink_YieldExpression: public Ink_Expression {
 public:
 	Ink_Expression *ret_val;

@@ -322,7 +322,7 @@ Ink_Object *Ink_TypeName(Ink_InterpreteEngine *engine, Ink_ContextChain *context
 		return NULL_OBJ;
 	}
 
-	return new Ink_String(engine, getTypeName(argv[0]->type));
+	return new Ink_String(engine, engine->getTypeName(argv[0]->type));
 }
 
 Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -347,8 +347,8 @@ Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, u
 		return NULL_OBJ;
 
 	for (i = 0; i < argc; i++) {
-		DBG_initPrintDebugInfo();
-		DBG_printDebugInfo(stderr, argv[i]);
+		engine->initPrintDebugInfo();
+		engine->printDebugInfo(stderr, argv[i]);
 	}
 
 	return NULL_OBJ;
@@ -356,7 +356,7 @@ Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, u
 
 Ink_Object *Ink_Where(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	DBG_printTrace(stderr, engine->getTrace());
+	engine->printTrace(stderr, engine->getTrace());
 	return NULL_OBJ;
 }
 

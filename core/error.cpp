@@ -78,3 +78,8 @@ InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char
 	delete info;
 	return;
 }
+
+const char *getTypeName(Ink_InterpreteEngine *engine, Ink_TypeTag type)
+{
+	return engine->getTypeName(type);
+}

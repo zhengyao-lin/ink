@@ -9,6 +9,7 @@
 #include "setting.h"
 #include "../general.h"
 #include "../thread/thread.h"
+#include "../debug.h"
 
 using namespace std;
 
@@ -34,6 +35,8 @@ typedef enum {
 	INK_FILE_INPUT,
 	INK_STRING_INPUT
 } Ink_InputMode;
+
+extern DBG_FixedTypeMapping dbg_fixed_type_mapping[];
 
 class Ink_InterpreteEngine {
 public:
@@ -61,16 +64,102 @@ public:
 	char *tmp_prog_path;
 
 	IGC_CollectEngine *ink_sync_call_tmp_engine;
-	pthread_mutex_t ink_sync_call_mutex = PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_t ink_sync_call_mutex;
 	int ink_sync_call_max_thread;
 	int ink_sync_call_current_thread;
 	vector<bool> ink_sync_call_end_flag;
+
+	MutexLock thread_lock;
+	ThreadIDMapStack thread_id_map_stack;
+	ThreadPool thread_pool;
+
+	vector<string *> string_pool;
+
+	int dbg_type_mapping_length;
+	DBG_TypeMapping *dbg_type_mapping;
+	vector<Ink_Object *> dbg_traced_stack;
 
 	Ink_InterpreteEngine();
 
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline int initThread()
+	{
+		thread_lock.init();
+		return 0;
+	}
+
+#define CURRENT_LAYER (thread_id_map_stack.size() - 1)
+
+	inline ThreadID getThreadID()
+	{
+		ThreadID id;
+
+		thread_lock.lock();
+		id = thread_id_map_stack[CURRENT_LAYER][getThreadID_raw()];
+		thread_lock.unlock();
+
+		return id;
+	}
+
+	inline ThreadID registerThread(int id)
+	{
+		thread_lock.lock();
+		thread_id_map_stack[CURRENT_LAYER][getThreadID_raw()] = id;
+		thread_lock.unlock();
+
+		return id;
+	}
+
+	inline void addLayer()
+	{
+		thread_lock.lock();
+		thread_id_map_stack.push_back(ThreadIDMap());
+		thread_lock.unlock();
+	}
+
+	inline void removeLayer()
+	{
+		thread_lock.lock();
+		thread_id_map_stack.pop_back();
+		thread_lock.unlock();
+	}
+
+	inline unsigned int getCurrentLayer()
+	{
+		thread_lock.lock();
+		unsigned int ret = CURRENT_LAYER;
+		thread_lock.unlock();
+		return ret;
+	}
+
+	inline void addThread(pthread_t *thread)
+	{
+		thread_lock.lock();
+		thread_pool.push_back(thread);
+		thread_lock.unlock();
+
+		return;
+	}
+
+	inline void joinAllThread()
+	{
+		pthread_t *thd;
+		unsigned int i;
+		//thread_lock.lock();
+		for (i = 0; i < thread_pool.size(); i++) {
+			thread_lock.lock();
+			thd = thread_pool[i];
+			thread_lock.unlock();
+
+			pthread_join(*thd, NULL);
+			free(thd);
+		}
+		//thread_lock.unlock();
+		return;
+	}
 
 	inline Ink_ContextChain *getTrace()
 	{ return trace; }
@@ -96,6 +185,80 @@ public:
 	{
 		return  input_file_path;
 	}
+
+	inline string *addToStringPool(const char *str)
+	{
+		string *tmp;
+		string_pool.push_back(tmp = new string(str ? str : ""));
+		return tmp;
+	}
+
+	inline string *addToStringPool(string *str)
+	{
+		string_pool.push_back(str);
+		return str;
+	}
+
+	inline void disposeStringPool()
+	{
+		unsigned int i;
+		for (i = 0; i < string_pool.size(); i++) {
+			delete string_pool[i];
+		}
+		string_pool = vector<string *>();
+		return;
+	}
+
+	inline void initTypeMapping()
+	{
+		int i;
+
+		dbg_type_mapping_length = INK_LAST;
+		dbg_type_mapping = (DBG_TypeMapping *)malloc(sizeof(DBG_TypeMapping) * dbg_type_mapping_length);
+
+		for (i = 0; i < INK_LAST; i++) {
+			dbg_type_mapping[i] = DBG_TypeMapping(i, dbg_fixed_type_mapping[i].name);
+		}
+
+		return;
+	}
+
+	inline void disposeTypeMapping()
+	{
+		free(dbg_type_mapping);
+		return;
+	}
+
+	inline int registerType(const char *name)
+	{
+		int ret = dbg_type_mapping_length++;
+		dbg_type_mapping = (DBG_TypeMapping *)realloc(dbg_type_mapping,
+													  sizeof(DBG_TypeMapping) * dbg_type_mapping_length);
+		dbg_type_mapping[ret] = DBG_TypeMapping(ret, addToStringPool(name)->c_str());
+		return ret;
+	}
+
+	inline const char *getTypeName(int type_tag)
+	{
+		return dbg_type_mapping[type_tag].friendly_name;
+	}
+
+	inline void initPrintDebugInfo()
+	{
+		dbg_traced_stack = vector<Ink_Object *>();
+		return;
+	}
+	
+	void printSlotInfo(FILE *fp, Ink_Object *obj, string prefix = "");
+	void printDebugInfo(FILE *fp, Ink_Object *obj, std::string prefix = DBG_DEFAULT_PREFIX,
+						std::string slot_prefix = "", bool if_scan_slot = true);
+	inline void printDebugInfo(bool if_scan_slot, FILE *fp, Ink_Object *obj,
+							   std::string prefix = DBG_DEFAULT_PREFIX, std::string slot_prefix = "")
+	{
+		printDebugInfo(fp, obj, prefix, slot_prefix, if_scan_slot);
+		return;
+	}
+	void printTrace(FILE *fp, Ink_ContextChain *context, string prefix = DBG_DEFAULT_PREFIX);
 
 	void startParse(Ink_InputSetting setting);
 	void startParse(FILE *input = stdin, bool close_fp = false);

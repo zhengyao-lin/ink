@@ -17,6 +17,8 @@ void InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg);
 void InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char *arg1);
 void InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char *arg1, const char *arg2);
 
+const char *getTypeName(Ink_InterpreteEngine *engine, Ink_TypeTag type);
+
 inline void
 InkErr_Assigning_Unassignable_Expression(Ink_InterpreteEngine *engine)
 {
@@ -210,7 +212,7 @@ inline void
 InkWarn_Wrong_Type(Ink_InterpreteEngine *engine, Ink_TypeTag expect, Ink_TypeTag type)
 {
 	InkWarn_doPrintWarning(engine, "Expecting type <$(expect)>, <$(type)> offered",
-						   getTypeName(expect), getTypeName(type));
+						   getTypeName(engine, expect), getTypeName(engine, type));
 	return;
 }
 
@@ -229,7 +231,7 @@ inline void
 InkWarn_Wrong_Argument_Type(Ink_InterpreteEngine *engine, Ink_TypeTag expect, Ink_TypeTag type)
 {
 	InkWarn_doPrintWarning(engine, "Expecting object of type <$(expect)>, that of <$(type)> offered",
-						   getTypeName(expect), getTypeName(type));
+						   getTypeName(engine, expect), getTypeName(engine, type));
 	return;
 }
 
@@ -237,7 +239,7 @@ inline void
 InkWarn_Method_Fallthrough(Ink_InterpreteEngine *engine, Ink_TypeTag type)
 {
 	InkWarn_doPrintWarning(engine, "Method fallthrough to $(type)",
-						   getTypeName(type));
+						   getTypeName(engine, type));
 	return;
 }
 
@@ -328,14 +330,14 @@ InkWarn_Eval_Called_Without_Current_Engine(Ink_InterpreteEngine *engine)
 inline void
 InkWarn_Invalid_Argument_For_String_Add(Ink_InterpreteEngine *engine, Ink_TypeTag type)
 {
-	InkWarn_doPrintWarning(engine, "Invalid argument of type '$(type)', expecting numeric, string or object with to_str method", getTypeName(type));
+	InkWarn_doPrintWarning(engine, "Invalid argument of type '$(type)', expecting numeric, string or object with to_str method", getTypeName(engine, type));
 	return;
 }
 
 inline void
 InkWarn_Invalid_Return_Value_Of_To_String(Ink_InterpreteEngine *engine, Ink_TypeTag type)
 {
-	InkWarn_doPrintWarning(engine, "Invalid return value of type '$(type)' of to_str method, expecting string", getTypeName(type));
+	InkWarn_doPrintWarning(engine, "Invalid return value of type '$(type)' of to_str method, expecting string", getTypeName(engine, type));
 	return;
 }
 

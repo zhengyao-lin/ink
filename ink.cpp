@@ -15,29 +15,14 @@
 
 int main(int argc, char **argv)
 {
-#if 0 && defined(INK_PLATFORM_WIN32)
-	pthread_win32_process_attach_np();
-#endif
-	initThread();
-	// registerThread();
-
-	DBG_initTypeMapping();
-
 	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
 	engine->startParse(Ink_InputSetting::parseArg(argc, argv));
 
 	engine->execute();
 
-	// joinAllThread();
-
 	delete engine;
 	cleanAll(engine);
-	DBG_disposeTypeMapping();
 	closeAllHandler();
-
-#if 0 && defined(INK_PLATFORM_WIN32)
-	pthread_win32_process_detach_np();
-#endif
 
 	return 0;
 }

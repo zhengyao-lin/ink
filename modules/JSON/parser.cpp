@@ -3,9 +3,10 @@
 #include "parser.h"
 #include "core/object.h"
 #include "core/general.h"
-#include "core/native/native.h"
 #include "core/error.h"
+#include "core/native/native.h"
 #include "core/expression.h"
+#include "core/interface/engine.h"
 
 INKJSON_TokenStack
 JSON_lexer(string str)
@@ -208,7 +209,7 @@ JSON_parser(Ink_InterpreteEngine *engine, INKJSON_TokenStack token_stack, unsign
 				 j + 3 < token_stack.size();) {
 				if (token_stack[j].token == JT_STRING
 					&& token_stack[j + 1].token == JT_COLON) {
-					tmp_str = StrPool_addStr(token_stack[j].value.str)->c_str();
+					tmp_str = engine->addToStringPool(token_stack[j].value.str)->c_str();
 					tmp_ret = JSON_parser(engine, token_stack, j + 2);
 					j = tmp_ret.end_index;
 
@@ -265,7 +266,7 @@ JSON_parser(Ink_InterpreteEngine *engine, INKJSON_TokenStack token_stack, unsign
 			return JSON_ParserReturnVal(NULL, i);
 		}
 		case JT_STRING:
-			return JSON_ParserReturnVal(new Ink_String(engine, *StrPool_addStr(token_stack[i].value.str)), i);
+			return JSON_ParserReturnVal(new Ink_String(engine, *engine->addToStringPool(token_stack[i].value.str)), i);
 		case JT_NUMERIC:
 			return JSON_ParserReturnVal(new Ink_Numeric(engine, token_stack[i].value.num), i);
 		case JT_NULL:

@@ -92,8 +92,8 @@ Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	}
 	engine->CGC_interrupt_value = ret;
 
-	unsigned int self_layer = getCurrentLayer();
-	int self_id = getThreadID();
+	unsigned int self_layer = engine->getCurrentLayer();
+	int self_id = engine->getThreadID();
 	IGC_CollectEngine *gc_engine_backup = engine->getCurrentGC();
 
 	printf("***Coroutine yield: id %d at layer %u\n", self_id, self_layer);
@@ -105,7 +105,7 @@ Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 REWAIT:
 	do {
 		while (engine->ink_sync_call_current_thread != self_id) ;
-	} while (getCurrentLayer() != self_layer);
+	} while (engine->getCurrentLayer() != self_layer);
 	if (engine->ink_sync_call_current_thread != self_id) goto REWAIT;
 
 	engine->setCurrentGC(gc_engine_backup);

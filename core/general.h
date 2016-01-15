@@ -159,8 +159,10 @@ class Ink_Object;
 class Ink_InterpreteEngine;
 Ink_Object *trapSignal(Ink_InterpreteEngine *engine);
 
+/*
 std::string *StrPool_addStr(const char *str);
 std::string *StrPool_addStr(std::string *str);
 void StrPool_dispose();
+*/
 
 #endif
