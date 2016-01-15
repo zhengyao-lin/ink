@@ -9,6 +9,8 @@
 
 #define getThreadID_raw() (pthread_self())
 
+typedef unsigned long int ThreadID;
+
 class MutexLock {
 public:
 	pthread_mutex_t _lock;
@@ -42,13 +44,13 @@ public:
 	{ }
 };
 
-typedef std::map<int, int> ThreadIDMap;
+typedef std::map<ThreadID, int> ThreadIDMap;
 typedef std::vector<ThreadIDMap> ThreadIDMapStack;
 typedef std::vector<pthread_t *> ThreadPool;
 
 int initThread();
-int getThreadID();
-int registerThread(int id);
+ThreadID getThreadID();
+ThreadID registerThread(int id);
 void addLayer();
 void removeLayer();
 unsigned int getCurrentLayer();

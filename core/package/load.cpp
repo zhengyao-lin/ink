@@ -156,10 +156,12 @@ void Ink_Package::load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	return;
 }
 
-string getProgPath(Ink_InterpreteEngine *engine)
-{
-	if (engine->tmp_prog_path) return string(engine->tmp_prog_path);
-	char buffer[MAX_PATH + 1];
-	GetModuleFileName(NULL, buffer, MAX_PATH);
-	return string(engine->tmp_prog_path = getBasePath(buffer));
-}
+#if defined(INK_PLATFORM_WIN32)
+	string getProgPath(Ink_InterpreteEngine *engine)
+	{
+		if (engine->tmp_prog_path) return string(engine->tmp_prog_path);
+		char buffer[MAX_PATH + 1];
+		GetModuleFileName(NULL, buffer, MAX_PATH);
+		return string(engine->tmp_prog_path = getBasePath(buffer));
+	}
+#endif

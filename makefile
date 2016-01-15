@@ -56,7 +56,11 @@ ifneq ($(GLOBAL_PLATFORM), windows)
 	LDFLAGS+= -ldl
 	STATIC_LDFLAGS+= -ldl -pthread
 else
-	STATIC_LDFLAGS+= -Wl,-Bstatic -lwinpthread
+	ifeq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
+		STATIC_LDFLAGS+= -pthread
+	else
+		STATIC_LDFLAGS+= -Wl,-Bstatic -lwinpthread
+	endif
 endif
 
 CREATE_OUTPUT_DIR = \

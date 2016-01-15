@@ -14,9 +14,9 @@ int initThread()
 	return 0;
 }
 
-int getThreadID()
+ThreadID getThreadID()
 {
-	int id;
+	ThreadID id;
 
 	thread_lock.lock();
 	id = thread_id_map_stack[CURRENT_LAYER][getThreadID_raw()];
@@ -25,7 +25,7 @@ int getThreadID()
 	return id;
 }
 
-int registerThread(int id)
+ThreadID registerThread(int id)
 {
 	thread_lock.lock();
 	thread_id_map_stack[CURRENT_LAYER][getThreadID_raw()] = id;
