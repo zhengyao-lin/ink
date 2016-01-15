@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "expression.h"
+#include "protocol.h"
 #include "coroutine/coroutine.h"
 #include "interface/engine.h"
 
@@ -386,6 +387,13 @@ Ink_Object *Ink_FunctionExpression::eval(Ink_InterpreteEngine *engine, Ink_Conte
 {
 	int line_num_back;
 	SET_LINE_NUM;
+	Ink_Protocol protocol;
+
+	if (protocol_name && (protocol = engine->findProtocol(protocol_name->c_str()))) {
+		RESTORE_LINE_NUM;
+		return protocol(engine, param, exp_list, context_chain->copyContextChain());
+	}
+
 	RESTORE_LINE_NUM;
 	return new Ink_FunctionObject(engine, param, exp_list, context_chain->copyContextChain(), is_inline, is_generator);
 }

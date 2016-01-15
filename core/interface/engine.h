@@ -8,8 +8,9 @@
 #include <string.h>
 #include "setting.h"
 #include "../general.h"
-#include "../thread/thread.h"
 #include "../debug.h"
+#include "../protocol.h"
+#include "../thread/thread.h"
 
 using namespace std;
 
@@ -79,11 +80,27 @@ public:
 	DBG_TypeMapping *dbg_type_mapping;
 	vector<Ink_Object *> dbg_traced_stack;
 
+	Ink_ProtocolMap protocol_map;
+
 	Ink_InterpreteEngine();
 
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline void addProtocol(const char *name, Ink_Protocol proto)
+	{
+		protocol_map[string(name)] = proto;
+		return;
+	}
+
+	inline Ink_Protocol findProtocol(const char *name)
+	{
+		if (protocol_map.find(string(name)) != protocol_map.end()) {
+			return protocol_map[string(name)];
+		}
+		return NULL;
+	}
 
 	inline int initThread()
 	{

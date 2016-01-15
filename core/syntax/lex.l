@@ -189,6 +189,9 @@ int ink_yyinput(char *buf, int max_size)
  /* Constants */
 <INITIAL>{LETTER}({LETTER}|{DIGIT})* {
 	SAVE_TOKEN();
+	if (Ink_getParseEngine()->findProtocol(yylval.string->c_str())) {
+		return TPROTOCOL;
+	}
 	return TIDENTIFIER;
 }
 <INITIAL>{DIGIT}+\.{DIGIT}+ {

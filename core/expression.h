@@ -20,11 +20,6 @@ using namespace std;
 
 class Ink_Expression;
 
-typedef vector<Ink_Expression *> Ink_ExpressionList;
-// typedef triple<string *, bool, bool> Ink_Parameter;
-typedef vector<Ink_Argument *> Ink_ArgumentList;
-typedef vector<Ink_Parameter> Ink_ParamList;
-
 template <class T> T *as(Ink_Expression *obj)
 {
 	return dynamic_cast<T*>(obj);
@@ -271,9 +266,14 @@ public:
 	Ink_ExpressionList exp_list;
 	bool is_inline;
 	bool is_generator;
+	string *protocol_name;
 
 	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, bool is_inline = false, bool is_generator = false)
-	: param(param), exp_list(exp_list), is_inline(is_inline), is_generator(is_generator)
+	: param(param), exp_list(exp_list), is_inline(is_inline), is_generator(is_generator), protocol_name(NULL)
+	{ }
+
+	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, string *protocol_name)
+	: param(param), exp_list(exp_list), is_inline(false), is_generator(false), protocol_name(protocol_name)
 	{ }
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
@@ -287,6 +287,8 @@ public:
 		for (i = 0; i < exp_list.size(); i++) {
 			delete exp_list[i];
 		}
+		if (protocol_name)
+			delete protocol_name;
 	}
 };
 

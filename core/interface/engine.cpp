@@ -43,6 +43,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	string_pool = vector<string *>();
 	dbg_type_mapping_length = 0;
 	dbg_type_mapping = NULL;
+	protocol_map = Ink_ProtocolMap();
 
 	initThread();
 	initTypeMapping();
