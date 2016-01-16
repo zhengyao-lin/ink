@@ -187,12 +187,30 @@ Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain 
 
 extern int current_line_number;
 extern const char *yyerror_prefix;
+extern pthread_mutex_t ink_parse_lock;
+
+void setParserCurrentLineno(int lineno)
+{
+	pthread_mutex_lock(&ink_parse_lock);
+	current_line_number = lineno;
+	pthread_mutex_unlock(&ink_parse_lock);
+	return;
+}
+
+int getParserCurrentLineno()
+{
+	int ret;
+	pthread_mutex_lock(&ink_parse_lock);
+	ret = current_line_number;
+	pthread_mutex_unlock(&ink_parse_lock);
+	return ret;
+}
 
 Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret = NULL_OBJ;
 	Ink_ExpressionList top_level_backup;
-	int line_num_backup = current_line_number;
+	int line_num_backup = getParserCurrentLineno();
 	Ink_InterpreteEngine *current_engine = engine;
 
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
@@ -204,7 +222,7 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, un
 
 		top_level_backup = current_engine->top_level;
 
-		current_line_number = engine->current_line_number;
+		setParserCurrentLineno(0);
 		yyerror_prefix = "from eval: ";
 		current_engine->startParse(as<Ink_String>(argv[0])->getValue());
 		ret = current_engine->execute(context);
@@ -218,7 +236,7 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, un
 	} else {
 		InkWarn_Eval_Called_Without_Current_Engine(engine);
 	}
-	current_line_number = line_num_backup;
+	setParserCurrentLineno(line_num_backup);
 
 	return ret;
 }
@@ -257,7 +275,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	char *current_dir = NULL, *redirect = NULL;
 	Ink_InterpreteEngine *current_engine = engine;
 	Ink_ExpressionList top_level_backup;
-	int line_num_backup = current_line_number;
+	int line_num_backup = getParserCurrentLineno();
 	const char *file_path_backup = engine->input_file_path;
 
 	for (i = 0; i < argc; i++) {
@@ -278,7 +296,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 			if (current_engine) {
 				context->removeLast();
 				top_level_backup = current_engine->top_level;
-				current_line_number = 0;
+				setParserCurrentLineno(0);
 
 				yyerror_prefix = "from import: ";
 				current_engine->startParse(fp);
@@ -314,7 +332,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 			}
 		}
 	}
-	current_line_number = line_num_backup;
+	setParserCurrentLineno(line_num_backup);
 	engine->input_file_path = file_path_backup;
 
 	return NULL_OBJ;

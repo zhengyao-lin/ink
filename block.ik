@@ -1,3 +1,4 @@
+if (1) {
 func = { | a, b, block, block2 |
 	p(a + b);
 	block(a + b);
@@ -894,13 +895,13 @@ sender = fn () {
 }
 
 // cocall(echo, [], sender, []);
+}
 
 p("################ actor test ################");
 
 import multink
 
 p(typename(receive.'->'));
-
 
 actor1 = actor () {
 	import multink
@@ -921,6 +922,7 @@ actor1 = actor () {
 		if (msg == "stop") {
 			retn;
 		}
+		// p("echo running");
 	}
 }
 
@@ -930,10 +932,10 @@ fib_async = actor () {
 	let a = 0;
 	let b = 1;
 	let tmp;
-	let i = 0;
-	let n = 2;
+	let i = 1;
+	let n = 20;
 
-	while (i < n) {
+	while (i <= n) {
 		tmp = b
 		b = a + b;
 		a = tmp;
@@ -945,6 +947,7 @@ fib_async = actor () {
 }
 
 actor1("echo");
+
 fib_async("worker1");
 fib_async("worker2");
 fib_async("worker3");
@@ -957,6 +960,17 @@ fib_async("worker6");
 join_all_but("echo");
 
 p("stopping echo");
-send("stop") -> "echo"
 
+send("stop") -> "echo"
 p("all ended");
+
+join_all();
+
+/*
+import io
+
+self = new File("block.ik", "r");
+content = self.read();
+self_actor = eval("actor(){\n" + content + "\n}");
+self_actor("clone_process")
+*/

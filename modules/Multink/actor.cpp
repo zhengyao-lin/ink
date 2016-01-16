@@ -76,7 +76,7 @@ Ink_Object *InkNative_Actor_JoinAllBut(Ink_InterpreteEngine *engine, Ink_Context
 		return NULL_OBJ;
 	}
 
-	InkActor_joinAllActor(dest);
+	InkActor_joinAllActor(engine, dest);
 	
 	return NULL_OBJ;
 }
@@ -110,10 +110,25 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 	Ink_InterpreteEngine *new_engine;
 	pthread_t new_thread;
+	Ink_InterpreteEngine *check;
+	Ink_ActorFunction_sub_Argument *tmp_arg;
+
+	if ((check = InkActor_getActor(as<Ink_String>(argv[0])->getValue())) != NULL) {
+		InkWarn_Actor_Conflict(engine, as<Ink_String>(argv[0])->getValue().c_str());
+		return NULL_OBJ;
+	}
 
 	new_engine = new Ink_InterpreteEngine();
-	pthread_create(&new_thread, NULL, Ink_ActorFunction_sub,
-				   new Ink_ActorFunction_sub_Argument(new_engine, exp_list));
+	int ret_val = pthread_create(&new_thread, NULL, Ink_ActorFunction_sub,
+							     tmp_arg = new Ink_ActorFunction_sub_Argument(new_engine, exp_list));
+
+	if (ret_val) {
+		InkWarn_Failed_Create_Process(engine, ret_val);
+		delete tmp_arg;
+		delete new_engine;
+		return NULL_OBJ;
+	}
+
 	pthread_detach(new_thread);
 	string *name = new string(as<Ink_String>(argv[0])->getValue().c_str());
 	InkActor_addActor(*name, new_engine, new_thread, name);

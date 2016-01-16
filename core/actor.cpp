@@ -16,12 +16,18 @@ void InkActor_initActorMap()
 	return;
 }
 
-void InkActor_addActor(string name, Ink_InterpreteEngine *engine, pthread_t handle, string *name_p)
+bool InkActor_addActor(string name, Ink_InterpreteEngine *engine, pthread_t handle, string *name_p)
 {
+	bool ret = true;
 	pthread_mutex_lock(&ink_global_actor_map_lock);
-	ink_global_actor_map[name] = new Ink_ActorHandle(engine, handle, name_p);
+	if (ink_global_actor_map.find(name) != ink_global_actor_map.end()) {
+		InkWarn_Actor_Conflict(engine, name.c_str());
+		ret = false;
+	} else {
+		ink_global_actor_map[name] = new Ink_ActorHandle(engine, handle, name_p);
+	}
 	pthread_mutex_unlock(&ink_global_actor_map_lock);
-	return;
+	return ret;
 }
 
 void InkActor_setDeadActor(Ink_InterpreteEngine *engine)
@@ -42,21 +48,21 @@ void InkActor_setDeadActor(Ink_InterpreteEngine *engine)
 	return;
 }
 
-void InkActor_joinAllActor(Ink_InterpreteEngine *self_engine)
+void InkActor_joinAllActor(Ink_InterpreteEngine *self_engine, Ink_InterpreteEngine *except)
 {
 	Ink_ActorMap::iterator actor_it;
 	bool finished;
 
 AGAIN:
+	pthread_mutex_lock(&ink_global_actor_map_lock);
 	for (actor_it = ink_global_actor_map.begin(), finished = true;
 		 actor_it != ink_global_actor_map.end();) {
-		//printf("waiting %d\n", ink_global_actor_map.size());
-		if (actor_it->second->engine != self_engine) {
+		// printf("waiting %s\n", actor_it->first.c_str());
+		if (actor_it->second && actor_it->second->engine != self_engine
+			&& (!except || actor_it->second->engine != except)) {
 			if (actor_it->second->finished) {
-				pthread_mutex_lock(&ink_global_actor_map_lock);
 				delete actor_it->second;
 				ink_global_actor_map.erase(actor_it++);
-				pthread_mutex_unlock(&ink_global_actor_map_lock);
 				continue;
 			} else {
 				finished = false;
@@ -64,6 +70,7 @@ AGAIN:
 		}
 		actor_it++;
 	}
+	pthread_mutex_unlock(&ink_global_actor_map_lock);
 	if (!finished) goto AGAIN;
 
 	return;

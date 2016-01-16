@@ -35,10 +35,10 @@ typedef std::string *Ink_ActorMessage;
 typedef std::queue<Ink_ActorMessage> Ink_ActorMessageQueue;
 
 void InkActor_initActorMap();
-void InkActor_addActor(std::string name, Ink_InterpreteEngine *engine, pthread_t handle, std::string *name_p);
+bool InkActor_addActor(std::string name, Ink_InterpreteEngine *engine, pthread_t handle, std::string *name_p);
 void InkActor_setDeadActor(Ink_InterpreteEngine *engine);
 Ink_InterpreteEngine *InkActor_getActor(std::string name);
-void InkActor_joinAllActor(Ink_InterpreteEngine *self_engine);
+void InkActor_joinAllActor(Ink_InterpreteEngine *self_engine, Ink_InterpreteEngine *except = NULL);
 unsigned int InkActor_getActorCount();
 
 #endif

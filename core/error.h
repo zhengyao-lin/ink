@@ -383,4 +383,20 @@ InkErr_Yield_Without_Coroutine(Ink_InterpreteEngine *engine)
 	return;
 }
 
+inline void
+InkWarn_Actor_Conflict(Ink_InterpreteEngine *engine, const char *name)
+{
+	InkWarn_doPrintWarning(engine, "Conflict actor name \'$(name)\'", name);
+	return;
+}
+
+inline void
+InkWarn_Failed_Create_Process(Ink_InterpreteEngine *engine, int err_code)
+{
+	stringstream strm;
+	strm << "Failed to create process, error code: " << err_code;
+	InkWarn_doPrintWarning(engine, strm.str().c_str());
+	return;
+}
+
 #endif
