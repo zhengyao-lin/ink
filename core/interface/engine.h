@@ -10,6 +10,8 @@
 #include "../general.h"
 #include "../debug.h"
 #include "../protocol.h"
+#include "../actor.h"
+#include "../object.h"
 #include "../thread/thread.h"
 
 using namespace std;
@@ -82,11 +84,34 @@ public:
 
 	Ink_ProtocolMap protocol_map;
 
+	pthread_mutex_t message_mutex;
+	Ink_ActorMessageQueue message_queue;
+
 	Ink_InterpreteEngine();
 
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline Ink_String *receiveMessage()
+	{
+		Ink_String *ret = NULL;
+		pthread_mutex_lock(&message_mutex);
+		if (!message_queue.empty()) {
+			ret = new Ink_String(this, *message_queue.front());
+			message_queue.pop();
+		}
+		pthread_mutex_unlock(&message_mutex);
+		return ret;
+	}
+
+	inline void sendInMessage(string msg)
+	{
+		pthread_mutex_lock(&message_mutex);
+		message_queue.push(addToStringPool(msg.c_str()));
+		pthread_mutex_unlock(&message_mutex);
+		return;
+	}
 
 	inline void addProtocol(const char *name, Ink_Protocol proto)
 	{

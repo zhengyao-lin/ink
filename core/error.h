@@ -148,7 +148,7 @@ InkWarn_Incorrect_Range_Type(Ink_InterpreteEngine *engine)
 inline void
 InkWarn_While_Argument_Require(Ink_InterpreteEngine *engine)
 {
-	InkWarn_doPrintWarning(engine, "While function requires at least 2 arguments");
+	InkWarn_doPrintWarning(engine, "While function requires at least 1 argument");
 	return;
 }
 

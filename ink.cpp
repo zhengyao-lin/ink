@@ -15,10 +15,14 @@
 
 int main(int argc, char **argv)
 {
+	InkActor_initActorMap();
+
 	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
 	engine->startParse(Ink_InputSetting::parseArg(argc, argv));
 
 	engine->execute();
+
+	InkActor_joinAllActor();
 
 	delete engine;
 	cleanAll(engine);

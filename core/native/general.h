@@ -8,6 +8,7 @@
 
 #define NULL_OBJ (new Ink_NullObject(engine))
 #define UNDEFINED (new Ink_Undefined(engine))
+#define TRUE_OBJ (new Ink_Numeric(engine, 1))
 
 #define RETURN_FLAG (engine->CGC_interrupt_signal == INTER_RETURN)
 #define BREAK_FLAG (engine->CGC_interrupt_signal == INTER_BREAK)

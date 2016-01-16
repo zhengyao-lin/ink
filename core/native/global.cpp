@@ -107,35 +107,37 @@ Ink_Object *Ink_WhileExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	Ink_Object *ret;
 	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
 
-	if (argc < 2) {
+	if (argc < 1) {
 		InkWarn_While_Argument_Require(engine);
 		return NULL_OBJ;
 	}
 
 	cond = argv[0];
-	block = argv[1];
+	block = argc > 1 ? argv[1] : NULL;
 	if (cond->type != INK_FUNCTION) {
 		InkWarn_Require_Lazy_Expression(engine);
 		return NULL_OBJ;
-	} else if (block->type != INK_FUNCTION) {
+	} else if (block && block->type != INK_FUNCTION) {
 		InkWarn_While_Block_Require(engine);
 		return NULL_OBJ;
 	}
 
 	ret = NULL_OBJ;
 	while (isTrue(cond->call(engine, context))) {
-		gc_engine->checkGC();
-		ret = block->call(engine, context);
-		switch (engine->CGC_interrupt_signal) {
-			case INTER_RETURN:
-				return engine->CGC_interrupt_value; // fallthrough the signal
-			case INTER_DROP:
-			case INTER_BREAK:
-				return trapSignal(engine); // trap the signal
-			case INTER_CONTINUE:
-				trapSignal(engine); // trap the signal, but do not return
-				continue;
-			default: ;
+		if (block) {
+			gc_engine->checkGC();
+			ret = block->call(engine, context);
+			switch (engine->CGC_interrupt_signal) {
+				case INTER_RETURN:
+					return engine->CGC_interrupt_value; // fallthrough the signal
+				case INTER_DROP:
+				case INTER_BREAK:
+					return trapSignal(engine); // trap the signal
+				case INTER_CONTINUE:
+					trapSignal(engine); // trap the signal, but do not return
+					continue;
+				default: ;
+			}
 		}
 	}
 

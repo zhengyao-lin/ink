@@ -881,7 +881,7 @@ Coroutine = fn (&args...) {
 
 cor = new Coroutine(f1(), f2());
 cor.add(f3());
-cor.start();
+// cor.start();
 
 echo = fn () {
 	let text = yield null
@@ -893,4 +893,49 @@ sender = fn () {
 	p(yield "I'm text");
 }
 
-cocall(echo, [], sender, []);
+// cocall(echo, [], sender, []);
+
+p("################ actor test ################");
+
+import multink
+
+p(typename(receive.'->'));
+
+
+actor1 = actor () {
+	import multink
+
+	let var msg;
+	while (1) {
+		while (!(receive -> msg));
+		p(msg);
+		if (msg == "stop") {
+			break;
+		}
+	}
+}
+
+fib_async = actor () {
+	import multink
+
+	let a = 0;
+	let b = 1;
+	let tmp;
+	let i = 0;
+	let n = 100;
+
+	while (i < n) {
+		tmp = b
+		b = a + b;
+		a = tmp;
+
+		send(tmp.to_str()) -> "echo";
+		i++
+	}
+	
+	send("stop") -> "echo";
+}
+
+actor1("echo");
+fib_async("worker1");
+fib_async("worker2");

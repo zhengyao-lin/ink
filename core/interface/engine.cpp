@@ -44,6 +44,8 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	dbg_type_mapping_length = 0;
 	dbg_type_mapping = NULL;
 	protocol_map = Ink_ProtocolMap();
+	pthread_mutex_init(&message_mutex, NULL);
+	message_queue = Ink_ActorMessageQueue();
 
 	initThread();
 	initTypeMapping();
