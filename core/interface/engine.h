@@ -146,7 +146,7 @@ public:
 		return id;
 	}
 
-	inline ThreadID registerThread(int id)
+	inline ThreadID registerThread(ThreadID id)
 	{
 		thread_lock.lock();
 		thread_id_map_stack[CURRENT_LAYER][getThreadID_raw()] = id;

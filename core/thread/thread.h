@@ -9,6 +9,7 @@
 
 #define getThreadID_raw() (pthread_self())
 
+typedef unsigned long int ThreadIDRaw;
 typedef unsigned long int ThreadID;
 
 class MutexLock {
@@ -44,7 +45,7 @@ public:
 	{ }
 };
 
-typedef std::map<ThreadID, int> ThreadIDMap;
+typedef std::map<ThreadIDRaw, ThreadID> ThreadIDMap;
 typedef std::vector<ThreadIDMap> ThreadIDMapStack;
 typedef std::vector<pthread_t *> ThreadPool;
 
