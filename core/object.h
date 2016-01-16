@@ -285,10 +285,14 @@ public:
 };
 
 class Ink_String: public Ink_Object {
+	string *value;
 public:
-	string value;
 
 	Ink_String(Ink_InterpreteEngine *engine, string value)
+	: Ink_Object(engine), value(new string(value))
+	{ type = INK_STRING; }
+
+	Ink_String(Ink_InterpreteEngine *engine, string *value)
 	: Ink_Object(engine), value(value)
 	{ type = INK_STRING; }
 
@@ -298,7 +302,17 @@ public:
 	}
 	void Ink_StringMethodInit();
 
+	inline string getValue()
+	{
+		return *value;
+	}
+
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
+
+	virtual ~Ink_String()
+	{
+		delete value;
+	}
 };
 
 typedef vector<Ink_HashTable *> Ink_ArrayValue;

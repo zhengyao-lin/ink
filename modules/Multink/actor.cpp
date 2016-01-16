@@ -24,13 +24,13 @@ Ink_Object *InkNative_Actor_Send_Sub(Ink_InterpreteEngine *engine, Ink_ContextCh
 		return NULL_OBJ;
 	}
 
-	Ink_InterpreteEngine *dest = InkActor_getActor(as<Ink_String>(argv[0])->value);
+	Ink_InterpreteEngine *dest = InkActor_getActor(as<Ink_String>(argv[0])->getValue());
 	if (!dest) {
-		InkWarn_Actor_Not_Found(engine, as<Ink_String>(argv[0])->value.c_str());
+		InkWarn_Actor_Not_Found(engine, as<Ink_String>(argv[0])->getValue().c_str());
 		return NULL_OBJ;
 	}
 
-	dest->sendInMessage(as<Ink_String>(msg)->value);
+	dest->sendInMessage(as<Ink_String>(msg)->getValue());
 
 	return TRUE_OBJ;
 }
@@ -50,24 +50,12 @@ Ink_Object *InkNative_Actor_Send(Ink_InterpreteEngine *engine, Ink_ContextChain 
 
 Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	if (!checkArgument(engine, argc, argv, 1, INK_FUNCTION)) {
-		return NULL_OBJ;
-	}
-
 	Ink_Object *msg = engine->receiveMessage();
 	if (!msg) {
 		return NULL_OBJ;
 	}
 
-	Ink_Object *dest = argv[0]->call(engine, context);
-	Ink_Expression *lhs = new Ink_ShellExpression(dest);
-	Ink_Expression *rhs = new Ink_ShellExpression(msg);
-	Ink_Expression *assign = new Ink_AssignmentExpression(lhs, rhs);
-	Ink_Object *ret = assign->eval(engine, context);
-
-	delete assign;
-
-	return ret;
+	return msg;
 }
 
 void *Ink_ActorFunction_sub(void *arg)
@@ -98,7 +86,8 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	new_engine = new Ink_InterpreteEngine();
 	pthread_create(&new_thread, NULL, Ink_ActorFunction_sub,
 				   new Ink_ActorFunction_sub_Argument(new_engine, exp_list));
-	InkActor_addActor(as<Ink_String>(argv[0])->value, new_engine, new_thread);
+	InkActor_addActor(*engine->addToStringPool(as<Ink_String>(argv[0])->getValue().c_str()),
+					  new_engine, new_thread);
 
 	return TRUE_OBJ;
 }
@@ -111,14 +100,8 @@ Ink_FunctionObject *InkMod_Actor_ActorProtocol(Ink_InterpreteEngine *engine, Ink
 
 void InkMod_Actor_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	Ink_Object *receive = new Ink_Object(engine);
-	Ink_FunctionObject *receiver = new Ink_FunctionObject(engine, InkNative_Actor_Receive);
-
 	bondee->setSlot("send", new Ink_FunctionObject(engine, InkNative_Actor_Send));
-
-	receiver->param = Ink_ParamList(1, Ink_Parameter(NULL, true)); // the parameter is referrence
-	receive->setSlot("->", receiver);
-	bondee->setSlot("receive", receive);
+	bondee->setSlot("receive", new Ink_FunctionObject(engine, InkNative_Actor_Receive));
 
 	return;
 }

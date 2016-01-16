@@ -15,7 +15,7 @@ Ink_Object *InkNative_String_Add(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	}
 
 	if ((tmp = getStringVal(engine, context, argv[0])) != NULL) {
-		return new Ink_String(engine, as<Ink_String>(base)->value + tmp->value);
+		return new Ink_String(engine, as<Ink_String>(base)->getValue() + tmp->getValue());
 	}
 
 	InkWarn_Invalid_Argument_For_String_Add(engine, argv[0]->type);
@@ -35,7 +35,7 @@ Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 	}
 	index = as<Ink_Numeric>(argv[0])->value;
 
-	return new Ink_String(engine, as<Ink_String>(base)->value.substr(index, 1));
+	return new Ink_String(engine, as<Ink_String>(base)->getValue().substr(index, 1));
 }
 
 Ink_Object *InkNative_String_Length(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -44,7 +44,7 @@ Ink_Object *InkNative_String_Length(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 	ASSUME_BASE_TYPE(engine, INK_STRING);
 
-	return new Ink_Numeric(engine, as<Ink_String>(base)->value.length());
+	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().length());
 }
 
 Ink_Object *InkNative_String_Greater(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -56,7 +56,8 @@ Ink_Object *InkNative_String_Greater(Ink_InterpreteEngine *engine, Ink_ContextCh
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, as<Ink_String>(base)->value.c_str()[0] > as<Ink_String>(argv[0])->value.c_str()[0]);
+	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().c_str()[0]
+								   > as<Ink_String>(argv[0])->getValue().c_str()[0]);
 }
 
 Ink_Object *InkNative_String_Less(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -68,7 +69,7 @@ Ink_Object *InkNative_String_Less(Ink_InterpreteEngine *engine, Ink_ContextChain
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, as<Ink_String>(base)->value.c_str()[0] < as<Ink_String>(argv[0])->value.c_str()[0]);
+	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().c_str()[0] < as<Ink_String>(argv[0])->getValue().c_str()[0]);
 }
 
 Ink_Object *InkNative_String_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -80,7 +81,7 @@ Ink_Object *InkNative_String_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_Co
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, as<Ink_String>(base)->value.c_str()[0] >= as<Ink_String>(argv[0])->value.c_str()[0]);
+	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().c_str()[0] >= as<Ink_String>(argv[0])->getValue().c_str()[0]);
 }
 
 Ink_Object *InkNative_String_LessOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -92,7 +93,7 @@ Ink_Object *InkNative_String_LessOrEqual(Ink_InterpreteEngine *engine, Ink_Conte
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, as<Ink_String>(base)->value.c_str()[0] <= as<Ink_String>(argv[0])->value.c_str()[0]);
+	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().c_str()[0] <= as<Ink_String>(argv[0])->getValue().c_str()[0]);
 }
 
 extern int string_native_method_table_count;

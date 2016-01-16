@@ -923,7 +923,7 @@ primary_expression
 	}
 	| id_context_type nllo TIDENTIFIER
 	{
-		$$ = new Ink_IdentifierExpression($3, $1);
+		$$ = new Ink_IdentifierExpression($3, $1, $1 == ID_LOCAL);
 		SET_LINE_NO($$);
 	}
 	| TVAR nllo id_context_type nllo TIDENTIFIER

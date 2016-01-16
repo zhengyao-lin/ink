@@ -49,10 +49,10 @@ Ink_Object *Ink_IfExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 		}
 		for (; i < argc; i++) {
 			if (argv[i]->type == INK_STRING) {
-				if (as<Ink_String>(argv[i])->value == "else") {
+				if (as<Ink_String>(argv[i])->getValue() == "else") {
 					if (++i < argc) {
 						if (argv[i]->type == INK_STRING) {
-							if (as<Ink_String>(argv[i])->value == "if") {
+							if (as<Ink_String>(argv[i])->getValue() == "if") {
 								if (++i < argc) {
 									if (argv[i]->type == INK_ARRAY) {
 										if (as<Ink_Array>(argv[i])->value.size() && as<Ink_Array>(argv[i])->value[0]) {
@@ -124,8 +124,9 @@ Ink_Object *Ink_WhileExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *
 
 	ret = NULL_OBJ;
 	while (isTrue(cond->call(engine, context))) {
+		gc_engine->doMark(ret);
+		gc_engine->checkGC();
 		if (block) {
-			gc_engine->checkGC();
 			ret = block->call(engine, context);
 			switch (engine->CGC_interrupt_signal) {
 				case INTER_RETURN:
@@ -205,7 +206,7 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, un
 
 		current_line_number = engine->current_line_number;
 		yyerror_prefix = "from eval: ";
-		current_engine->startParse(as<Ink_String>(argv[0])->value);
+		current_engine->startParse(as<Ink_String>(argv[0])->getValue());
 		ret = current_engine->execute(context);
 
 		engine->native_exp_list.insert(engine->native_exp_list.end(),
@@ -236,7 +237,7 @@ Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *context, u
 	if (argv[0]->type == INK_NUMERIC)
 		printf("print(numeric): %f\n", as<Ink_Numeric>(argv[0])->value);
 	else if (argv[0]->type == INK_STRING)
-		printf("%s\n", as<Ink_String>(argv[0])->value.c_str());
+		printf("%s\n", as<Ink_String>(argv[0])->getValue().c_str());
 	else if (argv[0]->type == INK_NULL)
 		printf("(null)\n");
 	else if (argv[0]->type == INK_UNDEFINED)
@@ -261,7 +262,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 
 	for (i = 0; i < argc; i++) {
 		if (argv[i]->type == INK_STRING) {
-			tmp = as<Ink_String>(argv[i])->value.c_str();
+			tmp = as<Ink_String>(argv[i])->getValue().c_str();
 			if (!(fp = fopen(tmp, "r"))) {
 				InkErr_Failed_Open_File(NULL, tmp);
 				continue;
@@ -331,11 +332,11 @@ Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 {
 	Ink_Expression *tmp;
 
-	if (!checkArgument(engine, argc, argv, 1, INK_STRING) || as<Ink_String>(argv[0])->value == "") {
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING) || as<Ink_String>(argv[0])->getValue() == "") {
 		return NULL_OBJ;
 	}
 
-	if (!(tmp = Ink_NumericConstant::parse(as<Ink_String>(argv[0])->value)))
+	if (!(tmp = Ink_NumericConstant::parse(as<Ink_String>(argv[0])->getValue())))
 		return NULL_OBJ;
 
 	engine->native_exp_list.push_back(tmp);

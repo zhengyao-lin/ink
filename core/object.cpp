@@ -193,7 +193,7 @@ Ink_Object *Ink_Numeric::clone(Ink_InterpreteEngine *engine)
 
 Ink_Object *Ink_String::clone(Ink_InterpreteEngine *engine)
 {
-	Ink_Object *new_obj = new Ink_String(engine, value);
+	Ink_Object *new_obj = new Ink_String(engine, getValue());
 
 	cloneHashTable(this, new_obj);
 

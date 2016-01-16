@@ -98,7 +98,7 @@ public:
 		Ink_String *ret = NULL;
 		pthread_mutex_lock(&message_mutex);
 		if (!message_queue.empty()) {
-			ret = new Ink_String(this, *message_queue.front());
+			ret = new Ink_String(this, message_queue.front());
 			message_queue.pop();
 		}
 		pthread_mutex_unlock(&message_mutex);
@@ -108,7 +108,7 @@ public:
 	inline void sendInMessage(string msg)
 	{
 		pthread_mutex_lock(&message_mutex);
-		message_queue.push(addToStringPool(msg.c_str()));
+		message_queue.push(new string(msg.c_str()));
 		pthread_mutex_unlock(&message_mutex);
 		return;
 	}

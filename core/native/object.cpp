@@ -46,7 +46,7 @@ bool isEqual(Ink_Object *a, Ink_Object *b)
 		return as<Ink_Numeric>(a)->value == as<Ink_Numeric>(b)->value;
 	}
 	if (a->type == INK_STRING) {
-		return as<Ink_String>(a)->value == as<Ink_String>(b)->value;
+		return as<Ink_String>(a)->getValue() == as<Ink_String>(b)->getValue();
 	}
 	if (a->type == INK_UNDEFINED && b->type == INK_UNDEFINED) return true;
 	if (a->type == INK_NULL && b->type == INK_NULL) return true;
@@ -74,13 +74,12 @@ Ink_Object *InkNative_Object_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 		return NULL_OBJ;
 	}
 	
-	if (!base->getSlotMapping(engine, as<Ink_String>(argv[0])->value.c_str())) {
-		Ink_IdentifierExpression *id_exp = new Ink_IdentifierExpression(new string(as<Ink_String>(argv[0])->value.c_str()));
-		engine->native_exp_list.push_back(id_exp);
-		return getSlotWithProto(engine, context, base, id_exp->id->c_str());
+	if (!base->getSlotMapping(engine, as<Ink_String>(argv[0])->getValue().c_str())) {
+		return getSlotWithProto(engine, context, base,
+								engine->addToStringPool(as<Ink_String>(argv[0])->getValue().c_str())->c_str());
 	}
 
-	return getSlotWithProto(engine, context, base, as<Ink_String>(argv[0])->value.c_str());
+	return getSlotWithProto(engine, context, base, as<Ink_String>(argv[0])->getValue().c_str());
 }
 
 Ink_Object *InkNative_Object_New(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -132,9 +131,9 @@ Ink_Object *InkNative_Object_SetGetter(Ink_InterpreteEngine *engine, Ink_Context
 		return NULL_OBJ;
 	}
 
-	tmp = as<Ink_String>(argv[0])->value.c_str();
+	tmp = as<Ink_String>(argv[0])->getValue().c_str();
 	if (!(hash = base->getSlotMapping(engine, tmp))) {
-		hash = base->setSlot(createStrConstant(engine, tmp), NULL);
+		hash = base->setSlot(engine->addToStringPool(tmp)->c_str(), NULL);
 	}
 
 	hash->getter = argc > 1 ? argv[1] : NULL;
@@ -152,9 +151,9 @@ Ink_Object *InkNative_Object_SetSetter(Ink_InterpreteEngine *engine, Ink_Context
 		return NULL_OBJ;
 	}
 
-	tmp = as<Ink_String>(argv[0])->value.c_str();
+	tmp = as<Ink_String>(argv[0])->getValue().c_str();
 	if (!(hash = base->getSlotMapping(engine, tmp))) {
-		hash = base->setSlot(createStrConstant(engine, tmp), NULL);
+		hash = base->setSlot(engine->addToStringPool(tmp)->c_str(), NULL);
 	}
 
 	hash->setter = argc > 1 ? argv[1] : NULL;

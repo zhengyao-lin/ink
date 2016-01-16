@@ -56,7 +56,7 @@ string *JSON_stringifyObject(Ink_Object *obj)
 			ret += "]";
 			break;
 		} case INK_STRING: {
-			ret += "\"" + JSON_escapeString(as<Ink_String>(obj)->value) + "\"";
+			ret += "\"" + JSON_escapeString(as<Ink_String>(obj)->getValue()) + "\"";
 			break;
 		} case INK_NULL: {
 			ret += "null";

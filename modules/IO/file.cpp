@@ -25,7 +25,7 @@ Ink_Object *InkNative_File_Exist(Ink_InterpreteEngine *engine, Ink_ContextChain 
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, !access(getStringVal(engine, context, argv[0])->value.c_str(), 0));
+	return new Ink_Numeric(engine, !access(getStringVal(engine, context, argv[0])->getValue().c_str(), 0));
 }
 
 Ink_Object *InkNative_File_Remove(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -34,7 +34,7 @@ Ink_Object *InkNative_File_Remove(Ink_InterpreteEngine *engine, Ink_ContextChain
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, !remove(getStringVal(engine, context, argv[0])->value.c_str()));
+	return new Ink_Numeric(engine, !remove(getStringVal(engine, context, argv[0])->getValue().c_str()));
 }
 
 Ink_Object *InkNative_File_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -44,13 +44,13 @@ Ink_Object *InkNative_File_Constructor(Ink_InterpreteEngine *engine, Ink_Context
 	const char *tmp;
 
 	if (checkArgument(false, argc, argv, 2, INK_STRING, INK_STRING)) {
-		fp = fopen(tmp = getStringVal(engine, context, argv[0])->value.c_str(),
-				   getStringVal(engine, context, argv[1])->value.c_str());
+		fp = fopen(tmp = getStringVal(engine, context, argv[0])->getValue().c_str(),
+				   getStringVal(engine, context, argv[1])->getValue().c_str());
 		if (!fp) {
 			InkWarn_Failed_Open_File(engine, tmp);
 		}
 	} else if (checkArgument(false, argc, argv, 1, INK_STRING)) {
-		fp = fopen(tmp = getStringVal(engine, context, argv[0])->value.c_str(), "r");
+		fp = fopen(tmp = getStringVal(engine, context, argv[0])->getValue().c_str(), "r");
 		if (!fp) {
 			InkWarn_Failed_Open_File(engine, tmp);
 		}
@@ -89,7 +89,7 @@ Ink_Object *InkNative_File_PutString(Ink_InterpreteEngine *engine, Ink_ContextCh
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp)
-		fputs(getStringVal(engine, context, argv[0])->value.c_str(), tmp);
+		fputs(getStringVal(engine, context, argv[0])->getValue().c_str(), tmp);
 
 	return NULL_OBJ;
 }
@@ -102,7 +102,7 @@ Ink_Object *InkNative_File_PutC(Ink_InterpreteEngine *engine, Ink_ContextChain *
 
 	ASSUME_BASE_TYPE(engine, file_pointer_type_tag);
 	if (checkArgument(false, argc, argv, 1, INK_STRING)) {
-		ch = getStringVal(engine, context, argv[0])->value.c_str()[0];
+		ch = getStringVal(engine, context, argv[0])->getValue().c_str()[0];
 	} else if (checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		ch = getNumVal(argv[0]);
 	} else {
@@ -126,7 +126,7 @@ Ink_Object *InkNative_File_GetString(Ink_InterpreteEngine *engine, Ink_ContextCh
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp) {
-		return new Ink_String(engine, *engine->addToStringPool(fgets(buffer, FILE_GETS_BUFFER_SIZE, tmp)));
+		return new Ink_String(engine, string(fgets(buffer, FILE_GETS_BUFFER_SIZE, tmp)));
 	}
 
 	return NULL_OBJ;
@@ -187,7 +187,7 @@ Ink_Object *InkNative_File_ReadAll(Ink_InterpreteEngine *engine, Ink_ContextChai
 		fread(buffer, len, 1, tmp);
 		buffer[len] = '\0';
 
-		ret = new Ink_String(engine, *engine->addToStringPool(buffer));
+		ret = new Ink_String(engine, string(buffer));
 		free(buffer);
 
 		return ret;

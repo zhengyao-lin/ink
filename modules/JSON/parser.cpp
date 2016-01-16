@@ -302,5 +302,5 @@ Ink_Object *InkNative_JSON_Decode(Ink_InterpreteEngine *engine, Ink_ContextChain
 		return UNDEFINED;
 	}
 
-	return JSON_parse(engine, as<Ink_String>(argv[0])->value);
+	return JSON_parse(engine, as<Ink_String>(argv[0])->getValue());
 }

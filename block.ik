@@ -905,12 +905,17 @@ p(typename(receive.'->'));
 actor1 = actor () {
 	import multink
 
-	let var msg;
+	let var stopped = 0;
+
 	while (1) {
-		while (!(receive -> msg));
+		let msg;
+		while (!(msg = receive()));
 		p(msg);
 		if (msg == "stop") {
-			break;
+			stopped++;
+			if (stopped >= 2) {
+				retn
+			}
 		}
 	}
 }
@@ -929,7 +934,7 @@ fib_async = actor () {
 		b = a + b;
 		a = tmp;
 
-		send(tmp.to_str()) -> "echo";
+		send("" + i + "th: " + tmp.to_str()) -> "echo";
 		i++
 	}
 	

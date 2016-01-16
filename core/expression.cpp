@@ -254,7 +254,8 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 				InkWarn_Hash_Table_Mapping_Expect_String(engine);
 				return new Ink_NullObject(engine);
 			}
-			ret->setSlot(as<Ink_String>(key)->value.c_str(), mapping[i]->value->eval(engine, context_chain));
+			ret->setSlot(engine->addToStringPool(as<Ink_String>(key)->getValue().c_str())->c_str(),
+						 mapping[i]->value->eval(engine, context_chain));
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
 				return engine->CGC_interrupt_value;
