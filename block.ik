@@ -909,11 +909,13 @@ actor1 = actor () {
 
 	while (1) {
 		let msg;
-		while (!(msg = receive()));
+		while (!(msg = receive())) {
+			//p("idle");
+		}
 		p(msg);
 		if (msg == "stop") {
 			stopped++;
-			if (stopped >= 2) {
+			if (stopped >= 4) {
 				retn
 			}
 		}
@@ -927,7 +929,7 @@ fib_async = actor () {
 	let b = 1;
 	let tmp;
 	let i = 0;
-	let n = 100;
+	let n = 2;
 
 	while (i < n) {
 		tmp = b
@@ -938,9 +940,11 @@ fib_async = actor () {
 		i++
 	}
 	
-	send("stop") -> "echo";
+	eval("send(\"stop\") -> \"echo\"");
 }
 
-actor1("echo");
-fib_async("worker1");
-fib_async("worker2");
+//actor1("echo");
+//fib_async("worker1");
+//fib_async("worker2");
+//fib_async("worker3");
+//fib_async("worker4");

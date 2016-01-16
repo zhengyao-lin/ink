@@ -254,8 +254,9 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 				InkWarn_Hash_Table_Mapping_Expect_String(engine);
 				return new Ink_NullObject(engine);
 			}
-			ret->setSlot(engine->addToStringPool(as<Ink_String>(key)->getValue().c_str())->c_str(),
-						 mapping[i]->value->eval(engine, context_chain));
+			string *tmp = new string(as<Ink_String>(key)->getValue().c_str());
+			ret->setSlot(tmp->c_str(),
+						 mapping[i]->value->eval(engine, context_chain), true, tmp);
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
 				return engine->CGC_interrupt_value;
@@ -328,7 +329,8 @@ Ink_HashExpression::ProtoSearchRet Ink_HashExpression::searchPrototype(Ink_Inter
 	return Ink_HashExpression::ProtoSearchRet(hash, proto_obj ? proto_obj : obj);
 }
 
-Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_Object *obj, const char *id, Ink_EvalFlag flags)
+Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
+										Ink_Object *obj, const char *id, Ink_EvalFlag flags, string *id_p)
 {
 	Ink_HashTable *hash, *address;
 	Ink_Object *base = obj, *ret, *tmp;
@@ -344,7 +346,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 		hash = (search_res = searchPrototype(engine, obj, id)).hash;
 
 		/* create barrier to prevent changes on prototype */
-		address = obj->setSlot(id, NULL);
+		address = obj->setSlot(id, NULL, id_p);
 		if (hash) { /* if found the slot in prototype */
 			base = search_res.base; /* set base as the prototype(to make some native method run correctly) */
 			ret = hash->getValue();
@@ -364,6 +366,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 		/* found slot correctly */
 		ret = hash->getValue();
 		address = hash;
+		delete id_p;
 	}
 
 	/* set address for possible assignment */

@@ -1,8 +1,10 @@
 #include "hash.h"
 #include "object.h"
 
-Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val)
-: value(val), key(k)
+using namespace std;
+
+Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, string *key_p)
+: value(val), key(k), key_p(key_p)
 {
 	next = NULL;
 	bonding = NULL;
@@ -14,7 +16,7 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val)
 }
 
 Ink_HashTable::Ink_HashTable(Ink_Object *val)
-: value(val), key("")
+: value(val), key(""), key_p(NULL)
 {
 	next = NULL;
 	bonding = NULL;
@@ -42,4 +44,5 @@ Ink_Object *Ink_HashTable::setValue(Ink_Object *val)
 Ink_HashTable::~Ink_HashTable()
 {
 	// if (value) value->address = NULL;
+	if (key_p) delete key_p;
 }

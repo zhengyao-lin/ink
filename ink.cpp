@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 
 	engine->execute();
 
-	InkActor_joinAllActor();
+	InkActor_joinAllActor(engine);
 
 	delete engine;
 	cleanAll(engine);

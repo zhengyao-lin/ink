@@ -21,9 +21,10 @@
 	} \
 } while (0)
 
-inline Ink_Object *getSlotWithProto(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, const char *name)
+inline Ink_Object *getSlotWithProto(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
+									Ink_Object *base, const char *name, string *id_p = NULL)
 {
-	return Ink_HashExpression::getSlot(engine, context, base, name);
+	return Ink_HashExpression::getSlot(engine, context, base, name, id_p);
 }
 
 inline Ink_Object *searchContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *name)

@@ -253,7 +253,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	unsigned int i;
 	FILE *fp;
 	Ink_Object *load, **tmp_argv;
-	const char *tmp;
+	string *tmp;
 	char *current_dir = NULL, *redirect = NULL;
 	Ink_InterpreteEngine *current_engine = engine;
 	Ink_ExpressionList top_level_backup;
@@ -262,14 +262,14 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 
 	for (i = 0; i < argc; i++) {
 		if (argv[i]->type == INK_STRING) {
-			tmp = as<Ink_String>(argv[i])->getValue().c_str();
-			if (!(fp = fopen(tmp, "r"))) {
-				InkErr_Failed_Open_File(NULL, tmp);
+			tmp = new string(as<Ink_String>(argv[i])->getValue().c_str());
+			if (!(fp = fopen(tmp->c_str(), "r"))) {
+				InkErr_Failed_Open_File(NULL, tmp->c_str());
 				continue;
 			}
-			engine->input_file_path = tmp;
+			engine->input_file_path = tmp->c_str();
 			current_dir = getCurrentDir();
-			redirect = getBasePath(tmp);
+			redirect = getBasePath(tmp->c_str());
 			if (redirect) {
 				changeDir(redirect);
 				free(redirect);
@@ -299,6 +299,8 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 				changeDir(current_dir);
 				free(current_dir);
 			}
+
+			delete tmp;
 			// run file
 		} else {
 			// call load method

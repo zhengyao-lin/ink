@@ -70,7 +70,10 @@ public:
 
 	Ink_Object *getSlot(Ink_InterpreteEngine *engine, const char *key);
 	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key);
-	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true);
+	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true, string *key_p = NULL);
+	inline Ink_HashTable *setSlot(const char *key, Ink_Object *value, string *key_p) {
+		return setSlot(key, value, true, key_p);
+	}
 	void deleteSlot(const char *key);
 	void cleanHashTable();
 	void cleanHashTable(Ink_HashTable *table);

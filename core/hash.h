@@ -1,6 +1,7 @@
 #ifndef _HASH_H_
 #define _HASH_H_
 
+#include <string>
 #include <stdio.h>
 
 class Ink_Object;
@@ -17,7 +18,9 @@ public:
 	Ink_Object *setter;
 	Ink_Object *getter;
 
-	Ink_HashTable(const char *key, Ink_Object *value);
+	std::string *key_p;
+
+	Ink_HashTable(const char *key, Ink_Object *value, std::string *key_p = NULL);
 
 	Ink_HashTable(Ink_Object *value);
 

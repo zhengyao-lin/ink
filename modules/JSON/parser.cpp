@@ -197,7 +197,7 @@ JSON_parser(Ink_InterpreteEngine *engine, INKJSON_TokenStack token_stack, unsign
 	INKJSON_ParseStateStack state_stack = INKJSON_ParseStateStack();
 	unsigned int i = start_index, j;
 	Ink_ArrayValue arr_val;
-	const char *tmp_str;
+	string *tmp_str;
 
 	switch (token_stack[i].token) {
 		case JT_LBRACE: {
@@ -209,12 +209,12 @@ JSON_parser(Ink_InterpreteEngine *engine, INKJSON_TokenStack token_stack, unsign
 				 j + 3 < token_stack.size();) {
 				if (token_stack[j].token == JT_STRING
 					&& token_stack[j + 1].token == JT_COLON) {
-					tmp_str = engine->addToStringPool(token_stack[j].value.str)->c_str();
+					tmp_str = token_stack[j].value.str;
 					tmp_ret = JSON_parser(engine, token_stack, j + 2);
 					j = tmp_ret.end_index;
 
 					if (tmp_ret.ret) {
-						ret->setSlot(tmp_str, tmp_ret.ret);
+						ret->setSlot(tmp_str->c_str(), tmp_ret.ret, tmp_str);
 						if (token_stack[tmp_ret.end_index + 1].token == JT_RBRACE) {
 							return JSON_ParserReturnVal(ret, j + 1);
 						} else if (token_stack[tmp_ret.end_index + 1].token == JT_COMMA) {
@@ -266,7 +266,7 @@ JSON_parser(Ink_InterpreteEngine *engine, INKJSON_TokenStack token_stack, unsign
 			return JSON_ParserReturnVal(NULL, i);
 		}
 		case JT_STRING:
-			return JSON_ParserReturnVal(new Ink_String(engine, *engine->addToStringPool(token_stack[i].value.str)), i);
+			return JSON_ParserReturnVal(new Ink_String(engine, token_stack[i].value.str), i);
 		case JT_NUMERIC:
 			return JSON_ParserReturnVal(new Ink_Numeric(engine, token_stack[i].value.num), i);
 		case JT_NULL:

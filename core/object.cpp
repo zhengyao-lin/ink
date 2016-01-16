@@ -97,7 +97,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 	return ret;
 }
 
-Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_check_exist)
+Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_check_exist, string *key_p)
 {
 	Ink_HashTable *i, *slot = NULL, *bond_tracer;
 
@@ -112,8 +112,9 @@ Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_c
 
 	if (slot) {
 		slot->setValue(value);
+		if (key_p) delete key_p;
 	} else {
-		slot = new Ink_HashTable(key, value);
+		slot = new Ink_HashTable(key, value, key_p);
 		if (hash_table)
 			hash_table->getEnd()->next = slot;
 		else

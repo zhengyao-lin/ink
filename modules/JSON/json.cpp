@@ -91,7 +91,7 @@ Ink_Object *InkNative_JSON_Encode(Ink_InterpreteEngine *engine, Ink_ContextChain
 	Ink_Object *ret;
 
 	if (tmp_str)
-		ret = new Ink_String(engine, *engine->addToStringPool(tmp_str));
+		ret = new Ink_String(engine, tmp_str);
 	else ret = NULL_OBJ;
 
 	return ret;

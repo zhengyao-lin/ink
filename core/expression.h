@@ -247,11 +247,12 @@ public:
 
 	static ProtoSearchRet searchPrototype(Ink_InterpreteEngine *engine, Ink_Object *obj, const char *id);
 
-	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_Object *obj, const char *id)
+	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_Object *obj, const char *id, string *id_p = NULL)
 	{
-		return getSlot(engine, context_chain, obj, id, Ink_EvalFlag());
+		return getSlot(engine, context_chain, obj, id, Ink_EvalFlag(), id_p);
 	}
-	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_Object *obj, const char *id, Ink_EvalFlag flags);
+	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
+							   Ink_Object *obj, const char *id, Ink_EvalFlag flags, string *id_p = NULL);
 
 	virtual ~Ink_HashExpression()
 	{

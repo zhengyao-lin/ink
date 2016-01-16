@@ -58,6 +58,17 @@ Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return msg;
 }
 
+Ink_Object *InkNative_Actor_JoinAll(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	InkActor_joinAllActor(engine);
+	return NULL_OBJ;
+}
+
+Ink_Object *InkNative_Actor_ActorCount(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	return new Ink_Numeric(engine, InkActor_getActorCount());
+}
+
 void *Ink_ActorFunction_sub(void *arg)
 {
 	Ink_ActorFunction_sub_Argument *tmp = (Ink_ActorFunction_sub_Argument *)arg;
@@ -86,8 +97,9 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	new_engine = new Ink_InterpreteEngine();
 	pthread_create(&new_thread, NULL, Ink_ActorFunction_sub,
 				   new Ink_ActorFunction_sub_Argument(new_engine, exp_list));
-	InkActor_addActor(*engine->addToStringPool(as<Ink_String>(argv[0])->getValue().c_str()),
-					  new_engine, new_thread);
+	pthread_detach(new_thread);
+	string *name = new string(as<Ink_String>(argv[0])->getValue().c_str());
+	InkActor_addActor(*name, new_engine, new_thread, name);
 
 	return TRUE_OBJ;
 }
@@ -102,6 +114,8 @@ void InkMod_Actor_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
 	bondee->setSlot("send", new Ink_FunctionObject(engine, InkNative_Actor_Send));
 	bondee->setSlot("receive", new Ink_FunctionObject(engine, InkNative_Actor_Receive));
+	bondee->setSlot("join_all", new Ink_FunctionObject(engine, InkNative_Actor_JoinAll));
+	bondee->setSlot("actor_count", new Ink_FunctionObject(engine, InkNative_Actor_ActorCount));
 
 	return;
 }
