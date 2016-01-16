@@ -32,9 +32,9 @@ void InkActor_setDeadActor(Ink_InterpreteEngine *engine)
 		 actor_it != ink_global_actor_map.end(); actor_it++) {
 		if (actor_it->second->engine == engine) {
 			actor_it->second->engine = NULL;
-			printf("hello?\n");
 			// pthread_mutex_unlock(&actor_it->second->thread_lock);
 			actor_it->second->finished = true;
+			// ink_global_actor_map.erase(actor_it);
 			break;
 		}
 	}
@@ -83,8 +83,16 @@ Ink_InterpreteEngine *InkActor_getActor(string name)
 unsigned int InkActor_getActorCount()
 {
 	unsigned int ret;
+	Ink_ActorMap::iterator actor_it;
+
 	pthread_mutex_lock(&ink_global_actor_map_lock);
-	ret = ink_global_actor_map.size();
+
+	for (actor_it = ink_global_actor_map.begin(), ret = 0;
+		 actor_it != ink_global_actor_map.end(); actor_it++) {
+		if (!actor_it->second->finished) ret++;
+	}
+
 	pthread_mutex_unlock(&ink_global_actor_map_lock);
+
 	return ret;
 }

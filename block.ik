@@ -905,19 +905,21 @@ p(typename(receive.'->'));
 actor1 = actor () {
 	import multink
 
-	let var stopped = 0;
+	let try = 0
 
 	while (1) {
 		let msg;
 		while (!(msg = receive())) {
-			//p("idle");
+			/*if (actor_count() == 1) {
+				try++
+				if (try >= 10) {
+					retn
+				}
+			}*/
 		}
 		p(msg);
 		if (msg == "stop") {
-			stopped++;
-			if (stopped >= 4) {
-				retn
-			}
+			retn;
 		}
 	}
 }
@@ -939,12 +941,22 @@ fib_async = actor () {
 		send("" + i + "th: " + tmp.to_str()) -> "echo";
 		i++
 	}
-	
-	eval("send(\"stop\") -> \"echo\"");
+	p("end!");
 }
 
-//actor1("echo");
-//fib_async("worker1");
-//fib_async("worker2");
-//fib_async("worker3");
-//fib_async("worker4");
+actor1("echo");
+fib_async("worker1");
+fib_async("worker2");
+fib_async("worker3");
+fib_async("worker4");
+fib_async("worker5");
+fib_async("worker6");
+
+//p(actor_count());
+
+join_all_but("echo");
+
+p("stopping echo");
+send("stop") -> "echo"
+
+p("all ended");
