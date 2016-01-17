@@ -114,13 +114,6 @@ Ink_Object *InkNative_Object_Clone(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return base->clone(engine);
 }
 
-const char *createStrConstant(Ink_InterpreteEngine *engine, const char *str)
-{
-	string *tmp;
-	engine->native_exp_list.push_back(new Ink_StringConstant(tmp = new string(str)));
-	return tmp->c_str();
-}
-
 Ink_Object *InkNative_Object_SetGetter(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");

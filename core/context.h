@@ -40,6 +40,7 @@ public:
 	Ink_Object *searchSlot(Ink_InterpreteEngine *engine, const char *slot_id); // from local
 	Ink_HashTable *searchSlotMapping(Ink_InterpreteEngine *engine, const char *slot_id); // from local
 	Ink_ContextChain *copyContextChain();
+	Ink_ContextChain *copyDeepContextChain(Ink_InterpreteEngine *engine);
 
 	static void disposeContextChain(Ink_ContextChain *head);
 

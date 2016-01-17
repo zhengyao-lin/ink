@@ -1,4 +1,5 @@
 #include "context.h"
+#include "interface/engine.h"
 
 Ink_ContextChain *Ink_ContextChain::addContext(Ink_ContextObject *c)
 {
@@ -89,6 +90,26 @@ Ink_ContextChain *Ink_ContextChain::copyContextChain()
 	new_chain = new Ink_ContextChain(head->context);
 	for (i = head->inner; i; i = i->inner) {
 		new_chain->addContext(i->context);
+	}
+
+	return new_chain;
+}
+
+Ink_ContextChain *Ink_ContextChain::copyDeepContextChain(Ink_InterpreteEngine *engine)
+{
+	Ink_ContextChain *head = getGlobal();
+	Ink_ContextChain *i, *new_chain;
+
+	if (!engine->cloneDeepHasTraced(head->context)) {
+		new_chain = new Ink_ContextChain(as<Ink_ContextObject>(head->context->cloneDeep(engine)));
+	} else {
+		new_chain = new Ink_ContextChain(new Ink_ContextObject(engine));
+	}
+	for (i = head->inner; i; i = i->inner) {
+		if (!engine->cloneDeepHasTraced(i->context))
+			new_chain->addContext(as<Ink_ContextObject>(i->context->cloneDeep(engine)));
+		else
+			new_chain->addContext(new Ink_ContextObject(engine));
 	}
 
 	return new_chain;

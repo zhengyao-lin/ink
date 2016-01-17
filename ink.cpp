@@ -18,6 +18,7 @@
 int main(int argc, char **argv)
 {
 	InkActor_initActorMap();
+	Ink_initNativeExpression();
 	// Ink_GlobalConstantInit();
 
 	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
@@ -30,6 +31,7 @@ int main(int argc, char **argv)
 	delete engine;
 	cleanAll(engine);
 	closeAllHandler();
+	Ink_cleanNativeExpression();
 
 	return 0;
 }

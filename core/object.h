@@ -78,8 +78,10 @@ public:
 	void cleanHashTable();
 	void cleanHashTable(Ink_HashTable *table);
 	static void cloneHashTable(Ink_Object *src, Ink_Object *dest);
+	static void cloneDeepHashTable(Ink_InterpreteEngine *engine, Ink_Object *src, Ink_Object *dest);
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
+	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true)
@@ -108,6 +110,8 @@ public:
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine)
 	{ return this; }
 
+	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true)
@@ -125,6 +129,8 @@ public:
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine)
 	{ return this; }
+
+	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 };
 
 class Ink_ContextObject: public Ink_Object {
@@ -144,6 +150,9 @@ public:
 		hash_table = hash;
 		ret_val = NULL;
 	}
+
+	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
+	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 };
 
 typedef Ink_Object *(*Ink_NativeFunction)(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc,
@@ -264,6 +273,7 @@ public:
 							 Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true);
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
+	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 
 	virtual ~Ink_FunctionObject();
 };
@@ -285,6 +295,7 @@ public:
 	void Ink_NumericMethodInit();
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
+	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 };
 
 class Ink_String: public Ink_Object {
@@ -311,6 +322,7 @@ public:
 	}
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
+	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 
 	virtual ~Ink_String()
 	{
@@ -334,8 +346,10 @@ public:
 	}
 	void Ink_ArrayMethodInit();
 	Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val);
+	Ink_ArrayValue cloneDeepArrayValue(Ink_InterpreteEngine *engine, Ink_ArrayValue val);
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
+	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 
 	static void disposeArrayValue(Ink_ArrayValue val)
 	{
@@ -362,7 +376,10 @@ public:
 		type = INK_UNKNOWN;
 	}
 
-	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
+	virtual Ink_Object *clone(Ink_InterpreteEngine *engine)
+	{ return this; }
+
+	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 };
 
 Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_CoCallList call_list);

@@ -227,9 +227,8 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, un
 		current_engine->startParse(as<Ink_String>(argv[0])->getValue());
 		ret = current_engine->execute(context);
 
-		engine->native_exp_list.insert(engine->native_exp_list.end(),
-									   current_engine->top_level.begin(),
-									   current_engine->top_level.end());
+		Ink_insertNativeExpression(current_engine->top_level.begin(),
+								   current_engine->top_level.end());
 		current_engine->top_level = top_level_backup;
 
 		context->addContext(new Ink_ContextObject(engine));
@@ -304,9 +303,8 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 
 				engine->CGC_interrupt_signal = INTER_NONE;
 
-				engine->native_exp_list.insert(engine->native_exp_list.end(),
-											   current_engine->top_level.begin(),
-											   current_engine->top_level.end());
+				Ink_insertNativeExpression(current_engine->top_level.begin(),
+										   current_engine->top_level.end());
 				current_engine->top_level = top_level_backup;
 
 				context->addContext(new Ink_ContextObject(engine));
@@ -359,7 +357,7 @@ Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	if (!(tmp = Ink_NumericConstant::parse(as<Ink_String>(argv[0])->getValue())))
 		return NULL_OBJ;
 
-	engine->native_exp_list.push_back(tmp);
+	Ink_addNativeExpression(tmp);
 	return tmp->eval(engine, context);
 }
 

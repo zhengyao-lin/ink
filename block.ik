@@ -973,7 +973,23 @@ try_actor = fn () {
 }
 
 let i = 1;
-while (1) {
+while (0) {
 	p(i++);
 	try_actor();
 }
+
+try_arg = actor (arg1, argv...) {
+	//p("I got a argument: " + json.encode(arg1));
+	debug(arg1);
+	debug(argv);
+	argv[1]("ha");
+	//p("Variant argument size: " + argv.size());
+}
+
+a = "hello?";
+
+try_arg("new_actor", { a : ["s", "a"] }, "ho", fn (b) {
+	p(a)
+});
+
+p("haha");

@@ -7,7 +7,6 @@
 #include "core/thread/thread.h"
 
 static Ink_InterpreteEngine *ink_parse_engine = NULL;
-
 pthread_mutex_t ink_parse_lock = PTHREAD_MUTEX_INITIALIZER;
 
 Ink_InterpreteEngine *Ink_getParseEngine()
@@ -18,6 +17,45 @@ Ink_InterpreteEngine *Ink_getParseEngine()
 void Ink_setParseEngine(Ink_InterpreteEngine *engine)
 {
 	ink_parse_engine = engine;
+	return;
+}
+
+pthread_mutex_t ink_native_exp_list_lock = PTHREAD_MUTEX_INITIALIZER;
+Ink_ExpressionList ink_native_exp_list;
+
+void Ink_initNativeExpression()
+{
+	ink_native_exp_list = Ink_ExpressionList();
+	return;
+}
+
+void Ink_cleanNativeExpression()
+{
+	unsigned int i;
+
+	pthread_mutex_lock(&ink_native_exp_list_lock);
+	for (i = 0; i < ink_native_exp_list.size(); i++) {
+		delete ink_native_exp_list[i];
+	}
+	pthread_mutex_unlock(&ink_native_exp_list_lock);
+
+	return;
+}
+
+void Ink_insertNativeExpression(Ink_ExpressionList::iterator begin,
+								Ink_ExpressionList::iterator end)
+{
+	pthread_mutex_lock(&ink_native_exp_list_lock);
+	ink_native_exp_list.insert(ink_native_exp_list.end(), begin, end);
+	pthread_mutex_unlock(&ink_native_exp_list_lock);
+	return;
+}
+
+void Ink_addNativeExpression(Ink_Expression *expr)
+{
+	pthread_mutex_lock(&ink_native_exp_list_lock);
+	ink_native_exp_list.push_back(expr);
+	pthread_mutex_unlock(&ink_native_exp_list_lock);
 	return;
 }
 
@@ -33,7 +71,6 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	trace = NULL;
 	CGC_interrupt_signal = INTER_NONE;
 	CGC_interrupt_value = NULL;
-	native_exp_list = Ink_ExpressionList();
 	tmp_prog_path = NULL;
 	ink_sync_call_tmp_engine = NULL;
 	pthread_mutex_init(&ink_sync_call_mutex, NULL);
@@ -239,10 +276,10 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 	gc_engine->collectGarbage(true);
 	delete gc_engine;
 
-	unsigned int i;
+	/*unsigned int i;
 	for (i = 0; i < native_exp_list.size(); i++) {
 		delete native_exp_list[i];
-	}
+	}*/
 
 	cleanExpressionList(top_level);
 	cleanContext(global_context);

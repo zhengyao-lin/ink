@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <algorithm>
 #include <stdio.h>
 #include <string.h>
 #include "setting.h"
@@ -26,10 +27,18 @@ class Ink_ContextChain;
 typedef vector<Ink_Expression *> Ink_ExpressionList;
 
 extern FILE *yyin;
+extern pthread_mutex_t ink_native_exp_list_lock;
+extern Ink_ExpressionList ink_native_exp_list;
 int yyparse();
 int yylex_destroy();
 void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
 void Ink_setStringInput(const char **source);
+
+void Ink_initNativeExpression();
+void Ink_cleanNativeExpression();
+void Ink_insertNativeExpression(Ink_ExpressionList::iterator begin,
+								Ink_ExpressionList::iterator end);
+void Ink_addNativeExpression(Ink_Expression *expr);
 
 Ink_InterpreteEngine *Ink_getParseEngine();
 void Ink_setParseEngine(Ink_InterpreteEngine *engine);
@@ -63,7 +72,6 @@ public:
 	InterruptSignal CGC_interrupt_signal;
 	Ink_Object *CGC_interrupt_value;
 
-	Ink_ExpressionList native_exp_list;
 	char *tmp_prog_path;
 
 	IGC_CollectEngine *ink_sync_call_tmp_engine;
@@ -87,11 +95,32 @@ public:
 	pthread_mutex_t message_mutex;
 	Ink_ActorMessageQueue message_queue;
 
+	vector<Ink_Object *> deep_clone_traced_stack;
+
 	Ink_InterpreteEngine();
 
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline void initDeepClone()
+	{
+		deep_clone_traced_stack = vector<Ink_Object *>();
+		return;
+	}
+
+	inline bool cloneDeepHasTraced(Ink_Object *obj)
+	{
+		return find(deep_clone_traced_stack.begin(),
+					deep_clone_traced_stack.end(), obj)
+			   != deep_clone_traced_stack.end();
+	}
+
+	inline void addDeepCloneTrace(Ink_Object *obj)
+	{
+		deep_clone_traced_stack.push_back(obj);
+		return;
+	}
 
 	inline Ink_String *receiveMessage()
 	{
