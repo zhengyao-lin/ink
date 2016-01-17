@@ -988,8 +988,13 @@ try_arg = actor (arg1, argv...) {
 
 a = "hello?";
 
-try_arg("new_actor", { a : ["s", "a"] }, "ho", fn (b) {
-	p(a)
-});
+let i = 1;
+while (i <= 1) {
+	p(i++);
+	try_arg("new_actor", { a : ["s", "a"] }, "ho", fn (b) {
+		p(a)
+	});
+	join_all();
+}
 
 p("haha");
