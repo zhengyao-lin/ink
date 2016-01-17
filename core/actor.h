@@ -40,5 +40,6 @@ void InkActor_setDeadActor(Ink_InterpreteEngine *engine);
 Ink_InterpreteEngine *InkActor_getActor(std::string name);
 void InkActor_joinAllActor(Ink_InterpreteEngine *self_engine, Ink_InterpreteEngine *except = NULL);
 unsigned int InkActor_getActorCount();
+std::string *InkActor_getActorName(Ink_InterpreteEngine *engine);
 
 #endif

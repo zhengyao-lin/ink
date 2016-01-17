@@ -270,7 +270,7 @@ JSON_parser(Ink_InterpreteEngine *engine, INKJSON_TokenStack token_stack, unsign
 		case JT_NUMERIC:
 			return JSON_ParserReturnVal(new Ink_Numeric(engine, token_stack[i].value.num), i);
 		case JT_NULL:
-			return JSON_ParserReturnVal(new Ink_NullObject(engine), i);
+			return JSON_ParserReturnVal(NULL_OBJ, i);
 		default: ;
 			//fprintf(stderr, "Unexpected %d, expecting ending\n", token_stack[i].token);
 	}

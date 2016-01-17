@@ -903,74 +903,77 @@ import multink
 
 p(typename(receive.'->'));
 
-actor1 = actor () {
-	import multink
+try_actor = fn () {
+	actor1 = actor () {
+		import multink
 
-	let try = 0
+		p("my name is " + actor_self());
 
-	while (1) {
-		let msg;
-		while (!(msg = receive())) {
-			/*if (actor_count() == 1) {
-				try++
-				if (try >= 10) {
-					retn
-				}
-			}*/
+		let try = 0
+
+		while (1) {
+			let msg;
+			while (!(msg = receive())) {
+				/*if (actor_count() == 1) {
+					try++
+					if (try >= 10) {
+						retn
+					}
+				}*/
+			}
+			p(msg);
+			if (msg == "stop") {
+				retn;
+			}
+			// p("echo running");
 		}
-		p(msg);
-		if (msg == "stop") {
-			retn;
-		}
-		// p("echo running");
 	}
+
+	fib_async = actor () {
+		import multink
+
+		p("my name is " + actor_self());
+
+		let a = 0;
+		let b = 1;
+		let tmp;
+		let i = 1;
+		let n = 200;
+
+		while (i <= n) {
+			tmp = b
+			b = a + b;
+			a = tmp;
+
+			send("" + i + "th: " + tmp.to_str()) -> "echo";
+			i++
+		}
+		p("end!");
+	}
+
+	actor1("echo");
+
+	fib_async("worker1");
+	fib_async("worker2");
+	fib_async("worker3");
+	fib_async("worker4");
+	fib_async("worker5");
+	fib_async("worker6");
+
+	//p(actor_count());
+
+	join_all_but("echo");
+
+	p("stopping echo");
+
+	send("stop") -> "echo"
+	p("all ended");
+
+	join_all();
 }
 
-fib_async = actor () {
-	import multink
-
-	let a = 0;
-	let b = 1;
-	let tmp;
-	let i = 1;
-	let n = 20;
-
-	while (i <= n) {
-		tmp = b
-		b = a + b;
-		a = tmp;
-
-		send("" + i + "th: " + tmp.to_str()) -> "echo";
-		i++
-	}
-	p("end!");
+let i = 1;
+while (1) {
+	p(i++);
+	try_actor();
 }
-
-actor1("echo");
-
-fib_async("worker1");
-fib_async("worker2");
-fib_async("worker3");
-fib_async("worker4");
-fib_async("worker5");
-fib_async("worker6");
-
-//p(actor_count());
-
-join_all_but("echo");
-
-p("stopping echo");
-
-send("stop") -> "echo"
-p("all ended");
-
-join_all();
-
-/*
-import io
-
-self = new File("block.ik", "r");
-content = self.read();
-self_actor = eval("actor(){\n" + content + "\n}");
-self_actor("clone_process")
-*/

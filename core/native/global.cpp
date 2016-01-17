@@ -428,11 +428,21 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 	Ink_Object *array_cons = new Ink_FunctionObject(engine, Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);
 
-	context->context->setSlot("undefined", new Ink_Undefined(engine));
-	context->context->setSlot("null", new Ink_NullObject(engine));
+	context->context->setSlot("undefined", UNDEFINED);
+	context->context->setSlot("null", NULL_OBJ);
 	context->context->setSlot("_", new Ink_Unknown(engine));
 
 	loadAllModules(engine, context);
+}
+
+Ink_Undefined *ink_global_constant_undefined;
+Ink_NullObject *ink_global_constant_null;
+
+void Ink_GlobalConstantInit()
+{
+	ink_global_constant_undefined = new Ink_Undefined(NULL);
+	ink_global_constant_null = new Ink_NullObject(NULL);
+	return;
 }
 
 int numeric_native_method_table_count = 14;
@@ -462,7 +472,7 @@ InkNative_MethodTable string_native_method_table[] = {
 	{">=", new Ink_FunctionObject(NULL, InkNative_String_GreaterOrEqual)},
 	{"<=", new Ink_FunctionObject(NULL, InkNative_String_LessOrEqual)},
 	{"[]", new Ink_FunctionObject(NULL, InkNative_String_Index)},
-	{"length", new Ink_FunctionObject(NULL, InkNative_String_Length)}
+	{"length", new Ink_FunctionObject(NULL, InkNative_String_Length)},
 };
 
 int object_native_method_table_count = 12;

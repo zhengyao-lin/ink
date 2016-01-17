@@ -9,13 +9,16 @@
 #include "core/thread/thread.h"
 #include "core/coroutine/coroutine.h"
 #include "core/package/load.h"
+#include "core/native/native.h"
 #include "core/interface/engine.h"
 #include "core/interface/setting.h"
 #include "includes/universal.h"
 
+
 int main(int argc, char **argv)
 {
 	InkActor_initActorMap();
+	// Ink_GlobalConstantInit();
 
 	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
 	engine->startParse(Ink_InputSetting::parseArg(argc, argv));

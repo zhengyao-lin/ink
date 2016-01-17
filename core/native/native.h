@@ -63,4 +63,6 @@ Ink_Object *InkNative_String_LessOrEqual(Ink_InterpreteEngine *engine, Ink_Conte
 
 Ink_Object **arrayValueToObject(Ink_ArrayValue val);
 
+void Ink_GlobalConstantInit();
+
 #endif

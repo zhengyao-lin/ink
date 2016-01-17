@@ -6,6 +6,21 @@
 #include <stdlib.h>
 #include "../includes/universal.h"
 
+class Ink_Undefined;
+class Ink_NullObject;
+
+extern Ink_Undefined *ink_global_constant_undefined;
+extern Ink_NullObject *ink_global_constant_null;
+
+#define UNDEFINED (new Ink_Undefined(engine))
+#define NULL_OBJ (new Ink_NullObject(engine))
+#define TRUE_OBJ (new Ink_Numeric(engine, 1))
+
+#define RETURN_FLAG (engine->CGC_interrupt_signal == INTER_RETURN)
+#define BREAK_FLAG (engine->CGC_interrupt_signal == INTER_BREAK)
+#define CONTINUE_FLAG (engine->CGC_interrupt_signal == INTER_CONTINUE)
+#define DROP_FLAG (engine->CGC_interrupt_signal == INTER_DROP)
+
 #if defined(INK_PLATFORM_LINUX)
 
 	inline int removeDir(const std::string path)

@@ -2,6 +2,7 @@
 #include <string.h>
 #include "expression.h"
 #include "protocol.h"
+#include "general.h"
 #include "coroutine/coroutine.h"
 #include "interface/engine.h"
 
@@ -60,7 +61,7 @@ Ink_Object *Ink_CommaExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	int line_num_back;
 	SET_LINE_NUM;
 
-	Ink_Object *ret = new Ink_NullObject(engine);
+	Ink_Object *ret = NULL_OBJ;
 	unsigned int i;
 
 	for (i = 0; i < exp_list.size(); i++) {
@@ -86,7 +87,7 @@ Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 		// unreachable
 	}
 
-	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : new Ink_NullObject(engine);
+	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : NULL_OBJ;
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
 		return engine->CGC_interrupt_value;
@@ -120,7 +121,7 @@ Ink_Object *Ink_InterruptExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 	int line_num_back;
 	SET_LINE_NUM;
 
-	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : new Ink_NullObject(engine);
+	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : NULL_OBJ;
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
 		return engine->CGC_interrupt_value;
@@ -252,7 +253,7 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 			}
 			if (key->type != INK_STRING) {
 				InkWarn_Hash_Table_Mapping_Expect_String(engine);
-				return new Ink_NullObject(engine);
+				return NULL_OBJ;
 			}
 			string *tmp = new string(as<Ink_String>(key)->getValue().c_str());
 			ret->setSlot(tmp->c_str(),
@@ -359,7 +360,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 				free(argv);
 			} else {
 				/* return undefined */
-				ret = new Ink_Undefined(engine);
+				ret = UNDEFINED;
 			}
 		}
 	} else {
@@ -577,7 +578,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 				ret = missing->getValue()->call(engine, context_chain, 1, argv);
 				free(argv);
 			} else {
-				ret = new Ink_Undefined(engine);
+				ret = UNDEFINED;
 			}
 			hash = dest_context->context->setSlot(name, NULL);
 		}
@@ -623,12 +624,12 @@ Ink_Object *Ink_ArrayLiteral::eval(Ink_InterpreteEngine *engine, Ink_ContextChai
 
 Ink_Object *Ink_NullConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	return new Ink_NullObject(engine);
+	return NULL_OBJ;
 }
 
 Ink_Object *Ink_UndefinedConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	return new Ink_Undefined(engine);
+	return UNDEFINED;
 }
 
 Ink_Object *Ink_NumericConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)

@@ -86,8 +86,21 @@ Ink_Object *InkNative_Actor_ActorCount(Ink_InterpreteEngine *engine, Ink_Context
 	return new Ink_Numeric(engine, InkActor_getActorCount());
 }
 
+Ink_Object *InkNative_Actor_ActorSelf(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	string *tmp = InkActor_getActorName(engine);
+	if (!tmp)
+		return NULL_OBJ;
+	return new Ink_String(engine, tmp);
+}
+
+extern pthread_mutex_t ink_actor_pthread_create_lock;
+
 void *Ink_ActorFunction_sub(void *arg)
 {
+	pthread_mutex_lock(&ink_actor_pthread_create_lock);
+	pthread_mutex_unlock(&ink_actor_pthread_create_lock);
+
 	Ink_ActorFunction_sub_Argument *tmp = (Ink_ActorFunction_sub_Argument *)arg;
 	tmp->engine->top_level = tmp->exp_list;
 
@@ -119,11 +132,14 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	}
 
 	new_engine = new Ink_InterpreteEngine();
-	int ret_val = pthread_create(&new_thread, NULL, Ink_ActorFunction_sub,
-							     tmp_arg = new Ink_ActorFunction_sub_Argument(new_engine, exp_list));
+	tmp_arg = new Ink_ActorFunction_sub_Argument(new_engine, exp_list);
+
+	pthread_mutex_lock(&ink_actor_pthread_create_lock);
+	int ret_val = pthread_create(&new_thread, NULL, Ink_ActorFunction_sub, tmp_arg);
 
 	if (ret_val) {
 		InkWarn_Failed_Create_Process(engine, ret_val);
+		pthread_mutex_unlock(&ink_actor_pthread_create_lock);
 		delete tmp_arg;
 		delete new_engine;
 		return NULL_OBJ;
@@ -132,6 +148,7 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	pthread_detach(new_thread);
 	string *name = new string(as<Ink_String>(argv[0])->getValue().c_str());
 	InkActor_addActor(*name, new_engine, new_thread, name);
+	pthread_mutex_unlock(&ink_actor_pthread_create_lock);
 
 	return TRUE_OBJ;
 }
@@ -149,6 +166,7 @@ void InkMod_Actor_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 	bondee->setSlot("join_all", new Ink_FunctionObject(engine, InkNative_Actor_JoinAll));
 	bondee->setSlot("join_all_but", new Ink_FunctionObject(engine, InkNative_Actor_JoinAllBut));
 	bondee->setSlot("actor_count", new Ink_FunctionObject(engine, InkNative_Actor_ActorCount));
+	bondee->setSlot("actor_self", new Ink_FunctionObject(engine, InkNative_Actor_ActorSelf));
 
 	return;
 }

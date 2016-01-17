@@ -5,14 +5,16 @@
 
 using namespace std;
 
-static pthread_mutex_t ink_global_actor_map_lock;
+pthread_mutex_t ink_global_actor_map_lock;
+pthread_mutex_t ink_actor_pthread_create_lock;
 static Ink_ActorMap ink_global_actor_map;
 
 void InkActor_initActorMap()
 {
-	pthread_mutex_lock(&ink_global_actor_map_lock);
+	pthread_mutex_init(&ink_global_actor_map_lock, NULL);
+	pthread_mutex_init(&ink_actor_pthread_create_lock, NULL);
 	ink_global_actor_map = Ink_ActorMap();
-	pthread_mutex_unlock(&ink_global_actor_map_lock);
+
 	return;
 }
 
@@ -97,6 +99,25 @@ unsigned int InkActor_getActorCount()
 	for (actor_it = ink_global_actor_map.begin(), ret = 0;
 		 actor_it != ink_global_actor_map.end(); actor_it++) {
 		if (!actor_it->second->finished) ret++;
+	}
+
+	pthread_mutex_unlock(&ink_global_actor_map_lock);
+
+	return ret;
+}
+
+string *InkActor_getActorName(Ink_InterpreteEngine *engine)
+{
+	string *ret = NULL;
+	Ink_ActorMap::iterator actor_it;
+
+	pthread_mutex_lock(&ink_global_actor_map_lock);
+
+	for (actor_it = ink_global_actor_map.begin(), ret = 0;
+		 actor_it != ink_global_actor_map.end(); actor_it++) {
+		if (actor_it->second->engine == engine) {
+			ret = new string(actor_it->first);
+		}
 	}
 
 	pthread_mutex_unlock(&ink_global_actor_map_lock);

@@ -167,6 +167,7 @@ void Ink_InterpreteEngine::startParse(string code)
 Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 {
 	char *current_dir = NULL, *redirect = NULL;
+	Ink_InterpreteEngine *engine = this;
 
 	if (getFilePath()) {
 		current_dir = getCurrentDir();
@@ -177,7 +178,7 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 		}
 	}
 
-	Ink_Object *ret = new Ink_NullObject(this);
+	Ink_Object *ret = NULL_OBJ;
 	unsigned int i;
 
 	if (!context) context = global_context;

@@ -36,7 +36,7 @@ Ink_Object *Ink_Object::getSlot(Ink_InterpreteEngine *engine, const char *key)
 {
 	Ink_HashTable *ret = getSlotMapping(engine, key);
 
-	return ret ? ret->getValue() : new Ink_Undefined(engine);
+	return ret ? ret->getValue() : UNDEFINED;
 }
 
 Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const char *key)
@@ -232,7 +232,7 @@ inline Ink_Object *callWithAttr(Ink_Object *obj, Ink_FunctionAttribution attr,
 								unsigned int argc = 0, Ink_Object **argv = NULL)
 {
 	Ink_FunctionAttribution attr_back;
-	Ink_Object *ret = new Ink_NullObject(engine);
+	Ink_Object *ret = NULL_OBJ;
 
 	if (obj->type == INK_FUNCTION) {
 		attr_back = getFuncAttr(obj);
@@ -377,7 +377,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 			}
 			local->setSlot(param[j].name->c_str(),
 						   argi < argc ? argv[argi]
-						   			   : new Ink_Undefined(engine)); // initiate local argument
+						   			   : UNDEFINED); // initiate local argument
 		}
 
 		if (j < param.size() && param[j].is_variant) {
@@ -496,7 +496,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	engine->setCurrentGC(gc_engine_backup);
 	delete gc_engine;
 
-	return ret_val ? ret_val : new Ink_NullObject(engine); // return the last expression
+	return ret_val ? ret_val : NULL_OBJ; // return the last expression
 }
 
 Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val)
