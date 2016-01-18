@@ -51,27 +51,64 @@ Ink_Object *InkNative_Actor_Send(Ink_InterpreteEngine *engine, Ink_ContextChain 
 
 Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *msg = engine->receiveMessage();
-	if (!msg) {
-		return NULL_OBJ;
+	Ink_MilliSec time_begin = -1, max_time = -1, delay = -1;
+	unsigned int i;
+	string tmp_instr;
+	Ink_ArrayValue arr_val;
+	Ink_Object *tmp_obj, *msg;
+
+	for (i = 0; i < argc; i++) {
+		if (argv[i]->type == INK_STRING) {
+			tmp_instr = as<Ink_String>(argv[i])->getValue();
+			if (tmp_instr == "every") {
+				if (argv[i + 1]->type == INK_ARRAY
+					&& (arr_val = as<Ink_Array>(argv[i + 1])->value).size()) {
+					if ((tmp_obj = arr_val[0]->getValue())->type == INK_NUMERIC) {
+						delay = as<Ink_Numeric>(tmp_obj)->value;
+						i++;
+					} else {
+						InkWarn_Wrong_Argument_Type(engine, "every");
+						return NULL_OBJ;
+					}
+				} else {
+					InkWarn_Instruction_Argument_Require(engine, "every");
+					return NULL_OBJ;
+				}
+			} else if (tmp_instr == "for") {
+				if (argv[i + 1]->type == INK_ARRAY
+					&& (arr_val = as<Ink_Array>(argv[i + 1])->value).size()) {
+					if ((tmp_obj = arr_val[0]->getValue())->type == INK_NUMERIC) {
+						max_time = as<Ink_Numeric>(tmp_obj)->value;
+						i++;
+					} else {
+						InkWarn_Wrong_Argument_Type(engine, "for");
+						return NULL_OBJ;
+					}
+				} else {
+					InkWarn_Instruction_Argument_Require(engine, "for");
+					return NULL_OBJ;
+				}
+			} else {
+				InkWarn_Unknown_Instruction(engine, tmp_instr.c_str());
+				return NULL_OBJ;
+			}
+		} else {
+			InkWarn_Expect_Instruction(engine);
+			return NULL_OBJ;
+		}
 	}
 
-	return msg;
-}
-
-Ink_Object *InkNative_Actor_ReceiveFor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
-{
-	Ink_Object *msg;
-	Ink_MilliSec time_begin, max;
-
-	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
-		return NULL_OBJ;
-	}
-
-	time_begin = Ink_getCurrentMS();
-	max = as<Ink_Numeric>(argv[0])->value;
-	while (!(msg = engine->receiveMessage())) {
-		if (Ink_getCurrentMS() - time_begin >= max) break;
+	if (delay < 0 && max_time < 0) {
+		msg = engine->receiveMessage();
+		if (!msg) {
+			return NULL_OBJ;
+		}
+	} else {
+		time_begin = Ink_getCurrentMS();
+		while (!(msg = engine->receiveMessage())) {
+			if (max_time >= 0 && Ink_getCurrentMS() - time_begin >= max_time) break;
+			if (delay >= 0) Ink_msleep(delay);
+		}
 	}
 
 	return msg;
@@ -111,6 +148,16 @@ Ink_Object *InkNative_Actor_ActorSelf(Ink_InterpreteEngine *engine, Ink_ContextC
 	if (!tmp)
 		return NULL_OBJ;
 	return new Ink_String(engine, tmp);
+}
+
+Ink_Object *InkNative_Actor_ActorExist(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	Ink_InterpreteEngine *dest = InkActor_getActor(as<Ink_String>(argv[0])->getValue());
+	return new Ink_Numeric(engine, dest != NULL);
 }
 
 extern pthread_mutex_t ink_actor_pthread_create_lock;
@@ -231,11 +278,11 @@ void InkMod_Actor_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
 	bondee->setSlot("send", new Ink_FunctionObject(engine, InkNative_Actor_Send));
 	bondee->setSlot("receive", new Ink_FunctionObject(engine, InkNative_Actor_Receive));
-	bondee->setSlot("receive_for", new Ink_FunctionObject(engine, InkNative_Actor_ReceiveFor));
 	bondee->setSlot("join_all", new Ink_FunctionObject(engine, InkNative_Actor_JoinAll));
 	bondee->setSlot("join_all_but", new Ink_FunctionObject(engine, InkNative_Actor_JoinAllBut));
 	bondee->setSlot("actor_count", new Ink_FunctionObject(engine, InkNative_Actor_ActorCount));
 	bondee->setSlot("actor_self", new Ink_FunctionObject(engine, InkNative_Actor_ActorSelf));
+	bondee->setSlot("actor_exist", new Ink_FunctionObject(engine, InkNative_Actor_ActorExist));
 
 	return;
 }

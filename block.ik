@@ -1010,14 +1010,14 @@ p(a.what?);
 
 actor1 = actor () {
 	import multink
-	
+	receive() for(400)
 	send("hello, root") -> "root"
 }
 
 actor1("he");
 
 let msg
-msg = receive_for(3000)
+msg = receive() every(300)
 if (!msg) {
 	p("no message received in 3 sec")
 }

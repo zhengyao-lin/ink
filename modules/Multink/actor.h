@@ -52,4 +52,32 @@ InkWarn_Not_String_Argument(Ink_InterpreteEngine *engine)
 	return;
 }
 
+inline void
+InkWarn_Instruction_Argument_Require(Ink_InterpreteEngine *engine, const char *instr)
+{
+	InkWarn_doPrintWarning(engine, "\'$(instr)\' instruction is given, but no argument given", instr);
+	return;
+}
+
+inline void
+InkWarn_Wrong_Argument_Type(Ink_InterpreteEngine *engine, const char *instr)
+{
+	InkWarn_doPrintWarning(engine, "Wrong argument type for instruction \'$(instr)\'", instr);
+	return;
+}
+
+inline void
+InkWarn_Unknown_Instruction(Ink_InterpreteEngine *engine, const char *instr)
+{
+	InkWarn_doPrintWarning(engine, "Unknown instruction \'$(instr)\'", instr);
+	return;
+}
+
+inline void
+InkWarn_Expect_Instruction(Ink_InterpreteEngine *engine)
+{
+	InkWarn_doPrintWarning(engine, "Expecting instruction");
+	return;
+}
+
 #endif
