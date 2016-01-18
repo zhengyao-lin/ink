@@ -8,7 +8,7 @@ include makefile.head
 
 ifeq ($(PLATFORM), win64)
 	export GLOBAL_PLATFORM = windows
-	ifneq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
+	ifeq ($(METHOD), simulate)
 		export ARCH_PREFIX = x86_64-w64-mingw32-
 	endif
 	export GLOBAL_LIB_SUFFIX = dll
@@ -16,7 +16,7 @@ ifeq ($(PLATFORM), win64)
 else
 	ifeq ($(PLATFORM), win32)
 		export GLOBAL_PLATFORM = windows
-		ifneq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
+		ifeq ($(METHOD), simulate)
 			export ARCH_PREFIX = i686-w64-mingw32-
 		endif
 		export GLOBAL_LIB_SUFFIX = dll
