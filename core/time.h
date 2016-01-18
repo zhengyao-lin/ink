@@ -6,22 +6,35 @@
 #if defined(INK_PLATFORM_WIN32)
 	#include <windows.h>
 	
-	typedef DWORD Ink_MicroSec;
+	typedef int Ink_MilliSec;
 
-	inline void Ink_usleep(Ink_MicroSec ms)
+	inline void Ink_msleep(Ink_MilliSec ms)
 	{
 		Sleep(ms);
 		return;
 	}
+
+	inline Ink_MilliSec Ink_getCurrentMS()
+	{
+		return GetTickCount();
+	}
 #elif defined(INK_PLATFORM_LINUX)
 	#include <unistd.h>
+	#include <sys/time.h>
 	
-	typedef int Ink_MicroSec;
+	typedef int Ink_MilliSec;
 
-	inline void Ink_usleep(Ink_MicroSec ms)
+	inline void Ink_msleep(Ink_MilliSec ms)
 	{
-		usleep(ms);
+		usleep(ms * 1000);
 		return;
+	}
+
+	inline Ink_MilliSec Ink_getCurrentMS()
+	{
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 	}
 #endif
 

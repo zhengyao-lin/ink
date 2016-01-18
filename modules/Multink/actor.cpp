@@ -4,6 +4,7 @@
 #include "core/expression.h"
 #include "core/protocol.h"
 #include "core/context.h"
+#include "core/time.h"
 #include "core/native/native.h"
 #include "core/interface/engine.h"
 #include "core/thread/thread.h"
@@ -53,6 +54,24 @@ Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextCha
 	Ink_Object *msg = engine->receiveMessage();
 	if (!msg) {
 		return NULL_OBJ;
+	}
+
+	return msg;
+}
+
+Ink_Object *InkNative_Actor_ReceiveFor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *msg;
+	Ink_MilliSec time_begin, max;
+
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	time_begin = Ink_getCurrentMS();
+	max = as<Ink_Numeric>(argv[0])->value;
+	while (!(msg = engine->receiveMessage())) {
+		if (Ink_getCurrentMS() - time_begin >= max) break;
 	}
 
 	return msg;
@@ -212,6 +231,7 @@ void InkMod_Actor_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
 	bondee->setSlot("send", new Ink_FunctionObject(engine, InkNative_Actor_Send));
 	bondee->setSlot("receive", new Ink_FunctionObject(engine, InkNative_Actor_Receive));
+	bondee->setSlot("receive_for", new Ink_FunctionObject(engine, InkNative_Actor_ReceiveFor));
 	bondee->setSlot("join_all", new Ink_FunctionObject(engine, InkNative_Actor_JoinAll));
 	bondee->setSlot("join_all_but", new Ink_FunctionObject(engine, InkNative_Actor_JoinAllBut));
 	bondee->setSlot("actor_count", new Ink_FunctionObject(engine, InkNative_Actor_ActorCount));

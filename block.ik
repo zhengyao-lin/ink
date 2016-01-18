@@ -1017,7 +1017,10 @@ actor1 = actor () {
 actor1("he");
 
 let msg
-while(!(msg = receive()))
+msg = receive_for(3000)
+if (!msg) {
+	p("no message received in 3 sec")
+}
 p(msg.msg);
 p(msg.sender);
 
