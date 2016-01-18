@@ -142,22 +142,25 @@ public:
 		return;
 	}
 
-	inline Ink_String *receiveMessage()
+	inline Ink_Object *receiveMessage()
 	{
-		Ink_String *ret = NULL;
+		Ink_Object *ret = NULL;
 		pthread_mutex_lock(&message_mutex);
 		if (!message_queue.empty()) {
-			ret = new Ink_String(this, message_queue.front());
+			Ink_ActorMessage msg = message_queue.front();
+			ret = new Ink_Object(this);
+			ret->setSlot("msg", new Ink_String(this, msg.msg));
+			ret->setSlot("sender", new Ink_String(this, msg.sender));
 			message_queue.pop();
 		}
 		pthread_mutex_unlock(&message_mutex);
 		return ret;
 	}
 
-	inline void sendInMessage(string msg)
+	inline void sendInMessage(Ink_InterpreteEngine *sender, string msg)
 	{
 		pthread_mutex_lock(&message_mutex);
-		message_queue.push(new string(msg.c_str()));
+		message_queue.push(Ink_ActorMessage(new string(msg), InkActor_getActorName(sender)));
 		pthread_mutex_unlock(&message_mutex);
 		return;
 	}

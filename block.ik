@@ -921,8 +921,8 @@ try_actor = fn () {
 					}
 				}*/
 			}
-			p(msg);
-			if (msg == "stop") {
+			p(msg.msg);
+			if (msg.msg == "stop") {
 				retn;
 			}
 			// p("echo running");
@@ -1007,3 +1007,16 @@ b.prototype = c
 c.prototype = a
 
 p(a.what?);
+
+actor1 = actor () {
+	import multink
+	
+	send("hello, root") -> "root"
+}
+
+actor1("he");
+
+let msg;
+while(!(msg = receive()))
+p(msg.msg);
+p(msg.sender);

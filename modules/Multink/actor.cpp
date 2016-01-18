@@ -30,7 +30,7 @@ Ink_Object *InkNative_Actor_Send_Sub(Ink_InterpreteEngine *engine, Ink_ContextCh
 		return NULL_OBJ;
 	}
 
-	dest->sendInMessage(as<Ink_String>(msg)->getValue());
+	dest->sendInMessage(engine, as<Ink_String>(msg)->getValue());
 
 	return TRUE_OBJ;
 }

@@ -31,7 +31,24 @@ public:
 };
 
 typedef std::map<std::string, Ink_ActorHandle *> Ink_ActorMap;
-typedef std::string *Ink_ActorMessage;
+// typedef std::string *Ink_ActorMessage;
+
+class Ink_ActorMessage {
+public:
+	std::string *msg;
+	std::string *sender;
+
+	Ink_ActorMessage(std::string *msg, std::string *sender)
+	: msg(msg), sender(sender)
+	{ }
+	
+	~Ink_ActorMessage()
+	{
+		// if (msg) delete msg;
+		// if (sender) delete sender;
+	}
+};
+
 typedef std::queue<Ink_ActorMessage> Ink_ActorMessageQueue;
 
 void InkActor_initActorMap();
