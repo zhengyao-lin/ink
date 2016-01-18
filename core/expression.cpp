@@ -440,10 +440,18 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	Ink_Object *ret_val, *expandee;
 	/* eval callee to get parameter declaration */
 	Ink_Object *func = callee->eval(engine, context_chain);
+	Ink_FunctionObject *tmp_func;
 	if (INTER_SIGNAL_RECEIVED)
 		return engine->CGC_interrupt_value;
 	Ink_ParamList param_list = Ink_ParamList();
 	Ink_ArgumentList dispose_list, tmp_arg_list, another_tmp_arg_list;
+
+	/* this part was moved from Ink_FunctionObject::call */
+	bool is_arg_completed = true,
+		 if_delete_argv = false;
+	tmp_func = as<Ink_FunctionObject>(func);
+	unsigned int tmp_argc, j, argi, argc;
+	Ink_Object **tmp_argv, *tmp;
 
 	if (func->type == INK_FUNCTION) {
 		param_list = as<Ink_FunctionObject>(func)->param;
@@ -511,7 +519,59 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 		}
 	}
 
-	ret_val = func->call(engine, context_chain, tmp_arg_list.size(), argv);
+	argc = tmp_arg_list.size();
+	/* if some arguments have been applied already */
+	if (tmp_func->partial_applied_argv) {
+		tmp_argc = tmp_func->partial_applied_argc;
+		tmp_argv = copyArgv(tmp_func->partial_applied_argc,
+							tmp_func->partial_applied_argv);
+		for (j = 0, argi = 0; j < tmp_argc; j++) {
+			/* find unknown place to put in arguments */
+			if (isUnknown(tmp_argv[j])) {
+				if (argi < argc /* not excess */
+					&& !isUnknown(argv[argi]) /* not another unknown argument */)
+					tmp_argv[j] = argv[argi];
+				else
+					is_arg_completed = false;
+				argi++;
+			}
+		}
+
+		if (!is_arg_completed) {
+			/* still missing arguments -- return another PAF */
+			if (argi < argc) {
+				unsigned int remainc = argc - argi; /* remaining arguments */
+				argc = remainc + tmp_argc;
+				/* link the PA arguments and remaining arguments */
+				argv = linkArgv(tmp_argc, tmp_argv,
+								remainc, &argv[argi]);
+
+				free(tmp_argv);
+				tmp_argc = argc;
+				tmp_argv = argv;
+			}
+			return tmp_func->cloneWithPA(engine, tmp_argc, tmp_argv, true);
+		}
+
+		unsigned int remainc = argc - argi; /* remaining arguments */
+		argc = remainc + tmp_argc;
+		/* link the PA arguments and remaining arguments */
+		argv = linkArgv(tmp_argc, tmp_argv,
+						remainc, &argv[argi]);
+		free(tmp_argv);
+		if_delete_argv = true;
+	}
+
+	for (argi = 0; argi < argc; argi++) {
+		if (isUnknown(argv[argi])) { /* find unknown argument */
+			tmp = tmp_func->cloneWithPA(engine, argc, copyArgv(argc, argv), true);
+			if (if_delete_argv)
+				free(argv);
+			return tmp;
+		}
+	}
+
+	ret_val = func->call(engine, context_chain, argc, argv);
 
 DISPOSE_ARGV:
 	free(argv);

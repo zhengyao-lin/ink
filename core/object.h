@@ -173,28 +173,6 @@ public:
 };
 
 class Ink_FunctionObject: public Ink_Object {
-	inline Ink_Object *cloneWithPA(Ink_InterpreteEngine *engine,
-								   unsigned int argc, Ink_Object **argv,
-								   bool if_delete_argv = false)
-	{
-		unsigned int back_argc = partial_applied_argc;
-		Ink_Object **back_argv = partial_applied_argv;
-		Ink_Object *tmp;
-
-		partial_applied_argc = argc;
-		partial_applied_argv = argv;
-
-		tmp = clone(engine);
-
-		partial_applied_argc = back_argc;
-		partial_applied_argv = back_argv;
-
-		if (if_delete_argv)
-			free(argv);
-
-		return tmp;
-	}
-
 public:
 	bool is_native;
 	bool is_inline;
@@ -274,6 +252,27 @@ public:
 							 Ink_Object *this_p = NULL, bool if_return_this = true);
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+	inline Ink_Object *cloneWithPA(Ink_InterpreteEngine *engine,
+								   unsigned int argc, Ink_Object **argv,
+								   bool if_delete_argv = false)
+	{
+		unsigned int back_argc = partial_applied_argc;
+		Ink_Object **back_argv = partial_applied_argv;
+		Ink_Object *tmp;
+
+		partial_applied_argc = argc;
+		partial_applied_argv = argv;
+
+		tmp = clone(engine);
+
+		partial_applied_argc = back_argc;
+		partial_applied_argv = back_argv;
+
+		if (if_delete_argv)
+			free(argv);
+
+		return tmp;
+	}
 
 	virtual ~Ink_FunctionObject();
 };
@@ -381,6 +380,21 @@ public:
 
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 };
+
+inline Ink_Object **copyArgv(unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * argc);
+	memcpy(ret, argv, sizeof(Ink_Object *) * argc);
+	return ret;
+}
+
+inline Ink_Object **linkArgv(int argc1, Ink_Object **argv1, int argc2, Ink_Object **argv2)
+{
+	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * (argc1 + argc2));
+	memcpy(ret, argv1, sizeof(Ink_Object *) * argc1);
+	memcpy(&ret[argc1], argv2, sizeof(Ink_Object *) * argc2);
+	return ret;
+}
 
 Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_CoCallList call_list);
 bool InkCoCall_switchCoroutine(Ink_InterpreteEngine *engine);

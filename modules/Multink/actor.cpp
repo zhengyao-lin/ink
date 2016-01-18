@@ -21,13 +21,13 @@ Ink_Object *InkNative_Actor_Send_Sub(Ink_InterpreteEngine *engine, Ink_ContextCh
 
 	Ink_Object *msg = base->getSlot(engine, "msg");
 	if (msg->type != INK_STRING) {
-		InkWarn_Message_is_not_a_String(engine);
+		InkWarn_Multink_Message_is_not_a_String(engine);
 		return NULL_OBJ;
 	}
 
 	Ink_InterpreteEngine *dest = InkActor_getActor(as<Ink_String>(argv[0])->getValue());
 	if (!dest) {
-		InkWarn_Actor_Not_Found(engine, as<Ink_String>(argv[0])->getValue().c_str());
+		InkWarn_Multink_Actor_Not_Found(engine, as<Ink_String>(argv[0])->getValue().c_str());
 		return NULL_OBJ;
 	}
 
@@ -51,6 +51,7 @@ Ink_Object *InkNative_Actor_Send(Ink_InterpreteEngine *engine, Ink_ContextChain 
 
 Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
+	bool if_wait_forever = false;
 	Ink_MilliSec time_begin = -1, max_time = -1, delay = -1;
 	unsigned int i;
 	string tmp_instr;
@@ -67,11 +68,11 @@ Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextCha
 						delay = as<Ink_Numeric>(tmp_obj)->value;
 						i++;
 					} else {
-						InkWarn_Wrong_Argument_Type(engine, "every");
+						InkWarn_Multink_Wrong_Argument_Type(engine, "every");
 						return NULL_OBJ;
 					}
 				} else {
-					InkWarn_Instruction_Argument_Require(engine, "every");
+					InkWarn_Multink_Instruction_Argument_Require(engine, "every");
 					return NULL_OBJ;
 				}
 			} else if (tmp_instr == "for") {
@@ -81,24 +82,27 @@ Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextCha
 						max_time = as<Ink_Numeric>(tmp_obj)->value;
 						i++;
 					} else {
-						InkWarn_Wrong_Argument_Type(engine, "for");
+						InkWarn_Multink_Wrong_Argument_Type(engine, "for");
 						return NULL_OBJ;
 					}
 				} else {
-					InkWarn_Instruction_Argument_Require(engine, "for");
+					InkWarn_Multink_Instruction_Argument_Require(engine, "for");
 					return NULL_OBJ;
 				}
+			} else if (tmp_instr == "forever") {
+				if_wait_forever = true;
+				i++;
 			} else {
-				InkWarn_Unknown_Instruction(engine, tmp_instr.c_str());
+				InkWarn_Multink_Unknown_Instruction(engine, tmp_instr.c_str());
 				return NULL_OBJ;
 			}
 		} else {
-			InkWarn_Expect_Instruction(engine);
+			InkWarn_Multink_Expect_Instruction(engine);
 			return NULL_OBJ;
 		}
 	}
 
-	if (delay < 0 && max_time < 0) {
+	if (delay < 0 && max_time < 0 && !if_wait_forever) {
 		msg = engine->receiveMessage();
 		if (!msg) {
 			return NULL_OBJ;
@@ -106,7 +110,10 @@ Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextCha
 	} else {
 		time_begin = Ink_getCurrentMS();
 		while (!(msg = engine->receiveMessage())) {
-			if (max_time >= 0 && Ink_getCurrentMS() - time_begin >= max_time) break;
+			if (!if_wait_forever
+				&& max_time >= 0
+				&& Ink_getCurrentMS() - time_begin >= max_time)
+				break;
 			if (delay >= 0) Ink_msleep(delay);
 		}
 	}
@@ -128,7 +135,7 @@ Ink_Object *InkNative_Actor_JoinAllBut(Ink_InterpreteEngine *engine, Ink_Context
 
 	Ink_InterpreteEngine *dest = InkActor_getActor(as<Ink_String>(argv[0])->getValue());
 	if (!dest) {
-		InkWarn_Actor_Not_Found(engine, as<Ink_String>(argv[0])->getValue().c_str());
+		InkWarn_Multink_Actor_Not_Found(engine, as<Ink_String>(argv[0])->getValue().c_str());
 		return NULL_OBJ;
 	}
 
@@ -240,7 +247,7 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	for (i = 1; i < argc; i++) {
 		/*
 		if (argv[i]->type != INK_STRING) {
-			InkWarn_Not_String_Argument(engine);
+			InkWarn_Multink_Not_String_Argument(engine);
 		}
 		*/
 		new_engine->initDeepClone();

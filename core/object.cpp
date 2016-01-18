@@ -264,38 +264,6 @@ Ink_Object *Ink_String::cloneDeep(Ink_InterpreteEngine *engine)
 	return new_obj;
 }
 
-inline Ink_Object **copyArgv(unsigned int argc, Ink_Object **argv)
-{
-	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * argc);
-	memcpy(ret, argv, sizeof(Ink_Object *) * argc);
-	return ret;
-}
-
-inline Ink_Object **copyDeepArgv(Ink_InterpreteEngine *engine,
-								 unsigned int argc, Ink_Object **argv)
-{
-	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * argc);
-	unsigned int i;
-
-	for (i = 0; i < argc; i++) {
-		if (!engine->cloneDeepHasTraced(argv[i])) {
-			ret[i] = argv[i]->cloneDeep(engine);
-		} else {
-			ret[i] = UNDEFINED;
-		}
-	}
-
-	return ret;
-}
-
-inline Ink_Object **linkArgv(int argc1, Ink_Object **argv1, int argc2, Ink_Object **argv2)
-{
-	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * (argc1 + argc2));
-	memcpy(ret, argv1, sizeof(Ink_Object *) * argc1);
-	memcpy(&ret[argc1], argv2, sizeof(Ink_Object *) * argc2);
-	return ret;
-}
-
 inline Ink_FunctionAttribution getFuncAttr(Ink_Object *obj)
 {
 	return as<Ink_FunctionObject>(obj)->attr;
@@ -320,6 +288,23 @@ inline Ink_Object *callWithAttr(Ink_Object *obj, Ink_FunctionAttribution attr,
 		ret = obj->call(engine, context, argc, argv);
 		setFuncAttr(obj, attr_back);
 	}
+	return ret;
+}
+
+inline Ink_Object **copyDeepArgv(Ink_InterpreteEngine *engine,
+								 unsigned int argc, Ink_Object **argv)
+{
+	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * argc);
+	unsigned int i;
+
+	for (i = 0; i < argc; i++) {
+		if (!engine->cloneDeepHasTraced(argv[i])) {
+			ret[i] = argv[i]->cloneDeep(engine);
+		} else {
+			ret[i] = UNDEFINED;
+		}
+	}
+
 	return ret;
 }
 
@@ -363,7 +348,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 
 		return gen;
 	}*/
-
+#if 0
 	bool is_arg_completed = true;
 
 	/* if some arguments have been applied already */
@@ -415,6 +400,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 			return tmp;
 		}
 	}
+#endif
 
 	/* init GC engine */
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine(engine);

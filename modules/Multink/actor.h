@@ -32,49 +32,49 @@ public:
 };
 
 inline void
-InkWarn_Actor_Not_Found(Ink_InterpreteEngine *engine, const char *name)
+InkWarn_Multink_Actor_Not_Found(Ink_InterpreteEngine *engine, const char *name)
 {
 	InkWarn_doPrintWarning(engine, "Cannot find actor \'$(name)\'", name);
 	return;
 }
 
 inline void
-InkWarn_Message_is_not_a_String(Ink_InterpreteEngine *engine)
+InkWarn_Multink_Message_is_not_a_String(Ink_InterpreteEngine *engine)
 {
 	InkWarn_doPrintWarning(engine, "Message is not a string");
 	return;
 }
 
 inline void
-InkWarn_Not_String_Argument(Ink_InterpreteEngine *engine)
+InkWarn_Multink_Not_String_Argument(Ink_InterpreteEngine *engine)
 {
 	InkWarn_doPrintWarning(engine, "Argument is not a string(may cause crash)");
 	return;
 }
 
 inline void
-InkWarn_Instruction_Argument_Require(Ink_InterpreteEngine *engine, const char *instr)
+InkWarn_Multink_Instruction_Argument_Require(Ink_InterpreteEngine *engine, const char *instr)
 {
 	InkWarn_doPrintWarning(engine, "\'$(instr)\' instruction is given, but no argument given", instr);
 	return;
 }
 
 inline void
-InkWarn_Wrong_Argument_Type(Ink_InterpreteEngine *engine, const char *instr)
+InkWarn_Multink_Wrong_Argument_Type(Ink_InterpreteEngine *engine, const char *instr)
 {
 	InkWarn_doPrintWarning(engine, "Wrong argument type for instruction \'$(instr)\'", instr);
 	return;
 }
 
 inline void
-InkWarn_Unknown_Instruction(Ink_InterpreteEngine *engine, const char *instr)
+InkWarn_Multink_Unknown_Instruction(Ink_InterpreteEngine *engine, const char *instr)
 {
 	InkWarn_doPrintWarning(engine, "Unknown instruction \'$(instr)\'", instr);
 	return;
 }
 
 inline void
-InkWarn_Expect_Instruction(Ink_InterpreteEngine *engine)
+InkWarn_Multink_Expect_Instruction(Ink_InterpreteEngine *engine)
 {
 	InkWarn_doPrintWarning(engine, "Expecting instruction");
 	return;
