@@ -1016,7 +1016,19 @@ actor1 = actor () {
 
 actor1("he");
 
-let msg;
+let msg
 while(!(msg = receive()))
 p(msg.msg);
 p(msg.sender);
+
+join_all();
+
+actor1 = actor () {
+	
+}
+/*
+let i = 0;
+while (i < 10000) {
+	actor1("sub" + i);
+	p("created: sub" + i++);
+}*/
