@@ -307,6 +307,12 @@ Ink_Object *Ink_HashExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 
 Ink_HashExpression::ProtoSearchRet Ink_HashExpression::searchPrototype(Ink_InterpreteEngine *engine, Ink_Object *obj, const char *id)
 {
+	if (engine->prototypeHasTraced(obj)) {
+		InkWarn_Circular_Prototype_Reference(engine);
+		return Ink_HashExpression::ProtoSearchRet(NULL, obj);
+	}
+	engine->addPrototypeTrace(obj);
+
 	Ink_HashTable *hash = obj->getSlotMapping(engine, id);
 	Ink_HashTable *proto;
 	Ink_Object *proto_obj = NULL;
@@ -344,6 +350,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 
 	if (!(hash = obj->getSlotMapping(engine, id)) /* cannot find slot in the origin object */) {
 		/* search prototype */
+		engine->initPrototypeSearch();
 		hash = (search_res = searchPrototype(engine, obj, id)).hash;
 
 		/* create barrier to prevent changes on prototype */

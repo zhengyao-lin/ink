@@ -399,4 +399,11 @@ InkWarn_Failed_Create_Process(Ink_InterpreteEngine *engine, int err_code)
 	return;
 }
 
+inline void
+InkWarn_Circular_Prototype_Reference(Ink_InterpreteEngine *engine)
+{
+	InkWarn_doPrintWarning(engine, "Circular prototype reference detected");
+	return;
+}
+
 #endif

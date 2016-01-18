@@ -96,12 +96,32 @@ public:
 	Ink_ActorMessageQueue message_queue;
 
 	vector<Ink_Object *> deep_clone_traced_stack;
+	vector<Ink_Object *> prototype_traced_stack;
 
 	Ink_InterpreteEngine();
 
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline void initPrototypeSearch()
+	{
+		prototype_traced_stack = vector<Ink_Object *>();
+		return;
+	}
+
+	inline bool prototypeHasTraced(Ink_Object *obj)
+	{
+		return find(prototype_traced_stack.begin(),
+					prototype_traced_stack.end(), obj)
+			   != prototype_traced_stack.end();
+	}
+
+	inline void addPrototypeTrace(Ink_Object *obj)
+	{
+		prototype_traced_stack.push_back(obj);
+		return;
+	}
 
 	inline void initDeepClone()
 	{

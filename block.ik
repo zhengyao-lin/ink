@@ -998,3 +998,12 @@ while (i <= 1) {
 }
 
 p("haha");
+
+c = {}
+b = {}
+a = {}
+a.prototype = b
+b.prototype = c
+c.prototype = a
+
+p(a.what?);
