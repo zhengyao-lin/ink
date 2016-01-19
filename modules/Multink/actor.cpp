@@ -235,6 +235,11 @@ void *Ink_ActorFunction_sub(void *arg)
 
 	tmp->engine->top_level = Ink_ExpressionList();
 
+	InkActor_setDeadActor(tmp->engine);
+	if (tmp->argv)
+		free(tmp->argv);
+	delete tmp->engine;
+	delete tmp;
 	// pthread_cleanup_pop(1);
 
 	return NULL;

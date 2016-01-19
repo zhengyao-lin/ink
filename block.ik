@@ -989,6 +989,7 @@ try_arg = actor (arg1, argv...) {
 a = "hello?";
 
 let i = 1;
+
 while (i <= 1) {
 	p(i++);
 	try_arg("new_actor", { a : ["s", "a"] }, "ho", fn (b) {
@@ -1012,12 +1013,11 @@ actor1 = actor () {
 	import multink
 
 	send("hello, root") -> "root"
-	1 = 2;
+	//1 = 2;
 }
 
 actor1(_)("he");
-p("hi");
-/*
+
 let msg
 msg = receive() for(800)
 if (!msg) {
@@ -1030,7 +1030,7 @@ join_all();
 
 actor1 = actor () {
 	
-}*/
+}
 /*
 let i = 0;
 while (i < 10000) {
