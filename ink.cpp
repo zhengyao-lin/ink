@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 	pthread_t root_actor = pthread_self();
 
 	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
-	string *tmp_name = new string("root");
+	string *tmp_name = new string(INK_ROOT_ACTOR_NAME);
 	InkActor_addActor(*tmp_name, engine, root_actor, tmp_name);
 	engine->startParse(Ink_InputSetting::parseArg(argc, argv));
 

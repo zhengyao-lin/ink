@@ -1,4 +1,5 @@
 #include "error.h"
+#include "actor.h"
 #include "interface/engine.h"
 
 void
@@ -11,7 +12,7 @@ InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg)
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 	
 	cleanAll(engine);
-	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, ErrorInfo::Exit1,
+	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, ErrorInfo::Abort,
 										   strm.str().c_str()));
 	return;
 }
@@ -26,7 +27,7 @@ InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg, const char *a
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 
 	cleanAll(engine);
-	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, ErrorInfo::Exit1,
+	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, ErrorInfo::Abort,
 										   strm.str().c_str(), arg1));
 	return;
 }

@@ -1012,12 +1012,14 @@ actor1 = actor () {
 	import multink
 
 	send("hello, root") -> "root"
+	1 = 2;
 }
 
-actor1(_)("he"); 
-
+actor1(_)("he");
+p("hi");
+/*
 let msg
-msg = receive() forever()
+msg = receive() for(800)
 if (!msg) {
 	p("no message received in 0.8 sec")
 }
@@ -1028,7 +1030,7 @@ join_all();
 
 actor1 = actor () {
 	
-}
+}*/
 /*
 let i = 0;
 while (i < 10000) {

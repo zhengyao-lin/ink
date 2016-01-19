@@ -168,6 +168,9 @@ ErrorInfo::doPrint(ostream& strm)
 		case Abort:
 			abort();
 			break;
+		case ExitThread:
+			pthread_exit(NULL);
+			break;
 	}
 
 	return;
@@ -188,6 +191,9 @@ ErrorInfo::doPrint(ostream& strm, ActionFlag action)
 			break;
 		case Abort:
 			abort();
+			break;
+		case ExitThread:
+			pthread_exit(NULL);
 			break;
 	}
 

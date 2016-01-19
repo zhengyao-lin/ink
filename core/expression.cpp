@@ -436,7 +436,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	SET_LINE_NUM;
 
 	unsigned int i;
-	Ink_Object **argv = NULL;
+	Ink_Object **argv = NULL, **argv_back = NULL;
 	Ink_Object *ret_val, *expandee;
 	/* eval callee to get parameter declaration */
 	Ink_Object *func = callee->eval(engine, context_chain);
@@ -451,7 +451,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 		 if_delete_argv = false;
 	tmp_func = as<Ink_FunctionObject>(func);
 	unsigned int tmp_argc, j, argi, argc;
-	Ink_Object **tmp_argv, *tmp;
+	Ink_Object **tmp_argv;
 
 	if (func->type == INK_FUNCTION) {
 		param_list = as<Ink_FunctionObject>(func)->param;
@@ -487,6 +487,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	if (tmp_arg_list.size()) {
 		/* allocate argument list */
 		argv = (Ink_Object **)malloc(tmp_arg_list.size() * sizeof(Ink_Object *));
+		argv_back = argv;
 
 		/* set argument list, according to the parameter declaration */
 		for (i = 0; i < tmp_arg_list.size(); i++) {
@@ -550,7 +551,8 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 				tmp_argc = argc;
 				tmp_argv = argv;
 			}
-			return tmp_func->cloneWithPA(engine, tmp_argc, tmp_argv, true);
+			ret_val = tmp_func->cloneWithPA(engine, tmp_argc, tmp_argv, true);
+			goto DISPOSE_ARGV;
 		}
 
 		unsigned int remainc = argc - argi; /* remaining arguments */
@@ -564,17 +566,18 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 
 	for (argi = 0; argi < argc; argi++) {
 		if (isUnknown(argv[argi])) { /* find unknown argument */
-			tmp = tmp_func->cloneWithPA(engine, argc, copyArgv(argc, argv), true);
-			if (if_delete_argv)
-				free(argv);
-			return tmp;
+			ret_val = tmp_func->cloneWithPA(engine, argc, copyArgv(argc, argv), true);
+			goto DISPOSE_ARGV;
 		}
 	}
 
 	ret_val = func->call(engine, context_chain, argc, argv);
 
 DISPOSE_ARGV:
-	free(argv);
+	if (if_delete_argv)
+		free(argv);
+	if (argv_back)
+		free(argv_back);
 
 DISPOSE_LIST:
 	for (i = 0; i < dispose_list.size(); i++) {

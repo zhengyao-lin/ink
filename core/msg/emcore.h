@@ -65,7 +65,8 @@ public:
 		NoAct,
 		Exit0,
 		Exit1,
-		Abort
+		Abort,
+		ExitThread
 	};
 	enum Prefix {
 		None,

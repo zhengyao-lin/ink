@@ -9,28 +9,29 @@
 
 class Ink_InterpreteEngine;
 
-class Ink_ActorHandle {
+class Ink_ActorHandler {
 public:
 	Ink_InterpreteEngine *engine;
 	pthread_t thread_handle;
 	bool finished;
 	std::string *name_p;
+	bool is_root;
 
-	Ink_ActorHandle()
-	: engine(NULL), thread_handle(0), finished(false), name_p(NULL)
+	Ink_ActorHandler()
+	: engine(NULL), thread_handle(0), finished(false), name_p(NULL), is_root(false)
 	{ }
 
-	Ink_ActorHandle(Ink_InterpreteEngine *engine, pthread_t thread_handle, std::string *name_p)
-	: engine(engine), thread_handle(thread_handle), finished(false), name_p(name_p)
+	Ink_ActorHandler(Ink_InterpreteEngine *engine, pthread_t thread_handle, std::string *name_p, bool is_root = false)
+	: engine(engine), thread_handle(thread_handle), finished(false), name_p(name_p), is_root(is_root)
 	{ }
 
-	~Ink_ActorHandle()
+	~Ink_ActorHandler()
 	{
 		if (name_p) delete name_p;
 	}
 };
 
-typedef std::map<std::string, Ink_ActorHandle *> Ink_ActorMap;
+typedef std::map<std::string, Ink_ActorHandler *> Ink_ActorMap;
 // typedef std::string *Ink_ActorMessage;
 
 class Ink_ActorMessage {
@@ -58,5 +59,6 @@ Ink_InterpreteEngine *InkActor_getActor(std::string name);
 void InkActor_joinAllActor(Ink_InterpreteEngine *self_engine, Ink_InterpreteEngine *except = NULL);
 unsigned int InkActor_getActorCount();
 std::string *InkActor_getActorName(Ink_InterpreteEngine *engine);
+bool InkActor_isRootActor(Ink_InterpreteEngine *engine);
 
 #endif

@@ -325,7 +325,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 									 Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
 {
-	unsigned int argi, j, tmp_argc;
+	unsigned int argi, j;
 	Ink_ContextObject *local;
 	Ink_Object *ret_val = NULL;
 	Ink_Array *var_arg = NULL;

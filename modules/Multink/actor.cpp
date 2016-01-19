@@ -1,3 +1,4 @@
+#include <signal.h>
 #include "actor.h"
 #include "core/object.h"
 #include "core/general.h"
@@ -169,10 +170,31 @@ Ink_Object *InkNative_Actor_ActorExist(Ink_InterpreteEngine *engine, Ink_Context
 
 extern pthread_mutex_t ink_actor_pthread_create_lock;
 
+void Ink_ActorFunction_cleanup(void *arg)
+{
+	Ink_ActorFunction_sub_Argument *tmp = (Ink_ActorFunction_sub_Argument *)arg;
+
+	InkActor_setDeadActor(tmp->engine);
+	if (tmp->argv)
+		free(tmp->argv);
+	delete tmp->engine;
+	delete tmp;
+
+	return;
+}
+
+void Ink_ActorFunction_signal_handler(int errno)
+{
+	pthread_exit(NULL);
+}
+
 void *Ink_ActorFunction_sub(void *arg)
 {
 	pthread_mutex_lock(&ink_actor_pthread_create_lock);
 	pthread_mutex_unlock(&ink_actor_pthread_create_lock);
+
+	// pthread_cleanup_push(Ink_ActorFunction_cleanup, arg);
+	// signal(SIGABRT, Ink_ActorFunction_signal_handler);
 
 	Ink_ActorFunction_sub_Argument *tmp = (Ink_ActorFunction_sub_Argument *)arg;
 	Ink_InterpreteEngine *engine = tmp->engine;
@@ -212,11 +234,8 @@ void *Ink_ActorFunction_sub(void *arg)
 	tmp->engine->execute();
 
 	tmp->engine->top_level = Ink_ExpressionList();
-	InkActor_setDeadActor(tmp->engine);
-	if (tmp->argv)
-		free(tmp->argv);
-	delete tmp->engine;
-	delete tmp;
+
+	// pthread_cleanup_pop(1);
 
 	return NULL;
 }

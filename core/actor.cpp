@@ -27,7 +27,7 @@ bool InkActor_addActor(string name, Ink_InterpreteEngine *engine, pthread_t hand
 		InkWarn_Actor_Conflict(engine, name.c_str());
 		ret = false;
 	} else {
-		ink_global_actor_map[name] = new Ink_ActorHandle(engine, handle, name_p);
+		ink_global_actor_map[name] = new Ink_ActorHandler(engine, handle, name_p);
 	}
 	pthread_mutex_unlock(&ink_global_actor_map_lock);
 	return ret;
@@ -124,4 +124,21 @@ string *InkActor_getActorName(Ink_InterpreteEngine *engine)
 	pthread_mutex_unlock(&ink_global_actor_map_lock);
 
 	return ret;
+}
+
+bool InkActor_isRootActor(Ink_InterpreteEngine *engine)
+{
+	bool is_root = false;
+	Ink_ActorMap::iterator actor_it;
+
+	pthread_mutex_lock(&ink_global_actor_map_lock);
+	for (actor_it = ink_global_actor_map.begin();
+		 actor_it != ink_global_actor_map.end(); actor_it++) {
+		if (actor_it->second->engine == engine) {
+			is_root = actor_it->second->is_root;
+		}
+	}
+	pthread_mutex_unlock(&ink_global_actor_map_lock);
+
+	return is_root;
 }
