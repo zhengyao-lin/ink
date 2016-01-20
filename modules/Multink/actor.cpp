@@ -185,7 +185,9 @@ void Ink_ActorFunction_cleanup(void *arg)
 
 void Ink_ActorFunction_signal_handler(int errno)
 {
+	// printf("ha, I received a signal? %ld\n", pthread_self());
 	pthread_exit(NULL);
+	return;
 }
 
 void *Ink_ActorFunction_sub(void *arg)
@@ -194,7 +196,7 @@ void *Ink_ActorFunction_sub(void *arg)
 	pthread_mutex_unlock(&ink_actor_pthread_create_lock);
 
 	// pthread_cleanup_push(Ink_ActorFunction_cleanup, arg);
-	// signal(SIGABRT, Ink_ActorFunction_signal_handler);
+	// signal(SIGQUIT, Ink_ActorFunction_signal_handler);
 
 	Ink_ActorFunction_sub_Argument *tmp = (Ink_ActorFunction_sub_Argument *)arg;
 	Ink_InterpreteEngine *engine = tmp->engine;
@@ -297,6 +299,28 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	pthread_mutex_unlock(&ink_actor_pthread_create_lock);
 
 	return TRUE_OBJ;
+}
+
+Ink_Object *Ink_ActorFunction::clone(Ink_InterpreteEngine *engine)
+{
+	Ink_ActorFunction *new_obj = new Ink_ActorFunction(engine);
+
+	new_obj->is_native = is_native;
+	new_obj->is_inline = is_inline;
+	new_obj->is_generator = is_generator;
+	new_obj->native = native;
+
+	new_obj->param = param;
+	new_obj->exp_list = exp_list;
+	if (closure_context)
+		new_obj->closure_context = closure_context->copyContextChain();
+	new_obj->attr = attr;
+	new_obj->partial_applied_argc = partial_applied_argc;
+	new_obj->partial_applied_argv = copyArgv(partial_applied_argc, partial_applied_argv);
+
+	cloneHashTable(this, new_obj);
+
+	return new_obj;
 }
 
 Ink_FunctionObject *InkMod_Actor_ActorProtocol(Ink_InterpreteEngine *engine, Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context)

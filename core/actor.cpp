@@ -19,7 +19,7 @@ void InkActor_initActorMap()
 	return;
 }
 
-bool InkActor_addActor(string name, Ink_InterpreteEngine *engine, pthread_t handle, string *name_p)
+bool InkActor_addActor(string name, Ink_InterpreteEngine *engine, pthread_t handle, string *name_p, bool is_root)
 {
 	bool ret = true;
 	pthread_mutex_lock(&ink_global_actor_map_lock);
@@ -27,7 +27,7 @@ bool InkActor_addActor(string name, Ink_InterpreteEngine *engine, pthread_t hand
 		InkWarn_Actor_Conflict(engine, name.c_str());
 		ret = false;
 	} else {
-		ink_global_actor_map[name] = new Ink_ActorHandler(engine, handle, name_p);
+		ink_global_actor_map[name] = new Ink_ActorHandler(engine, handle, name_p, is_root);
 	}
 	pthread_mutex_unlock(&ink_global_actor_map_lock);
 	return ret;

@@ -22,6 +22,10 @@ public:
 class Ink_ActorFunction: public Ink_FunctionObject {
 public:
 
+	Ink_ActorFunction(Ink_InterpreteEngine *engine)
+	: Ink_FunctionObject(engine, Ink_ParamList(), Ink_ExpressionList(), NULL)
+	{ }
+
 	Ink_ActorFunction(Ink_InterpreteEngine *engine, Ink_ParamList param_list, Ink_ExpressionList exp_list)
 	: Ink_FunctionObject(engine, param_list, exp_list, NULL)
 	{ }
@@ -29,6 +33,7 @@ public:
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true);
+	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 };
 
 inline void

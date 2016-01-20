@@ -224,9 +224,10 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	}
 
 	InkErr_Assigning_Unassignable_Expression(engine);
-	abort();
+	//abort();
 
 	RESTORE_LINE_NUM;
+	return NULL_OBJ;
 }
 
 Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)

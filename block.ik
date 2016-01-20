@@ -990,7 +990,7 @@ a = "hello?";
 
 let i = 1;
 
-while (i <= 1) {
+while (i <= 0) {
 	p(i++);
 	try_arg("new_actor", { a : ["s", "a"] }, "ho", fn (b) {
 		p(a)
@@ -1012,8 +1012,8 @@ p(a.what?);
 actor1 = actor () {
 	import multink
 
+	// 1 = 2;
 	send("hello, root") -> "root"
-	//1 = 2;
 }
 
 actor1(_)("he");
@@ -1031,6 +1031,8 @@ join_all();
 actor1 = actor () {
 	
 }
+
+//while(1)
 /*
 let i = 0;
 while (i < 10000) {
