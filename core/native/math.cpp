@@ -209,6 +209,40 @@ Ink_Object *InkNative_BigNumeric_Add(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value + val);
 }
 
+Ink_Object *InkNative_BigNumeric_Sub(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_BIGNUMERIC);
+
+	if (!checkArgument(false, argc, argv, 1, INK_BIGNUMERIC)
+		&& !checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+	Ink_BigNumericValue val = argv[0]->type == INK_NUMERIC
+							  ? as<Ink_Numeric>(argv[0])->value
+							  : as<Ink_BigNumeric>(argv[0])->value;
+
+	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value - val);
+}
+
+Ink_Object *InkNative_BigNumeric_Mul(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_BIGNUMERIC);
+
+	if (!checkArgument(false, argc, argv, 1, INK_BIGNUMERIC)
+		&& !checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+	Ink_BigNumericValue val = argv[0]->type == INK_NUMERIC
+							  ? as<Ink_Numeric>(argv[0])->value
+							  : as<Ink_BigNumeric>(argv[0])->value;
+
+	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value * val);
+}
+
 Ink_Object *InkNative_BigNumeric_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");

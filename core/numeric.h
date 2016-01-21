@@ -65,6 +65,8 @@ public:
 	static const Ink_BigInteger Ten;
 
 	friend Ink_BigNumericValue operator += (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
+	friend Ink_BigNumericValue operator -= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
+	friend Ink_BigNumericValue operator *= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
 };
 
 class Ink_BigNumericValue {
@@ -160,11 +162,39 @@ public:
 			tmp_rhs = rhs.num;
 		}
 
-		//cout << tmp_lhs + tmp_rhs << endl;
-		//cout << tmp_rhs << endl;
-
 		Ink_BigNumericValue ret = Ink_BigNumericValue(tmp_lhs + tmp_rhs);
-		ret.std_pow = max(lhs.std_pow, rhs.std_pow);
+		ret.std_pow = max(lhs.std_pow, rhs.std_pow) + (ret.num.digits.size() - max(tmp_lhs.digits.size(), tmp_rhs.digits.size()));
+		lhs = ret;
+
+		return ret;
+	}
+
+	friend Ink_BigNumericValue operator -= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs)
+	{
+		Ink_BigInteger tmp_lhs;
+		Ink_BigInteger tmp_rhs;
+		Ink_BigInteger ten = Ink_BigInteger::Ten;
+		long sup = (lhs.num.digits.size() - lhs.std_pow) - (rhs.num.digits.size() - rhs.std_pow);
+
+		if (sup > 0) {
+			tmp_lhs = lhs.num;
+			tmp_rhs = rhs.num * ten.pow(abs(sup));
+		} else {
+			tmp_lhs = lhs.num * ten.pow(abs(sup));
+			tmp_rhs = rhs.num;
+		}
+
+		Ink_BigNumericValue ret = Ink_BigNumericValue(tmp_lhs - tmp_rhs);
+		ret.std_pow = max(lhs.std_pow, rhs.std_pow) + (ret.num.digits.size() - max(tmp_lhs.digits.size(), tmp_rhs.digits.size()));
+		lhs = ret;
+
+		return ret;
+	}
+
+	friend Ink_BigNumericValue operator *= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs)
+	{
+		Ink_BigNumericValue ret = Ink_BigNumericValue(lhs.num * rhs.num);
+		ret.std_pow = ret.num.digits.size() - ((lhs.num.digits.size() - lhs.std_pow) + (rhs.num.digits.size() - rhs.std_pow));
 		lhs = ret;
 
 		return ret;
@@ -173,6 +203,18 @@ public:
 	friend Ink_BigNumericValue operator + (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2){
 		Ink_BigNumericValue temp(op1);
 		temp += op2;
+		return temp;
+	}
+
+	friend Ink_BigNumericValue operator - (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2){
+		Ink_BigNumericValue temp(op1);
+		temp -= op2;
+		return temp;
+	}
+
+	friend Ink_BigNumericValue operator * (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2){
+		Ink_BigNumericValue temp(op1);
+		temp *= op2;
 		return temp;
 	}
 };
