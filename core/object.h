@@ -297,6 +297,17 @@ public:
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 };
 
+class Ink_BigNumeric: public Ink_Object {
+	string *value;
+public:
+
+	Ink_BigNumeric(Ink_InterpreteEngine *engine, string value)
+	: Ink_Object(engine), value(new string(value))
+	{ type = INK_BIGNUMERIC; }
+
+	
+};
+
 class Ink_String: public Ink_Object {
 	string *value;
 public:

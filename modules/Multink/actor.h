@@ -1,9 +1,9 @@
 #ifndef _NATIVE_ACTOR_H_
 #define _NATIVE_ACTOR_H_
 
-#include "core/actor.h"
 #include "core/error.h"
 #include "core/object.h"
+#include "core/thread/actor.h"
 
 class Ink_ActorFunction_sub_Argument {
 public:

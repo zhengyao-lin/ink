@@ -1,6 +1,6 @@
 #include <signal.h>
 #include "error.h"
-#include "actor.h"
+#include "thread/actor.h"
 #include "thread/thread.h"
 #include "interface/engine.h"
 

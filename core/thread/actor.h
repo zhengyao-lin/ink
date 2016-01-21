@@ -4,8 +4,8 @@
 #include <string>
 #include <queue>
 #include <map>
-#include "general.h"
-#include "thread/thread.h"
+#include "../general.h"
+#include "thread.h"
 
 class Ink_InterpreteEngine;
 

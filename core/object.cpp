@@ -21,6 +21,8 @@ extern int array_native_method_table_count;
 extern InkNative_MethodTable array_native_method_table[];
 extern int function_native_method_table_count;
 extern InkNative_MethodTable function_native_method_table[];
+extern int big_num_native_method_table_count;
+extern InkNative_MethodTable big_num_native_method_table[];
 
 Ink_Object *getMethod(Ink_InterpreteEngine *engine,
 					  Ink_Object *obj, const char *name, InkNative_MethodTable *table, int count)
@@ -60,6 +62,13 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 		case INK_NUMERIC:
 			method = getMethod(engine, this, key, numeric_native_method_table,
 							   numeric_native_method_table_count);
+			if (method) {
+				ret = setSlot(key, method, false);
+			}
+			break;
+		case INK_BIGNUMERIC:
+			method = getMethod(engine, this, key, big_num_native_method_table,
+							   big_num_native_method_table_count);
 			if (method) {
 				ret = setSlot(key, method, false);
 			}

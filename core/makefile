@@ -18,7 +18,7 @@ REQUIRE=\
 	debug.o \
 	error.o \
 	protocol.o \
-	actor.o
+	numeric.o
 
 CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=-shared -static-libgcc -static-libstdc++

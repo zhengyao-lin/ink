@@ -1,8 +1,8 @@
 #include <string>
 #include "actor.h"
 #include "time.h"
-#include "interface/engine.h"
-#include "thread/thread.h"
+#include "thread.h"
+#include "../interface/engine.h"
 
 using namespace std;
 

@@ -11,8 +11,8 @@
 #include "../general.h"
 #include "../debug.h"
 #include "../protocol.h"
-#include "../actor.h"
 #include "../object.h"
+#include "../thread/actor.h"
 #include "../thread/thread.h"
 
 using namespace std;

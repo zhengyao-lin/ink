@@ -1,6 +1,7 @@
 TARGET=thread.o
 REQUIRE=\
-	general.o
+	general.o \
+	actor.o
 
 CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=
