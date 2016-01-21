@@ -441,7 +441,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	Ink_Object *ret_val, *expandee;
 	/* eval callee to get parameter declaration */
 	Ink_Object *func = callee->eval(engine, context_chain);
-	Ink_FunctionObject *tmp_func;
+	Ink_FunctionObject *tmp_func = NULL;
 	if (INTER_SIGNAL_RECEIVED)
 		return engine->CGC_interrupt_value;
 	Ink_ParamList param_list = Ink_ParamList();
@@ -450,12 +450,12 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	/* this part was moved from Ink_FunctionObject::call */
 	bool is_arg_completed = true,
 		 if_delete_argv = false;
-	tmp_func = as<Ink_FunctionObject>(func);
 	unsigned int tmp_argc, j, argi, argc;
 	Ink_Object **tmp_argv;
 
 	if (func->type == INK_FUNCTION) {
 		param_list = as<Ink_FunctionObject>(func)->param;
+		tmp_func = as<Ink_FunctionObject>(func);
 	}
 	if (is_new) {
 		func = Ink_HashExpression::getSlot(engine, context_chain, func, "new");
@@ -523,7 +523,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 
 	argc = tmp_arg_list.size();
 	/* if some arguments have been applied already */
-	if (tmp_func->partial_applied_argv) {
+	if (tmp_func && tmp_func->partial_applied_argv) {
 		tmp_argc = tmp_func->partial_applied_argc;
 		tmp_argv = copyArgv(tmp_func->partial_applied_argc,
 							tmp_func->partial_applied_argv);

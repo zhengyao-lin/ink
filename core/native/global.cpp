@@ -528,10 +528,12 @@ InkNative_MethodTable function_native_method_table[] = {
 	{"::", new Ink_FunctionObject(NULL, InkNative_Function_GetScope, InkNative_Function_GetScope_ParamGenerator())}
 };
 
-int big_num_native_method_table_count = 4;
+int big_num_native_method_table_count = 6;
 InkNative_MethodTable big_num_native_method_table[] = {
 	{"+", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Add)},
 	{"-", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Sub)},
 	{"*", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Mul)},
+	{"/", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Div)},
+	{"div", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Div)},
 	{"to_str", new Ink_FunctionObject(NULL, InkNative_BigNumeric_ToString)}
 };
