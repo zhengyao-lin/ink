@@ -170,23 +170,22 @@ Ink_Object *InkNative_Actor_ActorExist(Ink_InterpreteEngine *engine, Ink_Context
 
 extern pthread_mutex_t ink_actor_pthread_create_lock;
 
-void Ink_ActorFunction_cleanup(void *arg)
+void Ink_ActorFunction_signal_handler(int errno)
 {
-	Ink_ActorFunction_sub_Argument *tmp = (Ink_ActorFunction_sub_Argument *)arg;
-
-	InkActor_setDeadActor(tmp->engine);
-	if (tmp->argv)
-		free(tmp->argv);
-	delete tmp->engine;
-	delete tmp;
-
+	printf("ha, I received a signal? %ld\n", pthread_self());
+	//pthread_exit(NULL);
+	//sleep(5);
 	return;
 }
 
-void Ink_ActorFunction_signal_handler(int errno)
+void Ink_ActorFunction_cleanup(Ink_InterpreteEngine *engine, void *arg)
 {
-	// printf("ha, I received a signal? %ld\n", pthread_self());
-	pthread_exit(NULL);
+	Ink_ActorFunction_sub_Argument *tmp = (Ink_ActorFunction_sub_Argument *)arg;
+	tmp->engine->top_level = Ink_ExpressionList();
+	InkActor_setDeadActor(tmp->engine);
+	if (tmp->argv)
+		free(tmp->argv);
+	delete tmp;
 	return;
 }
 
@@ -196,7 +195,9 @@ void *Ink_ActorFunction_sub(void *arg)
 	pthread_mutex_unlock(&ink_actor_pthread_create_lock);
 
 	// pthread_cleanup_push(Ink_ActorFunction_cleanup, arg);
-	// signal(SIGQUIT, Ink_ActorFunction_signal_handler);
+	// signal(SIGABRT, Ink_ActorFunction_signal_handler);
+	// pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	// pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
 	Ink_ActorFunction_sub_Argument *tmp = (Ink_ActorFunction_sub_Argument *)arg;
 	Ink_InterpreteEngine *engine = tmp->engine;
@@ -204,6 +205,8 @@ void *Ink_ActorFunction_sub(void *arg)
 	unsigned int argi, j;
 	Ink_Array *var_arg = NULL;
 	Ink_ContextObject *local = tmp->engine->global_context->context;
+
+	engine->addDestructor(Ink_EngineDestructor(Ink_ActorFunction_cleanup, arg));
 
 	for (j = 0, argi = 0; j < tmp->param_list.size(); j++, argi++) {
 		if (tmp->param_list[j].is_variant) { /* find variant argument -- break the loop */
@@ -235,13 +238,12 @@ void *Ink_ActorFunction_sub(void *arg)
 
 	tmp->engine->execute();
 
-	tmp->engine->top_level = Ink_ExpressionList();
-
-	InkActor_setDeadActor(tmp->engine);
-	if (tmp->argv)
-		free(tmp->argv);
+	// tmp->engine->top_level = Ink_ExpressionList();
+	// InkActor_setDeadActor(tmp->engine);
+	// if (tmp->argv)
+	//	free(tmp->argv);
 	delete tmp->engine;
-	delete tmp;
+	// delete tmp;
 	// pthread_cleanup_pop(1);
 
 	return NULL;
@@ -293,7 +295,7 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 		return NULL_OBJ;
 	}
 
-	pthread_detach(new_thread);
+	// pthread_detach(new_thread);
 	string *name = new string(as<Ink_String>(argv[0])->getValue().c_str());
 	InkActor_addActor(*name, new_engine, new_thread, name);
 	pthread_mutex_unlock(&ink_actor_pthread_create_lock);

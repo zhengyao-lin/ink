@@ -215,9 +215,9 @@ ErrorMessage::newMessage(ErrorInfo *info)
 }
 
 void
-ErrorMessage::popMessage(ErrorInfo *info)
+ErrorMessage::popMessage(ErrorInfo info)
 {
-	info->doPrint(cerr);
+	info.doPrint(cerr);
 	return;
 }
 

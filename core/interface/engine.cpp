@@ -83,6 +83,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	protocol_map = Ink_ProtocolMap();
 	pthread_mutex_init(&message_mutex, NULL);
 	message_queue = Ink_ActorMessageQueue();
+	custom_destructor_queue = Ink_CustomDestructorQueue();
 
 	initThread();
 	initTypeMapping();
@@ -281,6 +282,7 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 		delete native_exp_list[i];
 	}*/
 
+	callAllDestructor();
 	cleanExpressionList(top_level);
 	cleanContext(global_context);
 	cleanContext(trace);

@@ -25,6 +25,17 @@ class Ink_ContextObject;
 class Ink_ContextChain;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
+typedef void (*Ink_EngineDestructFunction)(Ink_InterpreteEngine *engine, void *);
+class Ink_EngineDestructor {
+public:
+	Ink_EngineDestructFunction destruct_func;
+	void *arg;
+
+	Ink_EngineDestructor(Ink_EngineDestructFunction destruct_func, void *arg)
+	: destruct_func(destruct_func), arg(arg)
+	{ }
+};
+typedef vector<Ink_EngineDestructor> Ink_CustomDestructorQueue;
 
 extern FILE *yyin;
 extern pthread_mutex_t ink_native_exp_list_lock;
@@ -43,10 +54,10 @@ void Ink_addNativeExpression(Ink_Expression *expr);
 Ink_InterpreteEngine *Ink_getParseEngine();
 void Ink_setParseEngine(Ink_InterpreteEngine *engine);
 
-typedef enum {
+enum Ink_InputMode {
 	INK_FILE_INPUT,
 	INK_STRING_INPUT
-} Ink_InputMode;
+};
 
 extern DBG_FixedTypeMapping dbg_fixed_type_mapping[];
 
@@ -98,11 +109,28 @@ public:
 	vector<Ink_Object *> deep_clone_traced_stack;
 	vector<Ink_Object *> prototype_traced_stack;
 
+	Ink_CustomDestructorQueue custom_destructor_queue;
+
 	Ink_InterpreteEngine();
 
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline void addDestructor(Ink_EngineDestructor engine_destructor)
+	{
+		custom_destructor_queue.push_back(engine_destructor);
+		return;
+	}
+
+	inline void callAllDestructor()
+	{
+		unsigned int i;
+		for (i = 0; i < custom_destructor_queue.size(); i++) {
+			custom_destructor_queue[i].destruct_func(this, custom_destructor_queue[i].arg);
+		}
+		return;
+	}
 
 	inline void initPrototypeSearch()
 	{

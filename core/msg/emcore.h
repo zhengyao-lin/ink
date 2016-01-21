@@ -148,7 +148,7 @@ public:
 	static void
 	tmpNote(string msg);
 	static void
-	popMessage(ErrorInfo *info);
+	popMessage(ErrorInfo info);
 };
 
 #endif

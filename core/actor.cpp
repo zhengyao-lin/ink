@@ -64,6 +64,7 @@ AGAIN:
 		if (actor_it->second && actor_it->second->engine != self_engine
 			&& (!except || actor_it->second->engine != except)) {
 			if (actor_it->second->finished) {
+				pthread_join(actor_it->second->thread_handle, NULL);
 				delete actor_it->second;
 				ink_global_actor_map.erase(actor_it++);
 				continue;

@@ -15,15 +15,22 @@ InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg)
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 	
 	cleanAll(engine);
-	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, is_root ? ErrorInfo::Abort
-																		   : ErrorInfo::NoAct,
-										   strm.str().c_str()));
+	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Error, true, is_root ? ErrorInfo::Abort
+																	   : ErrorInfo::NoAct,
+									   strm.str().c_str()));
 
 	if (!is_root) {
-		// pthread_kill(pthread_self(), SIGABRT);
-		//printf("kill signal sent to %ld\n", pthread_self());
-		//pthread_kill(pthread_self(), SIGQUIT);
-		//printf("errno: %d\n", pthread_cancel(pthread_self()));
+		/*if (engine && engine->actor_argument) {
+			Ink_ActorFunction_sub_Argument *tmp_arg = engine->actor_argument;
+			
+			tmp_arg->engine->top_level = Ink_ExpressionList();
+			InkActor_setDeadActor(tmp_arg->engine);
+			if (tmp_arg->argv)
+				free(tmp_arg->argv);
+			delete tmp_arg->engine;
+			delete tmp_arg;
+		}*/
+		delete engine;
 		pthread_exit(NULL);
 	}
 
@@ -41,14 +48,22 @@ InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg, const char *a
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 
 	cleanAll(engine);
-	ErrorMessage::popMessage(new ErrorInfo(ErrorInfo::Error, true, is_root ? ErrorInfo::Abort
-																		   : ErrorInfo::NoAct,
-										   strm.str().c_str(), arg1));
+	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Error, true, is_root ? ErrorInfo::Abort
+																	   : ErrorInfo::NoAct,
+									   strm.str().c_str(), arg1));
 	if (!is_root) {
-		//printf("kill signal sent to %ld\n", pthread_self());
-		//pthread_kill(pthread_self(), SIGQUIT);
+		/*if (engine && engine->actor_argument) {
+			Ink_ActorFunction_sub_Argument *tmp_arg = engine->actor_argument;
+			
+			tmp_arg->engine->top_level = Ink_ExpressionList();
+			InkActor_setDeadActor(tmp_arg->engine);
+			if (tmp_arg->argv)
+				free(tmp_arg->argv);
+			delete tmp_arg->engine;
+			delete tmp_arg;
+		}*/
+		delete engine;
 		pthread_exit(NULL);
-		//printf("errno: %d\n", pthread_cancel(pthread_self()));
 	}
 
 	return;
@@ -63,10 +78,8 @@ InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg)
 			tmp : "<unknown input>") << ": "
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 
-	ErrorInfo *info = new ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
-									strm.str().c_str());
-	ErrorMessage::popMessage(info);
-	delete info;
+	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
+									   strm.str().c_str()));
 	return;
 }
 
@@ -79,10 +92,8 @@ InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char
 			tmp : "<unknown input>") << ": "
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 
-	ErrorInfo *info = new ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
-									strm.str().c_str(), arg1);
-	ErrorMessage::popMessage(info);
-	delete info;
+	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
+									   strm.str().c_str(), arg1));
 	return;
 }
 
@@ -95,10 +106,8 @@ InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char
 			tmp : "<unknown input>") << ": "
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 	
-	ErrorInfo *info = new ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
-									strm.str().c_str(), arg1, arg2);
-	ErrorMessage::popMessage(info);
-	delete info;
+	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
+									   strm.str().c_str(), arg1, arg2));
 	return;
 }
 
