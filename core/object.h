@@ -11,6 +11,7 @@
 #include "hash.h"
 #include "error.h"
 #include "general.h"
+#include "numeric.h"
 #include "coroutine/coroutine.h"
 using namespace std;
 
@@ -298,14 +299,19 @@ public:
 };
 
 class Ink_BigNumeric: public Ink_Object {
-	string *value;
 public:
+	Ink_BigNumericValue value;
 
 	Ink_BigNumeric(Ink_InterpreteEngine *engine, string value)
-	: Ink_Object(engine), value(new string(value))
+	: Ink_Object(engine), value(Ink_BigNumericValue(value))
 	{ type = INK_BIGNUMERIC; }
 
-	
+	Ink_BigNumeric(Ink_InterpreteEngine *engine, Ink_BigNumericValue value)
+	: Ink_Object(engine), value(value)
+	{ type = INK_BIGNUMERIC; }
+
+	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
+	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 };
 
 class Ink_String: public Ink_Object {

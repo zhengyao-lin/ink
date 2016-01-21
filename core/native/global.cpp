@@ -361,6 +361,19 @@ Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	return tmp->eval(engine, context);
 }
 
+Ink_Object *Ink_BigNum(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *ret = NULL_OBJ;
+
+	if (checkArgument(false, argc, argv, 1, INK_STRING)) {
+		ret = new Ink_BigNumeric(engine, as<Ink_String>(argv[0])->getValue());
+	} else if (checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		ret = new Ink_BigNumeric(engine, as<Ink_Numeric>(argv[0])->value);
+	}
+
+	return ret;
+}
+
 Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	unsigned int i;
@@ -418,6 +431,7 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 	context->context->setSlot("import", new Ink_FunctionObject(engine, Ink_Import));
 	context->context->setSlot("typename", new Ink_FunctionObject(engine, Ink_TypeName));
 	context->context->setSlot("numval", new Ink_FunctionObject(engine, Ink_NumVal));
+	context->context->setSlot("bignum", new Ink_FunctionObject(engine, Ink_BigNum));
 	context->context->setSlot("cocall", new Ink_FunctionObject(engine, Ink_CoroutineCall));
 
 	context->context->setSlot("debug", new Ink_FunctionObject(engine, Ink_Debug));
@@ -514,5 +528,8 @@ InkNative_MethodTable function_native_method_table[] = {
 	{"::", new Ink_FunctionObject(NULL, InkNative_Function_GetScope, InkNative_Function_GetScope_ParamGenerator())}
 };
 
-int big_num_native_method_table_count = 0;
-InkNative_MethodTable big_num_native_method_table[] = { {NULL, NULL} };
+int big_num_native_method_table_count = 2;
+InkNative_MethodTable big_num_native_method_table[] = {
+	{"+", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Add)},
+	{"to_str", new Ink_FunctionObject(NULL, InkNative_BigNumeric_ToString)}
+};

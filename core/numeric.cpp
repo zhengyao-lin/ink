@@ -11,7 +11,7 @@ Ink_BigInteger::Ink_BigInteger()
 	sign = true; 
 }
 
-Ink_BigInteger::Ink_BigInteger(int val)
+Ink_BigInteger::Ink_BigInteger(long val)
 {
 	if (val >= 0) sign = true;
 	else {
@@ -24,7 +24,7 @@ Ink_BigInteger::Ink_BigInteger(int val)
 	} while (val != 0);
 }
 
-Ink_BigInteger::Ink_BigInteger(string &def)
+Ink_BigInteger::Ink_BigInteger(string def)
 {
 	sign = true;
 	for (string::reverse_iterator iter = def.rbegin();
@@ -32,7 +32,7 @@ Ink_BigInteger::Ink_BigInteger(string &def)
 		char ch = *iter;
 		if (iter == def.rend() - 1) {
 			if (ch == '+') break;
-			if(ch == '-') {
+			if (ch == '-') {
 				sign = false;
 				break;
 			}
