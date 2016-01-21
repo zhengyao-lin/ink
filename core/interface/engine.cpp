@@ -274,6 +274,9 @@ void Ink_InterpreteEngine::cleanContext(Ink_ContextChain *context)
 
 Ink_InterpreteEngine::~Ink_InterpreteEngine()
 {
+	callAllDestructor();
+	disposeAllMessage();
+
 	gc_engine->collectGarbage(true);
 	delete gc_engine;
 
@@ -281,8 +284,6 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 	for (i = 0; i < native_exp_list.size(); i++) {
 		delete native_exp_list[i];
 	}*/
-
-	callAllDestructor();
 	cleanExpressionList(top_level);
 	cleanContext(global_context);
 	cleanContext(trace);

@@ -193,6 +193,20 @@ public:
 		return;
 	}
 
+	inline void disposeAllMessage()
+	{
+		pthread_mutex_lock(&message_mutex);
+		while (!message_queue.empty()) {
+			if (message_queue.front().msg)
+				delete message_queue.front().msg;
+			if (message_queue.front().sender)
+				delete message_queue.front().sender;
+			message_queue.pop();
+		}
+		pthread_mutex_unlock(&message_mutex);
+		return;
+	}
+
 	inline void addProtocol(const char *name, Ink_Protocol proto)
 	{
 		protocol_map[string(name)] = proto;

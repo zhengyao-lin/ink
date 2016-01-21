@@ -1012,9 +1012,9 @@ p(a.what?);
 actor1 = actor () {
 	import multink
 
-	1 = 2;
+	// 1 = 2;
 	send("hello, root") -> "root"
-	//1 = 2;
+	// 1 = 2;
 }
 
 actor1(_)("he");
