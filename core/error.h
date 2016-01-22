@@ -302,7 +302,24 @@ InkWarn_Failed_Load_Mod(Ink_InterpreteEngine *engine, const char *name)
 inline void
 InkWarn_Failed_Find_Loader(Ink_InterpreteEngine *engine, const char *name)
 {
-	InkWarn_doPrintWarning(engine, "Failed to loader function in module $(name):", name);
+	InkWarn_doPrintWarning(engine, "Failed to find loader function in module $(name):", name);
+	return;
+}
+
+inline void
+InkWarn_Failed_Find_Init(Ink_InterpreteEngine *engine, const char *name)
+{
+	InkWarn_doPrintWarning(engine, "Failed to find init function in module $(name):", name);
+	return;
+}
+
+inline void
+InkWarn_Failed_Init_Mod(Ink_InterpreteEngine *engine, int errno)
+{
+	stringstream strm;
+	strm << "Failed to initialize module, initializer returned error no: " << errno;
+
+	InkWarn_doPrintWarning(engine, strm.str().c_str());
 	return;
 }
 

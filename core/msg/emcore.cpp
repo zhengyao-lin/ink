@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include "emcore.h"
+#include "../thread/thread.h"
 
 string
 ErrorInfo::setMessageStyle(string message, Prefix prefix)

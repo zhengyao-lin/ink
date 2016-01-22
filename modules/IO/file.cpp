@@ -252,9 +252,17 @@ Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 }
 
 extern "C" {
+	static long ink_native_file_mod_id;
+
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
 		addPackage(engine, addPackage(engine, context, "io", new Ink_FunctionObject(engine, InkMod_IO_Loader)),
 				   "file", new Ink_FunctionObject(engine, InkMod_File_Loader));
+	}
+
+	int InkMod_Init(long id)
+	{
+		ink_native_file_mod_id = id;
+		return 0;
 	}
 }

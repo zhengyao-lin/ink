@@ -108,11 +108,19 @@ Ink_Object *InkMod_JSON_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *c
 }
 
 extern "C" {
+	static long ink_native_json_mod_id;
+
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
 		Ink_Object *json_obj = addPackage(engine, context, "json", new Ink_FunctionObject(engine, InkMod_JSON_Loader));
 		json_obj->setSlot("encode", new Ink_FunctionObject(engine, InkNative_JSON_Encode));
 		json_obj->setSlot("decode", new Ink_FunctionObject(engine, InkNative_JSON_Decode));
 		return;
+	}
+
+	int InkMod_Init(long id)
+	{
+		ink_native_json_mod_id = id;
+		return 0;
 	}
 }

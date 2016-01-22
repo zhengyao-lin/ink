@@ -7,9 +7,10 @@
 
 using namespace std;
 
-pthread_mutex_t dl_handler_pool_lock = PTHREAD_MUTEX_INITIALIZER;
-DLHandlerPool dl_handler_pool;
+static pthread_mutex_t dl_handler_pool_lock = PTHREAD_MUTEX_INITIALIZER;
+static DLHandlerPool dl_handler_pool;
 static char *tmp_prog_path = NULL;
+static InkMod_ModuleID current_module_id = 0;
 
 void Ink_addModule(INK_DL_HANDLER handler)
 {
@@ -42,12 +43,18 @@ void Ink_applyAllModules(Ink_InterpreteEngine *engine, Ink_ContextChain *context
 		 iter != dl_handler_pool.end(); iter++) {
 		if (*iter) {
 			InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(*iter, "InkMod_Loader");
-			loader(engine, context);
+			if (loader)
+				loader(engine, context);
 		}
 	}
 	pthread_mutex_unlock(&dl_handler_pool_lock);
 
 	return;
+}
+
+InkMod_ModuleID registerModule()
+{
+	return ++current_module_id;
 }
 
 InkPack_String *InkPack_String::readFrom(FILE *fp)
@@ -105,10 +112,13 @@ string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp f
 	string path;
 
 	createDirIfNotExist(INK_TMP_PATH);
-
 	suffix = (char *)malloc(sizeof(char) * (current_bit + 1));
-	for (suffix[0] = 'a', suffix[1] = '\0';
-		 !(fp = fopen((path = string(INK_TMP_PATH) + INK_PATH_SPLIT + string(suffix) + file_suffix).c_str(), "wb"));) {
+	suffix[0] = 'a';
+	suffix[1] = '\0';
+
+	path = string(INK_TMP_PATH) + INK_PATH_SPLIT + string(suffix) + file_suffix;
+
+	while (!access(path.c_str(), 0)) { // file exist
 		int i = current_bit - 1;
 		for (; i >= 0 && suffix[i] >= 'z'; i--) ;
 
@@ -123,11 +133,12 @@ string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp f
 			for (i++; i < current_bit; i++)
 				suffix[i] = 'a';
 		}
+		path = string(INK_TMP_PATH) + INK_PATH_SPLIT + string(suffix) + file_suffix;
 	}
 	free(suffix);
+	fp = fopen(path.c_str(), "wb");
 	fwrite(data, sizeof(byte), file_size, fp);
 	fclose(fp);
-
 	return new string(path);
 }
 
@@ -136,6 +147,8 @@ void Ink_Package::preload(const char *path)
 	INK_DL_HANDLER handler;
 	FILE *fp = fopen(path, "rb");
 	string *tmp;
+	int errno;
+	const char *errmsg;
 
 	if (!fp) {
 		InkErr_Failed_Open_File(NULL, path);
@@ -154,25 +167,50 @@ void Ink_Package::preload(const char *path)
 	handler = INK_DL_OPEN(tmp->c_str(), RTLD_NOW);
 	delete tmp;
 	InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
+	InkMod_Init init = (InkMod_Init)INK_DL_SYMBOL(handler, "InkMod_Init");
 
 	if (!handler) {
 		InkWarn_Failed_Load_Mod(NULL, path);
-		printf("%s\n", INK_DL_ERROR());
+		if ((errmsg = INK_DL_ERROR()) != NULL)
+			printf("%s\n", errmsg);
 
 		delete pack;
 		fclose(fp);
 		return;
 	}
+
 	if (!loader) {
 		InkWarn_Failed_Find_Loader(NULL, path);
 		INK_DL_CLOSE(handler);
-		printf("%s\n", INK_DL_ERROR());
+
+		if ((errmsg = INK_DL_ERROR()) != NULL)
+			printf("%s\n", errmsg);
 
 		delete pack;
 		fclose(fp);
 		return;
 	}
-	// loader(engine, context);
+
+	if (!init) {
+		InkWarn_Failed_Find_Init(NULL, path);
+		INK_DL_CLOSE(handler);
+
+		if ((errmsg = INK_DL_ERROR()) != NULL)
+			printf("%s\n", errmsg);
+
+		delete pack;
+		fclose(fp);
+		return;
+	}
+
+	if ((errno = init(registerModule())) != 0) {
+		InkWarn_Failed_Init_Mod(NULL, errno);
+		INK_DL_CLOSE(handler);
+		delete pack;
+		fclose(fp);
+		return;
+	}
+
 	Ink_addModule(handler);
 	printf("Package Loader: Loading package: %s by %s\n",
 		   pack->pack_info->pack_name->str,
@@ -186,20 +224,42 @@ void Ink_Package::preload(const char *path)
 void Ink_preloadModule(const char *name)
 {
 	INK_DL_HANDLER handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(name)).c_str(), RTLD_NOW);
+	int errno;
+	const char *errmsg;
+
 	if (!handler) {
 		InkWarn_Failed_Load_Mod(NULL, name);
-		printf("\t%s\n", INK_DL_ERROR());
+		if ((errmsg = INK_DL_ERROR()) != NULL)
+			printf("%s\n", errmsg);
 		return;
 	}
 
 	InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
+	InkMod_Init init = (InkMod_Init)INK_DL_SYMBOL(handler, "InkMod_Init");
 	if (!loader) {
 		InkWarn_Failed_Find_Loader(NULL, name);
 		INK_DL_CLOSE(handler);
-		printf("\t%s\n", INK_DL_ERROR());
-	} else {
-		Ink_addModule(handler);
+		if ((errmsg = INK_DL_ERROR()) != NULL)
+			printf("%s\n", errmsg);
+		return;
 	}
+
+	if (!init) {
+		InkWarn_Failed_Find_Init(NULL, name);
+		INK_DL_CLOSE(handler);
+		if ((errmsg = INK_DL_ERROR()) != NULL)
+			printf("%s\n", errmsg);
+		return;
+	}
+
+	if ((errno = init(registerModule())) != 0) {
+		InkWarn_Failed_Init_Mod(NULL, errno);
+		INK_DL_CLOSE(handler);
+		return;
+	}
+	
+	Ink_addModule(handler);
+	return;
 }
 
 #if defined(INK_PLATFORM_LINUX)
