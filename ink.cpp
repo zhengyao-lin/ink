@@ -18,6 +18,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+	Ink_loadAllModules();
 	InkActor_initActorMap();
 	Ink_initNativeExpression();
 	// Ink_GlobalConstantInit();
@@ -36,7 +37,7 @@ int main(int argc, char **argv)
 
 	delete engine;
 	cleanAll(engine);
-	closeAllHandler();
+	Ink_disposeModules();
 	Ink_cleanNativeExpression();
 
 	return 0;

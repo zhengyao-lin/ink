@@ -15,13 +15,13 @@
 	#include <string>
 	#include <string.h>
 	#include <windows.h>
-	#define INK_MODULE_DIR ((getProgPath(engine) + "modules").c_str())
+	#define INK_MODULE_DIR ((getProgPath() + "modules").c_str())
 	#define INK_PATH_SPLIT "\\"
 	#define INK_PATH_SPLIT_C '\\'
 
-	#define INK_TMP_PATH ((getProgPath(engine) + "tmp").c_str())
+	#define INK_TMP_PATH ((getProgPath() + "tmp").c_str())
 
-	std::string getProgPath(Ink_InterpreteEngine *engine);
+	std::string getProgPath();
 #else
 	#ifdef INK_INSTALL_PATH
 		#define INK_MODULE_DIR INK_INSTALL_PATH "/lib/ink/modules"
@@ -83,9 +83,6 @@ enum Ink_MagicNumber {
 	INK_0_LINUX = 0,
 	INK_0_WINDOWS
 };
-
-void addHandler(INK_DL_HANDLER handler);
-void closeAllHandler();
 
 class InkPack_String {
 public:
@@ -177,7 +174,7 @@ public:
 		fwrite(data, sizeof(byte) * file_size, 1, fp);
 	}
 
-	string *bufferToTmp(Ink_InterpreteEngine *engine, const char *file_suffix = "." INK_DL_SUFFIX); // return: tmp file path
+	string *bufferToTmp(const char *file_suffix = "." INK_DL_SUFFIX); // return: tmp file path
 	static InkPack_FileBlock *readFrom(FILE *fp);
 
 	~InkPack_FileBlock()
@@ -220,7 +217,7 @@ public:
 	}
 
 	static Ink_Package *readFrom(FILE *fp);
-	static void load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *path);
+	static void preload(const char *path);
 
 	~Ink_Package()
 	{
@@ -229,47 +226,15 @@ public:
 	}
 };
 
+void Ink_addModule(INK_DL_HANDLER handler);
+void Ink_disposeModules();
+void Ink_preloadModule(const char *name);
+void Ink_loadAllModules();
+void Ink_applyAllModules(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
+inline bool createDirIfNotExist(const char *path); /* return: if exist */
+
 #if defined(INK_PLATFORM_LINUX)
-	inline void loadAllModules(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
-	{
-		DIR *mod_dir = opendir(INK_MODULE_DIR);
-		struct dirent *child;
-		INK_DL_HANDLER handler;
-
-		if (!mod_dir) {
-			InkWarn_Failed_Find_Mod(engine, INK_MODULE_DIR);
-			return;
-		}
-
-		while ((child = readdir(mod_dir)) != NULL) {
-			if (hasSuffix(child->d_name, "mod")) {
-				Ink_Package::load(engine, context, (string(INK_MODULE_DIR) + INK_PATH_SPLIT + child->d_name).c_str());
-			} else if (hasSuffix(child->d_name, INK_DL_SUFFIX)) {
-				handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(child->d_name)).c_str(), RTLD_NOW);
-				if (!handler) {
-					InkWarn_Failed_Load_Mod(engine, child->d_name);
-					printf("\t%s\n", INK_DL_ERROR());
-					continue;
-				}
-
-				InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
-				if (!loader) {
-					InkWarn_Failed_Find_Loader(engine, child->d_name);
-					INK_DL_CLOSE(handler);
-					printf("\t%s\n", INK_DL_ERROR());
-				} else {
-					loader(engine, context);
-					addHandler(handler);
-				}
-			}
-		}
-
-		closedir(mod_dir);
-		
-		return;
-	}
-
-	inline bool /* return: if exist */
+	inline bool
 	createDirIfNotExist(const char *path)
 	{
 		if (!isDirExist(path)) {
@@ -282,42 +247,7 @@ public:
 	#include <windows.h>
 	#include <direct.h>
 
-	inline void loadAllModules(Ink_InterpreteEngine *engine, Ink_ContextChain *context) {
-	    WIN32_FIND_DATA data;
-	    HANDLE dir_handle = NULL;
-	    INK_DL_HANDLER handler;
-
-	    dir_handle = FindFirstFile((string(INK_MODULE_DIR) + "/*").c_str(), &data);  // find for all files
-	    if (dir_handle == INVALID_HANDLE_VALUE)
-	        return;
-
-	    do {
-	        if (hasSuffix(data.cFileName, "mod")) {
-				Ink_Package::load(engine, context, (string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(data.cFileName)).c_str());
-			} else if (hasSuffix(data.cFileName, INK_DL_SUFFIX)) {
-				handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(data.cFileName)).c_str(), RTLD_NOW);
-				if (!handler) {
-					InkWarn_Failed_Load_Mod(engine, data.cFileName);
-					printf("\t%s\n", INK_DL_ERROR());
-					continue;
-				}
-
-				InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
-				if (!loader) {
-					InkWarn_Failed_Find_Loader(engine, data.cFileName);
-					INK_DL_CLOSE(handler);
-					printf("\t%s\n", INK_DL_ERROR());
-				} else {
-					loader(engine, context);
-					addHandler(handler);
-				}
-			}
-	    } while (FindNextFile(dir_handle, &data));
-
-	    FindClose(dir_handle);
-	}
-
-	inline bool /* return: if exist */
+	inline bool
 	createDirIfNotExist(const char *path)
 	{
 		if (!isDirExist(path)) {

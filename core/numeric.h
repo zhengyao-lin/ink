@@ -91,53 +91,9 @@ public:
 		Ink_BigNumericValue(0.0);
 	}
 
-	Ink_BigNumericValue(double val)
-    {
-		num = std_pow = 0;
-		if (!isnan(val)) {
-			double tmp_val = val;
-			Ink_BigInteger integer(floor(tmp_val), true);
-			Ink_BigInteger decimal((tmp_val - floor(tmp_val)) * pow(10, DEFAULT_ACC), true);
-			num = integer * Ink_BigInteger(10).pow(DEFAULT_ACC) + decimal;
-			//std::cout << integer << decimal << endl;
-			std_pow = fabs(tmp_val) >= 1
-					  ? integer.digits.size()
-					  : decimal.digits.size() - DEFAULT_ACC;
-		}
-    }
-
-    Ink_BigNumericValue(string str)
-    {
-		unsigned int pos;
-		num = std_pow = 0;
-		int sign = 1;
-		Ink_BigInteger integer = 0;
-		string decimal;
-
-		if (str.length()) {
-			if (str[0] == '-') {
-        		str = str.substr(1);
-        		sign = -1;
-        	} else if (str[0] == '+') str = str.substr(1);
-
-			pos = str.find_first_of('.');
-			if (pos != (unsigned int)-1) {
-				integer = Ink_BigInteger(str.substr(0, pos));
-				decimal = str.substr(pos + 1);
-        		num = sign * (integer.abs() * Ink_BigInteger(10).pow(decimal.length()) + Ink_BigInteger(decimal).abs());
-				std_pow = integer > 0 ? integer.digits.size() : num.digits.size() - decimal.length();
-			} else {
-				num = sign * Ink_BigInteger(str);
-				std_pow = num.digits.size();
-			}
-		}
-    }
-
-    Ink_BigNumericValue(Ink_BigInteger int_val)
-    {
-        num = int_val;
-        std_pow = int_val.digits.size();
-    }
+	Ink_BigNumericValue(double val);
+    Ink_BigNumericValue(string str);
+    Ink_BigNumericValue(Ink_BigInteger int_val);
 
 	inline string toString()
 	{
@@ -170,50 +126,6 @@ public:
 		return ret;
 	}
 
-	friend Ink_BigNumericValue operator += (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs)
-	{
-		Ink_BigInteger tmp_lhs;
-		Ink_BigInteger tmp_rhs;
-		Ink_BigInteger ten = Ink_BigInteger::Ten;
-		long sup = lhs.getDecimal() - rhs.getDecimal();
-
-		if (sup > 0) {
-			tmp_lhs = lhs.num;
-			tmp_rhs = rhs.num * ten.pow(abs(sup));
-		} else {
-			tmp_lhs = lhs.num * ten.pow(abs(sup));
-			tmp_rhs = rhs.num;
-		}
-
-		Ink_BigNumericValue ret = Ink_BigNumericValue(tmp_lhs + tmp_rhs);
-		ret.std_pow = max(lhs.std_pow, rhs.std_pow) + (ret.num.digits.size() - max(tmp_lhs.digits.size(), tmp_rhs.digits.size()));
-		lhs = ret;
-
-		return ret;
-	}
-
-	friend Ink_BigNumericValue operator -= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs)
-	{
-		Ink_BigInteger tmp_lhs;
-		Ink_BigInteger tmp_rhs;
-		Ink_BigInteger ten = Ink_BigInteger::Ten;
-		long sup = lhs.getDecimal() - rhs.getDecimal();
-
-		if (sup > 0) {
-			tmp_lhs = lhs.num;
-			tmp_rhs = rhs.num * ten.pow(abs(sup));
-		} else {
-			tmp_lhs = lhs.num * ten.pow(abs(sup));
-			tmp_rhs = rhs.num;
-		}
-
-		Ink_BigNumericValue ret = Ink_BigNumericValue(tmp_lhs - tmp_rhs);
-		ret.std_pow = max(lhs.std_pow, rhs.std_pow) + (ret.num.digits.size() - max(tmp_lhs.digits.size(), tmp_rhs.digits.size()));
-		lhs = ret;
-
-		return ret;
-	}
-
 	inline long getDecimal()
 	{
 		return num.digits.size() - std_pow;
@@ -236,173 +148,32 @@ public:
 		return ret;
 	}
 
-	friend Ink_BigNumericValue operator *= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs)
-	{
-		Ink_BigNumericValue ret = Ink_BigNumericValue(lhs.num * rhs.num);
-		ret.std_pow = ret.num.digits.size() - (lhs.getDecimal() + rhs.getDecimal());
-		lhs = ret;
+	friend Ink_BigNumericValue operator += (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
+	friend Ink_BigNumericValue operator -= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
+	friend Ink_BigNumericValue operator *= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
+	friend Ink_BigNumericValue operator /= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
+	friend Ink_BigNumericValue operator %= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
 
-		return ret;
-	}
+	friend Ink_BigNumericValue operator + (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
+	friend Ink_BigNumericValue operator - (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
+	friend Ink_BigNumericValue operator * (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
+	friend Ink_BigNumericValue operator / (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
+	friend Ink_BigNumericValue operator % (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
 
-	friend Ink_BigNumericValue operator /= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs)
-	{
-		return lhs = lhs.dividedBy(rhs);
-	}
+	friend Ink_BigNumericValue operator - (const Ink_BigNumericValue &op);
+	friend Ink_BigNumericValue operator + (const Ink_BigNumericValue &op);
 
-	friend Ink_BigNumericValue operator %= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs)
-	{
-		Ink_BigInteger tmp_lhs;
-		Ink_BigInteger tmp_rhs;
-		Ink_BigInteger ten = Ink_BigInteger::Ten;
-		long sup = lhs.getDecimal() - rhs.getDecimal();
+	friend Ink_BigNumericValue operator ++ (Ink_BigNumericValue &op); // ++v
+	friend Ink_BigNumericValue operator -- (Ink_BigNumericValue &op); // --v
+	friend Ink_BigNumericValue operator ++ (Ink_BigNumericValue &op, int a); // v++
+	friend Ink_BigNumericValue operator -- (Ink_BigNumericValue &op, int a); // v--
 
-		if (sup > 0) {
-			tmp_lhs = lhs.num;
-			tmp_rhs = rhs.num * ten.pow(abs(sup));
-		} else {
-			tmp_lhs = lhs.num * ten.pow(abs(sup));
-			tmp_rhs = rhs.num;
-		}
-		Ink_BigNumericValue ret;
-		ret.num = tmp_lhs - (tmp_lhs / tmp_rhs * tmp_rhs);
-		ret.std_pow =  ret.num.digits.size() - max(lhs.getDecimal(), rhs.getDecimal());
-		lhs = ret;
-
-		return ret;
-	}
-
-	friend Ink_BigNumericValue operator + (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
-	{
-		Ink_BigNumericValue temp(op1);
-		temp += op2;
-		return temp;
-	}
-
-	friend Ink_BigNumericValue operator - (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
-	{
-		Ink_BigNumericValue temp(op1);
-		temp -= op2;
-		return temp;
-	}
-
-	friend Ink_BigNumericValue operator * (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
-	{
-		Ink_BigNumericValue temp(op1);
-		temp *= op2;
-		return temp;
-	}
-
-	friend Ink_BigNumericValue operator / (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
-	{
-		Ink_BigNumericValue temp(op1);
-		temp /= op2;
-		return temp;
-	}
-
-	friend Ink_BigNumericValue operator % (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
-	{
-		Ink_BigNumericValue temp(op1);
-		temp %= op2;
-		return temp;
-	}
-
-	friend Ink_BigNumericValue operator - (const Ink_BigNumericValue &op)
-	{
-		Ink_BigNumericValue temp(op);
-		temp.num = -temp.num;
-		return temp;
-	}
-
-	friend Ink_BigNumericValue operator + (const Ink_BigNumericValue &op)
-	{
-		return op;
-	}
-
-	friend Ink_BigNumericValue operator ++ (Ink_BigNumericValue &op) // ++v
-	{
-		op += Ink_BigNumericValue::One;
-		return op;
-	}
-
-	friend Ink_BigNumericValue operator -- (Ink_BigNumericValue &op) // --v
-	{
-		op -= Ink_BigNumericValue::One;
-		return op;
-	}
-
-	friend Ink_BigNumericValue operator ++ (Ink_BigNumericValue &op, int a) // v++
-	{
-		Ink_BigNumericValue temp(op);
-		op += Ink_BigNumericValue::One;
-		return temp;
-	}
-
-	friend Ink_BigNumericValue operator -- (Ink_BigNumericValue &op, int a) // v--
-	{
-		Ink_BigNumericValue temp(op);
-		op -= Ink_BigNumericValue::One;
-		return temp;
-	}
-
-	friend bool operator < (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
-	{
-		if (op1.std_pow != op2.std_pow)
-			return op1.std_pow < op2.std_pow;
-
-		long sup = op1.getDecimal() - op2.getDecimal();
-		Ink_BigInteger ten = Ink_BigInteger::Ten;
-		Ink_BigInteger tmp_op1;
-		Ink_BigInteger tmp_op2;
-
-		if (sup > 0) {
-			tmp_op1 = op1.num;
-			tmp_op2 = op2.num * ten.pow(abs(sup));
-		} else {
-			tmp_op1 = op1.num * ten.pow(abs(sup));
-			tmp_op2 = op2.num;
-		}
-
-		return tmp_op1 < tmp_op2;
-	}
-
-	friend bool operator == (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
-	{
-		long sup = op1.getDecimal() - op2.getDecimal();
-		Ink_BigInteger ten = Ink_BigInteger::Ten;
-		Ink_BigInteger tmp_op1;
-		Ink_BigInteger tmp_op2;
-
-		if (sup > 0) {
-			tmp_op1 = op1.num;
-			tmp_op2 = op2.num * ten.pow(abs(sup));
-		} else {
-			tmp_op1 = op1.num * ten.pow(abs(sup));
-			tmp_op2 = op2.num;
-		}
-
-		return op1.std_pow == op2.std_pow && tmp_op1 == tmp_op2;
-	}
-
-	friend bool operator != (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
-	{
-		return !(op1 == op2);
-	}
-
-	friend bool operator > (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
-	{
-		return !(op1 < op2 || op1 == op2);
-	}
-
-	friend bool operator <= (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
-	{
-		return op1 < op2 || op1 == op2;
-	}
-
-	friend bool operator >= (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
-	{
-		return !(op1 < op2);
-	}
+	friend bool operator < (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
+	friend bool operator == (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
+	friend bool operator != (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
+	friend bool operator > (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
+	friend bool operator <= (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
+	friend bool operator >= (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
 };
 
 #endif

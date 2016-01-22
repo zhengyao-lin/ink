@@ -1,25 +1,52 @@
 #include <string>
 #include <stdio.h>
 #include "load.h"
+#include "../thread/thread.h"
 #include "../interface/engine.h"
 #include "../../includes/switches.h"
 
 using namespace std;
 
+pthread_mutex_t dl_handler_pool_lock = PTHREAD_MUTEX_INITIALIZER;
 DLHandlerPool dl_handler_pool;
+static char *tmp_prog_path = NULL;
 
-void addHandler(INK_DL_HANDLER handler)
+void Ink_addModule(INK_DL_HANDLER handler)
 {
+	pthread_mutex_lock(&dl_handler_pool_lock);
 	dl_handler_pool.push_back(handler);
+	pthread_mutex_unlock(&dl_handler_pool_lock);
 	return;
 }
 
-void closeAllHandler()
+void Ink_disposeModules()
 {
 	unsigned int i;
+	pthread_mutex_lock(&dl_handler_pool_lock);
 	for (i = 0; i < dl_handler_pool.size(); i++) {
 		INK_DL_CLOSE(dl_handler_pool[i]);
 	}
+	if (tmp_prog_path) {
+		free(tmp_prog_path);
+	}
+	pthread_mutex_unlock(&dl_handler_pool_lock);
+	return;
+}
+
+void Ink_applyAllModules(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
+{
+	DLHandlerPool::iterator iter;
+
+	pthread_mutex_lock(&dl_handler_pool_lock);
+	for (iter = dl_handler_pool.begin();
+		 iter != dl_handler_pool.end(); iter++) {
+		if (*iter) {
+			InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(*iter, "InkMod_Loader");
+			loader(engine, context);
+		}
+	}
+	pthread_mutex_unlock(&dl_handler_pool_lock);
+
 	return;
 }
 
@@ -70,7 +97,7 @@ Ink_Package *Ink_Package::readFrom(FILE *fp)
 	return new Ink_Package(tmp_magic_num, tmp_pack_info, tmp_dl_file);
 }
 
-string *InkPack_FileBlock::bufferToTmp(Ink_InterpreteEngine *engine, const char *file_suffix) // return: tmp file path
+string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp file path
 {
 	FILE *fp;
 	char *suffix;
@@ -104,32 +131,32 @@ string *InkPack_FileBlock::bufferToTmp(Ink_InterpreteEngine *engine, const char 
 	return new string(path);
 }
 
-void Ink_Package::load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *path)
+void Ink_Package::preload(const char *path)
 {
 	INK_DL_HANDLER handler;
 	FILE *fp = fopen(path, "rb");
 	string *tmp;
 
 	if (!fp) {
-		InkErr_Failed_Open_File(engine, path);
+		InkErr_Failed_Open_File(NULL, path);
 		// unreachable
 	}
 
 	Ink_Package *pack = Ink_Package::readFrom(fp);
 
 	if (pack->magic_num != INK_DEFAULT_MAGIC_NUM) {
-		InkWarn_Load_Mod_On_Wrong_OS(engine, path);
+		InkWarn_Load_Mod_On_Wrong_OS(NULL, path);
 		delete pack;
 		return;
 	}
 
-	tmp = pack->dl_file->bufferToTmp(engine);
+	tmp = pack->dl_file->bufferToTmp();
 	handler = INK_DL_OPEN(tmp->c_str(), RTLD_NOW);
 	delete tmp;
 	InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
 
 	if (!handler) {
-		InkWarn_Failed_Load_Mod(engine, path);
+		InkWarn_Failed_Load_Mod(NULL, path);
 		printf("%s\n", INK_DL_ERROR());
 
 		delete pack;
@@ -137,7 +164,7 @@ void Ink_Package::load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 		return;
 	}
 	if (!loader) {
-		InkWarn_Failed_Find_Loader(engine, path);
+		InkWarn_Failed_Find_Loader(NULL, path);
 		INK_DL_CLOSE(handler);
 		printf("%s\n", INK_DL_ERROR());
 
@@ -145,8 +172,8 @@ void Ink_Package::load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 		fclose(fp);
 		return;
 	}
-	loader(engine, context);
-	addHandler(handler);
+	// loader(engine, context);
+	Ink_addModule(handler);
 	printf("Package Loader: Loading package: %s by %s\n",
 		   pack->pack_info->pack_name->str,
 		   pack->pack_info->author->str);
@@ -156,12 +183,79 @@ void Ink_Package::load(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	return;
 }
 
-#if defined(INK_PLATFORM_WIN32)
-	string getProgPath(Ink_InterpreteEngine *engine)
+void Ink_preloadModule(const char *name)
+{
+	INK_DL_HANDLER handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(name)).c_str(), RTLD_NOW);
+	if (!handler) {
+		InkWarn_Failed_Load_Mod(NULL, name);
+		printf("\t%s\n", INK_DL_ERROR());
+		return;
+	}
+
+	InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
+	if (!loader) {
+		InkWarn_Failed_Find_Loader(NULL, name);
+		INK_DL_CLOSE(handler);
+		printf("\t%s\n", INK_DL_ERROR());
+	} else {
+		Ink_addModule(handler);
+	}
+}
+
+#if defined(INK_PLATFORM_LINUX)
+	void Ink_loadAllModules()
 	{
-		if (engine->tmp_prog_path) return string(engine->tmp_prog_path);
+		DIR *mod_dir = opendir(INK_MODULE_DIR);
+		struct dirent *child;
+
+		if (!mod_dir) {
+			InkWarn_Failed_Find_Mod(NULL, INK_MODULE_DIR);
+			return;
+		}
+
+		while ((child = readdir(mod_dir)) != NULL) {
+			if (hasSuffix(child->d_name, "mod")) {
+				Ink_Package::preload((string(INK_MODULE_DIR) + INK_PATH_SPLIT + child->d_name).c_str());
+			} else if (hasSuffix(child->d_name, INK_DL_SUFFIX)) {
+				Ink_preloadModule(child->d_name);
+			}
+		}
+
+		closedir(mod_dir);
+		
+		return;
+	}
+#elif defined(INK_PLATFORM_WIN32)
+	void Ink_loadAllModules()
+	{
+	    WIN32_FIND_DATA data;
+	    HANDLE dir_handle = NULL;
+	    INK_DL_HANDLER handler;
+
+	    dir_handle = FindFirstFile((string(INK_MODULE_DIR) + "/*").c_str(), &data);  // find for all files
+	    if (dir_handle == INVALID_HANDLE_VALUE) {
+	    	InkWarn_Failed_Find_Mod(NULL, INK_MODULE_DIR);
+	        return;
+	    }
+
+	    do {
+	        if (hasSuffix(data.cFileName, "mod")) {
+				Ink_Package::preload((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(data.cFileName)).c_str());
+			} else if (hasSuffix(data.cFileName, INK_DL_SUFFIX)) {
+				Ink_preloadModule(data.cFileName);
+			}
+	    } while (FindNextFile(dir_handle, &data));
+
+	    FindClose(dir_handle);
+	}
+#endif
+
+#if defined(INK_PLATFORM_WIN32)
+	string getProgPath()
+	{
+		if (tmp_prog_path) return string(tmp_prog_path);
 		char buffer[MAX_PATH + 1];
 		GetModuleFileName(NULL, buffer, MAX_PATH);
-		return string(engine->tmp_prog_path = getBasePath(buffer));
+		return string(tmp_prog_path = getBasePath(buffer));
 	}
 #endif

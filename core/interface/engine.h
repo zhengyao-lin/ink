@@ -36,6 +36,7 @@ public:
 	{ }
 };
 typedef vector<Ink_EngineDestructor> Ink_CustomDestructorQueue;
+typedef void *Ink_CustomEngineCom;
 
 extern FILE *yyin;
 extern pthread_mutex_t ink_native_exp_list_lock;
