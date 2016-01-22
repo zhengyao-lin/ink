@@ -6,6 +6,10 @@ const Ink_BigInteger Ink_BigInteger::Zero = Ink_BigInteger(0);
 const Ink_BigInteger Ink_BigInteger::One = Ink_BigInteger(1);
 const Ink_BigInteger Ink_BigInteger::Ten = Ink_BigInteger(10);
 
+const Ink_BigNumericValue Ink_BigNumericValue::Zero = Ink_BigNumericValue(0);
+const Ink_BigNumericValue Ink_BigNumericValue::One = Ink_BigNumericValue(1);
+const Ink_BigNumericValue Ink_BigNumericValue::Ten = Ink_BigNumericValue(10);
+
 Ink_BigInteger::Ink_BigInteger()
 {
 	sign = true; 

@@ -83,6 +83,10 @@ public:
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+	virtual bool isTrue()
+	{
+		return true;
+	}
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true)
@@ -113,6 +117,11 @@ public:
 
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 
+	virtual bool isTrue()
+	{
+		return false;
+	}
+
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true)
@@ -132,6 +141,11 @@ public:
 	{ return this; }
 
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+
+	virtual bool isTrue()
+	{
+		return false;
+	}
 };
 
 class Ink_ContextObject: public Ink_Object {
@@ -154,6 +168,10 @@ public:
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+	virtual bool isTrue()
+	{
+		return true;
+	}
 };
 
 typedef Ink_Object *(*Ink_NativeFunction)(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc,
@@ -253,6 +271,10 @@ public:
 							 Ink_Object *this_p = NULL, bool if_return_this = true);
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+	virtual bool isTrue()
+	{
+		return true;
+	}
 	inline Ink_Object *cloneWithPA(Ink_InterpreteEngine *engine,
 								   unsigned int argc, Ink_Object **argv,
 								   bool if_delete_argv = false)
@@ -296,6 +318,10 @@ public:
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+	virtual bool isTrue()
+	{
+		return value != 0.0;
+	}
 };
 
 class Ink_BigNumeric: public Ink_Object {
@@ -312,6 +338,10 @@ public:
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+	virtual bool isTrue()
+	{
+		return value != 0.0;
+	}
 };
 
 class Ink_String: public Ink_Object {
@@ -339,6 +369,10 @@ public:
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+	virtual bool isTrue()
+	{
+		return true;
+	}
 
 	virtual ~Ink_String()
 	{
@@ -366,6 +400,10 @@ public:
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+	virtual bool isTrue()
+	{
+		return true;
+	}
 
 	static void disposeArrayValue(Ink_ArrayValue val)
 	{
@@ -396,6 +434,10 @@ public:
 	{ return this; }
 
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+	virtual bool isTrue()
+	{
+		return false;
+	}
 };
 
 inline Ink_Object **copyArgv(unsigned int argc, Ink_Object **argv)

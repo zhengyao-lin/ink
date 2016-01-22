@@ -70,6 +70,7 @@ public:
 	friend Ink_BigNumericValue operator -= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
 	friend Ink_BigNumericValue operator *= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
 	friend Ink_BigNumericValue operator /= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
+	friend Ink_BigNumericValue operator %= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs);
 };
 
 class Ink_BigNumericValue {
@@ -80,6 +81,10 @@ public:
 	enum {
 		DEFAULT_ACC = 16
 	};
+
+	static const Ink_BigNumericValue Zero;
+	static const Ink_BigNumericValue One;
+	static const Ink_BigNumericValue Ten;
 
 	Ink_BigNumericValue()
 	{
@@ -245,6 +250,28 @@ public:
 		return lhs = lhs.dividedBy(rhs);
 	}
 
+	friend Ink_BigNumericValue operator %= (Ink_BigNumericValue &lhs, const Ink_BigNumericValue &rhs)
+	{
+		Ink_BigInteger tmp_lhs;
+		Ink_BigInteger tmp_rhs;
+		Ink_BigInteger ten = Ink_BigInteger::Ten;
+		long sup = lhs.getDecimal() - rhs.getDecimal();
+
+		if (sup > 0) {
+			tmp_lhs = lhs.num;
+			tmp_rhs = rhs.num * ten.pow(abs(sup));
+		} else {
+			tmp_lhs = lhs.num * ten.pow(abs(sup));
+			tmp_rhs = rhs.num;
+		}
+		Ink_BigNumericValue ret;
+		ret.num = tmp_lhs - (tmp_lhs / tmp_rhs * tmp_rhs);
+		ret.std_pow =  ret.num.digits.size() - max(lhs.getDecimal(), rhs.getDecimal());
+		lhs = ret;
+
+		return ret;
+	}
+
 	friend Ink_BigNumericValue operator + (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
 	{
 		Ink_BigNumericValue temp(op1);
@@ -273,6 +300,13 @@ public:
 		return temp;
 	}
 
+	friend Ink_BigNumericValue operator % (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
+	{
+		Ink_BigNumericValue temp(op1);
+		temp %= op2;
+		return temp;
+	}
+
 	friend Ink_BigNumericValue operator - (const Ink_BigNumericValue &op)
 	{
 		Ink_BigNumericValue temp(op);
@@ -283,6 +317,91 @@ public:
 	friend Ink_BigNumericValue operator + (const Ink_BigNumericValue &op)
 	{
 		return op;
+	}
+
+	friend Ink_BigNumericValue operator ++ (Ink_BigNumericValue &op) // ++v
+	{
+		op += Ink_BigNumericValue::One;
+		return op;
+	}
+
+	friend Ink_BigNumericValue operator -- (Ink_BigNumericValue &op) // --v
+	{
+		op -= Ink_BigNumericValue::One;
+		return op;
+	}
+
+	friend Ink_BigNumericValue operator ++ (Ink_BigNumericValue &op, int a) // v++
+	{
+		Ink_BigNumericValue temp(op);
+		op += Ink_BigNumericValue::One;
+		return temp;
+	}
+
+	friend Ink_BigNumericValue operator -- (Ink_BigNumericValue &op, int a) // v--
+	{
+		Ink_BigNumericValue temp(op);
+		op -= Ink_BigNumericValue::One;
+		return temp;
+	}
+
+	friend bool operator < (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
+	{
+		if (op1.std_pow != op2.std_pow)
+			return op1.std_pow < op2.std_pow;
+
+		long sup = op1.getDecimal() - op2.getDecimal();
+		Ink_BigInteger ten = Ink_BigInteger::Ten;
+		Ink_BigInteger tmp_op1;
+		Ink_BigInteger tmp_op2;
+
+		if (sup > 0) {
+			tmp_op1 = op1.num;
+			tmp_op2 = op2.num * ten.pow(abs(sup));
+		} else {
+			tmp_op1 = op1.num * ten.pow(abs(sup));
+			tmp_op2 = op2.num;
+		}
+
+		return tmp_op1 < tmp_op2;
+	}
+
+	friend bool operator == (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
+	{
+		long sup = op1.getDecimal() - op2.getDecimal();
+		Ink_BigInteger ten = Ink_BigInteger::Ten;
+		Ink_BigInteger tmp_op1;
+		Ink_BigInteger tmp_op2;
+
+		if (sup > 0) {
+			tmp_op1 = op1.num;
+			tmp_op2 = op2.num * ten.pow(abs(sup));
+		} else {
+			tmp_op1 = op1.num * ten.pow(abs(sup));
+			tmp_op2 = op2.num;
+		}
+
+		return op1.std_pow == op2.std_pow && tmp_op1 == tmp_op2;
+	}
+
+	friend bool operator != (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
+	{
+		return !(op1 == op2);
+	}
+
+	friend bool operator > (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
+	{
+		return !(op1 < op2 || op1 == op2);
+	}
+
+	friend bool operator <= (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
+	{
+		return op1 < op2 || op1 == op2;
+	}
+
+	friend bool operator >= (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
+	{
+		return !(op1 < op2);
 	}
 };
 

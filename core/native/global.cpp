@@ -14,6 +14,8 @@
 
 bool isTrue(Ink_Object *cond)
 {
+	return cond && cond->isTrue();
+	/*
 	if (cond->type == INK_NUMERIC) {
 		if (as<Ink_Numeric>(cond)->value)
 			return true;
@@ -21,6 +23,7 @@ bool isTrue(Ink_Object *cond)
 	}
 
 	return cond->type != INK_NULL && cond->type != INK_UNDEFINED;
+	*/
 }
 
 Ink_Object *Ink_IfExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -528,13 +531,20 @@ InkNative_MethodTable function_native_method_table[] = {
 	{"::", new Ink_FunctionObject(NULL, InkNative_Function_GetScope, InkNative_Function_GetScope_ParamGenerator())}
 };
 
-int big_num_native_method_table_count = 8;
+int big_num_native_method_table_count = 15;
 InkNative_MethodTable big_num_native_method_table[] = {
 	{"+", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Add)},
 	{"-", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Sub)},
 	{"*", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Mul)},
 	{"/", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Div)},
+	{"%", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Mod)},
 	{"div", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Div)},
+	{"==", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Equal)},
+	{"!=", new Ink_FunctionObject(NULL, InkNative_BigNumeric_NotEqual)},
+	{">", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Greater)},
+	{"<", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Less)},
+	{">=", new Ink_FunctionObject(NULL, InkNative_BigNumeric_GreaterOrEqual)},
+	{"<=", new Ink_FunctionObject(NULL, InkNative_BigNumeric_LessOrEqual)},
 	{"+u", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Add_Unary)},
 	{"-u", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Sub_Unary)},
 	{"to_str", new Ink_FunctionObject(NULL, InkNative_BigNumeric_ToString)}
