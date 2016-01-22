@@ -867,6 +867,11 @@ hash_table_mapping_single
 		$$ = new Ink_HashTableMappingSingle($1, $5);
 		SET_LINE_NO($$);
 	}
+	| TSTRING nllo TCOLON nllo nestable_expression
+	{
+		$$ = new Ink_HashTableMappingSingle($1, $5);
+		SET_LINE_NO($$);
+	}
 	| TLBRAKT nestable_expression TRBRAKT nllo TCOLON nllo nestable_expression
 	{
 		$$ = new Ink_HashTableMappingSingle($2, $7);

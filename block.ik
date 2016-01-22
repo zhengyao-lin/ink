@@ -1,3 +1,5 @@
+#! /usr/bin/ink
+
 if (1) {
 func = { | a, b, block, block2 |
 	p(a + b);
@@ -1070,3 +1072,8 @@ p((bignum("213213.2222") == 213213).to_str());
 
 p((bignum("412.00000") % bignum("20.213")).to_str());
 p((bignum("412") % bignum("24")).to_str());
+
+ARGV.each() { | elem |
+	stdout.puts(elem + " ");
+}
+p("");

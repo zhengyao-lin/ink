@@ -5,6 +5,7 @@
 
 #define INK_DEBUG_FLAG 1
 #define INK_ROOT_ACTOR_NAME "root"
+#define INK_ARGV_NAME "ARGV"
 
 #define INK_IS_BOTH_SPLIT(c) ((c) == '/' || (c) == '\\')
 

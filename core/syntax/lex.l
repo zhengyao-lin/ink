@@ -5,7 +5,7 @@ PM				[+-]
 DIGIT			[0-9]
 HEX				[a-fA-F0-9]
 OCT				[0-7]
-LETTER			[a-zA-Z_?$#]
+LETTER			[a-zA-Z_?$]
 
 DIGITS			({DIGIT})+
 SPS				({SP})+
@@ -214,11 +214,12 @@ int ink_yyinput(char *buf, int max_size)
  /* Comments */
 <INITIAL>"/*"     							BEGIN C_COMMENT;
 <INITIAL>"//"     							BEGIN CC_COMMENT;
+<INITIAL>"#"     							BEGIN CC_COMMENT;
 
 <C_COMMENT>{NEWLINE} {
 	LINE_NUMBER_INC();
 }
-<C_COMMENT>"*/"							BEGIN INITIAL;
+<C_COMMENT>"*/"								BEGIN INITIAL;
 <C_COMMENT><<EOF>> {
 	printf("EOF in comment\n");
 	exit(1);
@@ -229,8 +230,8 @@ int ink_yyinput(char *buf, int max_size)
 	BEGIN INITIAL;
 	return TOKEN(TNL);
 }
-<CC_COMMENT><<EOF>>	BEGIN INITIAL;
-<CC_COMMENT>.			;
+<CC_COMMENT><<EOF>>							BEGIN INITIAL;
+<CC_COMMENT>.								;
 
  /* ID Literal */
 <INITIAL>\' {

@@ -132,6 +132,21 @@ void Ink_InterpreteEngine::removeTrace(Ink_ContextObject *context)
 	return;
 }
 
+inline void setArgv(Ink_InterpreteEngine *engine, vector<char *> argv)
+{
+	unsigned int i;
+	Ink_ArrayValue arr_val;
+
+	for (i = 0; i < argv.size(); i++) {
+		arr_val.push_back(new Ink_HashTable(new Ink_String(engine, string(argv[i]))));
+	}
+
+	engine->global_context
+	->getGlobal()->context
+	->setSlot(INK_ARGV_NAME, new Ink_Array(engine, arr_val));
+	return;
+}
+
 void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 {
 	pthread_mutex_lock(&ink_parse_lock);
@@ -152,6 +167,7 @@ void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 
 	Ink_setParseEngine(backup);
 	pthread_mutex_unlock(&ink_parse_lock);
+	setArgv(this, setting.getArgument());
 
 	return;
 }
