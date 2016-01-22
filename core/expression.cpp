@@ -570,7 +570,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 		if_delete_argv = true;
 	}
 
-	for (argi = 0; argi < argc; argi++) {
+	for (argi = 0; tmp_func && argi < argc; argi++) {
 		if (isUnknown(argv[argi])) { /* find unknown argument */
 			ret_val = tmp_func->cloneWithPA(engine, argc, copyArgv(argc, argv), true);
 			goto DISPOSE_ARGV;

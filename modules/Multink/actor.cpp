@@ -12,6 +12,8 @@
 
 using namespace std;
 
+static InkMod_ModuleID ink_native_actor_mod_id;
+
 Ink_Object *InkNative_Actor_Send_Sub(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -346,13 +348,12 @@ Ink_Object *InkMod_Actor_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *
 }
 
 extern "C" {
-	static InkMod_ModuleID ink_native_actor_mod_id;
-
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
 		Ink_Object *actor_obj = addPackage(engine, context, "multink", new Ink_FunctionObject(engine, InkMod_Actor_Loader));
 		InkMod_Actor_bondTo(engine, actor_obj);
 		engine->addProtocol("actor", InkMod_Actor_ActorProtocol);
+
 		return;
 	}
 
