@@ -147,7 +147,7 @@ void Ink_Package::preload(const char *path)
 	INK_DL_HANDLER handler;
 	FILE *fp = fopen(path, "rb");
 	string *tmp;
-	int errno;
+	int errnum;
 	const char *errmsg;
 
 	if (!fp) {
@@ -203,8 +203,8 @@ void Ink_Package::preload(const char *path)
 		return;
 	}
 
-	if ((errno = init(registerModule())) != 0) {
-		InkWarn_Failed_Init_Mod(NULL, errno);
+	if ((errnum = init(registerModule())) != 0) {
+		InkWarn_Failed_Init_Mod(NULL, errnum);
 		INK_DL_CLOSE(handler);
 		delete pack;
 		fclose(fp);
@@ -224,7 +224,7 @@ void Ink_Package::preload(const char *path)
 void Ink_preloadModule(const char *name)
 {
 	INK_DL_HANDLER handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(name)).c_str(), RTLD_NOW);
-	int errno;
+	int errnum;
 	const char *errmsg;
 
 	if (!handler) {
@@ -252,8 +252,8 @@ void Ink_preloadModule(const char *name)
 		return;
 	}
 
-	if ((errno = init(registerModule())) != 0) {
-		InkWarn_Failed_Init_Mod(NULL, errno);
+	if ((errnum = init(registerModule())) != 0) {
+		InkWarn_Failed_Init_Mod(NULL, errnum);
 		INK_DL_CLOSE(handler);
 		return;
 	}
@@ -290,7 +290,6 @@ void Ink_preloadModule(const char *name)
 	{
 	    WIN32_FIND_DATA data;
 	    HANDLE dir_handle = NULL;
-	    INK_DL_HANDLER handler;
 
 	    dir_handle = FindFirstFile((string(INK_MODULE_DIR) + "/*").c_str(), &data);  // find for all files
 	    if (dir_handle == INVALID_HANDLE_VALUE) {

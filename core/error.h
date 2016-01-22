@@ -314,10 +314,10 @@ InkWarn_Failed_Find_Init(Ink_InterpreteEngine *engine, const char *name)
 }
 
 inline void
-InkWarn_Failed_Init_Mod(Ink_InterpreteEngine *engine, int errno)
+InkWarn_Failed_Init_Mod(Ink_InterpreteEngine *engine, int errnum)
 {
 	stringstream strm;
-	strm << "Failed to initialize module, initializer returned error no: " << errno;
+	strm << "Failed to initialize module, initializer returned error no: " << errnum;
 
 	InkWarn_doPrintWarning(engine, strm.str().c_str());
 	return;
