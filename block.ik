@@ -1077,3 +1077,18 @@ ARGV.each() { | elem |
 	stdout.puts(elem + " ");
 }
 p("");
+
+TypeA = fn () {
+	this.a = 10
+	this.print = fn () {
+		base.a;
+	}
+}
+
+TypeB = fn () {
+	this = new TypeA();
+	this.a = 20;
+}
+
+a = new TypeB();
+p(a.print());
