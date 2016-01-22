@@ -75,8 +75,8 @@ hasSuffix(const char *path, const char *suf)
 }
 
 typedef long InkMod_ModuleID;
-typedef void (*InkMod_Loader)(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
-typedef int (*InkMod_Init)(InkMod_ModuleID id);
+typedef void (*InkMod_Loader_t)(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
+typedef int (*InkMod_Init_t)(InkMod_ModuleID id);
 typedef vector<INK_DL_HANDLER> DLHandlerPool;
 typedef size_t InkPack_Size;
 typedef unsigned char byte;

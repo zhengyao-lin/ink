@@ -9,7 +9,12 @@
 
 using namespace std;
 
-Ink_TypeTag file_pointer_type_tag;
+static InkMod_ModuleID ink_native_file_mod_id;
+
+Ink_TypeTag getFilePointerType(Ink_InterpreteEngine *engine)
+{
+	return *engine->getEngineComAs<Ink_TypeTag>(ink_native_file_mod_id);
+}
 
 inline Ink_NumericValue getNumVal(Ink_Object *num)
 {
@@ -54,7 +59,7 @@ Ink_Object *InkNative_File_Constructor(Ink_InterpreteEngine *engine, Ink_Context
 		if (!fp) {
 			InkWarn_Failed_Open_File(engine, tmp);
 		}
-	} else if (checkArgument(false, argc, argv, 1, file_pointer_type_tag)) {
+	} else if (checkArgument(false, argc, argv, 1, FILE_POINTER_TYPE)) {
 		fp = as<Ink_FilePointer>(argv[0])->fp;
 	}
 
@@ -68,7 +73,7 @@ Ink_Object *InkNative_File_Close(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 
-	ASSUME_BASE_TYPE(engine, file_pointer_type_tag);
+	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp)
@@ -82,7 +87,7 @@ Ink_Object *InkNative_File_PutString(Ink_InterpreteEngine *engine, Ink_ContextCh
 	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 
-	ASSUME_BASE_TYPE(engine, file_pointer_type_tag);
+	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
@@ -100,7 +105,7 @@ Ink_Object *InkNative_File_PutC(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	FILE *tmp;
 	char ch;
 
-	ASSUME_BASE_TYPE(engine, file_pointer_type_tag);
+	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
 	if (checkArgument(false, argc, argv, 1, INK_STRING)) {
 		ch = getStringVal(engine, context, argv[0])->getValue().c_str()[0];
 	} else if (checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
@@ -122,7 +127,7 @@ Ink_Object *InkNative_File_GetString(Ink_InterpreteEngine *engine, Ink_ContextCh
 	FILE *tmp;
 	char buffer[FILE_GETS_BUFFER_SIZE] = { '\0' };
 
-	ASSUME_BASE_TYPE(engine, file_pointer_type_tag);
+	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp) {
@@ -137,7 +142,7 @@ Ink_Object *InkNative_File_GetC(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 
-	ASSUME_BASE_TYPE(engine, file_pointer_type_tag);
+	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp) {
@@ -174,7 +179,7 @@ Ink_Object *InkNative_File_ReadAll(Ink_InterpreteEngine *engine, Ink_ContextChai
 	char *buffer;
 	Ink_Object *ret;
 
-	ASSUME_BASE_TYPE(engine, file_pointer_type_tag);
+	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 
@@ -201,7 +206,7 @@ Ink_Object *InkNative_File_Flush(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 
-	ASSUME_BASE_TYPE(engine, file_pointer_type_tag);
+	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp)
@@ -222,11 +227,29 @@ void Ink_FilePointer::setMethod(Ink_InterpreteEngine *engine)
 	return;
 }
 
+struct com_cleaner_arg {
+	InkMod_ModuleID id;
+	com_cleaner_arg(InkMod_ModuleID id)
+	: id(id)
+	{ }
+};
+
+void InkNative_IO_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
+{
+	com_cleaner_arg *tmp = (com_cleaner_arg *)arg;
+	free(engine->getEngineComAs<Ink_TypeTag>(tmp->id));
+	delete tmp;
+	return;
+}
+
 Ink_Object *InkMod_File_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *global_context = context->getGlobal()->context;
+	Ink_TypeTag *type_p = (Ink_TypeTag *)malloc(sizeof(Ink_TypeTag));
 
-	file_pointer_type_tag = (Ink_TypeTag)engine->registerType("io.file.file_pointer");
+	*type_p = (Ink_TypeTag)engine->registerType("io.file.file_pointer");
+	engine->addEngineCom(ink_native_file_mod_id, type_p);
+	engine->addDestructor(Ink_EngineDestructor(InkNative_IO_EngineComCleaner, new com_cleaner_arg(ink_native_file_mod_id)));
 	
 	global_context->setSlot("File", new Ink_FunctionObject(engine, InkNative_File_Constructor));
 	global_context->setSlot("file_exist", new Ink_FunctionObject(engine, InkNative_File_Exist));
@@ -252,15 +275,13 @@ Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 }
 
 extern "C" {
-	static long ink_native_file_mod_id;
-
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
 		addPackage(engine, addPackage(engine, context, "io", new Ink_FunctionObject(engine, InkMod_IO_Loader)),
 				   "file", new Ink_FunctionObject(engine, InkMod_File_Loader));
 	}
 
-	int InkMod_Init(long id)
+	int InkMod_Init(InkMod_ModuleID id)
 	{
 		ink_native_file_mod_id = id;
 		return 0;

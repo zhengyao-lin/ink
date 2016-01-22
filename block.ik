@@ -931,6 +931,7 @@ try_actor = fn () {
 
 	fib_async = actor (total, mod) {
 		import multink
+		import io
 
 		p("my name is " + actor_self());
 
@@ -941,7 +942,7 @@ try_actor = fn () {
 		let n = 200;
 		let dest = mod;
 
-		while (i <= 100) {
+		while (i <= 13) {
 			tmp = b
 			b = a + b;
 			a = tmp;
@@ -956,12 +957,12 @@ try_actor = fn () {
 
 	actor1("echo");
 
-	fib_async("worker1", 6, 1);
-	fib_async("worker2", 6, 2);
-	fib_async("worker3", 6, 3);
-	fib_async("worker4", 6, 4);
-	fib_async("worker5", 6, 5);
-	fib_async("worker6", 6, 6);
+	fib_async("worker1", 2, 1);
+	fib_async("worker2", 2, 2);
+	//fib_async("worker3", 6, 3);
+	//fib_async("worker4", 6, 4);
+	//fib_async("worker5", 6, 5);
+	//fib_async("worker6", 6, 6);
 
 	//p(actor_count());
 
@@ -977,7 +978,7 @@ try_actor = fn () {
 
 let i = 1;
 p(i++);
-//try_actor();
+try_actor();
 
 try_arg = actor (arg1, argv...) {
 	//p("I got a argument: " + json.encode(arg1));

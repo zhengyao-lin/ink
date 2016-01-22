@@ -14,6 +14,7 @@
 #include "../object.h"
 #include "../thread/actor.h"
 #include "../thread/thread.h"
+#include "../package/load.h"
 
 using namespace std;
 
@@ -37,6 +38,7 @@ public:
 };
 typedef vector<Ink_EngineDestructor> Ink_CustomDestructorQueue;
 typedef void *Ink_CustomEngineCom;
+typedef map<InkMod_ModuleID, Ink_CustomEngineCom> Ink_CustomEngineComMap;
 
 extern FILE *yyin;
 extern pthread_mutex_t ink_native_exp_list_lock;
@@ -111,12 +113,33 @@ public:
 	vector<Ink_Object *> prototype_traced_stack;
 
 	Ink_CustomDestructorQueue custom_destructor_queue;
+	Ink_CustomEngineComMap custom_engine_com_map;
 
 	Ink_InterpreteEngine();
 
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline int addEngineCom(InkMod_ModuleID id, Ink_CustomEngineCom com)
+	{
+		if (custom_engine_com_map.find(id) != custom_engine_com_map.end()) {
+			return 1; // com exist
+		}
+
+		custom_engine_com_map[id] = com;
+		return 0;
+	}
+
+	template <typename AS_TYPE>
+	inline AS_TYPE *getEngineComAs(InkMod_ModuleID id)
+	{
+		if (custom_engine_com_map.find(id) == custom_engine_com_map.end()) {
+			return NULL;
+		}
+
+		return (AS_TYPE *)custom_engine_com_map[id];
+	}
 
 	inline void addDestructor(Ink_EngineDestructor engine_destructor)
 	{

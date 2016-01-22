@@ -84,6 +84,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	pthread_mutex_init(&message_mutex, NULL);
 	message_queue = Ink_ActorMessageQueue();
 	custom_destructor_queue = Ink_CustomDestructorQueue();
+	custom_engine_com_map = Ink_CustomEngineComMap();
 
 	initThread();
 	initTypeMapping();

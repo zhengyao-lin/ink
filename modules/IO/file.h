@@ -6,8 +6,9 @@
 #include "../../includes/universal.h"
 
 #define FILE_GETS_BUFFER_SIZE 1000
+#define FILE_POINTER_TYPE (getFilePointerType(engine))
 
-extern Ink_TypeTag file_pointer_type_tag;
+Ink_TypeTag getFilePointerType(Ink_InterpreteEngine *engine);
 
 class Ink_FilePointer: public Ink_Object {
 public:
@@ -16,7 +17,7 @@ public:
 	Ink_FilePointer(Ink_InterpreteEngine *engine, FILE *fp = NULL)
 	: Ink_Object(engine), fp(fp)
 	{
-		type = file_pointer_type_tag;
+		type = FILE_POINTER_TYPE;
 		setMethod(engine);
 	}
 

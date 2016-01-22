@@ -42,7 +42,7 @@ void Ink_applyAllModules(Ink_InterpreteEngine *engine, Ink_ContextChain *context
 	for (iter = dl_handler_pool.begin();
 		 iter != dl_handler_pool.end(); iter++) {
 		if (*iter) {
-			InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(*iter, "InkMod_Loader");
+			InkMod_Loader_t loader = (InkMod_Loader_t)INK_DL_SYMBOL(*iter, "InkMod_Loader");
 			if (loader)
 				loader(engine, context);
 		}
@@ -166,8 +166,8 @@ void Ink_Package::preload(const char *path)
 	tmp = pack->dl_file->bufferToTmp();
 	handler = INK_DL_OPEN(tmp->c_str(), RTLD_NOW);
 	delete tmp;
-	InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
-	InkMod_Init init = (InkMod_Init)INK_DL_SYMBOL(handler, "InkMod_Init");
+	InkMod_Loader_t loader = (InkMod_Loader_t)INK_DL_SYMBOL(handler, "InkMod_Loader");
+	InkMod_Init_t init = (InkMod_Init_t)INK_DL_SYMBOL(handler, "InkMod_Init");
 
 	if (!handler) {
 		InkWarn_Failed_Load_Mod(NULL, path);
@@ -234,8 +234,8 @@ void Ink_preloadModule(const char *name)
 		return;
 	}
 
-	InkMod_Loader loader = (InkMod_Loader)INK_DL_SYMBOL(handler, "InkMod_Loader");
-	InkMod_Init init = (InkMod_Init)INK_DL_SYMBOL(handler, "InkMod_Init");
+	InkMod_Loader_t loader = (InkMod_Loader_t)INK_DL_SYMBOL(handler, "InkMod_Loader");
+	InkMod_Init_t init = (InkMod_Init_t)INK_DL_SYMBOL(handler, "InkMod_Init");
 	if (!loader) {
 		InkWarn_Failed_Find_Loader(NULL, name);
 		INK_DL_CLOSE(handler);

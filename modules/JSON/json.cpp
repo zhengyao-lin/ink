@@ -108,7 +108,7 @@ Ink_Object *InkMod_JSON_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *c
 }
 
 extern "C" {
-	static long ink_native_json_mod_id;
+	static InkMod_ModuleID ink_native_json_mod_id;
 
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
@@ -118,7 +118,7 @@ extern "C" {
 		return;
 	}
 
-	int InkMod_Init(long id)
+	int InkMod_Init(InkMod_ModuleID id)
 	{
 		ink_native_json_mod_id = id;
 		return 0;
