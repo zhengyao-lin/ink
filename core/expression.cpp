@@ -3,6 +3,7 @@
 #include "expression.h"
 #include "protocol.h"
 #include "general.h"
+#include "numeric.h"
 #include "coroutine/coroutine.h"
 #include "interface/engine.h"
 
@@ -50,9 +51,13 @@ Ink_Expression *Ink_NumericConstant::parse(string code)
 	bool is_success = false;
 	Ink_NumericValue val = Ink_NumericConstant::parseNumeric(code, &is_success);
 
+	if (isinf(val)) {
+		return new Ink_BigNumericConstant(code);
+	}
+
 	if (is_success)
 		return new Ink_NumericConstant(val);
-
+	
 	return NULL;
 }
 

@@ -50,7 +50,7 @@ CPPFLAGS=$(GLOBAL_CPPFLAGS)
 STATIC_CPPFLAGS=$(CPPFLAGS) $(GLOBAL_STATIC_CPPFLAGS)
 
 LDFLAGS=-Lcore -l$(LIB_LD_NAME) -static-libgcc -static-libstdc++
-STATIC_LDFLAGS=-static
+STATIC_LDFLAGS=-static -lm
 
 ifneq ($(GLOBAL_PLATFORM), windows)
 	LDFLAGS+= -ldl

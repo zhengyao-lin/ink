@@ -8,6 +8,7 @@
 #include <string>
 #include <algorithm>
 #include <math.h>
+#include <float.h>
 
 using namespace std;
 
@@ -21,6 +22,7 @@ class Ink_BigInteger {
 public:
 	friend class Ink_BigNumericValue;
 	Ink_BigInteger(long);
+	Ink_BigInteger(double, bool);
 	Ink_BigInteger(string);
 	Ink_BigInteger();
 	Ink_BigInteger(const Ink_BigInteger &);
@@ -76,7 +78,7 @@ class Ink_BigNumericValue {
 public:
 
 	enum {
-		DEFAULT_ACC = 12
+		DEFAULT_ACC = 16
 	};
 
 	Ink_BigNumericValue()
@@ -87,12 +89,13 @@ public:
 	Ink_BigNumericValue(double val)
     {
 		num = std_pow = 0;
-		if (val == val) {
+		if (!isnan(val)) {
 			double tmp_val = val;
-			Ink_BigInteger integer = (long)tmp_val;
-			Ink_BigInteger decimal = (tmp_val - (long)tmp_val) / pow(10, DEFAULT_ACC);
+			Ink_BigInteger integer(floor(tmp_val), true);
+			Ink_BigInteger decimal((tmp_val - floor(tmp_val)) * pow(10, DEFAULT_ACC), true);
 			num = integer * Ink_BigInteger(10).pow(DEFAULT_ACC) + decimal;
-			std_pow = (long)tmp_val
+			//std::cout << integer << decimal << endl;
+			std_pow = fabs(tmp_val) >= 1
 					  ? integer.digits.size()
 					  : decimal.digits.size() - DEFAULT_ACC;
 		}
@@ -142,7 +145,7 @@ public:
 
 		if (std_pow < 0) {
         	long i = -std_pow;
-        	ret += "0.";
+        	ret += ".";
         	while (i > 0) {
         		ret += "0";
         		i--;
@@ -242,28 +245,44 @@ public:
 		return lhs = lhs.dividedBy(rhs);
 	}
 
-	friend Ink_BigNumericValue operator + (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2){
+	friend Ink_BigNumericValue operator + (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
+	{
 		Ink_BigNumericValue temp(op1);
 		temp += op2;
 		return temp;
 	}
 
-	friend Ink_BigNumericValue operator - (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2){
+	friend Ink_BigNumericValue operator - (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
+	{
 		Ink_BigNumericValue temp(op1);
 		temp -= op2;
 		return temp;
 	}
 
-	friend Ink_BigNumericValue operator * (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2){
+	friend Ink_BigNumericValue operator * (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
+	{
 		Ink_BigNumericValue temp(op1);
 		temp *= op2;
 		return temp;
 	}
 
-	friend Ink_BigNumericValue operator / (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2){
+	friend Ink_BigNumericValue operator / (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
+	{
 		Ink_BigNumericValue temp(op1);
 		temp /= op2;
 		return temp;
+	}
+
+	friend Ink_BigNumericValue operator - (const Ink_BigNumericValue &op)
+	{
+		Ink_BigNumericValue temp(op);
+		temp.num = -temp.num;
+		return temp;
+	}
+
+	friend Ink_BigNumericValue operator + (const Ink_BigNumericValue &op)
+	{
+		return op;
 	}
 };
 

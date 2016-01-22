@@ -370,6 +370,20 @@ public:
 	virtual ~Ink_NumericConstant() { }
 };
 
+class Ink_BigNumericConstant: public Ink_Expression {
+public:
+	string value;
+
+	Ink_BigNumericConstant(string value)
+	: value(value)
+	{ }
+
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+	{
+		return new Ink_BigNumeric(engine, value);
+	}
+};
+
 class Ink_StringConstant: public Ink_Expression {
 public:
 	string *value;

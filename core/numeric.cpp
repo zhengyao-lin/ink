@@ -24,6 +24,20 @@ Ink_BigInteger::Ink_BigInteger(long val)
 	} while (val != 0);
 }
 
+Ink_BigInteger::Ink_BigInteger(double val, bool flag)
+{
+	if (val >= 0) sign = true;
+	else {
+		sign = false;
+		val *= -1;
+	}
+	val = floor(val);
+	do {
+		digits.push_back((char)(fmod(val, 10)));
+		val /= 10;
+	} while (fabs(val) >= 1);
+}
+
 Ink_BigInteger::Ink_BigInteger(string def)
 {
 	sign = true;

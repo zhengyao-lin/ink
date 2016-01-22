@@ -21,7 +21,7 @@ REQUIRE=\
 	numeric.o
 
 CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -fPIC $(GLOBAL_CPPFLAGS)
-LDFLAGS=-shared -static-libgcc -static-libstdc++
+LDFLAGS=-shared -static-libgcc -static-libstdc++ -lm
 STATIC_LDFLAGS=
 
 ifneq ($(GLOBAL_PLATFORM), windows)
