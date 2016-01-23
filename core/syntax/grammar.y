@@ -4,20 +4,21 @@
 	#include <string.h>
 	#include "core/expression.h"
 	#include "core/error.h"
+	#include "core/general.h"
 	#include "core/interface/engine.h"
 	#include "core/interface/setting.h"
 	#define SET_LINE_NO(exp) (exp->line_number = current_line_number)
 	#define YYERROR_VERBOSE 1
 	#define YYDEBUG 1
 
-	extern int current_line_number;
+	extern Ink_LineNoType current_line_number;
 
 	const char *yyerror_prefix = "";
 
 	extern int yylex();
 	void yyerror(const char *msg) {
 		const char *tmp = Ink_getParseEngine()->getFilePath();
-		fprintf(stderr, "%s: %sline %d: %s\n", tmp ? tmp : "<unknown input>",
+		fprintf(stderr, "%s: %sline %ld: %s\n", tmp ? tmp : "<unknown input>",
 				yyerror_prefix, current_line_number, msg);
 	}
 %}

@@ -64,7 +64,7 @@ using namespace std;
 inline bool
 hasSuffix(const char *path, const char *suf)
 {
-	int i, j;
+	long i, j;
 	for (i = strlen(path), j = strlen(suf);
 		 i >= 0 && j >= 0; i--, j--) {
 		if (path[i] != suf[j])

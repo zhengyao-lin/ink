@@ -3,7 +3,7 @@
 #include "../context.h"
 #include "native.h"
 
-Ink_Object *InkNative_String_Add(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_String_Add(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_String *tmp;
@@ -22,7 +22,7 @@ Ink_Object *InkNative_String_Add(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 	string base_str;
@@ -40,7 +40,7 @@ Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return new Ink_String(engine, base_str.substr(index, 1));
 }
 
-Ink_Object *InkNative_String_Length(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_String_Length(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
@@ -49,7 +49,7 @@ Ink_Object *InkNative_String_Length(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().length());
 }
 
-Ink_Object *InkNative_String_SubStr(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_String_SubStr(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 	string::size_type offset;
@@ -81,7 +81,7 @@ Ink_Object *InkNative_String_SubStr(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return new Ink_String(engine, origin.substr(offset, length));
 }
 
-Ink_Object *InkNative_String_Greater(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_String_Greater(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
@@ -94,7 +94,7 @@ Ink_Object *InkNative_String_Greater(Ink_InterpreteEngine *engine, Ink_ContextCh
 								   > as<Ink_String>(argv[0])->getValue().c_str()[0]);
 }
 
-Ink_Object *InkNative_String_Less(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_String_Less(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
@@ -106,7 +106,7 @@ Ink_Object *InkNative_String_Less(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().c_str()[0] < as<Ink_String>(argv[0])->getValue().c_str()[0]);
 }
 
-Ink_Object *InkNative_String_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_String_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
@@ -118,7 +118,7 @@ Ink_Object *InkNative_String_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_Co
 	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().c_str()[0] >= as<Ink_String>(argv[0])->getValue().c_str()[0]);
 }
 
-Ink_Object *InkNative_String_LessOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_String_LessOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 

@@ -45,7 +45,7 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 		Ink_FunctionObject *func = as<Ink_FunctionObject>(obj);
 		Ink_ContextChain *global = func->closure_context->getGlobal();
 		Ink_ContextChain *j;
-		unsigned int argi;
+		Ink_ArgcType argi;
 
 		for (j = global; j; j = j->inner) {
 			doMark(j->context);
@@ -58,7 +58,7 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 		}
 	} else if (obj->type == INK_ARRAY) {
 		Ink_Array *arr = as<Ink_Array>(obj);
-		unsigned int i;
+		Ink_ArrayValue::size_type i;
 		for (i = 0; i < arr->value.size(); i++) {
 			if (arr->value[i])
 				doMark(arr->value[i]->getValue());

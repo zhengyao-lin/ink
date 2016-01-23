@@ -13,7 +13,7 @@
 	} \
 } while (0)
 
-inline unsigned int getRealIndex(int index, unsigned int size)
+inline string::size_type getRealIndex(int index, string::size_type size)
 {
 	while (index < 0) index += size;
 	return index;
@@ -31,7 +31,7 @@ inline Ink_Object *searchContextSlot(Ink_InterpreteEngine *engine, Ink_ContextCh
 }
 
 inline Ink_Object *callMethod(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, const char *method_name,
-							  unsigned int argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL)
+							  Ink_ArgcType argc = 0, Ink_Object **argv = NULL, Ink_Object *this_p = NULL)
 {
 	if ((base = getSlotWithProto(engine, context, base, method_name))->type != INK_FUNCTION) {
 		InkWarn_Failed_Finding_Method(engine, method_name);
@@ -51,7 +51,7 @@ inline bool assumeType(Ink_InterpreteEngine *engine, Ink_Object *obj, Ink_TypeTa
 	return true;
 }
 
-inline bool checkArgument(Ink_InterpreteEngine *engine, unsigned int argc, unsigned int min)
+inline bool checkArgument(Ink_InterpreteEngine *engine, Ink_ArgcType argc, Ink_ArgcType min)
 {
 	if (argc < min) {
 		InkWarn_Too_Less_Argument(engine, min, argc);
@@ -60,8 +60,8 @@ inline bool checkArgument(Ink_InterpreteEngine *engine, unsigned int argc, unsig
 	return true;
 }
 
-inline bool checkArgument(bool if_output, unsigned int argc, Ink_Object **argv,
-						  unsigned int min, Ink_TypeTag type1)
+inline bool checkArgument(bool if_output, Ink_ArgcType argc, Ink_Object **argv,
+						  Ink_ArgcType min, Ink_TypeTag type1)
 {
 	if (argc < min) {
 		return false;
@@ -74,8 +74,8 @@ inline bool checkArgument(bool if_output, unsigned int argc, Ink_Object **argv,
 	return true;
 }
 
-inline bool checkArgument(Ink_InterpreteEngine *engine, unsigned int argc, Ink_Object **argv,
-						  unsigned int min, Ink_TypeTag type1)
+inline bool checkArgument(Ink_InterpreteEngine *engine, Ink_ArgcType argc, Ink_Object **argv,
+						  Ink_ArgcType min, Ink_TypeTag type1)
 {
 	if (argc < min) {
 		InkWarn_Too_Less_Argument(engine, min, argc);
@@ -90,8 +90,8 @@ inline bool checkArgument(Ink_InterpreteEngine *engine, unsigned int argc, Ink_O
 	return true;
 }
 
-inline bool checkArgument(Ink_InterpreteEngine *engine, unsigned int argc, Ink_Object **argv,
-						  unsigned int min, Ink_TypeTag type1, Ink_TypeTag type2)
+inline bool checkArgument(Ink_InterpreteEngine *engine, Ink_ArgcType argc, Ink_Object **argv,
+						  Ink_ArgcType min, Ink_TypeTag type1, Ink_TypeTag type2)
 {
 	if (argc < min) {
 		InkWarn_Too_Less_Argument(engine, min, argc);
@@ -109,8 +109,8 @@ inline bool checkArgument(Ink_InterpreteEngine *engine, unsigned int argc, Ink_O
 	return true;
 }
 
-inline bool checkArgument(bool if_output, unsigned int argc, Ink_Object **argv,
-						  unsigned int min, Ink_TypeTag type1, Ink_TypeTag type2)
+inline bool checkArgument(bool if_output, Ink_ArgcType argc, Ink_Object **argv,
+						  Ink_ArgcType min, Ink_TypeTag type1, Ink_TypeTag type2)
 {
 	if (argc < min) {
 		return false;
@@ -141,7 +141,7 @@ inline Ink_Object *addPackage(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 
 inline void cleanArrayHashTable(Ink_ArrayValue val)
 {
-	unsigned int i;
+	Ink_ArrayValue::size_type i;
 	for (i = 0; i < val.size(); i++) {
 		delete val[i];
 	}

@@ -22,7 +22,7 @@ void Ink_addModule(INK_DL_HANDLER handler)
 
 void Ink_disposeModules()
 {
-	unsigned int i;
+	DLHandlerPool::size_type i;
 	pthread_mutex_lock(&dl_handler_pool_lock);
 	for (i = 0; i < dl_handler_pool.size(); i++) {
 		INK_DL_CLOSE(dl_handler_pool[i]);
@@ -124,7 +124,7 @@ string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp f
 
 		if (i < 0) {
 			free(suffix);
-			suffix = (char *)malloc(sizeof(char) * (++ current_bit + 1));
+			suffix = (char *)malloc(sizeof(char) * (++current_bit + 1));
 			for (i = 0; i < current_bit; i++)
 				suffix[i] = 'a';
 			suffix[i] = '\0';

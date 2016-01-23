@@ -177,6 +177,13 @@ Ink_Object *trapSignal(Ink_InterpreteEngine *engine);
 typedef std::vector<Ink_Expression *> Ink_ExpressionList;
 typedef std::vector<Ink_Argument *> Ink_ArgumentList;
 typedef std::vector<Ink_Parameter> Ink_ParamList;
+typedef unsigned int Ink_ArgcType;
+typedef long Ink_InterruptSignalTrap;
+
+typedef int IGC_MarkType;
+typedef long IGC_ObjectCountType;
+
+typedef long Ink_LineNoType;
 
 /*
 std::string *StrPool_addStr(const char *str);

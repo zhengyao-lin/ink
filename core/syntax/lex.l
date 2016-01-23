@@ -29,7 +29,7 @@ SPS				({SP})+
 #define LINE_NUMBER_INC()	(current_line_number++)
 #define MIN(a, b) ((unsigned int)(a) < (unsigned int)(b) ? (a) : (b))
 
-int current_line_number = 1;
+Ink_LineNoType current_line_number = 1;
 string *id_literal = NULL;
 string *string_literal = NULL;
 bool if_ignore_nl = false;

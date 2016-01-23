@@ -72,15 +72,15 @@ public:
 
 	Ink_InputMode input_mode;
 	const char *input_file_path;
-	int current_line_number;
+	Ink_LineNoType current_line_number;
 
 	Ink_ContextChain *trace;
 
 	// MutexLock gc_lock;
-	long igc_object_count;
-	long igc_collect_treshold;
+	IGC_ObjectCountType igc_object_count;
+	IGC_ObjectCountType igc_collect_treshold;
 	IGC_CollectEngine *current_gc_engine;
-	int igc_mark_period;
+	IGC_MarkType igc_mark_period;
 	// std::map<int, IGC_CollectEngine *> gc_engine_map;
 
 	InterruptSignal CGC_interrupt_signal;
@@ -90,8 +90,8 @@ public:
 
 	IGC_CollectEngine *ink_sync_call_tmp_engine;
 	pthread_mutex_t ink_sync_call_mutex;
-	int ink_sync_call_max_thread;
-	int ink_sync_call_current_thread;
+	ThreadID ink_sync_call_max_thread;
+	ThreadID ink_sync_call_current_thread;
 	vector<bool> ink_sync_call_end_flag;
 
 	MutexLock thread_lock;
@@ -100,7 +100,7 @@ public:
 
 	vector<string *> string_pool;
 
-	int dbg_type_mapping_length;
+	DBG_CustomTypeType dbg_type_mapping_length;
 	DBG_TypeMapping *dbg_type_mapping;
 	vector<Ink_Object *> dbg_traced_stack;
 
@@ -149,7 +149,7 @@ public:
 
 	inline void callAllDestructor()
 	{
-		unsigned int i;
+		Ink_CustomDestructorQueue::size_type i;
 		for (i = 0; i < custom_destructor_queue.size(); i++) {
 			custom_destructor_queue[i].destruct_func(this, custom_destructor_queue[i].arg);
 		}
@@ -287,10 +287,10 @@ public:
 		thread_lock.unlock();
 	}
 
-	inline unsigned int getCurrentLayer()
+	inline ThreadLayerType getCurrentLayer()
 	{
 		thread_lock.lock();
-		unsigned int ret = CURRENT_LAYER;
+		ThreadLayerType ret = CURRENT_LAYER;
 		thread_lock.unlock();
 		return ret;
 	}
@@ -307,7 +307,7 @@ public:
 	inline void joinAllThread()
 	{
 		pthread_t *thd;
-		unsigned int i;
+		ThreadPool::size_type i;
 		//thread_lock.lock();
 		for (i = 0; i < thread_pool.size(); i++) {
 			thread_lock.lock();
@@ -361,7 +361,7 @@ public:
 
 	inline void disposeStringPool()
 	{
-		unsigned int i;
+		vector<string *>::size_type i;
 		for (i = 0; i < string_pool.size(); i++) {
 			delete string_pool[i];
 		}
@@ -371,7 +371,7 @@ public:
 
 	inline void initTypeMapping()
 	{
-		int i;
+		DBG_CustomTypeType i;
 
 		dbg_type_mapping_length = INK_LAST;
 		dbg_type_mapping = (DBG_TypeMapping *)malloc(sizeof(DBG_TypeMapping) * dbg_type_mapping_length);
@@ -389,16 +389,16 @@ public:
 		return;
 	}
 
-	inline int registerType(const char *name)
+	inline DBG_CustomTypeType registerType(const char *name)
 	{
-		int ret = dbg_type_mapping_length++;
+		DBG_CustomTypeType ret = dbg_type_mapping_length++;
 		dbg_type_mapping = (DBG_TypeMapping *)realloc(dbg_type_mapping,
 													  sizeof(DBG_TypeMapping) * dbg_type_mapping_length);
 		dbg_type_mapping[ret] = DBG_TypeMapping(ret, addToStringPool(name)->c_str());
 		return ret;
 	}
 
-	inline const char *getTypeName(int type_tag)
+	inline const char *getTypeName(DBG_CustomTypeType type_tag)
 	{
 		return dbg_type_mapping[type_tag].friendly_name;
 	}

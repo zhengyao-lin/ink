@@ -4,6 +4,7 @@
 #include "msg/emcore.h"
 #include "type.h"
 #include "debug.h"
+#include "general.h"
 
 class Ink_ContextChain;
 class Ink_InterpreteEngine;
@@ -217,7 +218,7 @@ InkWarn_Wrong_Type(Ink_InterpreteEngine *engine, Ink_TypeTag expect, Ink_TypeTag
 }
 
 inline void
-InkWarn_Too_Less_Argument(Ink_InterpreteEngine *engine, unsigned int min, unsigned int argc)
+InkWarn_Too_Less_Argument(Ink_InterpreteEngine *engine, Ink_ArgcType min, Ink_ArgcType argc)
 {
 	stringstream strm;
 	strm << "Too less argument. need at least " << min

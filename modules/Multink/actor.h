@@ -10,11 +10,11 @@ public:
 	Ink_InterpreteEngine *engine;
 	Ink_ExpressionList exp_list;
 	Ink_ParamList param_list;
-	unsigned int argc;
+	Ink_ArgcType argc;
 	Ink_Object **argv;
 
 	Ink_ActorFunction_sub_Argument(Ink_InterpreteEngine *engine, Ink_ExpressionList exp_list,
-								   Ink_ParamList param_list, unsigned int argc, Ink_Object **argv)
+								   Ink_ParamList param_list, Ink_ArgcType argc, Ink_Object **argv)
 	: engine(engine), exp_list(exp_list), param_list(param_list), argc(argc), argv(argv)
 	{ }
 };
@@ -31,7 +31,7 @@ public:
 	{ }
 
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
-							 Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
+							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true);
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 };

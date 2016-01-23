@@ -48,16 +48,6 @@ public:
 typedef std::map<ThreadIDRaw, ThreadID> ThreadIDMap;
 typedef std::vector<ThreadIDMap> ThreadIDMapStack;
 typedef std::vector<pthread_t *> ThreadPool;
-
-/*
-int initThread();
-ThreadID getThreadID();
-ThreadID registerThread(int id);
-void addLayer();
-void removeLayer();
-unsigned int getCurrentLayer();
-void addThread(pthread_t *thread);
-void joinAllThread();
-*/
+typedef ThreadIDMapStack::size_type ThreadLayerType;
 
 #endif

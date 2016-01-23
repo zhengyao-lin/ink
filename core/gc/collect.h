@@ -2,6 +2,7 @@
 #define _COLLECT_H_
 
 #include "../object.h"
+#include "../general.h"
 
 #define IGC_COLLECT_TRESHOLD (512)
 
@@ -31,9 +32,9 @@ public:
 
 class IGC_CollectEngine {
 public:
-	//long object_count;
-	//long collect_treshold;
-	int mark;
+	// long object_count;
+	// long collect_treshold;
+	IGC_MarkType mark;
 	Ink_TypeTag type;
 	// IGC_CollectUnit *pardon_chain;
 	IGC_CollectUnit *object_chain;

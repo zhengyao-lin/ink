@@ -70,7 +70,7 @@ public:
 
 	virtual ~Ink_CommaExpression()
 	{
-		unsigned int i;
+		Ink_ExpressionList::size_type i;
 		for (i = 0; i < exp_list.size(); i++) {
 			delete exp_list[i];
 		}
@@ -198,7 +198,7 @@ public:
 
 	~Ink_HashTableExpression()
 	{
-		unsigned int i;
+		Ink_HashTableMapping::size_type i;
 		for (i = 0; i < mapping.size(); i++) {
 			delete mapping[i];
 		}
@@ -217,7 +217,7 @@ public:
 
 	virtual ~Ink_TableExpression()
 	{
-		unsigned int i;
+		Ink_ExpressionList::size_type i;
 		for (i = 0; i < elem_list.size(); i++) {
 			delete elem_list[i];
 		}
@@ -281,12 +281,13 @@ public:
 
 	virtual ~Ink_FunctionExpression()
 	{
-		unsigned int i;
-		for (i = 0; i < param.size(); i++) {
-			delete param[i].name;
+		for (Ink_ParamList::iterator param_iter = param.begin();
+			 param_iter != param.end(); param_iter++) {
+			delete (*param_iter).name;
 		}
-		for (i = 0; i < exp_list.size(); i++) {
-			delete exp_list[i];
+		for (Ink_ExpressionList::iterator exp_list_iter = exp_list.begin();
+			 exp_list_iter != exp_list.end(); exp_list_iter++) {
+			delete *exp_list_iter;
 		}
 		if (protocol_name)
 			delete protocol_name;
@@ -307,7 +308,7 @@ public:
 
 	virtual ~Ink_CallExpression()
 	{
-		unsigned int i;
+		Ink_ArgumentList::size_type i;
 		delete callee;
 		for (i = 0; i < arg_list.size(); i++) {
 			delete arg_list[i];
@@ -412,7 +413,7 @@ public:
 
 	virtual ~Ink_ArrayLiteral()
 	{
-		unsigned int i;
+		Ink_ExpressionList::size_type i;
 		for (i = 0; i < elem_list.size(); i++) {
 			delete elem_list[i];
 		}

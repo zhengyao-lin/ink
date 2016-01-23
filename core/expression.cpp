@@ -67,7 +67,7 @@ Ink_Object *Ink_CommaExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	SET_LINE_NUM;
 
 	Ink_Object *ret = NULL_OBJ;
-	unsigned int i;
+	Ink_ExpressionList::size_type i;
 
 	for (i = 0; i < exp_list.size(); i++) {
 		ret = exp_list[i]->eval(engine, context_chain);
@@ -99,11 +99,11 @@ Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	}
 	engine->CGC_interrupt_value = ret;
 
-	unsigned int self_layer = engine->getCurrentLayer();
-	int self_id = engine->getThreadID();
+	ThreadLayerType self_layer = engine->getCurrentLayer();
+	ThreadID self_id = engine->getThreadID();
 	IGC_CollectEngine *gc_engine_backup = engine->getCurrentGC();
 
-	printf("***Coroutine yield: id %d at layer %u\n", self_id, self_layer);
+	// printf("***Coroutine yield: id %u at layer %u\n", self_id, self_layer);
 
 	pthread_mutex_lock(&engine->ink_sync_call_mutex);
 	InkCoCall_switchCoroutine(engine);
@@ -241,7 +241,7 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 	SET_LINE_NUM;
 
 	Ink_Object *ret = new Ink_Object(engine), *key;
-	unsigned int i;
+	Ink_HashTableMapping::size_type i;
 
 	for (i = 0; i < mapping.size(); i++) {
 		/* two possibility: 1. identifier key; 2. expression key with brackets */
@@ -281,7 +281,7 @@ Ink_Object *Ink_TableExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	SET_LINE_NUM;
 
 	Ink_ArrayValue val = Ink_ArrayValue();
-	unsigned int i;
+	Ink_ArrayValue::size_type i;
 
 	for (i = 0; i < elem_list.size(); i++) {
 		val.push_back(new Ink_HashTable("", elem_list[i]->eval(engine, context_chain)));
@@ -421,7 +421,7 @@ inline Ink_ArgumentList expandArgument(Ink_InterpreteEngine *engine, Ink_Object 
 {
 	Ink_ArgumentList ret = Ink_ArgumentList();
 	Ink_ArrayValue arr_val;
-	unsigned int i;
+	Ink_ArrayValue::size_type i;
 
 	if (!obj || obj->type != INK_ARRAY) {
 		InkWarn_With_Attachment_Require(engine);
@@ -441,7 +441,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	int line_num_back;
 	SET_LINE_NUM;
 
-	unsigned int i;
+	Ink_ArgumentList::size_type i;
 	Ink_Object **argv = NULL, **argv_back = NULL;
 	Ink_Object *ret_val, *expandee;
 	/* eval callee to get parameter declaration */
@@ -455,7 +455,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	/* this part was moved from Ink_FunctionObject::call */
 	bool is_arg_completed = true,
 		 if_delete_argv = false;
-	unsigned int tmp_argc, j, argi, argc;
+	Ink_ArgcType tmp_argc, j, argi, argc;
 	Ink_Object **tmp_argv;
 
 	if (func->type == INK_FUNCTION) {
@@ -466,13 +466,15 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 		func = Ink_HashExpression::getSlot(engine, context_chain, func, "new");
 	}
 
-	for (i = 0, tmp_arg_list = Ink_ArgumentList();
-		 i < arg_list.size(); i++) {
-		if (arg_list[i]->is_expand) {
+
+	tmp_arg_list = Ink_ArgumentList();
+	for (Ink_ArgumentList::iterator arg_list_iter = arg_list.begin();
+		 arg_list_iter != arg_list.end(); arg_list_iter++) {
+		if ((*arg_list_iter)->is_expand) {
 			/* if the argument is 'with' argument attachment */
 
 			/* eval expandee */
-			expandee = arg_list[i]->expandee->eval(engine, context_chain);
+			expandee = (*arg_list_iter)->expandee->eval(engine, context_chain);
 			if (INTER_SIGNAL_RECEIVED) {
 				ret_val = engine->CGC_interrupt_value;
 				goto DISPOSE_LIST;
@@ -486,7 +488,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 			tmp_arg_list.insert(tmp_arg_list.end(), another_tmp_arg_list.begin(), another_tmp_arg_list.end());
 		} else {
 			/* normal argument, directly push to argument list */
-			tmp_arg_list.push_back(arg_list[i]);
+			tmp_arg_list.push_back(*arg_list_iter);
 		}
 	}
 
@@ -547,7 +549,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 		if (!is_arg_completed) {
 			/* still missing arguments -- return another PAF */
 			if (argi < argc) {
-				unsigned int remainc = argc - argi; /* remaining arguments */
+				Ink_ArgcType remainc = argc - argi; /* remaining arguments */
 				argc = remainc + tmp_argc;
 				/* link the PA arguments and remaining arguments */
 				argv = linkArgv(tmp_argc, tmp_argv,
@@ -561,7 +563,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 			goto DISPOSE_ARGV;
 		}
 
-		unsigned int remainc = argc - argi; /* remaining arguments */
+		Ink_ArgcType remainc = argc - argi; /* remaining arguments */
 		argc = remainc + tmp_argc;
 		/* link the PA arguments and remaining arguments */
 		argv = linkArgv(tmp_argc, tmp_argv,
@@ -683,7 +685,7 @@ Ink_Object *Ink_ArrayLiteral::eval(Ink_InterpreteEngine *engine, Ink_ContextChai
 	int line_num_back;
 	SET_LINE_NUM;
 	Ink_ArrayValue val = Ink_ArrayValue();
-	unsigned int i;
+	Ink_ArrayValue::size_type i;
 
 	for (i = 0; i < elem_list.size(); i++) {
 		val.push_back(new Ink_HashTable("", elem_list[i]->eval(engine, context_chain)));

@@ -305,7 +305,7 @@ inline void setFuncAttr(Ink_Object *obj, Ink_FunctionAttribution attr)
 
 inline Ink_Object *callWithAttr(Ink_Object *obj, Ink_FunctionAttribution attr,
 								Ink_InterpreteEngine *engine, Ink_ContextChain *context,
-								unsigned int argc = 0, Ink_Object **argv = NULL)
+								Ink_ArgcType argc = 0, Ink_Object **argv = NULL)
 {
 	Ink_FunctionAttribution attr_back;
 	Ink_Object *ret = NULL_OBJ;
@@ -320,10 +320,10 @@ inline Ink_Object *callWithAttr(Ink_Object *obj, Ink_FunctionAttribution attr,
 }
 
 inline Ink_Object **copyDeepArgv(Ink_InterpreteEngine *engine,
-								 unsigned int argc, Ink_Object **argv)
+								 Ink_ArgcType argc, Ink_Object **argv)
 {
 	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * argc);
-	unsigned int i;
+	Ink_ArgcType i;
 
 	for (i = 0; i < argc; i++) {
 		if (!engine->cloneDeepHasTraced(argv[i])) {
@@ -336,24 +336,13 @@ inline Ink_Object **copyDeepArgv(Ink_InterpreteEngine *engine,
 	return ret;
 }
 
-#define CURRENT_COROUTINE (ink_coroutine_list[ink_current_coroutine])
-#define CURRENT_SLICE (CURRENT_COROUTINE[CURRENT_COROUTINE.size() - 1])
-#define CURRENT_CONTEXT (CURRENT_SLICE.context)
-#define CURRENT_EXP_LIST (CURRENT_SLICE.exp_list)
-#define CURRENT_PC (CURRENT_SLICE.current_pc)
-#define CURRENT_GC_ENGINE (CURRENT_SLICE.engine)
-#define CURRENT_ATTR (CURRENT_SLICE.func->attr)
-
-#define SWITCH_COROUTINE() (ink_current_coroutine = (ink_current_coroutine + 1 >= ink_coroutine_list.size()) ? 0 : ++ink_current_coroutine)
-
-Ink_CoroutineList ink_coroutine_list;
-unsigned int ink_current_coroutine;
-
 Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
-									 Ink_ContextChain *context, unsigned int argc, Ink_Object **argv,
+									 Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
 {
-	unsigned int argi, j;
+	Ink_ExpressionList::size_type i;
+	Ink_ArgcType argi;
+	Ink_ParamList::size_type j;
 	Ink_ContextObject *local;
 	Ink_Object *ret_val = NULL;
 	Ink_Array *var_arg = NULL;
@@ -364,71 +353,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	bool if_delete_argv = false;
 	const char *debug_name_back = getDebugName();
 	const char *base_debug_name_back = getSlot(engine, "base")->getDebugName();
-
-	/*if (is_generator) {
-		Ink_Object *gen = new Ink_Object();
-		Ink_FunctionObject *clone_origin = as<Ink_FunctionObject>(this->clone());
-		clone_origin->is_generator = false;
-
-		gen->setSlot("origin", clone_origin);
-		gen->setSlot("context", new Ink_UContext());
-		gen->setSlot("send", new Ink_FunctionObject(InkNative_Generator_Send));
-
-		return gen;
-	}*/
-#if 0
-	bool is_arg_completed = true;
-
-	/* if some arguments have been applied already */
-	if (partial_applied_argv) {
-		tmp_argc = partial_applied_argc;
-		tmp_argv = copyArgv(partial_applied_argc, partial_applied_argv);
-		for (j = 0, argi = 0; j < tmp_argc; j++) {
-			/* find unknown place to put in arguments */
-			if (isUnknown(tmp_argv[j])) {
-				if (argi < argc /* not excess */
-					&& !isUnknown(argv[argi]) /* not another unknown argument */)
-					tmp_argv[j] = argv[argi];
-				else
-					is_arg_completed = false;
-				argi++;
-			}
-		}
-
-		if (!is_arg_completed) {
-			/* still missing arguments -- return another PAF */
-			if (argi < argc) {
-				unsigned int remainc = argc - argi; /* remaining arguments */
-				argc = remainc + tmp_argc;
-				/* link the PA arguments and remaining arguments */
-				argv = linkArgv(tmp_argc, tmp_argv,
-								remainc, &argv[argi]);
-
-				free(tmp_argv);
-				tmp_argc = argc;
-				tmp_argv = argv;
-			}
-			return cloneWithPA(engine, tmp_argc, tmp_argv, true);
-		}
-
-		unsigned int remainc = argc - argi; /* remaining arguments */
-		argc = remainc + tmp_argc;
-		/* link the PA arguments and remaining arguments */
-		argv = linkArgv(tmp_argc, tmp_argv,
-						remainc, &argv[argi]);
-		free(tmp_argv);
-		if_delete_argv = true;
-	}
-
-	for (argi = 0; argi < argc; argi++) {
-		if (isUnknown(argv[argi])) { /* find unknown argument */
-			tmp = cloneWithPA(engine, argc, copyArgv(argc, argv), true);
-			if (if_delete_argv)
-				free(argv);
-			return tmp;
-		}
-	}
-#endif
 
 	/* init GC engine */
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine(engine);
@@ -492,9 +416,9 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 			InkWarn_Unfit_Argument(engine);
 		}
 
-		for (j = 0; j < exp_list.size(); j++) {
+		for (i = 0; i < exp_list.size(); i++) {
 			gc_engine->checkGC();
-			ret_val = exp_list[j]->eval(engine, context); // eval each expression
+			ret_val = exp_list[i]->eval(engine, context); // eval each expression
 
 			/* interrupt signal received */
 			if (engine->CGC_interrupt_signal != INTER_NONE) {
@@ -596,7 +520,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val)
 {
 	Ink_ArrayValue ret = Ink_ArrayValue();
-	unsigned int i;
+	Ink_ArrayValue::size_type i;
 
 	for (i = 0; i < val.size(); i++) {
 		if (val[i])
@@ -610,7 +534,7 @@ Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val)
 Ink_ArrayValue Ink_Array::cloneDeepArrayValue(Ink_InterpreteEngine *engine, Ink_ArrayValue val)
 {
 	Ink_ArrayValue ret = Ink_ArrayValue();
-	unsigned int i;
+	Ink_ArrayValue::size_type i;
 
 	for (i = 0; i < val.size(); i++) {
 		if (val[i]
@@ -715,9 +639,9 @@ public:
 	Ink_InterpreteEngine *engine;
 	Ink_ContextChain *context;
 	Ink_CoCall sync_call;
-	int id;
+	ThreadID id;
 
-	InkCoCall_Argument(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_CoCall sync_call, int id)
+	InkCoCall_Argument(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_CoCall sync_call, ThreadID id)
 	: engine(engine), context(context), sync_call(sync_call), id(id)
 	{ }
 };
@@ -725,7 +649,7 @@ public:
 bool /* if found idling coroutine */
 InkCoCall_switchCoroutine(Ink_InterpreteEngine *engine)
 {
-	int id = engine->ink_sync_call_current_thread + 1;
+	ThreadID id = engine->ink_sync_call_current_thread + 1;
 	while (id < engine->ink_sync_call_max_thread) {
 		if (!engine->ink_sync_call_end_flag[id]) {
 			engine->ink_sync_call_current_thread = id;
@@ -733,7 +657,7 @@ InkCoCall_switchCoroutine(Ink_InterpreteEngine *engine)
 		}
 		id++;
 	}
-	id = 0;
+	id = 1;
 	while (id < engine->ink_sync_call_current_thread) {
 		if (!engine->ink_sync_call_end_flag[id]) {
 			engine->ink_sync_call_current_thread = id;
@@ -747,9 +671,9 @@ InkCoCall_switchCoroutine(Ink_InterpreteEngine *engine)
 void *InkCoCall_primaryCall(void *arg)
 {
 	InkCoCall_Argument *tmp = (InkCoCall_Argument *)arg;
-	int self_id = tmp->engine->registerThread(tmp->id);
-	unsigned int self_layer = tmp->engine->getCurrentLayer();
-	printf("***Coroutine created: id %d at layer %u\n", self_id, self_layer);
+	ThreadID self_id = tmp->engine->registerThread(tmp->id);
+	ThreadLayerType self_layer = tmp->engine->getCurrentLayer();
+	// printf("***Coroutine created: id %d at layer %u\n", self_id, self_layer);
 
 REWAIT:
 	do {
@@ -766,7 +690,7 @@ REWAIT:
 	tmp->engine->ink_sync_call_end_flag[self_id] = true;
 	pthread_mutex_unlock(&tmp->engine->ink_sync_call_mutex);
 
-	printf("***Coroutine ended: id %d at layer %u\n", self_id, self_layer);
+	// printf("***Coroutine ended: id %u at layer %u\n", self_id, self_layer);
 
 	return ret_val;
 }
@@ -776,17 +700,19 @@ Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine,
 						   Ink_CoCallList call_list)
 {
 	pthread_t *thread_pool;
-	unsigned int i;
+	Ink_CoCallList::size_type i;
+	ThreadID th_id;
 	InkCoCall_Argument *tmp;
 	vector<InkCoCall_Argument *> dispose_list;
+	vector<InkCoCall_Argument *>::size_type j;
 	Ink_Object *ret_val;
 	Ink_ArrayValue arr_val;
 
-	printf("***Scheduler Started: %lu coroutines are going to be created\n", call_list.size());
+	// printf("***Scheduler Started: %lu coroutines are going to be created\n", call_list.size());
 	engine->addLayer();
 
-	int ink_sync_call_max_thread_back = engine->ink_sync_call_max_thread;
-	int ink_sync_call_current_thread_back = engine->ink_sync_call_current_thread;
+	ThreadID ink_sync_call_max_thread_back = engine->ink_sync_call_max_thread;
+	ThreadID ink_sync_call_current_thread_back = engine->ink_sync_call_current_thread;
 	IGC_CollectEngine *ink_sync_call_tmp_engine_back = engine->ink_sync_call_tmp_engine;
 	vector<bool> ink_sync_call_end_flag_back = engine->ink_sync_call_end_flag;
 
@@ -796,19 +722,19 @@ Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine,
 
 	pthread_mutex_lock(&engine->ink_sync_call_mutex);
 	engine->ink_sync_call_tmp_engine = gc_engine_backup;
-	engine->ink_sync_call_current_thread = -1;
-	engine->ink_sync_call_max_thread = call_list.size();
-	engine->ink_sync_call_end_flag = vector<bool>(call_list.size(), false);
+	engine->ink_sync_call_current_thread = 0;
+	engine->ink_sync_call_max_thread = call_list.size() + 1;
+	engine->ink_sync_call_end_flag = vector<bool>(call_list.size() + 1, false);
 	pthread_mutex_unlock(&engine->ink_sync_call_mutex);
 
-	for (i = 0; i < call_list.size(); i++) {
-		tmp = new InkCoCall_Argument(engine, context, call_list[i], i);
+	for (i = 0, th_id = 1; i < call_list.size(); i++, th_id++) {
+		tmp = new InkCoCall_Argument(engine, context, call_list[i], th_id);
 		pthread_create(&thread_pool[i], NULL, InkCoCall_primaryCall, tmp);
 		dispose_list.push_back(tmp);
 	}
 
 	pthread_mutex_lock(&engine->ink_sync_call_mutex);
-	engine->ink_sync_call_current_thread = 0;
+	engine->ink_sync_call_current_thread = 1;
 	pthread_mutex_unlock(&engine->ink_sync_call_mutex);
 	
 	for (i = 0; i < call_list.size(); i++) {
@@ -817,9 +743,9 @@ Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine,
 			arr_val.push_back(new Ink_HashTable(ret_val));
 		}
 	}
-	printf("***Scheduler: All coroutine ended. Existing.\n");
-	for (i = 0; i < dispose_list.size(); i++) {
-		delete dispose_list[i];
+	// printf("***Scheduler: All coroutine ended. Existing.\n");
+	for (j = 0; j < dispose_list.size(); j++) {
+		delete dispose_list[j];
 	}
 	free(thread_pool);
 	engine->setCurrentGC(gc_engine_backup);

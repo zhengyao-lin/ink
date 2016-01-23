@@ -25,7 +25,7 @@ void IGC_addObject(Ink_InterpreteEngine *current_engine, Ink_Object *obj);
 
 class Ink_Object {
 public:
-	int mark;
+	IGC_MarkType mark;
 	Ink_TypeTag type;
 
 	Ink_HashTable *hash_table;
@@ -88,7 +88,7 @@ public:
 		return true;
 	}
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
-							 Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
+							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true)
 	{
 		InkErr_Calling_Non_Function_Object(engine);
@@ -123,7 +123,7 @@ public:
 	}
 
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
-							 Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
+							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true)
 	{
 		InkErr_Calling_Undefined_Object(engine);
@@ -174,20 +174,20 @@ public:
 	}
 };
 
-typedef Ink_Object *(*Ink_NativeFunction)(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc,
+typedef Ink_Object *(*Ink_NativeFunction)(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc,
 										  Ink_Object **argv, Ink_Object *this_p);
 
 class Ink_FunctionAttribution {
 public:
-	int interrupt_signal_trap;
+	Ink_InterruptSignalTrap interrupt_signal_trap;
 
-	Ink_FunctionAttribution(int trap = INTER_RETURN | INTER_BREAK | INTER_CONTINUE | INTER_DROP)
+	Ink_FunctionAttribution(Ink_InterruptSignalTrap trap = INTER_RETURN | INTER_BREAK | INTER_CONTINUE | INTER_DROP)
 	: interrupt_signal_trap(trap)
 	{ }
 
-	inline bool hasTrap(InterruptSignal signal)
+	inline bool hasTrap(InterruptSignal sig)
 	{
-		return hasSignal(interrupt_signal_trap, signal);
+		return hasSignal(interrupt_signal_trap, sig);
 	}
 };
 
@@ -206,7 +206,7 @@ public:
 
 	Ink_FunctionAttribution attr;
 
-	unsigned int partial_applied_argc;
+	Ink_ArgcType partial_applied_argc;
 	Ink_Object **partial_applied_argv;
 
 	Ink_FunctionObject(Ink_InterpreteEngine *engine)
@@ -267,7 +267,7 @@ public:
 	void Ink_FunctionMethodInit();
 
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
-							 Ink_ContextChain *context, unsigned int argc = 0, Ink_Object **argv = NULL,
+							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true);
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
@@ -276,10 +276,10 @@ public:
 		return true;
 	}
 	inline Ink_Object *cloneWithPA(Ink_InterpreteEngine *engine,
-								   unsigned int argc, Ink_Object **argv,
+								   Ink_ArgcType argc, Ink_Object **argv,
 								   bool if_delete_argv = false)
 	{
-		unsigned int back_argc = partial_applied_argc;
+		Ink_ArgcType back_argc = partial_applied_argc;
 		Ink_Object **back_argv = partial_applied_argv;
 		Ink_Object *tmp;
 
@@ -407,7 +407,7 @@ public:
 
 	static void disposeArrayValue(Ink_ArrayValue val)
 	{
-		unsigned int i;
+		Ink_ArrayValue::size_type i;
 		for (i = 0; i < val.size(); i++) {
 			if (val[i])
 				delete val[i];
@@ -440,14 +440,14 @@ public:
 	}
 };
 
-inline Ink_Object **copyArgv(unsigned int argc, Ink_Object **argv)
+inline Ink_Object **copyArgv(Ink_ArgcType argc, Ink_Object **argv)
 {
 	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * argc);
 	memcpy(ret, argv, sizeof(Ink_Object *) * argc);
 	return ret;
 }
 
-inline Ink_Object **linkArgv(int argc1, Ink_Object **argv1, int argc2, Ink_Object **argv2)
+inline Ink_Object **linkArgv(Ink_ArgcType argc1, Ink_Object **argv1, Ink_ArgcType argc2, Ink_Object **argv2)
 {
 	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * (argc1 + argc2));
 	memcpy(ret, argv1, sizeof(Ink_Object *) * argc1);
