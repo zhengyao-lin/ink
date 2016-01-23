@@ -47,7 +47,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 {
 	Ink_HashTable *i;
 	Ink_HashTable *ret = NULL;
-	Ink_Object *method = NULL;
+	// Ink_Object *method = NULL;
 
 	for (i = hash_table; i; i = i->next) {
 		if (!strcmp(i->key, key) && (i->getValue() || i->bonding)) {
@@ -56,7 +56,9 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 			return ret;
 		}
 	}
+	if (!engine) return ret;
 
+#if 0
 	/* search native methods */
 	switch (type) {
 		case INK_NUMERIC:
@@ -104,6 +106,10 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 		if (method)
 		ret = setSlot(key, method, false);
 	}
+#endif
+	ret = engine->searchNativeMethod(type, key);
+	if (ret)
+		ret = setSlot(key, ret->getValue()->cloneDeep(engine));
 
 	return ret;
 }
@@ -677,9 +683,21 @@ void *InkCoCall_primaryCall(void *arg)
 
 REWAIT:
 	do {
-		while (tmp->engine->ink_sync_call_current_thread != self_id) ;
+		while (1) {
+			pthread_mutex_lock(&tmp->engine->ink_sync_call_mutex);
+			if (tmp->engine->ink_sync_call_current_thread == self_id) {
+				pthread_mutex_unlock(&tmp->engine->ink_sync_call_mutex);
+				break;
+			}
+			pthread_mutex_unlock(&tmp->engine->ink_sync_call_mutex);
+		}
 	} while (tmp->engine->getCurrentLayer() != self_layer);
-	if (tmp->engine->ink_sync_call_current_thread != self_id) goto REWAIT;
+	pthread_mutex_lock(&tmp->engine->ink_sync_call_mutex);
+	if (tmp->engine->ink_sync_call_current_thread != self_id) {
+		pthread_mutex_unlock(&tmp->engine->ink_sync_call_mutex);
+		goto REWAIT;
+	}
+	pthread_mutex_unlock(&tmp->engine->ink_sync_call_mutex);
 
 	Ink_Object *ret_val = tmp->sync_call.func->call(tmp->engine, tmp->context, tmp->sync_call.argc,
 													tmp->sync_call.argv);

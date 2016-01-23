@@ -139,12 +139,12 @@ Ink_Object *InkNative_String_LessOrEqual(Ink_InterpreteEngine *engine, Ink_Conte
 extern int string_native_method_table_count;
 extern InkNative_MethodTable string_native_method_table[];
 
-void Ink_String::Ink_StringMethodInit()
+void Ink_String::Ink_StringMethodInit(Ink_InterpreteEngine *engine)
 {
 	InkNative_MethodTable *table = string_native_method_table;
 	int i, count = string_native_method_table_count;
 
 	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, table[i].func);
+		setSlot(table[i].name, table[i].func->cloneDeep(engine));
 	}
 }

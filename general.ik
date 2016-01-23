@@ -4,10 +4,10 @@ import "tests/general.ik",
 a = new Array(1, 2, 3)
 b = new Array("a", "b", "c");
 
-
 ret = (new Array(1, 2, 3)).each() { | elem |
 	elem * 2 + 1;
 }
+
 ret.p = a.p;
 ret.p();
 
@@ -15,6 +15,7 @@ func = fn (f, s) {
 	p("" + f + "--->" + s);
 }
 
+// p(typename(a.'*'()));
 c = a * b;
 c.p();
 

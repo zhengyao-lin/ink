@@ -94,7 +94,7 @@ public:
 	ThreadID ink_sync_call_current_thread;
 	vector<bool> ink_sync_call_end_flag;
 
-	MutexLock thread_lock;
+	pthread_mutex_t thread_pool_lock;
 	ThreadIDMapStack thread_id_map_stack;
 	ThreadPool thread_pool;
 
@@ -120,6 +120,39 @@ public:
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline Ink_HashTable *searchNativeMethod(Ink_TypeTag type, const char *name)
+	{
+		Ink_Object *tmp = NULL;
+		Ink_HashTable *ret = NULL;
+		Ink_HashTable *proto_hash = NULL;
+		string proto_name = string("$") + getTypeName(type);
+
+		switch (type) {
+			case INK_OBJECT:
+			case INK_FUNCTION:
+			case INK_NUMERIC:
+			case INK_BIGNUMERIC:
+			case INK_STRING:
+			case INK_ARRAY:
+				break;
+			default:
+				proto_name = string("$") + getTypeName(INK_OBJECT);
+		}
+TRY_AGAIN:
+		proto_hash = global_context->context->getSlotMapping(NULL, proto_name.c_str());
+		if (!(proto_hash && (tmp = proto_hash->getValue()))) return NULL;
+
+		ret = tmp->getSlotMapping(NULL, name);
+
+		if (!ret && type != INK_OBJECT) {
+			type = INK_OBJECT;
+			proto_name = string("$") + getTypeName(INK_OBJECT);
+			goto TRY_AGAIN;
+		}
+
+		return ret;
+	}
 
 	inline int addEngineCom(InkMod_ModuleID id, Ink_CustomEngineCom com)
 	{
@@ -247,7 +280,8 @@ public:
 
 	inline int initThread()
 	{
-		thread_lock.init();
+		//thread_lock.init();
+		pthread_mutex_init(&thread_pool_lock, NULL);
 		return 0;
 	}
 
@@ -257,49 +291,49 @@ public:
 	{
 		ThreadID id;
 
-		thread_lock.lock();
+		pthread_mutex_lock(&thread_pool_lock);
 		id = thread_id_map_stack[CURRENT_LAYER][getThreadID_raw()];
-		thread_lock.unlock();
+		pthread_mutex_unlock(&thread_pool_lock);
 
 		return id;
 	}
 
 	inline ThreadID registerThread(ThreadID id)
 	{
-		thread_lock.lock();
+		pthread_mutex_lock(&thread_pool_lock);
 		thread_id_map_stack[CURRENT_LAYER][getThreadID_raw()] = id;
-		thread_lock.unlock();
+		pthread_mutex_unlock(&thread_pool_lock);
 
 		return id;
 	}
 
 	inline void addLayer()
 	{
-		thread_lock.lock();
+		pthread_mutex_lock(&thread_pool_lock);
 		thread_id_map_stack.push_back(ThreadIDMap());
-		thread_lock.unlock();
+		pthread_mutex_unlock(&thread_pool_lock);
 	}
 
 	inline void removeLayer()
 	{
-		thread_lock.lock();
+		pthread_mutex_lock(&thread_pool_lock);
 		thread_id_map_stack.pop_back();
-		thread_lock.unlock();
+		pthread_mutex_unlock(&thread_pool_lock);
 	}
 
 	inline ThreadLayerType getCurrentLayer()
 	{
-		thread_lock.lock();
+		pthread_mutex_lock(&thread_pool_lock);
 		ThreadLayerType ret = CURRENT_LAYER;
-		thread_lock.unlock();
+		pthread_mutex_unlock(&thread_pool_lock);
 		return ret;
 	}
 
 	inline void addThread(pthread_t *thread)
 	{
-		thread_lock.lock();
+		pthread_mutex_lock(&thread_pool_lock);
 		thread_pool.push_back(thread);
-		thread_lock.unlock();
+		pthread_mutex_unlock(&thread_pool_lock);
 
 		return;
 	}
@@ -308,16 +342,14 @@ public:
 	{
 		pthread_t *thd;
 		ThreadPool::size_type i;
-		//thread_lock.lock();
 		for (i = 0; i < thread_pool.size(); i++) {
-			thread_lock.lock();
+			pthread_mutex_lock(&thread_pool_lock);
 			thd = thread_pool[i];
-			thread_lock.unlock();
+			pthread_mutex_unlock(&thread_pool_lock);
 
 			pthread_join(*thd, NULL);
 			free(thd);
 		}
-		//thread_lock.unlock();
 		return;
 	}
 

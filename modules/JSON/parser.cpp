@@ -196,7 +196,7 @@ JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
 	Ink_Object *ret = NULL;
 	JSON_ParserReturnVal tmp_ret;
 	InkJSON_ParseStateStack state_stack = InkJSON_ParseStateStack();
-	InkJSON_TokenStack::size_type = start_index, j;
+	InkJSON_TokenStack::size_type i = start_index, j;
 	Ink_ArrayValue arr_val;
 	string *tmp_str;
 

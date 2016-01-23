@@ -62,6 +62,7 @@ void Ink_addNativeExpression(Ink_Expression *expr)
 Ink_InterpreteEngine::Ink_InterpreteEngine()
 {
 	// gc_lock.init();
+	Ink_Object *tmp;
 
 	igc_object_count = 0;
 	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
@@ -100,6 +101,20 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 
 	global_context->context->setDebugName("__global_context__");
 	addTrace(global_context->context)->setDebug(-1, global_context->context);
+
+	// make sure the slot name is $<type name>
+	global_context->context->setSlot("$object", tmp = new Ink_Object(this));
+	tmp->derivedMethodInit(this);
+	global_context->context->setSlot("$function", tmp = new Ink_FunctionObject(this));
+	tmp->derivedMethodInit(this);
+	global_context->context->setSlot("$numeric", tmp = new Ink_Numeric(this));
+	tmp->derivedMethodInit(this);
+	global_context->context->setSlot("$big numeric", tmp = new Ink_BigNumeric(this, "0"));
+	tmp->derivedMethodInit(this);
+	global_context->context->setSlot("$string", tmp = new Ink_String(this, ""));
+	tmp->derivedMethodInit(this);
+	global_context->context->setSlot("$array", tmp = new Ink_Array(this));
+	tmp->derivedMethodInit(this);
 }
 
 Ink_ContextChain *Ink_InterpreteEngine::addTrace(Ink_ContextObject *context)

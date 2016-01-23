@@ -882,7 +882,7 @@ Coroutine = fn (&args...) {
 
 cor = new Coroutine(f1(), f2());
 cor.add(f3());
-cor.start();
+// cor.start();
 
 echo = fn () {
 	let text = yield null
@@ -894,7 +894,7 @@ sender = fn () {
 	p(yield "I'm text");
 }
 
-cocall(echo, [], sender, []);
+// cocall(echo, [], sender, []);
 
 p("################ actor test ################");
 
@@ -1187,3 +1187,5 @@ Can I borrow your girlfriend?
 Can I borrow your girlfriend??
 Can I borrow your pencil?
 Can I borrow your homework?
+
+//182-0770-9452

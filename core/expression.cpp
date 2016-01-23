@@ -111,9 +111,21 @@ Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 
 REWAIT:
 	do {
-		while (engine->ink_sync_call_current_thread != self_id) ;
+		while (1) {
+			pthread_mutex_lock(&engine->ink_sync_call_mutex);
+			if (engine->ink_sync_call_current_thread == self_id) {
+				pthread_mutex_unlock(&engine->ink_sync_call_mutex);
+				break;
+			}
+			pthread_mutex_unlock(&engine->ink_sync_call_mutex);
+		}
 	} while (engine->getCurrentLayer() != self_layer);
-	if (engine->ink_sync_call_current_thread != self_id) goto REWAIT;
+	pthread_mutex_lock(&engine->ink_sync_call_mutex);
+	if (engine->ink_sync_call_current_thread != self_id) {
+		pthread_mutex_unlock(&engine->ink_sync_call_mutex);
+		goto REWAIT;
+	}
+	pthread_mutex_unlock(&engine->ink_sync_call_mutex);
 
 	engine->setCurrentGC(gc_engine_backup);
 

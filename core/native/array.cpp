@@ -186,12 +186,12 @@ Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextCha
 extern int array_native_method_table_count;
 extern InkNative_MethodTable array_native_method_table[];
 
-void Ink_Array::Ink_ArrayMethodInit()
+void Ink_Array::Ink_ArrayMethodInit(Ink_InterpreteEngine *engine)
 {
 	InkNative_MethodTable *table = array_native_method_table;
 	int i, count = array_native_method_table_count;
 
 	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, table[i].func);
+		setSlot(table[i].name, table[i].func->cloneDeep(engine));
 	}
 }

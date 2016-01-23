@@ -177,19 +177,6 @@ Ink_Object *InkNative_Numeric_ToString(Ink_InterpreteEngine *engine, Ink_Context
 	return new Ink_String(engine, string(ss.str()));
 }
 
-extern int numeric_native_method_table_count;
-extern InkNative_MethodTable numeric_native_method_table[];
-
-void Ink_Numeric::Ink_NumericMethodInit()
-{
-	InkNative_MethodTable *table = numeric_native_method_table;
-	int i, count = numeric_native_method_table_count;
-
-	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, table[i].func);
-	}
-}
-
 // Big Numeric
 
 Ink_Object *InkNative_BigNumeric_Add(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -411,4 +398,29 @@ Ink_Object *InkNative_BigNumeric_ToString(Ink_InterpreteEngine *engine, Ink_Cont
 	ASSUME_BASE_TYPE(engine, INK_BIGNUMERIC);
 
 	return new Ink_String(engine, as<Ink_BigNumeric>(base)->value.toString());
-}	
+}
+
+extern int numeric_native_method_table_count;
+extern InkNative_MethodTable numeric_native_method_table[];
+extern int big_num_native_method_table_count;
+extern InkNative_MethodTable big_num_native_method_table[];
+
+void Ink_Numeric::Ink_NumericMethodInit(Ink_InterpreteEngine *engine)
+{
+	InkNative_MethodTable *table = numeric_native_method_table;
+	int i, count = numeric_native_method_table_count;
+
+	for (i = 0; i < count; i++) {
+		setSlot(table[i].name, table[i].func->cloneDeep(engine));
+	}
+}
+
+void Ink_BigNumeric::Ink_BigNumericMethodInit(Ink_InterpreteEngine *engine)
+{
+	InkNative_MethodTable *table = big_num_native_method_table;
+	int i, count = big_num_native_method_table_count;
+
+	for (i = 0; i < count; i++) {
+		setSlot(table[i].name, table[i].func->cloneDeep(engine));
+	}
+}

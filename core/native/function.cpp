@@ -140,12 +140,12 @@ Ink_Object *InkNative_Function_GetScope(Ink_InterpreteEngine *engine, Ink_Contex
 extern int function_native_method_table_count;
 extern InkNative_MethodTable function_native_method_table[];
 
-void Ink_FunctionObject::Ink_FunctionMethodInit()
+void Ink_FunctionObject::Ink_FunctionMethodInit(Ink_InterpreteEngine *engine)
 {
 	InkNative_MethodTable *table = function_native_method_table;
 	int i, count = function_native_method_table_count;
 
 	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, table[i].func);
+		setSlot(table[i].name, table[i].func->cloneDeep(engine));
 	}
 }

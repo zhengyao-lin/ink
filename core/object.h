@@ -61,14 +61,18 @@ public:
 		return debug_name;
 	}
 
-	void Ink_ObjectMethodInit();
-	virtual void derivedMethodInit() { }
+	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
+	{
+		Ink_ObjectMethodInit(engine);
+	}
+	void Ink_ObjectMethodInit(Ink_InterpreteEngine *engine);
+	/*
 	void initMethod()
 	{
 		// Ink_ObjectMethodInit();
 		// derivedMethodInit();
 	}
-
+	*/
 	Ink_Object *getSlot(Ink_InterpreteEngine *engine, const char *key);
 	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key);
 	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true, string *key_p = NULL);
@@ -260,11 +264,11 @@ public:
 		return;
 	}
 
-	virtual void derivedMethodInit()
+	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
 	{
-		Ink_FunctionMethodInit();
+		Ink_FunctionMethodInit(engine);
 	}
-	void Ink_FunctionMethodInit();
+	void Ink_FunctionMethodInit(Ink_InterpreteEngine *engine);
 
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
@@ -310,11 +314,11 @@ public:
 	: Ink_Object(engine), value(value)
 	{ type = INK_NUMERIC; }
 
-	virtual void derivedMethodInit()
+	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
 	{
-		Ink_NumericMethodInit();
+		Ink_NumericMethodInit(engine);
 	}
-	void Ink_NumericMethodInit();
+	void Ink_NumericMethodInit(Ink_InterpreteEngine *engine);
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
@@ -336,6 +340,12 @@ public:
 	: Ink_Object(engine), value(value)
 	{ type = INK_BIGNUMERIC; }
 
+	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
+	{
+		Ink_BigNumericMethodInit(engine);
+	}
+	void Ink_BigNumericMethodInit(Ink_InterpreteEngine *engine);
+
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 	virtual bool isTrue()
@@ -356,11 +366,11 @@ public:
 	: Ink_Object(engine), value(value)
 	{ type = INK_STRING; }
 
-	virtual void derivedMethodInit()
+	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
 	{
-		Ink_StringMethodInit();
+		Ink_StringMethodInit(engine);
 	}
-	void Ink_StringMethodInit();
+	void Ink_StringMethodInit(Ink_InterpreteEngine *engine);
 
 	inline string getValue()
 	{
@@ -390,11 +400,12 @@ public:
 	: Ink_Object(engine), value(value)
 	{ type = INK_ARRAY; }
 
-	virtual void derivedMethodInit()
+	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
 	{
-		Ink_ArrayMethodInit();
+		Ink_ArrayMethodInit(engine);
 	}
-	void Ink_ArrayMethodInit();
+	void Ink_ArrayMethodInit(Ink_InterpreteEngine *engine);
+	
 	Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val);
 	Ink_ArrayValue cloneDeepArrayValue(Ink_InterpreteEngine *engine, Ink_ArrayValue val);
 

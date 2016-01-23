@@ -14,7 +14,8 @@ fib = fn (n) do
 		n == 1) do
 		retn 1
 	end
-	retn this(n - 2) + this(n - 1)
+
+	retn this(n - 2) + this(n - 1);
 end
 
 p(fib(15));
