@@ -25,6 +25,7 @@ Ink_Object *InkNative_String_Add(Ink_InterpreteEngine *engine, Ink_ContextChain 
 Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
+	string base_str;
 	int index;
 
 	ASSUME_BASE_TYPE(engine, INK_STRING);
@@ -33,9 +34,10 @@ Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 		InkWarn_Method_Fallthrough(engine, INK_OBJECT);
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
-	index = as<Ink_Numeric>(argv[0])->value;
+	base_str = as<Ink_String>(base)->getValue();
+	index = getRealIndex(as<Ink_Numeric>(argv[0])->value, base_str.length());
 
-	return new Ink_String(engine, as<Ink_String>(base)->getValue().substr(index, 1));
+	return new Ink_String(engine, base_str.substr(index, 1));
 }
 
 Ink_Object *InkNative_String_Length(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
@@ -45,6 +47,38 @@ Ink_Object *InkNative_String_Length(Ink_InterpreteEngine *engine, Ink_ContextCha
 	ASSUME_BASE_TYPE(engine, INK_STRING);
 
 	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().length());
+}
+
+Ink_Object *InkNative_String_SubStr(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+	string::size_type offset;
+	string::size_type length;
+
+	ASSUME_BASE_TYPE(engine, INK_STRING);
+
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	string origin = as<Ink_String>(base)->getValue();
+	if (argc > 1 && argv[1]->type == INK_NUMERIC) {
+		offset = getRealIndex(as<Ink_Numeric>(argv[0])->value, origin.length());
+		length = as<Ink_Numeric>(argv[1])->value;
+	} else {
+		offset = getRealIndex(as<Ink_Numeric>(argv[0])->value, origin.length());
+		length = string::npos;
+	}
+
+	if (offset >= origin.length()) {
+		InkWarn_String_Index_Exceed(engine);
+		return NULL_OBJ;
+	} else if (!(length == string::npos || offset + length <= origin.length())) {
+		InkWarn_Sub_String_Exceed(engine);
+		return NULL_OBJ;
+	}
+
+	return new Ink_String(engine, origin.substr(offset, length));
 }
 
 Ink_Object *InkNative_String_Greater(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)

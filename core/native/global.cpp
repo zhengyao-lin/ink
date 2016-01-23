@@ -478,7 +478,7 @@ InkNative_MethodTable numeric_native_method_table[] = {
 	{"to_str", new Ink_FunctionObject(NULL, InkNative_Numeric_ToString)}
 };
 
-int string_native_method_table_count = 8;
+int string_native_method_table_count = 9;
 InkNative_MethodTable string_native_method_table[] = {
 	{"+", new Ink_FunctionObject(NULL, InkNative_String_Add)},
 	{"<", new Ink_FunctionObject(NULL, InkNative_String_Index)},
@@ -488,6 +488,7 @@ InkNative_MethodTable string_native_method_table[] = {
 	{"<=", new Ink_FunctionObject(NULL, InkNative_String_LessOrEqual)},
 	{"[]", new Ink_FunctionObject(NULL, InkNative_String_Index)},
 	{"length", new Ink_FunctionObject(NULL, InkNative_String_Length)},
+	{"substr", new Ink_FunctionObject(NULL, InkNative_String_SubStr)},
 };
 
 int object_native_method_table_count = 12;

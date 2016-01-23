@@ -13,6 +13,12 @@
 	} \
 } while (0)
 
+inline unsigned int getRealIndex(int index, unsigned int size)
+{
+	while (index < 0) index += size;
+	return index;
+}
+
 inline Ink_Object *getSlotWithProto(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
 									Ink_Object *base, const char *name, string *id_p = NULL)
 {

@@ -4,12 +4,6 @@
 #include "native.h"
 #include "../interface/engine.h"
 
-unsigned int getRealIndex(int index, int size)
-{
-	while (index < 0) index += size;
-	return index;
-}
-
 Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain *context, unsigned int argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");

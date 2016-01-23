@@ -56,6 +56,7 @@
 				   block equality_expression
 				   relational_expression logical_and_expression
 				   logical_or_expression comma_expression
+				   single_element_expression space_hash_expression
 %type <parameter> param_list param_opt param_list_sub
 %type <expression_list> top_level_expression_list top_level_expression_list_opt
 						expression_list expression_list_opt
@@ -618,6 +619,19 @@ argument_attachment
 	}
 	;
 
+space_hash_expression
+	: single_element_expression TIDENTIFIER
+	{
+		$$ = new Ink_HashExpression($1, $2);
+		SET_LINE_NO($$);
+	}
+	| space_hash_expression TIDENTIFIER
+	{
+		$$ = new Ink_HashExpression($1, $2);
+		SET_LINE_NO($$);
+	}
+	;
+
 postfix_expression
 	: function_expression
 	| postfix_expression TDOT nllo TIDENTIFIER
@@ -625,6 +639,7 @@ postfix_expression
 		$$ = new Ink_HashExpression($1, $4);
 		SET_LINE_NO($$);
 	}
+	| space_hash_expression
 	| postfix_expression TLPAREN argument_list_opt TRPAREN
 	{
 		$$ = new Ink_CallExpression($1, *$3);
@@ -903,7 +918,7 @@ hash_table_mapping_opt
 	}
 	;
 
-primary_expression
+single_element_expression
 	: TNUMERIC
 	{
 		// printf("numeric: %s\n", $1->c_str());
@@ -941,6 +956,10 @@ primary_expression
 		$$ = new Ink_IdentifierExpression($5, $1, true);
 		SET_LINE_NO($$);
 	}
+	;
+
+primary_expression
+	: single_element_expression
 	| TLPAREN nllo nestable_expression nllo TRPAREN
 	{
 		$$ = $3;

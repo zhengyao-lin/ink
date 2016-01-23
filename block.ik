@@ -1,6 +1,6 @@
 #! /usr/bin/ink
 
-if (1) {
+
 func = { | a, b, block, block2 |
 	p(a + b);
 	block(a + b);
@@ -795,7 +795,6 @@ f3 = fn () {
 }
 
 f4 = fn () {
-
 	p("3");
 	if (1) {
 		yield null
@@ -804,7 +803,6 @@ f4 = fn () {
 }
 
 f5 = fn () {
-
 	p("4");
 	if (1) {
 		yield null
@@ -897,7 +895,6 @@ sender = fn () {
 }
 
 // cocall(echo, [], sender, []);
-}
 
 p("################ actor test ################");
 
@@ -1076,7 +1073,7 @@ p((bignum("412") % bignum("24")).to_str());
 ARGV.each() { | elem |
 	stdout.puts(elem + " ");
 }
-p("");
+(if (ARGV.size()) { p } else { fn(a){} })("");
 
 TypeA = fn () {
 	this.a = 10
@@ -1091,4 +1088,102 @@ TypeB = fn () {
 }
 
 a = new TypeB();
-p(a.print());
+p(a print());
+
+// BG
+What = {
+	's Rod': {
+		s: {
+			Chinese: fn () {
+				let ret = {}
+				ret.getter("name?") {
+					p("HaHa, I dont't want to tell you");
+				}
+				ret
+			}()
+		}
+	}
+}
+
+Say = {
+	no: {
+		to: {
+			missing: fn (name) {
+				p("no!! " + name);
+			}
+		}
+	}
+}
+You = {
+	got: {
+		to: {
+			be: {
+				kidding: {
+					me: fn () {
+						let ret = { }
+						ret.getter() Rod? {
+							p("Yes, of course");
+						}
+						ret
+					} ()
+				}
+			}
+		}
+	}
+}
+Can = {
+	you: {
+		play: {
+			missing: fn (name) {
+				if (name[-1] == "?") {
+					name = name.substr(0, name.length() - 1);
+				}
+				switch (name) \
+				case ("football") {
+					p("Yes I can play " + name);
+					break;
+				} case ("badminton") {
+					p("Yes I can play " + name);
+					break;
+				} default {
+					p("No, I can't play " + name);
+				}
+			}
+		}
+	},
+	I: {
+		borrow: {
+			your: {
+				missing: fn (name) {
+					while (name[-1] == "?") {
+						name = name.substr(0, name.length() - 1);
+					}
+					switch (name) \
+					case ("pencil") {
+						p("Yes you can have my " + name);
+						break;
+					} case ("girlfriend") {
+						p("HELL NO!!");
+						break;
+					} default {
+						p("No, I'm afraid I can't lend you my " + name);
+					}
+				}
+			}
+		}
+	}
+}
+// BG
+
+What's Rod's Chinese name?
+Say no to John
+Say no to Nick
+Say no to 'My Dear Teacher'
+You got to be kidding me. Rod?
+Can you play basketball?
+Can you play football?
+Can you play badminton?
+Can I borrow your girlfriend?
+Can I borrow your girlfriend??
+Can I borrow your pencil?
+Can I borrow your homework?

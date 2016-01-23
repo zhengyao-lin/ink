@@ -423,4 +423,18 @@ InkWarn_Circular_Prototype_Reference(Ink_InterpreteEngine *engine)
 	return;
 }
 
+inline void
+InkWarn_String_Index_Exceed(Ink_InterpreteEngine *engine)
+{
+	InkWarn_doPrintWarning(engine, "String index exceed length of the string");
+	return;
+}
+
+inline void
+InkWarn_Sub_String_Exceed(Ink_InterpreteEngine *engine)
+{
+	InkWarn_doPrintWarning(engine, "Substring exceed the original string");
+	return;
+}
+
 #endif
