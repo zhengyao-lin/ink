@@ -1188,4 +1188,17 @@ Can I borrow your girlfriend??
 Can I borrow your pencil?
 Can I borrow your homework?
 
-//182-0770-9452
+numeric_sub = $numeric.'-';
+$numeric.'-' = fn (op) {
+	let ret = base.to_str() + " " + op
+	ret.'-' = fn (op) {
+		let ret = base + " " + op;
+		ret.'-' = this;
+		ret
+	}
+	ret;
+}
+
+p(182-1589-9452)
+
+$numeric.'-' = numeric_sub
