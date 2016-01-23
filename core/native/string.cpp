@@ -3,6 +3,12 @@
 #include "../context.h"
 #include "native.h"
 
+inline string::size_type getRealIndex(long index, string::size_type size)
+{
+	while (index < 0) index += size;
+	return index;
+}
+
 Ink_Object *InkNative_String_Add(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -26,7 +32,7 @@ Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 	string base_str;
-	int index;
+	string::size_type index;
 
 	ASSUME_BASE_TYPE(engine, INK_STRING);
 

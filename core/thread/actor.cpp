@@ -91,9 +91,9 @@ Ink_InterpreteEngine *InkActor_getActor(string name)
 	return ret;
 }
 
-unsigned int InkActor_getActorCount()
+Ink_ActorCountType InkActor_getActorCount()
 {
-	unsigned int ret;
+	Ink_ActorCountType ret;
 	Ink_ActorMap::iterator actor_it;
 
 	pthread_mutex_lock(&ink_global_actor_map_lock);

@@ -36,7 +36,7 @@ public:
 
 class Ink_Expression {
 public:
-	int line_number;
+	Ink_LineNoType line_number;
 	Ink_Expression()
 	: line_number(-1)
 	{ }
@@ -163,7 +163,7 @@ public:
 
 class Ink_HashTableMappingSingle {
 public:
-	int line_number;
+	Ink_LineNoType line_number;
 	string *name;
 	Ink_Expression *key;
 	Ink_Expression *value;

@@ -6,7 +6,8 @@
 #include <iostream>
 #include <queue>
 #include <string>
-#include "stdarg.h"
+#include <stdarg.h>
+#include "../general.h"
 #include "../../includes/universal.h"
 
 #if defined(INK_PLATFORM_LINUX)
@@ -136,7 +137,7 @@ public:
 	popAllAndExit1(ostream& strm);
 
 	void
-	setTopLineNumber(int line_number);
+	setTopLineNumber(Ink_LineNoType line_number);
 
 	void
 	setTopFileName(char *file_name);

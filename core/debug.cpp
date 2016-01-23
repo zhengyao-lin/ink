@@ -48,7 +48,7 @@ inline string getTrapMask(Ink_FunctionAttribution attr)
 
 void printFunctionInfo(FILE *fp, Ink_FunctionObject *func, string prefix = "")
 {
-	unsigned int i;
+	Ink_ParamList::size_type i;
 
 	fprintf(fp, ", function attr: [\n");
 	fprintf(fp, "%s" DBG_TAB "is native: %s\n", prefix.c_str(), btos(func->is_native));
@@ -78,7 +78,7 @@ void printFunctionInfo(FILE *fp, Ink_FunctionObject *func, string prefix = "")
 void Ink_InterpreteEngine::printSlotInfo(FILE *fp, Ink_Object *obj, string prefix)
 {
 	Ink_HashTable *i;
-	unsigned int j;
+	Ink_ParamList::size_type j;
 	Ink_Array *arr;
 	string getter_setter_info = "";
 
@@ -100,7 +100,7 @@ void Ink_InterpreteEngine::printSlotInfo(FILE *fp, Ink_Object *obj, string prefi
 	if (obj->type == INK_ARRAY) {
 		arr = as<Ink_Array>(obj);
 		for (j = 0; j < arr->value.size(); j++) {
-			fprintf(fp, "%s" DBG_TAB "[%d]: ", prefix.c_str(), j);
+			fprintf(fp, "%s" DBG_TAB "[%u]: ", prefix.c_str(), j);
 			if (arr->value[j]) {
 				printDebugInfo(fp, arr->value[j]->getValue(), "", DBG_TAB + prefix);
 			} else {
@@ -151,7 +151,7 @@ void Ink_InterpreteEngine::printTrace(FILE *fp, Ink_ContextChain *context, strin
 
 	fprintf(fp, "%srising from:\n", prefix.c_str());
 	for (i = inner_most; i; i = i->outer) {
-		fprintf(fp, DBG_TAB "line %d: ", i->getLineno());
+		fprintf(fp, DBG_TAB "line %lu: ", i->getLineno());
 		initPrintDebugInfo();
 		printDebugInfo(false, fp, i->getCreater(), "", DBG_TAB);
 	}

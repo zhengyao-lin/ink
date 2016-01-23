@@ -7,7 +7,7 @@
 Ink_Object *InkNative_Function_Insert(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
-	unsigned int i;
+	Ink_ArgcType i;
 
 	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 
@@ -36,7 +36,7 @@ Ink_Object *InkNative_Function_Insert(Ink_InterpreteEngine *engine, Ink_ContextC
 Ink_Object **arrayValueToObject(Ink_ArrayValue val)
 {
 	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * val.size());
-	unsigned int i;
+	Ink_ArrayValue::size_type i;
 
 	for (i = 0; i < val.size(); i++) {
 		ret[i] = val[i]->getValue();
@@ -52,7 +52,7 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 	Ink_ArrayValue range_val, tmp_arr_val;
 	Ink_ArrayValue ret_val;
 	Ink_Object **tmp;
-	unsigned int i;
+	Ink_ArrayValue::size_type i;
 
 	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 
@@ -98,7 +98,7 @@ Ink_Object *InkNative_Function_GetExp(Ink_InterpreteEngine *engine, Ink_ContextC
 	Ink_FunctionObject *tmp;
 	Ink_ExpressionList tmp_exp;
 	Ink_ArrayValue ret_val;
-	unsigned int i;
+	Ink_ExpressionList::size_type i;
 
 	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 

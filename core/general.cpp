@@ -8,33 +8,6 @@
 
 using namespace std;
 
-/*
-static vector<string *> string_pool;
-
-string *StrPool_addStr(const char *str)
-{
-	string *tmp;
-	string_pool.push_back(tmp = new string(str ? str : ""));
-	return tmp;
-}
-
-string *StrPool_addStr(string *str)
-{
-	string_pool.push_back(str);
-	return str;
-}
-
-void StrPool_dispose()
-{
-	unsigned int i;
-	for (i = 0; i < string_pool.size(); i++) {
-		delete string_pool[i];
-	}
-	string_pool = vector<string *>();
-	return;
-}
-*/
-
 Ink_Object *trapSignal(Ink_InterpreteEngine *engine)
 {
 	Ink_Object *tmp = engine->CGC_interrupt_value;

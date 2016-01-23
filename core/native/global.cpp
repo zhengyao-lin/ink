@@ -30,7 +30,7 @@ Ink_Object *Ink_IfExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 {
 	Ink_Object *cond;
 	Ink_Object *ret;
-	unsigned int i;
+	Ink_ArgcType i;
 
 	if (!argc) {
 		InkWarn_If_Argument_Fault(engine);
@@ -151,7 +151,7 @@ Ink_Object *Ink_WhileExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *
 Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val)
 {
 	Ink_ArrayValue ret;
-	unsigned int i;
+	Ink_ArrayValue::size_type i;
 	for (i = 0; i < val.size(); i++) {
 		if (val[i])
 			ret.push_back(new Ink_HashTable("", val[i]->getValue()));
@@ -173,7 +173,7 @@ Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain 
 			ret = new Ink_Array(engine, cloneArrayValue(as<Ink_Array>(argv[0])->value));
 		}else {
 			Ink_ArrayValue val = Ink_ArrayValue();
-			unsigned int i;
+			Ink_ArrayValue::size_type i;
 			for (i = 0; i < argc; i++) {
 				val.push_back(new Ink_HashTable("", argv[i]));
 			}
@@ -188,11 +188,11 @@ Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return ret;
 }
 
-extern int current_line_number;
+extern Ink_LineNoType current_line_number;
 extern const char *yyerror_prefix;
 extern pthread_mutex_t ink_parse_lock;
 
-void setParserCurrentLineno(int lineno)
+void setParserCurrentLineno(Ink_LineNoType lineno)
 {
 	pthread_mutex_lock(&ink_parse_lock);
 	current_line_number = lineno;
@@ -200,9 +200,9 @@ void setParserCurrentLineno(int lineno)
 	return;
 }
 
-int getParserCurrentLineno()
+Ink_LineNoType getParserCurrentLineno()
 {
-	int ret;
+	Ink_LineNoType ret;
 	pthread_mutex_lock(&ink_parse_lock);
 	ret = current_line_number;
 	pthread_mutex_unlock(&ink_parse_lock);
@@ -213,7 +213,7 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, In
 {
 	Ink_Object *ret = NULL_OBJ;
 	Ink_ExpressionList top_level_backup;
-	int line_num_backup = getParserCurrentLineno();
+	Ink_LineNoType line_num_backup = getParserCurrentLineno();
 	Ink_InterpreteEngine *current_engine = engine;
 
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
@@ -270,14 +270,14 @@ Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *context, I
 
 Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	unsigned int i;
+	Ink_ArgcType i;
 	FILE *fp;
 	Ink_Object *load, **tmp_argv;
 	string *tmp;
 	char *current_dir = NULL, *redirect = NULL;
 	Ink_InterpreteEngine *current_engine = engine;
 	Ink_ExpressionList top_level_backup;
-	int line_num_backup = getParserCurrentLineno();
+	Ink_LineNoType line_num_backup = getParserCurrentLineno();
 	const char *file_path_backup = engine->input_file_path;
 
 	for (i = 0; i < argc; i++) {
@@ -379,7 +379,7 @@ Ink_Object *Ink_BigNum(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 
 Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	unsigned int i;
+	Ink_ArgcType i;
 	if (!checkArgument(engine, argc, 1))
 		return NULL_OBJ;
 
@@ -400,7 +400,8 @@ Ink_Object *Ink_Where(Ink_InterpreteEngine *engine, Ink_ContextChain *context, I
 Ink_Object *Ink_CoroutineCall(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_CoCallList co_call_list = Ink_CoCallList();
-	unsigned int i;
+	Ink_ArgcType i;
+	Ink_CoCallList::size_type j;
 	Ink_Object **tmp_argv;
 	Ink_Object *ret_val;
 
@@ -413,8 +414,8 @@ Ink_Object *Ink_CoroutineCall(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 
 	ret_val = InkCoCall_call(engine, context, co_call_list);
 
-	for (i = 0; i < co_call_list.size(); i++) {
-		free(co_call_list[i].argv);
+	for (j = 0; j < co_call_list.size(); j++) {
+		free(co_call_list[j].argv);
 	}
 
 	return ret_val;

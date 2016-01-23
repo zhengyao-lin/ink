@@ -10,7 +10,7 @@ using namespace std;
 inline string JSON_escapeString(string str)
 {
 	string ret = "";
-	unsigned int i;
+	string::size_type i;
 
 	for (i = 0; i < str.length(); i++) {
 		switch (str[i]) {
@@ -37,7 +37,7 @@ string *JSON_stringifyObject(Ink_Object *obj)
 	Ink_Array *tmp_arr;
 	Ink_ArrayValue tmp_arr_val;
 	Ink_HashTable *hash_i;
-	unsigned int i;
+	string::size_type i;
 
 	if (!obj) return NULL;
 

@@ -47,9 +47,9 @@ ErrorInfo::setMessageStyle(string message, Prefix prefix, bool is_bold)
 string
 ErrorInfo::createFormatMessage(string message, va_list args)
 {
-	unsigned int i, length;
+	string::size_type i, length;
 
-	for (i = 0; i < message.size() && message.c_str()[i] != '\0'; i++)
+	for (i = 0; i < message.length() && message.c_str()[i] != '\0'; i++)
 	{
 		if (message.c_str()[i] != '$') {
 			continue;
@@ -263,7 +263,7 @@ ErrorMessage::popAllAndExit1(ostream& strm)
 }
 
 void
-ErrorMessage::setTopLineNumber(int line_number)
+ErrorMessage::setTopLineNumber(Ink_LineNoType line_number)
 {
 	stringstream strm;
 	strm << line_number << ": ";

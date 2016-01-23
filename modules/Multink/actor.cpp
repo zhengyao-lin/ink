@@ -56,7 +56,7 @@ Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextCha
 {
 	bool if_wait_forever = false;
 	Ink_MilliSec time_begin = -1, max_time = -1, delay = -1;
-	unsigned int i;
+	Ink_ArgcType i;
 	string tmp_instr;
 	Ink_ArrayValue arr_val;
 	Ink_Object *tmp_obj, *msg;
@@ -204,7 +204,8 @@ void *Ink_ActorFunction_sub(void *arg)
 	Ink_ActorFunction_sub_Argument *tmp = (Ink_ActorFunction_sub_Argument *)arg;
 	Ink_InterpreteEngine *engine = tmp->engine;
 	tmp->engine->top_level = tmp->exp_list;
-	unsigned int argi, j;
+	Ink_ArgcType argi;
+	Ink_ParamList::size_type j;
 	Ink_Array *var_arg = NULL;
 	Ink_ContextObject *local = tmp->engine->global_context->context;
 
@@ -256,7 +257,7 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	pthread_t new_thread;
 	Ink_InterpreteEngine *check;
 	Ink_ActorFunction_sub_Argument *tmp_arg;
-	unsigned int tmp_argc, i;
+	Ink_ArgcType tmp_argc, i;
 	Ink_Object **tmp_argv;
 
 	if ((check = InkActor_getActor(as<Ink_String>(argv[0])->getValue())) != NULL) {

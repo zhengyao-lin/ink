@@ -32,6 +32,7 @@ public:
 };
 
 typedef std::map<std::string, Ink_ActorHandler *> Ink_ActorMap;
+typedef Ink_ActorMap::size_type Ink_ActorCountType;
 // typedef std::string *Ink_ActorMessage;
 
 class Ink_ActorMessage {
@@ -57,7 +58,7 @@ bool InkActor_addActor(std::string name, Ink_InterpreteEngine *engine, pthread_t
 void InkActor_setDeadActor(Ink_InterpreteEngine *engine);
 Ink_InterpreteEngine *InkActor_getActor(std::string name);
 void InkActor_joinAllActor(Ink_InterpreteEngine *self_engine, Ink_InterpreteEngine *except = NULL);
-unsigned int InkActor_getActorCount();
+Ink_ActorCountType InkActor_getActorCount();
 std::string *InkActor_getActorName(Ink_InterpreteEngine *engine);
 bool InkActor_isRootActor(Ink_InterpreteEngine *engine);
 

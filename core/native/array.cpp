@@ -4,13 +4,19 @@
 #include "native.h"
 #include "../interface/engine.h"
 
+inline Ink_ArrayValue::size_type getRealIndex(long index, Ink_ArrayValue::size_type size)
+{
+	while (index < 0) index += size;
+	return index;
+}
+
 Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_Array *obj = as<Ink_Array>(base);
 	Ink_Object *ret;
 	Ink_HashTable *hash;
-	unsigned int index;
+	Ink_ArrayValue::size_type index;
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
@@ -56,9 +62,11 @@ Ink_Object *InkNative_Array_Size(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return new Ink_Numeric(engine, as<Ink_Array>(base)->value.size());
 }
 
-void cleanArrayHashTable(Ink_ArrayValue val, int begin, int end) // assume that begin <= end
+void cleanArrayHashTable(Ink_ArrayValue val,
+						 Ink_ArrayValue::size_type begin,
+						 Ink_ArrayValue::size_type end) // assume that begin <= end
 {
-	int index;
+	Ink_ArrayValue::size_type index;
 	for (index = begin; index < end; index++) {
 		delete val[index];
 	}
@@ -72,7 +80,7 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	Ink_Object **args;
 	Ink_Object *ret_tmp;
 	Ink_ArrayValue ret_val;
-	unsigned int i;
+	Ink_ArrayValue::size_type i;
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
@@ -109,7 +117,7 @@ Ink_Object *InkNative_Array_Remove(Ink_InterpreteEngine *engine, Ink_ContextChai
 	// Ink_Object *ret;
 	Ink_Array *tmp;
 	Ink_Object *ret = NULL_OBJ;
-	unsigned int index_begin, index_end, tmp_val;
+	Ink_ArrayValue::size_type index_begin, index_end, tmp_val;
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
@@ -156,7 +164,7 @@ Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextCha
 	Ink_Array *tmp;
 	Ink_FunctionObject *tmp_func;
 	Ink_ExpressionList ret_val;
-	unsigned int i;
+	Ink_ArrayValue::size_type i;
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 

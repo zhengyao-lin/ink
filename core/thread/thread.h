@@ -6,11 +6,12 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <pthread.h>
+#include "../inttype.h"
 
 #define getThreadID_raw() (pthread_self())
 
-typedef unsigned long int ThreadIDRaw;
-typedef unsigned long int ThreadID;
+typedef Ink_UInt64 ThreadIDRaw;
+typedef Ink_UInt64 ThreadID;
 
 class MutexLock {
 public:

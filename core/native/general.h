@@ -13,12 +13,6 @@
 	} \
 } while (0)
 
-inline string::size_type getRealIndex(int index, string::size_type size)
-{
-	while (index < 0) index += size;
-	return index;
-}
-
 inline Ink_Object *getSlotWithProto(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
 									Ink_Object *base, const char *name, string *id_p = NULL)
 {

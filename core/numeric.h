@@ -75,7 +75,7 @@ public:
 
 class Ink_BigNumericValue {
 	Ink_BigInteger num;
-	int std_pow;
+	long std_pow;
 public:
 
 	enum {

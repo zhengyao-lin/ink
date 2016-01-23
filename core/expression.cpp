@@ -63,7 +63,7 @@ Ink_Expression *Ink_NumericConstant::parse(string code)
 
 Ink_Object *Ink_CommaExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 
 	Ink_Object *ret = NULL_OBJ;
@@ -83,7 +83,7 @@ Ink_Object *Ink_CommaExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 
 Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 
 	// no temp engine means no coroutine
@@ -123,7 +123,7 @@ REWAIT:
 
 Ink_Object *Ink_InterruptExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 
 	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : NULL_OBJ;
@@ -142,7 +142,7 @@ Ink_Object *Ink_InterruptExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 
 Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	bool ret_val = false;
 	SET_LINE_NUM;
 
@@ -190,7 +190,7 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 
 Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 
 	Ink_Object *rval_ret;
@@ -237,7 +237,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 
 Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 
 	Ink_Object *ret = new Ink_Object(engine), *key;
@@ -277,7 +277,7 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 
 Ink_Object *Ink_TableExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 
 	Ink_ArrayValue val = Ink_ArrayValue();
@@ -298,7 +298,7 @@ Ink_Object *Ink_TableExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 
 Ink_Object *Ink_HashExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 
 	Ink_Object *base_obj = base->eval(engine, context_chain);
@@ -403,7 +403,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 
 Ink_Object *Ink_FunctionExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 	Ink_Protocol protocol;
 
@@ -438,7 +438,7 @@ inline Ink_ArgumentList expandArgument(Ink_InterpreteEngine *engine, Ink_Object 
 
 Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 
 	Ink_ArgumentList::size_type i;
@@ -599,7 +599,7 @@ DISPOSE_LIST:
 
 Ink_Object *Ink_IdentifierExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 
 	Ink_Object *ret;
@@ -682,7 +682,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 
 Ink_Object *Ink_ArrayLiteral::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
-	int line_num_back;
+	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 	Ink_ArrayValue val = Ink_ArrayValue();
 	Ink_ArrayValue::size_type i;

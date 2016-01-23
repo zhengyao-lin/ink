@@ -222,7 +222,7 @@ Ink_BigInteger operator *= (Ink_BigInteger &op1, const Ink_BigInteger &op2) {
 
 				if (to_add != 0) temp.push_back(to_add);
 
-				int num_of_zeros = iter2 - op2.digits.begin();
+				vector<char>::size_type num_of_zeros = iter2 - op2.digits.begin();
 
 				while (num_of_zeros--) temp.push_front(0);
 
@@ -412,7 +412,7 @@ Ink_BigNumericValue::Ink_BigNumericValue(double val)
 
 Ink_BigNumericValue::Ink_BigNumericValue(string str)
 {
-	unsigned int pos;
+	string::size_type pos;
 	num = std_pow = 0;
 	int sign = 1;
 	Ink_BigInteger integer = 0;

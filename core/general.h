@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <stdlib.h>
+#include "inttype.h"
 #include "../includes/universal.h"
 
 class Ink_Undefined;
@@ -160,12 +161,21 @@ typedef enum {
 	INTER_THROW = 1 << 6
 } InterruptSignal;
 
-inline bool hasSignal(int set, InterruptSignal sign)
+typedef Ink_UInt64 Ink_InterruptSignalTrap;
+typedef std::vector<Ink_Expression *> Ink_ExpressionList;
+typedef std::vector<Ink_Argument *> Ink_ArgumentList;
+typedef std::vector<Ink_Parameter> Ink_ParamList;
+typedef Ink_UInt32 Ink_ArgcType;
+typedef Ink_SInt32 IGC_MarkType;
+typedef Ink_UInt64 IGC_ObjectCountType;
+typedef Ink_SInt64 Ink_LineNoType;
+
+inline bool hasSignal(Ink_InterruptSignalTrap set, InterruptSignal sign)
 {
 	return (~(~set | sign) != set);
 }
 
-inline int addSignal(int set, InterruptSignal sign)
+inline Ink_InterruptSignalTrap addSignal(Ink_InterruptSignalTrap set, InterruptSignal sign)
 {
 	return set | sign;
 }
@@ -173,17 +183,6 @@ inline int addSignal(int set, InterruptSignal sign)
 class Ink_Object;
 class Ink_InterpreteEngine;
 Ink_Object *trapSignal(Ink_InterpreteEngine *engine);
-
-typedef std::vector<Ink_Expression *> Ink_ExpressionList;
-typedef std::vector<Ink_Argument *> Ink_ArgumentList;
-typedef std::vector<Ink_Parameter> Ink_ParamList;
-typedef unsigned int Ink_ArgcType;
-typedef long Ink_InterruptSignalTrap;
-
-typedef int IGC_MarkType;
-typedef long IGC_ObjectCountType;
-
-typedef long Ink_LineNoType;
 
 /*
 std::string *StrPool_addStr(const char *str);

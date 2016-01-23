@@ -8,15 +8,15 @@
 #include "core/expression.h"
 #include "core/interface/engine.h"
 
-INKJSON_TokenStack
+InkJSON_TokenStack
 JSON_lexer(string str)
 {
-	INKJSON_TokenStack ret = INKJSON_TokenStack();
-	unsigned int i;
-	INKJSON_LexState state = JLS_NORMAL;
+	InkJSON_TokenStack ret = InkJSON_TokenStack();
+	string::size_type i;
+	InkJSON_LexState state = JLS_NORMAL;
 	string string_literal = "";
 	string numeric_literal = "";
-	INKJSON_Value tmp_val;
+	InkJSON_Value tmp_val;
 
 	for (i = 0; i < str.length(); i++) {
 		switch (str[i]) {
@@ -24,7 +24,7 @@ JSON_lexer(string str)
 				switch (state) {
 					case JLS_NORMAL:
 						tmp_val.str = NULL;
-						ret.push_back(INKJSON_Token(JT_LBRACE, tmp_val));
+						ret.push_back(InkJSON_Token(JT_LBRACE, tmp_val));
 						break;
 					case JLS_IN_STRING:
 						string_literal += "{";
@@ -34,7 +34,7 @@ JSON_lexer(string str)
 				switch (state) {
 					case JLS_NORMAL:
 						tmp_val.str = NULL;
-						ret.push_back(INKJSON_Token(JT_RBRACE, tmp_val));
+						ret.push_back(InkJSON_Token(JT_RBRACE, tmp_val));
 						break;
 					case JLS_IN_STRING:
 						string_literal += "}";
@@ -44,7 +44,7 @@ JSON_lexer(string str)
 				switch (state) {
 					case JLS_NORMAL:
 						tmp_val.str = NULL;
-						ret.push_back(INKJSON_Token(JT_LBRACKET, tmp_val));
+						ret.push_back(InkJSON_Token(JT_LBRACKET, tmp_val));
 						break;
 					case JLS_IN_STRING:
 						string_literal += "[";
@@ -54,7 +54,7 @@ JSON_lexer(string str)
 				switch (state) {
 					case JLS_NORMAL:
 						tmp_val.str = NULL;
-						ret.push_back(INKJSON_Token(JT_RBRACKET, tmp_val));
+						ret.push_back(InkJSON_Token(JT_RBRACKET, tmp_val));
 						break;
 					case JLS_IN_STRING:
 						string_literal += "]";
@@ -64,7 +64,7 @@ JSON_lexer(string str)
 				switch (state) {
 					case JLS_NORMAL:
 						tmp_val.str = NULL;
-						ret.push_back(INKJSON_Token(JT_COLON, tmp_val));
+						ret.push_back(InkJSON_Token(JT_COLON, tmp_val));
 						break;
 					case JLS_IN_STRING:
 						string_literal += ":";
@@ -74,7 +74,7 @@ JSON_lexer(string str)
 				switch (state) {
 					case JLS_NORMAL:
 						tmp_val.str = NULL;
-						ret.push_back(INKJSON_Token(JT_COMMA, tmp_val));
+						ret.push_back(InkJSON_Token(JT_COMMA, tmp_val));
 						break;
 					case JLS_IN_STRING:
 						string_literal += ",";
@@ -89,7 +89,7 @@ JSON_lexer(string str)
 					case JLS_IN_STRING:
 						state = JLS_NORMAL;
 						tmp_val.str = new string(string_literal);
-						ret.push_back(INKJSON_Token(JT_STRING, tmp_val));
+						ret.push_back(InkJSON_Token(JT_STRING, tmp_val));
 						break;
 				}
 				break;
@@ -135,7 +135,7 @@ JSON_lexer(string str)
 					break;
 				}
 				numeric_literal = str.substr(i, 1);
-				unsigned int j;
+				string::size_type j;
 				bool is_success;
 				double val;
 
@@ -149,7 +149,7 @@ JSON_lexer(string str)
 				val = Ink_NumericConstant::parseNumeric(numeric_literal, &is_success);
 				if (is_success) {
 					tmp_val.num = val;
-					ret.push_back(INKJSON_Token(JT_NUMERIC, tmp_val));
+					ret.push_back(InkJSON_Token(JT_NUMERIC, tmp_val));
 				} else {
 					fprintf(stderr, "JSON Lex: Failed to parse numeric '%s'", numeric_literal.c_str());
 				}
@@ -170,7 +170,7 @@ JSON_lexer(string str)
 				}
 				if (i + 3 < str.length() && str.substr(i, 4) == "null") {
 					i += 3;
-					ret.push_back(INKJSON_Token(JT_NULL, tmp_val));
+					ret.push_back(InkJSON_Token(JT_NULL, tmp_val));
 					break;
 				}
 				// fallthrough
@@ -190,12 +190,13 @@ JSON_lexer(string str)
 }
 
 JSON_ParserReturnVal
-JSON_parser(Ink_InterpreteEngine *engine, INKJSON_TokenStack token_stack, unsigned int start_index = 0)
+JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
+			InkJSON_TokenStack::size_type start_index = 0)
 {
 	Ink_Object *ret = NULL;
 	JSON_ParserReturnVal tmp_ret;
-	INKJSON_ParseStateStack state_stack = INKJSON_ParseStateStack();
-	unsigned int i = start_index, j;
+	InkJSON_ParseStateStack state_stack = InkJSON_ParseStateStack();
+	InkJSON_TokenStack::size_type = start_index, j;
 	Ink_ArrayValue arr_val;
 	string *tmp_str;
 
@@ -280,9 +281,8 @@ JSON_parser(Ink_InterpreteEngine *engine, INKJSON_TokenStack token_stack, unsign
 
 Ink_Object *JSON_parse(Ink_InterpreteEngine *engine, string str)
 {
-	INKJSON_TokenStack token_stack = JSON_lexer(str);
+	InkJSON_TokenStack token_stack = JSON_lexer(str);
 	JSON_ParserReturnVal ret_val = JSON_parser(engine, token_stack);
-	// unsigned int i;
 
 	if (ret_val.end_index + 1 < token_stack.size()) {
 		fprintf(stderr, "Unexpected %d, expecting ending\n", token_stack[ret_val.end_index + 1].token);

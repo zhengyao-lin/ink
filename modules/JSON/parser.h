@@ -7,7 +7,7 @@
 
 using namespace std;
 
-enum INKJSON_Token_tag {
+enum InkJSON_Token_tag {
 	JT_LBRACE = 1,
 	JT_RBRACE,
 	JT_LBRACKET,
@@ -19,32 +19,32 @@ enum INKJSON_Token_tag {
 	JT_NUMERIC,
 	JT_NULL
 };
-enum INKJSON_LexState {
+enum InkJSON_LexState {
 	JLS_NORMAL,
 	JLS_IN_STRING
 };
-enum INKJSON_ParseState {
+enum InkJSON_ParseState {
 	JPS_START,
 	JPS_IN_HASH_TABLE,
 	JPS_IN_ARRAY,
 	JPS_IN_HASH
 };
 
-class INKJSON_Token;
+class InkJSON_Token;
 
-typedef union INKJSON_Value_tag {
+typedef union InkJSON_Value_tag {
 	string *str;
 	double num;
-} INKJSON_Value;
-typedef vector<INKJSON_Token> INKJSON_TokenStack;
-typedef vector<INKJSON_ParseState> INKJSON_ParseStateStack;
+} InkJSON_Value;
+typedef vector<InkJSON_Token> InkJSON_TokenStack;
+typedef vector<InkJSON_ParseState> InkJSON_ParseStateStack;
 
-class INKJSON_Token {
+class InkJSON_Token {
 public:
-	INKJSON_Token_tag token;
-	INKJSON_Value value;
+	InkJSON_Token_tag token;
+	InkJSON_Value value;
 
-	INKJSON_Token(INKJSON_Token_tag token, INKJSON_Value value)
+	InkJSON_Token(InkJSON_Token_tag token, InkJSON_Value value)
 	: token(token), value(value)
 	{ }
 };
@@ -52,9 +52,9 @@ public:
 class JSON_ParserReturnVal {
 public:
 	Ink_Object *ret;
-	unsigned int end_index;
+	InkJSON_TokenStack::size_type end_index;
 
-	JSON_ParserReturnVal(Ink_Object *ret = NULL, unsigned int end_index = 0)
+	JSON_ParserReturnVal(Ink_Object *ret = NULL, InkJSON_TokenStack::size_type end_index = 0)
 	: ret(ret), end_index(end_index)
 	{ }
 };

@@ -2,6 +2,7 @@
 #define _CONTEXT_H_
 
 #include "object.h"
+#include "general.h"
 
 class Ink_ContextChain {
 public:
@@ -9,7 +10,7 @@ public:
 	Ink_ContextObject *context;
 	Ink_ContextChain *inner;
 
-	int debug_lineno;
+	Ink_LineNoType debug_lineno;
 	Ink_Object *debug_creater;
 
 	Ink_ContextChain(Ink_ContextObject *context)
@@ -21,14 +22,14 @@ public:
 		debug_creater = NULL;
 	}
 
-	inline void setDebug(int lineno, Ink_Object *creater)
+	inline void setDebug(Ink_LineNoType lineno, Ink_Object *creater)
 	{
 		debug_lineno = lineno;
 		debug_creater = creater;
 		return;
 	}
 
-	inline int getLineno()
+	inline Ink_LineNoType getLineno()
 	{ return debug_lineno; }
 	inline Ink_Object *getCreater()
 	{ return debug_creater; }
