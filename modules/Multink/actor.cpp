@@ -174,9 +174,9 @@ extern pthread_mutex_t ink_actor_pthread_create_lock;
 
 void Ink_ActorFunction_signal_handler(int errno)
 {
-	printf("ha, I received a signal? %ld\n", pthread_self());
-	//pthread_exit(NULL);
-	//sleep(5);
+	// printf("ha, I received a signal? %ld\n", pthread_self());
+	// pthread_exit(NULL);
+	// sleep(5);
 	return;
 }
 

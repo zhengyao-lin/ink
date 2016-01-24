@@ -139,16 +139,19 @@ public:
 			default:
 				proto_name = string("$") + getTypeName(INK_OBJECT);
 		}
-TRY_AGAIN:
-		proto_hash = global_context->context->getSlotMapping(NULL, proto_name.c_str());
-		if (!(proto_hash && (tmp = proto_hash->getValue()))) return NULL;
 
-		ret = tmp->getSlotMapping(NULL, name);
+		while (1) {
+			proto_hash = global_context->context->getSlotMapping(NULL, proto_name.c_str());
+			if (!(proto_hash && (tmp = proto_hash->getValue()))) return NULL;
 
-		if (!ret && type != INK_OBJECT) {
-			type = INK_OBJECT;
-			proto_name = string("$") + getTypeName(INK_OBJECT);
-			goto TRY_AGAIN;
+			ret = tmp->getSlotMapping(NULL, name);
+
+			if (!ret && type != INK_OBJECT) {
+				type = INK_OBJECT;
+				proto_name = string("$") + getTypeName(INK_OBJECT);
+				continue;
+			}
+			break;
 		}
 
 		return ret;

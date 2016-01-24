@@ -977,7 +977,9 @@ try_actor = fn () {
 
 let i = 1;
 p(i++);
-try_actor();
+while (1) {
+	try_actor();
+}
 
 try_arg = actor (arg1, argv...) {
 	//p("I got a argument: " + json.encode(arg1));
