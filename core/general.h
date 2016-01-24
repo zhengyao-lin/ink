@@ -184,6 +184,8 @@ class Ink_Object;
 class Ink_InterpreteEngine;
 Ink_Object *trapSignal(Ink_InterpreteEngine *engine);
 
+typedef void (*IGC_Marker)(Ink_InterpreteEngine *engine, Ink_Object *obj);
+
 /*
 std::string *StrPool_addStr(const char *str);
 std::string *StrPool_addStr(std::string *str);

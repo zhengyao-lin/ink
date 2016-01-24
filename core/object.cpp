@@ -779,3 +779,33 @@ Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine,
 
 	return new Ink_Array(engine, arr_val);
 }
+
+void Ink_FunctionObject::doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
+{
+	Ink_ContextChain *global = closure_context ?
+							   closure_context->getGlobal() :
+							   NULL;
+	Ink_ContextChain *j;
+	Ink_ArgcType argi;
+
+	for (j = global; j; j = j->inner) {
+		marker(engine, j->context);
+	}
+
+	if (partial_applied_argv) {
+		for (argi = 0; argi < partial_applied_argc; argi++) {
+			marker(engine, partial_applied_argv[argi]);
+		}
+	}
+	return;
+}
+
+void Ink_Array::doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
+{
+	Ink_ArrayValue::size_type i;
+	for (i = 0; i < value.size(); i++) {
+		if (value[i])
+			marker(engine, value[i]->getValue());
+	}
+	return;
+}

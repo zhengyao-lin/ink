@@ -100,7 +100,7 @@ void Ink_InterpreteEngine::printSlotInfo(FILE *fp, Ink_Object *obj, string prefi
 	if (obj->type == INK_ARRAY) {
 		arr = as<Ink_Array>(obj);
 		for (j = 0; j < arr->value.size(); j++) {
-			fprintf(fp, "%s" DBG_TAB "[%u]: ", prefix.c_str(), j);
+			fprintf(fp, "%s" DBG_TAB "[%lu]: ", prefix.c_str(), j);
 			if (arr->value[j]) {
 				printDebugInfo(fp, arr->value[j]->getValue(), "", DBG_TAB + prefix);
 			} else {

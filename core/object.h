@@ -98,6 +98,10 @@ public:
 		InkErr_Calling_Non_Function_Object(engine);
 		return NULL;
 	}
+	virtual void doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
+	{
+		return;
+	}
 
 	virtual ~Ink_Object()
 	{
@@ -175,6 +179,11 @@ public:
 	virtual bool isTrue()
 	{
 		return true;
+	}
+	virtual void doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
+	{
+		marker(engine, ret_val);
+		return;
 	}
 };
 
@@ -300,6 +309,7 @@ public:
 
 		return tmp;
 	}
+	virtual void doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker);
 
 	virtual ~Ink_FunctionObject();
 };
@@ -425,6 +435,8 @@ public:
 		}
 		return;
 	}
+
+	virtual void doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker);
 
 	virtual ~Ink_Array()
 	{

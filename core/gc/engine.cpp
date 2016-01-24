@@ -23,7 +23,7 @@ void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
 	return;
 }
 
-void IGC_CollectEngine::doMark(Ink_Object *obj)
+void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 {
 	Ink_HashTable *i;
 
@@ -34,13 +34,14 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 
 	for (i = obj->hash_table; i; i = i->next) {
 		if (i->getValue())
-			doMark(i->getValue());
+			doMark(engine, i->getValue());
 		if (i->setter)
-			doMark(i->setter);
+			doMark(engine, i->setter);
 		if (i->getter)
-			doMark(i->getter);
+			doMark(engine, i->getter);
 	}
 
+/*
 	if (obj->type == INK_FUNCTION) {
 		Ink_FunctionObject *func = as<Ink_FunctionObject>(obj);
 		Ink_ContextChain *global = func->closure_context->getGlobal();
@@ -66,6 +67,8 @@ void IGC_CollectEngine::doMark(Ink_Object *obj)
 	} else if (obj->type == INK_CONTEXT) {
 		doMark(as<Ink_ContextObject>(obj)->ret_val);
 	}
+*/
+	obj->doSelfMark(engine, doMark);
 
 	return;
 }

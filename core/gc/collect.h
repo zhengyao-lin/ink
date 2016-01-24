@@ -62,7 +62,12 @@ public:
 	} */
 	void addUnit(IGC_CollectUnit *unit);
 	// void addPardon(Ink_Object *obj);
-	void doMark(Ink_Object *obj);
+	inline void doMark(Ink_Object *obj)
+	{
+		doMark(engine, obj);
+		return;
+	}
+	static void doMark(Ink_InterpreteEngine *engine, Ink_Object *obj);
 	void deleteObject(IGC_CollectUnit *unit);
 	void disposeChainWithoutDelete(IGC_CollectUnit *chain);
 
