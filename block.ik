@@ -977,9 +977,9 @@ try_actor = fn () {
 
 let i = 1;
 p(i++);
-while (1) {
+//while (1) {
 	try_actor();
-}
+//}
 
 try_arg = actor (arg1, argv...) {
 	//p("I got a argument: " + json.encode(arg1));
@@ -1204,3 +1204,25 @@ $numeric.'-' = fn (op) {
 p(182-1589-9452)
 
 $numeric.'-' = numeric_sub
+
+p("######################## namespace ########################");
+
+namespace = {
+	missing: fn (name) {
+		ret = (top this)[name] = fn () { }
+		delete name
+		ret
+	}
+}
+
+namespace a::(
+	let haha,
+	let hello = "hi"
+)
+
+haha = "You cannot find me"
+a::haha = "I'm inside namespace"
+p(haha);
+p(a::haha);
+p(a::hello);
+p(a::name);

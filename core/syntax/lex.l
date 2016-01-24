@@ -122,7 +122,6 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"inl"						return TOKEN(TINLINE);
 <INITIAL>"do"						return TOKEN(TDO);
 <INITIAL>"end"						return TOKEN(TEND);
-<INITIAL>"gen"						return TOKEN(TGEN);
 <INITIAL>"import"					return TOKEN(TIMPORT);
 <INITIAL>"break"					return TOKEN(TBREAK);
 <INITIAL>"continue"					return TOKEN(TCONTINUE);

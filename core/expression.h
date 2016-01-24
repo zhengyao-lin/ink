@@ -266,15 +266,14 @@ public:
 	Ink_ParamList param;
 	Ink_ExpressionList exp_list;
 	bool is_inline;
-	bool is_generator;
 	string *protocol_name;
 
-	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, bool is_inline = false, bool is_generator = false)
-	: param(param), exp_list(exp_list), is_inline(is_inline), is_generator(is_generator), protocol_name(NULL)
+	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, bool is_inline = false)
+	: param(param), exp_list(exp_list), is_inline(is_inline), protocol_name(NULL)
 	{ }
 
 	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, string *protocol_name)
-	: param(param), exp_list(exp_list), is_inline(false), is_generator(false), protocol_name(protocol_name)
+	: param(param), exp_list(exp_list), is_inline(false), protocol_name(protocol_name)
 	{ }
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);

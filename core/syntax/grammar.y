@@ -39,7 +39,7 @@
 %token <string> TIDENTIFIER TNUMERIC TSTRING TPROTOCOL
 
 %token <token> TVAR TGLOBAL TLET TRETURN TNEW TDELETE TCLONE
-			   TFUNC TINLINE TDO TEND TGEN
+			   TFUNC TINLINE TDO TEND
 			   TIMPORT TBREAK TCONTINUE TDROP TTHROW TYIELD TWITH
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TDCOLON TCOLON TASSIGN
 %token <token> TDADD TDSUB TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND
@@ -808,20 +808,6 @@ function_expression
 	| TINLINE nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
 	{
 		$$ = new Ink_FunctionExpression(*$4, *$8, true);
-		delete $4;
-		delete $8;
-		SET_LINE_NO($$);
-	}
-	| TGEN nllo TLPAREN param_opt TRPAREN nllo TLBRACE expression_list_opt TRBRACE
-	{
-		$$ = new Ink_FunctionExpression(*$4, *$8, false, true);
-		delete $4;
-		delete $8;
-		SET_LINE_NO($$);
-	}
-	| TGEN nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
-	{
-		$$ = new Ink_FunctionExpression(*$4, *$8, false, true);
 		delete $4;
 		delete $8;
 		SET_LINE_NO($$);
