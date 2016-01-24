@@ -298,7 +298,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 			if (current_engine) {
 				context->removeLast();
 				top_level_backup = current_engine->top_level;
-				setParserCurrentLineno(0);
+				setParserCurrentLineno(1);
 
 				yyerror_prefix = "from import: ";
 				current_engine->startParse(fp);
@@ -479,7 +479,7 @@ InkNative_MethodTable numeric_native_method_table[] = {
 	{"to_str", new Ink_FunctionObject(NULL, InkNative_Numeric_ToString)}
 };
 
-int string_native_method_table_count = 9;
+int string_native_method_table_count = 10;
 InkNative_MethodTable string_native_method_table[] = {
 	{"+", new Ink_FunctionObject(NULL, InkNative_String_Add)},
 	{"<", new Ink_FunctionObject(NULL, InkNative_String_Index)},
@@ -490,6 +490,7 @@ InkNative_MethodTable string_native_method_table[] = {
 	{"[]", new Ink_FunctionObject(NULL, InkNative_String_Index)},
 	{"length", new Ink_FunctionObject(NULL, InkNative_String_Length)},
 	{"substr", new Ink_FunctionObject(NULL, InkNative_String_SubStr)},
+	{"to_str", new Ink_FunctionObject(NULL, InkNative_String_ToString)},
 };
 
 int object_native_method_table_count = 12;

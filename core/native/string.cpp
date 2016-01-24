@@ -136,6 +136,13 @@ Ink_Object *InkNative_String_LessOrEqual(Ink_InterpreteEngine *engine, Ink_Conte
 	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().c_str()[0] <= as<Ink_String>(argv[0])->getValue().c_str()[0]);
 }
 
+Ink_Object *InkNative_String_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+	ASSUME_BASE_TYPE(engine, INK_STRING);
+	return base;
+}
+
 extern int string_native_method_table_count;
 extern InkNative_MethodTable string_native_method_table[];
 
