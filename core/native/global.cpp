@@ -276,6 +276,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	string *tmp;
 	char *current_dir = NULL, *redirect = NULL;
 	const char *file_name_back;
+	string *whole_file_name;
 	Ink_InterpreteEngine *current_engine = engine;
 	Ink_ExpressionList top_level_backup;
 	Ink_LineNoType line_num_backup = getParserCurrentLineno();
@@ -288,10 +289,12 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 				InkErr_Failed_Open_File(NULL, tmp->c_str());
 				continue;
 			}
-			file_name_back = current_engine->getFilePath();
-			current_engine->setFilePath(tmp->c_str());
-
 			current_dir = getCurrentDir();
+			whole_file_name = new string(string(current_dir) + INK_PATH_SPLIT + string(tmp->c_str()));
+
+			file_name_back = current_engine->getFilePath();
+			current_engine->setFilePath(whole_file_name->c_str());
+			
 			redirect = getBasePath(tmp->c_str());
 			if (redirect) {
 				changeDir(redirect);
@@ -323,6 +326,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 			}
 			current_engine->setFilePath(file_name_back);
 
+			delete whole_file_name;
 			delete tmp;
 			// run file
 		} else {

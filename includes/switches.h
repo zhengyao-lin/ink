@@ -7,6 +7,14 @@
 #define INK_ROOT_ACTOR_NAME "root"
 #define INK_ARGV_NAME "ARGV"
 
+#if defined(INK_PLATFORM_WIN32)
+	#define INK_PATH_SPLIT "\\"
+	#define INK_PATH_SPLIT_C '\\'
+#else
+	#define INK_PATH_SPLIT "/"
+	#define INK_PATH_SPLIT_C '/'
+#endif
+
 #define INK_IS_BOTH_SPLIT(c) ((c) == '/' || (c) == '\\')
 
 inline char *getBasePath(const char *path)

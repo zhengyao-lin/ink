@@ -16,8 +16,6 @@
 	#include <string.h>
 	#include <windows.h>
 	#define INK_MODULE_DIR ((getProgPath() + "modules").c_str())
-	#define INK_PATH_SPLIT "\\"
-	#define INK_PATH_SPLIT_C '\\'
 
 	#define INK_TMP_PATH ((getProgPath() + "tmp").c_str())
 
@@ -29,8 +27,6 @@
 		#define INK_MODULE_DIR "/usr/lib/ink/modules"
 	#endif
 	#define INK_TMP_PATH "/tmp/ink_tmp"
-	#define INK_PATH_SPLIT "/"
-	#define INK_PATH_SPLIT_C '/'
 #endif
 
 #if defined(INK_PLATFORM_LINUX)
