@@ -1227,9 +1227,10 @@ p(a::haha);
 p(a::hello);
 p(a::name);
 
-a = fn () {
-	let ret = 10;
-	ret	
-} () = 10
+a = 20;
+b -> fn () {
+	a = 10;
+	a
+} ()
 
-p(a);
+p(b);

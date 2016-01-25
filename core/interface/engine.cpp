@@ -68,6 +68,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
 	igc_mark_period = 1;
 	input_file_path = NULL;
+	current_file_name = NULL;
 	current_line_number = -1;
 	trace = NULL;
 	CGC_interrupt_signal = INTER_NONE;

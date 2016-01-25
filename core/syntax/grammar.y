@@ -107,11 +107,17 @@ top_level_expression_list
 	{
 		$$ = new Ink_ExpressionList();
 		$$->push_back($1);
+		if (Ink_getParseEngine()->getFilePath()) {
+			$1->file_name
+			= ($1->file_name_p
+			   = new string(Ink_getParseEngine()->getFilePath()))->c_str();
+		}
 	}
 	| top_level_expression_list split expression
 	{
 		$1->push_back($3);
 		$$ = $1;
+		$3->file_name = $$->front()->file_name;
 	}
 	;
 
@@ -131,11 +137,17 @@ expression_list
 	{
 		$$ = new Ink_ExpressionList();
 		$$->push_back($1);
+		if (Ink_getParseEngine()->getFilePath()) {
+			$1->file_name
+			= ($1->file_name_p
+			   = new string(Ink_getParseEngine()->getFilePath()))->c_str();
+		}
 	}
 	| expression_list split expression
 	{
 		$1->push_back($3);
 		$$ = $1;
+		$3->file_name = $$->front()->file_name;
 	}
 	;
 

@@ -12,8 +12,11 @@
 #include "thread/thread.h"
 #include "coroutine/coroutine.h"
 #include "general.h"
-#define SET_LINE_NUM (line_num_back = engine->current_line_number = (line_number != -1 ? line_number : engine->current_line_number))
-#define RESTORE_LINE_NUM (engine->current_line_number = line_num_back)
+#define SET_LINE_NUM (file_name_back = engine->current_file_name, \
+					  line_num_back = engine->current_line_number, \
+					  engine->current_file_name = file_name, \
+					  engine->current_line_number = line_number)
+#define RESTORE_LINE_NUM (engine->current_file_name = file_name_back, engine->current_line_number = line_num_back)
 #define INTER_SIGNAL_RECEIVED (engine->CGC_interrupt_signal != INTER_NONE)
 
 using namespace std;
@@ -36,14 +39,22 @@ public:
 
 class Ink_Expression {
 public:
+	const char *file_name;
 	Ink_LineNoType line_number;
+	string *file_name_p;
+
 	Ink_Expression()
-	: line_number(-1)
+	: file_name(NULL), line_number(-1), file_name_p(NULL)
 	{ }
+	
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain) { return eval(engine, context_chain, Ink_EvalFlag()); }
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags) { return NULL; }
 	virtual Ink_Expression *clone() { return NULL; }
-	virtual ~Ink_Expression() { }
+	virtual ~Ink_Expression()
+	{
+		if (file_name_p)
+			delete file_name_p;
+	}
 };
 
 class Ink_ShellExpression: public Ink_Expression {

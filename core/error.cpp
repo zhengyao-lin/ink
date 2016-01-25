@@ -10,7 +10,7 @@ InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg)
 	stringstream strm;
 	const char *tmp;
 	bool is_root = InkActor_isRootActor(engine);
-	strm << (engine && (tmp = engine->getFilePath()) ?
+	strm << (engine && (tmp = engine->current_file_name) ?
 			tmp : "<unknown input>") << ": "
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 	
@@ -43,7 +43,7 @@ InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg, const char *a
 	stringstream strm;
 	const char *tmp;
 	bool is_root = InkActor_isRootActor(engine);
-	strm << (engine && (tmp = engine->getFilePath()) ?
+	strm << (engine && (tmp = engine->current_file_name) ?
 			tmp : "<unknown input>") << ": "
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 
@@ -74,7 +74,7 @@ InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg)
 {
 	stringstream strm;
 	const char *tmp;
-	strm << (engine && (tmp = engine->getFilePath()) ?
+	strm << (engine && (tmp = engine->current_file_name) ?
 			tmp : "<unknown input>") << ": "
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 
@@ -88,7 +88,7 @@ InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char
 {
 	stringstream strm;
 	const char *tmp;
-	strm << (engine && (tmp = engine->getFilePath()) ?
+	strm << (engine && (tmp = engine->current_file_name) ?
 			tmp : "<unknown input>") << ": "
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 
@@ -102,7 +102,7 @@ InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char
 {
 	stringstream strm;
 	const char *tmp;
-	strm << (engine && (tmp = engine->getFilePath()) ?
+	strm << (engine && (tmp = engine->current_file_name) ?
 			tmp : "<unknown input>") << ": "
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 	

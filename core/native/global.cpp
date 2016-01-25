@@ -275,6 +275,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	Ink_Object *load, **tmp_argv;
 	string *tmp;
 	char *current_dir = NULL, *redirect = NULL;
+	const char *file_name_back;
 	Ink_InterpreteEngine *current_engine = engine;
 	Ink_ExpressionList top_level_backup;
 	Ink_LineNoType line_num_backup = getParserCurrentLineno();
@@ -287,7 +288,9 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 				InkErr_Failed_Open_File(NULL, tmp->c_str());
 				continue;
 			}
-			engine->input_file_path = tmp->c_str();
+			file_name_back = current_engine->getFilePath();
+			current_engine->setFilePath(tmp->c_str());
+
 			current_dir = getCurrentDir();
 			redirect = getBasePath(tmp->c_str());
 			if (redirect) {
@@ -298,7 +301,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 			if (current_engine) {
 				context->removeLast();
 				top_level_backup = current_engine->top_level;
-				setParserCurrentLineno(1);
+				setParserCurrentLineno(0);
 
 				yyerror_prefix = "from import: ";
 				current_engine->startParse(fp);
@@ -318,6 +321,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 				changeDir(current_dir);
 				free(current_dir);
 			}
+			current_engine->setFilePath(file_name_back);
 
 			delete tmp;
 			// run file
