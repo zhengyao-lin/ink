@@ -978,7 +978,7 @@ try_actor = fn () {
 let i = 1;
 p(i++);
 //while (1) {
-	try_actor();
+	//try_actor();
 //}
 
 try_arg = actor (arg1, argv...) {
@@ -1226,3 +1226,10 @@ p(haha);
 p(a::haha);
 p(a::hello);
 p(a::name);
+
+a = fn () {
+	let ret = 10;
+	ret	
+} () = 10
+
+p(a);

@@ -170,10 +170,14 @@ void Ink_Object::cleanHashTable()
 
 void Ink_Object::cleanHashTable(Ink_HashTable *table)
 {
+	Ink_Object *obj;
 	Ink_HashTable *i, *tmp;
 	for (i = table; i;) {
 		tmp = i;
 		i = i->next;
+		if ((obj = tmp->getValue()) != NULL) {
+			obj->address = NULL;
+		}
 		delete tmp;
 	}
 
