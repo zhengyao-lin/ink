@@ -41,33 +41,6 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 			doMark(engine, i->getter);
 	}
 
-/*
-	if (obj->type == INK_FUNCTION) {
-		Ink_FunctionObject *func = as<Ink_FunctionObject>(obj);
-		Ink_ContextChain *global = func->closure_context->getGlobal();
-		Ink_ContextChain *j;
-		Ink_ArgcType argi;
-
-		for (j = global; j; j = j->inner) {
-			doMark(j->context);
-		}
-
-		if (func->partial_applied_argv) {
-			for (argi = 0; argi < func->partial_applied_argc; argi++) {
-				doMark(func->partial_applied_argv[argi]);
-			}
-		}
-	} else if (obj->type == INK_ARRAY) {
-		Ink_Array *arr = as<Ink_Array>(obj);
-		Ink_ArrayValue::size_type i;
-		for (i = 0; i < arr->value.size(); i++) {
-			if (arr->value[i])
-				doMark(arr->value[i]->getValue());
-		}
-	} else if (obj->type == INK_CONTEXT) {
-		doMark(as<Ink_ContextObject>(obj)->ret_val);
-	}
-*/
 	obj->doSelfMark(engine, doMark);
 
 	return;
