@@ -35,7 +35,10 @@ public:
 	IGC_CollectEngine *alloc_engine;
 	const char *debug_name;
 
+	Ink_InterpreteEngine *engine;
+
 	Ink_Object(Ink_InterpreteEngine *engine)
+	: engine(engine)
 	{
 		mark = 0;
 		type = INK_OBJECT;
@@ -436,11 +439,13 @@ public:
 		return;
 	}
 
+	void disposeArrayValue();
+
 	virtual void doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker);
 
 	virtual ~Ink_Array()
 	{
-		disposeArrayValue(value);
+		disposeArrayValue();
 	}
 };
 

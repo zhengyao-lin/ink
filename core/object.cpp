@@ -175,9 +175,14 @@ void Ink_Object::cleanHashTable(Ink_HashTable *table)
 	for (i = table; i;) {
 		tmp = i;
 		i = i->next;
-		if ((obj = tmp->getValue()) != NULL) {
+		/* if ((obj = tmp->getValue()) != NULL) {
+			obj->address = NULL;
+		} */
+		if ((obj = engine->getGlobalReturnValue()) != NULL
+			&& obj->address == tmp) {
 			obj->address = NULL;
 		}
+		engine->breakUnreachableBonding(tmp);
 		delete tmp;
 	}
 
@@ -506,8 +511,10 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	engine->removeTrace(local);
 	
 	/* mark return value before sweeping */
-	if (ret_val)
+	if (ret_val) {
+		engine->setGlobalReturnValue(ret_val);
 		gc_engine->doMark(ret_val);
+	}
 
 	gc_engine->collectGarbage();
 
@@ -522,6 +529,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 
 	/* restore GC engine */
 	engine->setCurrentGC(gc_engine_backup);
+	engine->setGlobalReturnValue(NULL);
 	delete gc_engine;
 
 	return ret_val ? ret_val : NULL_OBJ; // return the last expression
@@ -574,6 +582,23 @@ Ink_Object *Ink_Array::cloneDeep(Ink_InterpreteEngine *engine)
 	cloneDeepHashTable(engine, this, new_obj);
 
 	return new_obj;
+}
+
+void Ink_Array::disposeArrayValue()
+{
+	Ink_Object *obj;
+	Ink_ArrayValue::size_type i;
+	for (i = 0; i < value.size(); i++) {
+		if (value[i]) {
+			if ((obj = engine->getGlobalReturnValue()) != NULL
+				&& obj->address == value[i]) {
+				obj->address = NULL;
+			}
+			engine->breakUnreachableBonding(value[i]);
+			delete value[i];
+		}
+	}
+	return;
 }
 
 Ink_Object *Ink_FunctionObject::clone(Ink_InterpreteEngine *engine)
@@ -808,8 +833,12 @@ void Ink_Array::doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
 {
 	Ink_ArrayValue::size_type i;
 	for (i = 0; i < value.size(); i++) {
-		if (value[i])
+		if (value[i]) {
 			marker(engine, value[i]->getValue());
+			if (value[i]->bonding) {
+				engine->addGCBonding(value[i], value[i]->bonding);
+			}
+		}
 	}
 	return;
 }

@@ -12,6 +12,7 @@
 #include "../debug.h"
 #include "../protocol.h"
 #include "../object.h"
+#include "../error.h"
 #include "../thread/actor.h"
 #include "../thread/thread.h"
 #include "../package/load.h"
@@ -21,9 +22,9 @@ using namespace std;
 class Ink_Object;
 class Ink_Expression;
 class Ink_InterpreteEngine;
-class IGC_CollectEngine;
 class Ink_ContextObject;
 class Ink_ContextChain;
+class IGC_CollectEngine;
 
 typedef vector<Ink_Expression *> Ink_ExpressionList;
 typedef void (*Ink_EngineDestructFunction)(Ink_InterpreteEngine *engine, void *);
@@ -83,6 +84,8 @@ public:
 	IGC_ObjectCountType igc_collect_treshold;
 	IGC_CollectEngine *current_gc_engine;
 	IGC_MarkType igc_mark_period;
+	IGC_BondingList igc_bonding_list;
+	Ink_Object *igc_global_ret_val;
 	// std::map<int, IGC_CollectEngine *> gc_engine_map;
 
 	InterruptSignal CGC_interrupt_signal;
@@ -122,6 +125,54 @@ public:
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline void setGlobalReturnValue(Ink_Object *ret_val)
+	{
+		igc_global_ret_val = ret_val;
+		return;
+	}
+
+	inline Ink_Object *getGlobalReturnValue()
+	{
+		return igc_global_ret_val;
+	}
+
+	inline void initGCCollect()
+	{
+		igc_bonding_list = IGC_BondingList();
+		return;
+	}
+
+	inline void addGCBonding(Ink_HashTable *from, Ink_HashTable *to)
+	{
+		igc_bonding_list.push_back(IGC_Bonding(from, to));
+		return;
+	}
+
+	inline IGC_Bonding searchGCBonding(Ink_HashTable *to)
+	{
+		IGC_BondingList::iterator bond_iter;
+		for (bond_iter = igc_bonding_list.begin();
+			 bond_iter != igc_bonding_list.end(); bond_iter++) {
+			if ((*bond_iter).second == to) {
+				return *bond_iter;
+			}
+		}
+		return IGC_Bonding(NULL, NULL);
+	}
+
+	inline void breakUnreachableBonding(Ink_HashTable *to)
+	{
+		IGC_BondingList::iterator bond_iter;
+		for (bond_iter = igc_bonding_list.begin();
+			 bond_iter != igc_bonding_list.end(); bond_iter++) {
+			if ((*bond_iter).second == to) {
+				InkWarn_Unreachable_Bonding(this);
+				(*bond_iter).first->bonding = NULL;
+			}
+		}
+		return;
+	}
 
 	inline Ink_HashTable *searchNativeMethod(Ink_TypeTag type, const char *name)
 	{

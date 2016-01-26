@@ -245,7 +245,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 		return is_return_lval ? lval_ret : rval_ret;
 	}
 
-	InkErr_Assigning_Unassignable_Expression(engine);
+	InkWarn_Assigning_Unassignable_Expression(engine);
 	//abort();
 
 	RESTORE_LINE_NUM;

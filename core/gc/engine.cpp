@@ -39,6 +39,9 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 			doMark(engine, i->setter);
 		if (i->getter)
 			doMark(engine, i->getter);
+		if (i->bonding) {
+			engine->addGCBonding(i, i->bonding);
+		}
 	}
 
 	obj->doSelfMark(engine, doMark);
@@ -95,6 +98,7 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 	//clock_t st;
 
 	//st = clock();
+	engine->initGCCollect();
 	if (!delete_all) {
 		for (i = engine->trace->getGlobal();
 			 i; i = i->inner) {

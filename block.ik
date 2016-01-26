@@ -1228,9 +1228,20 @@ p(a::hello);
 p(a::name);
 
 a = 20;
-b -> fn () {
-	a = 10;
+nobody = "origin"
+fn () {
+	let a = 10;
 	a
+} () = "no!!"
+
+p(nobody);
+
+a = 20;
+fn () {
+	let c = 20;
+	let b = 10;
+	a -> c
+	10
 } ()
 
-p(b);
+p(a);

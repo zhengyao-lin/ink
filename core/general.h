@@ -182,9 +182,13 @@ inline Ink_InterruptSignalTrap addSignal(Ink_InterruptSignalTrap set, InterruptS
 
 class Ink_Object;
 class Ink_InterpreteEngine;
+class Ink_HashTable;
 Ink_Object *trapSignal(Ink_InterpreteEngine *engine);
 
 typedef void (*IGC_Marker)(Ink_InterpreteEngine *engine, Ink_Object *obj);
+/*				  From			   To				*/
+typedef std::pair<Ink_HashTable *, Ink_HashTable *> IGC_Bonding;
+typedef std::vector<IGC_Bonding> IGC_BondingList;
 
 /*
 std::string *StrPool_addStr(const char *str);

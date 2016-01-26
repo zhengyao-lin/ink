@@ -21,13 +21,6 @@ void InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const
 const char *getTypeName(Ink_InterpreteEngine *engine, Ink_TypeTag type);
 
 inline void
-InkErr_Assigning_Unassignable_Expression(Ink_InterpreteEngine *engine)
-{
-	InkErr_doPrintError(engine, "Assigning unassignable expression");
-	return;
-}
-
-inline void
 InkErr_Calling_Non_Function_Object(Ink_InterpreteEngine *engine)
 {
 	InkErr_doPrintError(engine, "Calling non-function object");
@@ -52,6 +45,13 @@ inline void
 InkErr_Failed_Open_File(Ink_InterpreteEngine *engine, const char *path)
 {
 	InkErr_doPrintError(engine, "Failed to open file $(path)", path);
+	return;
+}
+
+inline void
+InkWarn_Assigning_Unassignable_Expression(Ink_InterpreteEngine *engine)
+{
+	InkWarn_doPrintWarning(engine, "Assigning unassignable expression");
 	return;
 }
 
@@ -435,6 +435,13 @@ inline void
 InkWarn_Sub_String_Exceed(Ink_InterpreteEngine *engine)
 {
 	InkWarn_doPrintWarning(engine, "Substring exceed the original string");
+	return;
+}
+
+inline void
+InkWarn_Unreachable_Bonding(Ink_InterpreteEngine *engine)
+{
+	InkWarn_doPrintWarning(engine, "Unreachable bonding detected, breaking");
 	return;
 }
 
