@@ -563,7 +563,7 @@ error_func = fn () {
 
 a = "origin"
 
-try () {
+try {
 	a = error_func();
 } catch { | throw_val |
 	p("I caught that! " + throw_val);
@@ -1225,7 +1225,7 @@ a::haha = "I'm inside namespace"
 p(haha);
 p(a::haha);
 p(a::hello);
-p(a::name);
+p(if (a::name) { "oh no!" } else { "yes!!" });
 
 a = 20;
 nobody = "origin"
@@ -1245,3 +1245,13 @@ fn () {
 } ()
 
 p(a);
+
+a.p = fn (block) {
+	block()
+}
+
+a.p {
+	p("hello");
+}
+
+a.p with [fn () { p("ha") }]

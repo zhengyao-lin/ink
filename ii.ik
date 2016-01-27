@@ -9,7 +9,7 @@ src.close();*/
 
 
 while (1) {
-	stdout.puts(stdin.getc());
+	stdout.putc(stdin.getc());
 }
 
 fun = fn (n, o) {

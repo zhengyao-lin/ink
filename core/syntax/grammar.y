@@ -24,16 +24,17 @@
 %}
 
 %union {
-	Ink_Expression *expression;
-	Ink_ParamList *parameter;
-	Ink_ExpressionList *expression_list;
-	Ink_ArgumentList *argument_list;
-	Ink_HashTableMapping *hash_table_mapping;
-	Ink_HashTableMappingSingle *hash_table_mapping_single;
-	std::string *string;
-	IDContextType context_type;
-	InterruptSignal signal;
-	int token;
+	Ink_Expression					*expression;
+	Ink_ParamList					*parameter;
+	Ink_ExpressionList				*expression_list;
+	Ink_Argument					*argument;
+	Ink_ArgumentList				*argument_list;
+	Ink_HashTableMapping			*hash_table_mapping;
+	Ink_HashTableMappingSingle		*hash_table_mapping_single;
+	std::string						*string;
+	IDContextType					context_type;
+	InterruptSignal					signal;
+	int								token;
 }
 
 %token <string> TIDENTIFIER TNUMERIC TSTRING TPROTOCOL
@@ -58,13 +59,15 @@
 				   relational_expression logical_and_expression
 				   logical_or_expression comma_expression
 				   single_element_expression space_hash_expression
+				   dot_hash_expression direct_argument_attachment_expression
 %type <parameter> param_list param_opt param_list_sub
 %type <expression_list> top_level_expression_list top_level_expression_list_opt
 						expression_list expression_list_opt
 						element_list element_list_opt
+%type <argument> direct_argument_attachment_expression_prefix
 %type <argument_list> argument_list argument_list_opt
-					  argument_attachment argument_list_without_paren
-					  insert_list
+					  argument_attachment argument_attachment_opt
+					  argument_list_without_paren insert_list
 %type <hash_table_mapping> hash_table_mapping hash_table_mapping_opt
 %type <hash_table_mapping_single> hash_table_mapping_single
 %type <context_type> id_context_type
@@ -632,6 +635,14 @@ argument_attachment
 	}
 	;
 
+argument_attachment_opt
+	: /* empty */
+	{
+		$$ = new Ink_ArgumentList();
+	}
+	| argument_attachment
+	;
+
 space_hash_expression
 	: single_element_expression TIDENTIFIER
 	{
@@ -645,26 +656,50 @@ space_hash_expression
 	}
 	;
 
-postfix_expression
-	: function_expression
-	| postfix_expression TDOT nllo TIDENTIFIER
+dot_hash_expression
+	: postfix_expression TDOT nllo TIDENTIFIER
 	{
 		$$ = new Ink_HashExpression($1, $4);
 		SET_LINE_NO($$);
 	}
-	| space_hash_expression
-	| postfix_expression TLPAREN argument_list_opt TRPAREN
+	;
+
+direct_argument_attachment_expression_prefix
+	: block
 	{
-		$$ = new Ink_CallExpression($1, *$3);
-		delete $3;
-		SET_LINE_NO($$);
+		$$ = new Ink_Argument($1);
 	}
-	| postfix_expression TLPAREN argument_list_opt TRPAREN argument_attachment
+	| TWITH nllo function_expression
+	{
+		$$ = new Ink_Argument(true, $3);
+	}
+	;
+
+direct_argument_attachment_expression
+	: dot_hash_expression
+	| space_hash_expression
+	| function_expression
+	;
+
+postfix_expression
+	: function_expression
+	| space_hash_expression
+	| dot_hash_expression
+	| postfix_expression TLPAREN argument_list_opt TRPAREN argument_attachment_opt
 	{
 		$3->insert($3->end(), $5->begin(), $5->end());
 		$$ = new Ink_CallExpression($1, *$3);
 		delete $3;
 		delete $5;
+		SET_LINE_NO($$);
+	}
+	| direct_argument_attachment_expression direct_argument_attachment_expression_prefix argument_attachment_opt
+	{
+		Ink_ArgumentList arg_list = Ink_ArgumentList();
+		arg_list.push_back($2);
+		arg_list.insert(arg_list.end(), $3->begin(), $3->end());
+		$$ = new Ink_CallExpression($1, arg_list);
+		delete $3;
 		SET_LINE_NO($$);
 	}
 	| postfix_expression TLBRAKT nllo argument_list nllo TRBRAKT
