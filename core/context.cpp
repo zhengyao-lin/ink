@@ -1,6 +1,8 @@
 #include "context.h"
 #include "interface/engine.h"
 
+namespace ink {
+
 Ink_ContextChain *Ink_ContextChain::addContext(Ink_ContextObject *c)
 {
 	Ink_ContextChain *new_context = new Ink_ContextChain(c);
@@ -113,4 +115,6 @@ Ink_ContextChain *Ink_ContextChain::copyDeepContextChain(Ink_InterpreteEngine *e
 	}
 
 	return new_chain;
+}
+
 }

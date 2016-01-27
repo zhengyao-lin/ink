@@ -4,6 +4,7 @@
 #include "core/error.h"
 #include "core/package/load.h"
 
+using namespace ink;
 using namespace std;
 
 inline void

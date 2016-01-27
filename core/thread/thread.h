@@ -10,6 +10,8 @@
 
 #define getThreadID_raw() (pthread_self())
 
+namespace ink {
+
 typedef Ink_UInt64 ThreadIDRaw;
 typedef Ink_UInt64 ThreadID;
 
@@ -50,5 +52,7 @@ typedef std::map<ThreadIDRaw, ThreadID> ThreadIDMap;
 typedef std::vector<ThreadIDMap> ThreadIDMapStack;
 typedef std::vector<pthread_t *> ThreadPool;
 typedef ThreadIDMapStack::size_type ThreadLayerType;
+
+}
 
 #endif

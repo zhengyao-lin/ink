@@ -7,6 +7,7 @@
 #include "includes/switches.h"
 #include "file.h"
 
+using namespace ink;
 using namespace std;
 
 static InkMod_ModuleID ink_native_file_mod_id;

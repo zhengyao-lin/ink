@@ -4,6 +4,8 @@
 #include "thread/thread.h"
 #include "interface/engine.h"
 
+namespace ink {
+
 void
 InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg)
 {
@@ -114,4 +116,6 @@ InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char
 const char *getTypeName(Ink_InterpreteEngine *engine, Ink_TypeTag type)
 {
 	return engine->getTypeName(type);
+}
+
 }

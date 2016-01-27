@@ -5,6 +5,8 @@
 #include "../general.h"
 #include "../../includes/universal.h"
 
+namespace ink {
+
 class Ink_Object;
 class Ink_FunctionObject;
 
@@ -20,5 +22,7 @@ public:
 	{ }
 };
 typedef std::vector<Ink_CoCall> Ink_CoCallList;
+
+}
 
 #endif

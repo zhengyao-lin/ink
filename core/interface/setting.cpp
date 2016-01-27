@@ -2,6 +2,8 @@
 #include "setting.h"
 #include "core/error.h"
 
+namespace ink {
+
 inline bool isArg(const char *arg)
 {
 	if (strlen(arg) && arg[0] == '-') {
@@ -42,4 +44,6 @@ Ink_InputSetting Ink_InputSetting::parseArg(int argc, char **argv)
 	ret.setArgument(tmp_argv);
 
 	return ret;
+}
+
 }

@@ -6,6 +6,8 @@
 
 #define IGC_COLLECT_TRESHOLD (512)
 
+namespace ink {
+
 class IGC_CollectUnit {
 public:
 	IGC_CollectUnit *prev;
@@ -97,5 +99,7 @@ public:
 
 void IGC_checkGC();
 void IGC_addObject(Ink_InterpreteEngine *current_engine, Ink_Object *obj);
+
+}
 
 #endif

@@ -11,6 +11,8 @@
 #include "../../includes/switches.h"
 #include "../../includes/universal.h"
 
+namespace ink {
+
 #if defined(INK_PLATFORM_WIN32)
 	#include <string>
 	#include <string.h>
@@ -255,5 +257,7 @@ inline bool createDirIfNotExist(const char *path); /* return: if exist */
 		return false;
 	}
 #endif
+
+}
 
 #endif

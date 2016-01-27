@@ -9,6 +9,8 @@
 #define CURRENT_COLLECT_TRESHOLD (engine->igc_collect_treshold)
 #define CURRENT_MARK_PERIOD (engine->igc_mark_period)
 
+namespace ink {
+
 void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
 {
 	if (object_chain_last) {
@@ -129,4 +131,6 @@ void IGC_CollectEngine::checkGC()
 	}
 #endif
 	return;
+}
+
 }

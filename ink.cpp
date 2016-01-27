@@ -14,6 +14,7 @@
 #include "core/interface/setting.h"
 #include "includes/universal.h"
 
+using namespace ink;
 using namespace std;
 
 int main(int argc, char **argv)

@@ -3,6 +3,8 @@
 #include "../numeric.h"
 #include "native.h"
 
+namespace ink {
+
 class Ink_Numeric;
 
 Ink_Object *InkNative_Numeric_Add(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -423,4 +425,6 @@ void Ink_BigNumeric::Ink_BigNumericMethodInit(Ink_InterpreteEngine *engine)
 	for (i = 0; i < count; i++) {
 		setSlot(table[i].name, table[i].func->cloneDeep(engine));
 	}
+}
+
 }

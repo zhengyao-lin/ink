@@ -5,6 +5,7 @@
 #include "core/native/native.h"
 #include "core/interface/engine.h"
 
+using namespace ink;
 using namespace std;
 
 inline string JSON_escapeString(string str)

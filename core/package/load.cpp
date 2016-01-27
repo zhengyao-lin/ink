@@ -5,6 +5,8 @@
 #include "../interface/engine.h"
 #include "../../includes/switches.h"
 
+namespace ink {
+
 using namespace std;
 
 static pthread_mutex_t dl_handler_pool_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -318,3 +320,5 @@ void Ink_preloadModule(const char *name)
 		return string(tmp_prog_path = getBasePath(buffer));
 	}
 #endif
+
+}

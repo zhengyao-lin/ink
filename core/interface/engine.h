@@ -17,6 +17,12 @@
 #include "../thread/thread.h"
 #include "../package/load.h"
 
+extern FILE *yyin;
+int yyparse();
+int yylex_destroy();
+
+namespace ink {
+
 using namespace std;
 
 class Ink_Object;
@@ -41,11 +47,8 @@ typedef vector<Ink_EngineDestructor> Ink_CustomDestructorQueue;
 typedef void *Ink_CustomEngineCom;
 typedef map<InkMod_ModuleID, Ink_CustomEngineCom> Ink_CustomEngineComMap;
 
-extern FILE *yyin;
 extern pthread_mutex_t ink_native_exp_list_lock;
 extern Ink_ExpressionList ink_native_exp_list;
-int yyparse();
-int yylex_destroy();
 void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
 void Ink_setStringInput(const char **source);
 
@@ -518,5 +521,7 @@ public:
 
 	~Ink_InterpreteEngine();
 };
+
+}
 
 #endif

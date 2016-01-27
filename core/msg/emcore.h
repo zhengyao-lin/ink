@@ -10,6 +10,8 @@
 #include "../general.h"
 #include "../../includes/universal.h"
 
+namespace ink {
+
 #if defined(INK_PLATFORM_LINUX)
 
 	#define NONE         "\033[m"
@@ -151,5 +153,7 @@ public:
 	static void
 	popMessage(ErrorInfo info);
 };
+
+}
 
 #endif

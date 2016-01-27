@@ -7,12 +7,6 @@
 #include "inttype.h"
 #include "../includes/universal.h"
 
-class Ink_Undefined;
-class Ink_NullObject;
-
-extern Ink_Undefined *ink_global_constant_undefined;
-extern Ink_NullObject *ink_global_constant_null;
-
 #define UNDEFINED (new Ink_Undefined(engine))
 #define NULL_OBJ (new Ink_NullObject(engine))
 #define TRUE_OBJ (new Ink_Numeric(engine, 1))
@@ -23,13 +17,15 @@ extern Ink_NullObject *ink_global_constant_null;
 #define DROP_FLAG (engine->CGC_interrupt_signal == INTER_DROP)
 
 #if defined(INK_PLATFORM_LINUX)
-
+namespace ink {
 	inline int removeDir(const std::string path)
 	{
 		return system(("rm -r \"" + path + "\"").c_str());
 	}
+}
 
 #elif defined(INK_PLATFORM_WIN32)
+namespace ink {
 	#include <stdio.h>
 	#include <windows.h>
 	#include <conio.h>
@@ -85,8 +81,44 @@ extern Ink_NullObject *ink_global_constant_null;
 
 		return 0;
 	}
+}
 
 #endif
+
+namespace ink {
+
+typedef enum {
+	INTER_NONE = 1 << 1,
+	INTER_RETURN = 1 << 2,
+	INTER_BREAK = 1 << 3,
+	INTER_CONTINUE = 1 << 4,
+	INTER_DROP = 1 << 5,
+	INTER_THROW = 1 << 6
+} InterruptSignal;
+
+class Ink_Expression;
+class Ink_Argument;
+class Ink_Object;
+class Ink_InterpreteEngine;
+class Ink_HashTable;
+class Ink_Undefined;
+class Ink_NullObject;
+
+typedef Ink_UInt64 Ink_InterruptSignalTrap;
+typedef std::vector<Ink_Expression *> Ink_ExpressionList;
+typedef std::vector<Ink_Argument *> Ink_ArgumentList;
+
+typedef Ink_UInt32 Ink_ArgcType;
+typedef Ink_SInt32 IGC_MarkType;
+typedef Ink_UInt64 IGC_ObjectCountType;
+typedef Ink_SInt64 Ink_LineNoType;
+
+typedef void (*IGC_Marker)(Ink_InterpreteEngine *engine, Ink_Object *obj);
+typedef std::pair<Ink_HashTable *, Ink_HashTable *> IGC_Bonding;
+typedef std::vector<IGC_Bonding> IGC_BondingList;
+
+extern Ink_Undefined *ink_global_constant_undefined;
+extern Ink_NullObject *ink_global_constant_null;
 
 template <typename T1, typename T2, typename T3>
 class triple {
@@ -107,8 +139,6 @@ public:
 	: first(first), second(second), third(third)
 	{ }
 };
-
-class Ink_Expression;
 
 class Ink_Argument {
 public:
@@ -151,24 +181,7 @@ public:
 	: name(name), is_ref(is_ref), is_variant(is_variant), is_optional(is_optional)
 	{ }
 };
-
-typedef enum {
-	INTER_NONE = 1 << 1,
-	INTER_RETURN = 1 << 2,
-	INTER_BREAK = 1 << 3,
-	INTER_CONTINUE = 1 << 4,
-	INTER_DROP = 1 << 5,
-	INTER_THROW = 1 << 6
-} InterruptSignal;
-
-typedef Ink_UInt64 Ink_InterruptSignalTrap;
-typedef std::vector<Ink_Expression *> Ink_ExpressionList;
-typedef std::vector<Ink_Argument *> Ink_ArgumentList;
 typedef std::vector<Ink_Parameter> Ink_ParamList;
-typedef Ink_UInt32 Ink_ArgcType;
-typedef Ink_SInt32 IGC_MarkType;
-typedef Ink_UInt64 IGC_ObjectCountType;
-typedef Ink_SInt64 Ink_LineNoType;
 
 inline bool hasSignal(Ink_InterruptSignalTrap set, InterruptSignal sign)
 {
@@ -180,20 +193,18 @@ inline Ink_InterruptSignalTrap addSignal(Ink_InterruptSignalTrap set, InterruptS
 	return set | sign;
 }
 
-class Ink_Object;
-class Ink_InterpreteEngine;
-class Ink_HashTable;
 Ink_Object *trapSignal(Ink_InterpreteEngine *engine);
 
-typedef void (*IGC_Marker)(Ink_InterpreteEngine *engine, Ink_Object *obj);
-/*				  From			   To				*/
-typedef std::pair<Ink_HashTable *, Ink_HashTable *> IGC_Bonding;
-typedef std::vector<IGC_Bonding> IGC_BondingList;
+template <class T> T *as(Ink_Expression *obj)
+{
+	return dynamic_cast<T*>(obj);
+}
 
-/*
-std::string *StrPool_addStr(const char *str);
-std::string *StrPool_addStr(std::string *str);
-void StrPool_dispose();
-*/
+template <class T> T *as(Ink_Object *obj)
+{
+	return dynamic_cast<T *>(obj);
+}
+
+}
 
 #endif

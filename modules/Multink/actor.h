@@ -5,6 +5,8 @@
 #include "core/object.h"
 #include "core/thread/actor.h"
 
+using namespace ink;
+
 class Ink_ActorFunction_sub_Argument {
 public:
 	Ink_InterpreteEngine *engine;

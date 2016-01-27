@@ -1,5 +1,7 @@
 #include "numeric.h"
 
+namespace ink {
+
 using namespace std;
 
 const Ink_BigInteger Ink_BigInteger::Zero = Ink_BigInteger(0);
@@ -653,4 +655,6 @@ bool operator <= (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2
 bool operator >= (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2)
 {
 	return !(op1 < op2);
+}
+
 }

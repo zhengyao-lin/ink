@@ -11,9 +11,12 @@
 	#define YYERROR_VERBOSE 1
 	#define YYDEBUG 1
 
-	extern Ink_LineNoType current_line_number;
+	using namespace ink;
 
+namespace ink {
+	extern Ink_LineNoType current_line_number;
 	const char *yyerror_prefix = "";
+}
 
 	extern int yylex();
 	void yyerror(const char *msg) {
@@ -24,17 +27,17 @@
 %}
 
 %union {
-	Ink_Expression					*expression;
-	Ink_ParamList					*parameter;
-	Ink_ExpressionList				*expression_list;
-	Ink_Argument					*argument;
-	Ink_ArgumentList				*argument_list;
-	Ink_HashTableMapping			*hash_table_mapping;
-	Ink_HashTableMappingSingle		*hash_table_mapping_single;
-	std::string						*string;
-	IDContextType					context_type;
-	InterruptSignal					signal;
-	int								token;
+	ink::Ink_Expression					*expression;
+	ink::Ink_ParamList					*parameter;
+	ink::Ink_ExpressionList				*expression_list;
+	ink::Ink_Argument					*argument;
+	ink::Ink_ArgumentList				*argument_list;
+	ink::Ink_HashTableMapping			*hash_table_mapping;
+	ink::Ink_HashTableMappingSingle		*hash_table_mapping_single;
+	std::string							*string;
+	ink::IDContextType					context_type;
+	ink::InterruptSignal				signal;
+	int									token;
 }
 
 %token <string> TIDENTIFIER TNUMERIC TSTRING TPROTOCOL

@@ -10,6 +10,8 @@
 #include "context.h"
 #include "interface/engine.h"
 
+namespace ink {
+
 using namespace std;
 
 DBG_FixedTypeMapping dbg_fixed_type_mapping[] = 
@@ -157,4 +159,6 @@ void Ink_InterpreteEngine::printTrace(FILE *fp, Ink_ContextChain *context, strin
 	}
 
 	return;
+}
+
 }

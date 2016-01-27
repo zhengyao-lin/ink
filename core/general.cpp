@@ -6,6 +6,8 @@
 #include "package/load.h"
 #include "../includes/switches.h"
 
+namespace ink {
+
 using namespace std;
 
 Ink_Object *trapSignal(Ink_InterpreteEngine *engine)
@@ -28,4 +30,6 @@ Ink_Argument::~Ink_Argument()
 		delete arg;
 	if (is_expand)
 		delete expandee;
+}
+
 }

@@ -1,29 +1,23 @@
 #include <stdio.h>
 #include <vector>
+#include "native.h"
 #include "../object.h"
 #include "../context.h"
 #include "../expression.h"
 #include "../error.h"
 #include "../debug.h"
 #include "../general.h"
+#include "../gc/collect.h"
 #include "../interface/engine.h"
 #include "../interface/setting.h"
 #include "../package/load.h"
 #include "../coroutine/coroutine.h"
-#include "native.h"
+
+namespace ink {
 
 bool isTrue(Ink_Object *cond)
 {
 	return cond && cond->isTrue();
-	/*
-	if (cond->type == INK_NUMERIC) {
-		if (as<Ink_Numeric>(cond)->value)
-			return true;
-		return false;
-	}
-
-	return cond->type != INK_NULL && cond->type != INK_UNDEFINED;
-	*/
 }
 
 Ink_Object *Ink_IfExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -560,3 +554,5 @@ InkNative_MethodTable big_num_native_method_table[] = {
 	{"-u", new Ink_FunctionObject(NULL, InkNative_BigNumeric_Sub_Unary)},
 	{"to_str", new Ink_FunctionObject(NULL, InkNative_BigNumeric_ToString)}
 };
+
+}

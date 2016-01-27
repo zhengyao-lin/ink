@@ -6,6 +6,8 @@
 #include "native.h"
 #include "../interface/engine.h"
 
+namespace ink {
+
 Ink_Object *InkNative_Object_Bond(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -205,4 +207,6 @@ void Ink_Object::Ink_ObjectMethodInit(Ink_InterpreteEngine *engine)
 	for (i = 0; i < count; i++) {
 		setSlot(table[i].name, table[i].func->cloneDeep(engine));
 	}
+}
+
 }

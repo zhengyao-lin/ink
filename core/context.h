@@ -4,6 +4,8 @@
 #include "object.h"
 #include "general.h"
 
+namespace ink {
+
 class Ink_ContextChain {
 public:
 	Ink_ContextChain *outer;
@@ -48,5 +50,7 @@ public:
 	~Ink_ContextChain()
 	{ }
 };
+
+}
 
 #endif

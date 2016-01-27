@@ -3,6 +3,8 @@
 #include "emcore.h"
 #include "../thread/thread.h"
 
+namespace ink {
+
 string
 ErrorInfo::setMessageStyle(string message, Prefix prefix)
 {
@@ -308,4 +310,6 @@ ErrorMessage::tmpNote(string msg)
 	note->doPrint(cerr);
 	delete note;
 	return;
+}
+
 }

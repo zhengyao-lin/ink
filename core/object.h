@@ -13,6 +13,9 @@
 #include "general.h"
 #include "numeric.h"
 #include "coroutine/coroutine.h"
+
+namespace ink {
+
 using namespace std;
 
 class Ink_Expression;
@@ -486,9 +489,6 @@ inline Ink_Object **linkArgv(Ink_ArgcType argc1, Ink_Object **argv1, Ink_ArgcTyp
 Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_CoCallList call_list);
 bool InkCoCall_switchCoroutine(Ink_InterpreteEngine *engine);
 
-template <class T> T *as(Ink_Object *obj)
-{
-	return dynamic_cast<T*>(obj);
 }
 
 #endif

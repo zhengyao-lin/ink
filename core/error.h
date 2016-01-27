@@ -6,6 +6,8 @@
 #include "debug.h"
 #include "general.h"
 
+namespace ink {
+
 class Ink_ContextChain;
 class Ink_InterpreteEngine;
 
@@ -443,6 +445,8 @@ InkWarn_Unreachable_Bonding(Ink_InterpreteEngine *engine)
 {
 	InkWarn_doPrintWarning(engine, "Unreachable bonding detected, breaking");
 	return;
+}
+
 }
 
 #endif

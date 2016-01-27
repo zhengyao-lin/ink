@@ -10,6 +10,7 @@
 #include "core/interface/engine.h"
 #include "core/thread/thread.h"
 
+using namespace ink;
 using namespace std;
 
 static InkMod_ModuleID ink_native_actor_mod_id;
@@ -170,8 +171,6 @@ Ink_Object *InkNative_Actor_ActorExist(Ink_InterpreteEngine *engine, Ink_Context
 	return new Ink_Numeric(engine, dest != NULL);
 }
 
-extern pthread_mutex_t ink_actor_pthread_create_lock;
-
 void Ink_ActorFunction_signal_handler(int errno)
 {
 	// printf("ha, I received a signal? %ld\n", pthread_self());
@@ -193,8 +192,8 @@ void Ink_ActorFunction_cleanup(Ink_InterpreteEngine *engine, void *arg)
 
 void *Ink_ActorFunction_sub(void *arg)
 {
-	pthread_mutex_lock(&ink_actor_pthread_create_lock);
-	pthread_mutex_unlock(&ink_actor_pthread_create_lock);
+	InkActor_lockThreadCreateLock();
+	InkActor_unlockThreadCreateLock();
 
 	// pthread_cleanup_push(Ink_ActorFunction_cleanup, arg);
 	// signal(SIGABRT, Ink_ActorFunction_signal_handler);
@@ -281,12 +280,12 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	tmp_arg = new Ink_ActorFunction_sub_Argument(new_engine, exp_list,
 												 param, tmp_argc, tmp_argv);
 
-	pthread_mutex_lock(&ink_actor_pthread_create_lock);
+	InkActor_lockThreadCreateLock();
 	int ret_val = pthread_create(&new_thread, NULL, Ink_ActorFunction_sub, tmp_arg);
 
 	if (ret_val) {
 		InkWarn_Failed_Create_Process(engine, ret_val);
-		pthread_mutex_unlock(&ink_actor_pthread_create_lock);
+		InkActor_unlockThreadCreateLock();
 		delete tmp_arg;
 		delete new_engine;
 		return NULL_OBJ;
@@ -295,7 +294,7 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	// pthread_detach(new_thread);
 	string *name = new string(as<Ink_String>(argv[0])->getValue().c_str());
 	InkActor_addActor(*name, new_engine, new_thread, name);
-	pthread_mutex_unlock(&ink_actor_pthread_create_lock);
+	InkActor_unlockThreadCreateLock();
 
 	return TRUE_OBJ;
 }

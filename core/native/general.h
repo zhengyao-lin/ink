@@ -13,6 +13,8 @@
 	} \
 } while (0)
 
+namespace ink {
+
 inline Ink_Object *getSlotWithProto(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
 									Ink_Object *base, const char *name, string *id_p = NULL)
 {
@@ -161,6 +163,8 @@ inline Ink_String *getStringVal(Ink_InterpreteEngine *engine, Ink_ContextChain *
 
 	}
 	return NULL;
+}
+
 }
 
 #endif

@@ -4,11 +4,25 @@
 #include "thread.h"
 #include "../interface/engine.h"
 
+namespace ink {
+
 using namespace std;
 
-pthread_mutex_t ink_global_actor_map_lock;
-pthread_mutex_t ink_actor_pthread_create_lock;
+static pthread_mutex_t ink_global_actor_map_lock;
+static pthread_mutex_t ink_actor_pthread_create_lock;
 static Ink_ActorMap ink_global_actor_map;
+
+void InkActor_lockThreadCreateLock()
+{
+	pthread_mutex_lock(&ink_actor_pthread_create_lock);
+	return;
+}
+
+void InkActor_unlockThreadCreateLock()
+{
+	pthread_mutex_unlock(&ink_actor_pthread_create_lock);
+	return;
+}
 
 void InkActor_initActorMap()
 {
@@ -142,4 +156,6 @@ bool InkActor_isRootActor(Ink_InterpreteEngine *engine)
 	pthread_mutex_unlock(&ink_global_actor_map_lock);
 
 	return is_root;
+}
+
 }

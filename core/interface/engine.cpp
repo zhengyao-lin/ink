@@ -6,6 +6,8 @@
 #include "core/general.h"
 #include "core/thread/thread.h"
 
+namespace ink {
+
 static Ink_InterpreteEngine *ink_parse_engine = NULL;
 pthread_mutex_t ink_parse_lock = PTHREAD_MUTEX_INITIALIZER;
 
@@ -327,4 +329,6 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 
 	if (tmp_prog_path)
 		free(tmp_prog_path);
+}
+
 }

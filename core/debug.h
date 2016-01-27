@@ -8,6 +8,8 @@
 #define DBG_TAB "    "
 #define DBG_DEFAULT_PREFIX "INK_DEBUG: "
 
+namespace ink {
+
 class Ink_Object;
 class Ink_ContextChain;
 
@@ -27,5 +29,7 @@ struct DBG_FixedTypeMapping {
 	Ink_TypeTag tag;
 	const char *name;
 };
+
+}
 
 #endif

@@ -4,6 +4,8 @@
 #include <string>
 #include <stdio.h>
 
+namespace ink {
+
 class Ink_Object;
 
 class Ink_HashTable {
@@ -34,5 +36,7 @@ public:
 
 	~Ink_HashTable();
 };
+
+}
 
 #endif

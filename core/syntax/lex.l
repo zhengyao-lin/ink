@@ -29,10 +29,15 @@ SPS				({SP})+
 #define LINE_NUMBER_INC()	(current_line_number++)
 #define MIN(a, b) ((unsigned int)(a) < (unsigned int)(b) ? (a) : (b))
 
+using namespace ink;
+
+namespace ink {
 Ink_LineNoType current_line_number = 1;
-string *id_literal = NULL;
-string *string_literal = NULL;
-bool if_ignore_nl = false;
+}
+
+static string *id_literal = NULL;
+static string *string_literal = NULL;
+static bool if_ignore_nl = false;
 
 int file_input(char *buf, int max_size)
 {
@@ -51,15 +56,17 @@ int file_input(char *buf, int max_size)
 	return len;
 }
 
-const char **ink_source_string;
-int ink_current_source_line;
-int ink_current_char_index;
+static const char **ink_source_string;
+static int ink_current_source_line;
+static int ink_current_char_index;
 
+namespace ink {
 void Ink_setStringInput(const char **source)
 {
 	ink_source_string = source;
 	ink_current_source_line = 0;
 	ink_current_char_index = 0;
+}
 }
 
 int string_input(char *buf, int max_size)

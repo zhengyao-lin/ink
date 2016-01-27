@@ -7,6 +7,8 @@
 #include "../general.h"
 #include "thread.h"
 
+namespace ink {
+
 class Ink_InterpreteEngine;
 
 class Ink_ActorHandler {
@@ -53,6 +55,8 @@ public:
 
 typedef std::queue<Ink_ActorMessage> Ink_ActorMessageQueue;
 
+void InkActor_lockThreadCreateLock();
+void InkActor_unlockThreadCreateLock();
 void InkActor_initActorMap();
 bool InkActor_addActor(std::string name, Ink_InterpreteEngine *engine, pthread_t handle, std::string *name_p, bool is_root = false);
 void InkActor_setDeadActor(Ink_InterpreteEngine *engine);
@@ -61,5 +65,7 @@ void InkActor_joinAllActor(Ink_InterpreteEngine *self_engine, Ink_InterpreteEngi
 Ink_ActorCountType InkActor_getActorCount();
 std::string *InkActor_getActorName(Ink_InterpreteEngine *engine);
 bool InkActor_isRootActor(Ink_InterpreteEngine *engine);
+
+}
 
 #endif

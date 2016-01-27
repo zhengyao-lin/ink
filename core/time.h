@@ -6,6 +6,7 @@
 #if defined(INK_PLATFORM_WIN32)
 	#include <windows.h>
 	
+namespace ink {
 	typedef int Ink_MilliSec;
 
 	inline void Ink_msleep(Ink_MilliSec ms)
@@ -18,10 +19,12 @@
 	{
 		return GetTickCount();
 	}
+}
 #elif defined(INK_PLATFORM_LINUX)
 	#include <unistd.h>
 	#include <sys/time.h>
-	
+
+namespace ink {
 	typedef int Ink_MilliSec;
 
 	inline void Ink_msleep(Ink_MilliSec ms)
@@ -36,6 +39,7 @@
 		gettimeofday(&tv, NULL);
 		return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 	}
+}
 #endif
 
 #endif

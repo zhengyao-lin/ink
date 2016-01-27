@@ -5,6 +5,7 @@
 #include <vector>
 #include <stack>
 
+using namespace ink;
 using namespace std;
 
 enum InkJSON_Token_tag {

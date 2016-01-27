@@ -3,6 +3,8 @@
 #include "../context.h"
 #include "native.h"
 
+namespace ink {
+
 inline string::size_type getRealIndex(long index, string::size_type size)
 {
 	while (index < 0) index += size;
@@ -154,4 +156,6 @@ void Ink_String::Ink_StringMethodInit(Ink_InterpreteEngine *engine)
 	for (i = 0; i < count; i++) {
 		setSlot(table[i].name, table[i].func->cloneDeep(engine));
 	}
+}
+
 }

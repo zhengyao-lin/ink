@@ -8,6 +8,8 @@
 #define FILE_GETS_BUFFER_SIZE 1000
 #define FILE_POINTER_TYPE (getFilePointerType(engine))
 
+using namespace ink;
+
 Ink_TypeTag getFilePointerType(Ink_InterpreteEngine *engine);
 
 class Ink_FilePointer: public Ink_Object {

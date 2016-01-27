@@ -9,6 +9,8 @@
 #include "thread/thread.h"
 #include "native/general.h"
 
+namespace ink {
+
 using namespace std;
 
 extern int numeric_native_method_table_count;
@@ -58,55 +60,6 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 	}
 	if (!engine) return ret;
 
-#if 0
-	/* search native methods */
-	switch (type) {
-		case INK_NUMERIC:
-			method = getMethod(engine, this, key, numeric_native_method_table,
-							   numeric_native_method_table_count);
-			if (method) {
-				ret = setSlot(key, method, false);
-			}
-			break;
-		case INK_BIGNUMERIC:
-			method = getMethod(engine, this, key, big_num_native_method_table,
-							   big_num_native_method_table_count);
-			if (method) {
-				ret = setSlot(key, method, false);
-			}
-			break;
-		case INK_STRING:
-			method = getMethod(engine, this, key, string_native_method_table,
-							   string_native_method_table_count);
-			if (method) {
-				ret = setSlot(key, method, false);
-			}
-			break;
-		case INK_ARRAY:
-			method = getMethod(engine, this, key, array_native_method_table,
-							   array_native_method_table_count);
-			if (method) {
-				ret = setSlot(key, method, false);
-			}
-			break;
-		case INK_FUNCTION:
-			method = getMethod(engine, this, key, function_native_method_table,
-							   function_native_method_table_count);
-			if (method) {
-				ret = setSlot(key, method, false);
-			}
-			break;
-		default: break;
-	}
-
-	/* no specific method for type, try searching object */
-	if (!ret) {
-		method = getMethod(engine, this, key, object_native_method_table,
-						   object_native_method_table_count);
-		if (method)
-		ret = setSlot(key, method, false);
-	}
-#endif
 	ret = engine->searchNativeMethod(type, key);
 	if (ret)
 		ret = setSlot(key, ret->getValue()->clone(engine));
@@ -841,4 +794,6 @@ void Ink_Array::doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
 		}
 	}
 	return;
+}
+
 }

@@ -4,6 +4,8 @@
 #include "native.h"
 #include "../interface/engine.h"
 
+namespace ink {
+
 inline Ink_ArrayValue::size_type getRealIndex(long index, Ink_ArrayValue::size_type size)
 {
 	while (index < 0) index += size;
@@ -194,4 +196,6 @@ void Ink_Array::Ink_ArrayMethodInit(Ink_InterpreteEngine *engine)
 	for (i = 0; i < count; i++) {
 		setSlot(table[i].name, table[i].func->cloneDeep(engine));
 	}
+}
+
 }

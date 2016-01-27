@@ -4,12 +4,11 @@
 #include "protocol.h"
 #include "general.h"
 #include "numeric.h"
+#include "gc/collect.h"
 #include "coroutine/coroutine.h"
 #include "interface/engine.h"
 
-/* interrupt signal */
-// InterruptSignal CGC_interrupt_signal = INTER_NONE;
-// Ink_Object *CGC_interrupt_value = NULL;
+namespace ink {
 
 Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success)
 {
@@ -742,4 +741,6 @@ Ink_Object *Ink_NumericConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 Ink_Object *Ink_StringConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	return new Ink_String(engine, *value);
+}
+
 }

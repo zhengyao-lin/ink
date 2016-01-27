@@ -5,6 +5,8 @@
 #include "../context.h"
 #include "general.h"
 
+namespace ink {
+
 typedef struct InkNative_MethodTable_tag {
 	const char *name;
 	Ink_Object *func;
@@ -81,5 +83,7 @@ Ink_Object *InkNative_BigNumeric_ToString(Ink_InterpreteEngine *engine, Ink_Cont
 Ink_Object **arrayValueToObject(Ink_ArrayValue val);
 
 void Ink_GlobalConstantInit();
+
+}
 
 #endif

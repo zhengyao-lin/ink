@@ -8,6 +8,8 @@
 #include "core/expression.h"
 #include "core/interface/engine.h"
 
+using namespace ink;
+
 InkJSON_TokenStack
 JSON_lexer(string str)
 {

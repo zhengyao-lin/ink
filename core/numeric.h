@@ -10,6 +10,8 @@
 #include <math.h>
 #include <float.h>
 
+namespace ink {
+
 using namespace std;
 
 class Ink_BigNumericValue;
@@ -175,5 +177,7 @@ public:
 	friend bool operator <= (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
 	friend bool operator >= (const Ink_BigNumericValue &op1, const Ink_BigNumericValue &op2);
 };
+
+}
 
 #endif
