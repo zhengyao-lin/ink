@@ -3,7 +3,7 @@ if (_CONTAINER_H_) {
 }
 _CONTAINER_H_ = 1
 
-import "general.ik"
+import "general.i"
 
 __Array = Array
 ExArray = fn (args...) {

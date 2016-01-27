@@ -280,12 +280,11 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 		if (argv[i]->type == INK_STRING) {
 			tmp = new string(as<Ink_String>(argv[i])->getValue().c_str());
 			if (!(fp = fopen(tmp->c_str(), "r"))) {
-				InkErr_Failed_Open_File(NULL, tmp->c_str());
+				InkErr_Failed_Open_File(current_engine, tmp->c_str());
 				continue;
 			}
 			current_dir = getCurrentDir();
 			whole_file_name = new string(string(current_dir) + INK_PATH_SPLIT + string(tmp->c_str()));
-
 			file_name_back = current_engine->getFilePath();
 			current_engine->setFilePath(whole_file_name->c_str());
 			
