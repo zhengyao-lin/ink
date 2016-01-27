@@ -101,6 +101,8 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	// gc_engine->initContext(global_context);
 
 	global_context->context->setSlot("this", global_context->context);
+	global_context->context->setSlot("top", global_context->context);
+	global_context->context->setSlot("let", global_context->context);
 	Ink_GlobalMethodInit(this, global_context);
 
 	global_context->context->setDebugName("__global_context__");

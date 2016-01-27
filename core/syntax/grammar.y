@@ -42,7 +42,7 @@ namespace ink {
 
 %token <string> TIDENTIFIER TNUMERIC TSTRING TPROTOCOL
 
-%token <token> TVAR TGLOBAL TLET TRETURN TNEW TDELETE TCLONE
+%token <token> TRETURN TNEW TDELETE TCLONE
 			   TFUNC TINLINE TDO TEND
 			   TIMPORT TBREAK TCONTINUE TDROP TTHROW TYIELD TWITH
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TDCOLON TCOLON TASSIGN
@@ -73,7 +73,6 @@ namespace ink {
 					  argument_list_without_paren insert_list
 %type <hash_table_mapping> hash_table_mapping hash_table_mapping_opt
 %type <hash_table_mapping_single> hash_table_mapping_single
-%type <context_type> id_context_type
 %type <signal> interrupt_signal
 
 %start compile_unit
@@ -879,6 +878,7 @@ function_expression
 	| functional_block
 	;
 
+/*
 id_context_type
 	: TLET
 	{
@@ -888,6 +888,7 @@ id_context_type
 	{
 		$$ = ID_GLOBAL;
 	}
+*/
 
 element_list
 	: nestable_expression
@@ -973,7 +974,7 @@ single_element_expression
 		$$ = new Ink_IdentifierExpression($1);
 		SET_LINE_NO($$);
 	}
-	| TVAR nllo TIDENTIFIER
+	/*| TVAR nllo TIDENTIFIER
 	{
 		$$ = new Ink_IdentifierExpression($3, ID_COMMON, true);
 		SET_LINE_NO($$);
@@ -992,7 +993,7 @@ single_element_expression
 	{
 		$$ = new Ink_IdentifierExpression($5, $1, true);
 		SET_LINE_NO($$);
-	}
+	}*/
 	;
 
 primary_expression

@@ -335,6 +335,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 		local->setSlot("base", getSlot(engine, "base"));
 		local->setSlot("this", this);
 	}
+	local->setSlot("let", local);
 
 	/* set "this" pointer if exists */
 	if (this_p)

@@ -118,9 +118,6 @@ int ink_yyinput(char *buf, int max_size)
 
 %%
 
-<INITIAL>"var"						return TOKEN(TVAR);
-<INITIAL>"top"						return TOKEN(TGLOBAL);
-<INITIAL>"let"						return TOKEN(TLET);
 <INITIAL>"retn"						return TOKEN(TRETURN);
 <INITIAL>"new"						return TOKEN(TNEW);
 <INITIAL>"delete"					return TOKEN(TDELETE);
