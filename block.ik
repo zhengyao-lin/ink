@@ -1255,3 +1255,21 @@ a.p {
 }
 
 a.p with [fn () { p("ha") }]
+
+p("######## ruby-like function definition ########");
+
+$def_func = fn (name, fblock) {
+	top this[name] = fblock
+}
+
+def = {
+	missing: fn (name) {
+		$def_func(name, _)
+	}
+}
+
+def a { | name |
+	p("amazing!! --" + name);
+}
+
+a("Rod");
