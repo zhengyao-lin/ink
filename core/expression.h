@@ -9,12 +9,6 @@
 #include "context.h"
 #include "error.h"
 #include "general.h"
-#define SET_LINE_NUM (file_name_back = engine->current_file_name, \
-					  line_num_back = engine->current_line_number, \
-					  engine->current_file_name = file_name, \
-					  engine->current_line_number = line_number)
-#define RESTORE_LINE_NUM (engine->current_file_name = file_name_back, engine->current_line_number = line_num_back)
-#define INTER_SIGNAL_RECEIVED (engine->CGC_interrupt_signal != INTER_NONE)
 
 namespace ink {
 

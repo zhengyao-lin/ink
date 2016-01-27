@@ -8,6 +8,13 @@
 #include "coroutine/coroutine.h"
 #include "interface/engine.h"
 
+#define SET_LINE_NUM (file_name_back = engine->current_file_name, \
+					  line_num_back = engine->current_line_number, \
+					  engine->current_file_name = (file_name ? file_name : engine->current_file_name), \
+					  engine->current_line_number = (line_number >= 0 ? line_number : engine->current_line_number))
+#define RESTORE_LINE_NUM (engine->current_file_name = file_name_back, engine->current_line_number = line_num_back)
+#define INTER_SIGNAL_RECEIVED (engine->CGC_interrupt_signal != INTER_NONE)
+
 namespace ink {
 
 Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success)

@@ -452,7 +452,7 @@ p(a++ = 10)
 
 import io
 
-var fp
+fp = {}
 
 p("+++++++++++++++++++++++++++++++++++");
 
@@ -467,6 +467,7 @@ if (file_exist("test_file.ik")) {
 }
 
 import "test_file.ik"
+p(typename(fp));
 fp.close();
 fp = new File("test_file.ik", "rw");
 p("from fp: " + fp.gets());
