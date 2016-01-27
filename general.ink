@@ -1,5 +1,5 @@
-import "tests/general.i",
-	   "tests/container.i"
+import "tests/general.ink",
+	   "tests/container.ink"
 
 a = new Array(1, 2, 3)
 b = new Array("a", "b", "c");

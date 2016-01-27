@@ -69,9 +69,9 @@ After installing, you can run interpreter by command
 
 	ink <source_file>
 
-You can copy the codes in the beginning of this tutorial into a file(assume test.ik), and run it
+You can copy the codes in the beginning of this tutorial into a file(assume test.ink), and run it
 
-	ink test.ik
+	ink test.ink
 
 The correct output should be
 
