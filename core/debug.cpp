@@ -20,7 +20,7 @@ DBG_FixedTypeMapping dbg_fixed_type_mapping[] =
 	{ INK_UNDEFINED,	"undefined" },
 	{ INK_OBJECT,		"object" },
 	{ INK_NUMERIC,		"numeric" },
-	{ INK_BIGNUMERIC,	"big numeric" },
+	{ INK_BIGNUMERIC,	"bignum" },
 	{ INK_STRING,		"string" },
 	{ INK_CONTEXT,		"context" },
 	{ INK_FUNCTION,		"function" },

@@ -94,8 +94,6 @@ public:
 	InterruptSignal CGC_interrupt_signal;
 	Ink_Object *CGC_interrupt_value;
 
-	char *tmp_prog_path;
-
 	IGC_CollectEngine *ink_sync_call_tmp_engine;
 	pthread_mutex_t ink_sync_call_mutex;
 	ThreadID ink_sync_call_max_thread;

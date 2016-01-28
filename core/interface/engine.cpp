@@ -76,7 +76,6 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	trace = NULL;
 	CGC_interrupt_signal = INTER_NONE;
 	CGC_interrupt_value = NULL;
-	tmp_prog_path = NULL;
 	ink_sync_call_tmp_engine = NULL;
 	pthread_mutex_init(&ink_sync_call_mutex, NULL);
 	ink_sync_call_max_thread = 0;
@@ -115,7 +114,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	tmp->derivedMethodInit(this);
 	global_context->context->setSlot("$numeric", tmp = new Ink_Numeric(this));
 	tmp->derivedMethodInit(this);
-	global_context->context->setSlot("$big numeric", tmp = new Ink_BigNumeric(this, "0"));
+	global_context->context->setSlot("$bignum", tmp = new Ink_BigNumeric(this, "0"));
 	tmp->derivedMethodInit(this);
 	global_context->context->setSlot("$string", tmp = new Ink_String(this, ""));
 	tmp->derivedMethodInit(this);
@@ -318,19 +317,12 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 	gc_engine->collectGarbage(true);
 	delete gc_engine;
 
-	/*unsigned int i;
-	for (i = 0; i < native_exp_list.size(); i++) {
-		delete native_exp_list[i];
-	}*/
 	cleanExpressionList(top_level);
 	cleanContext(global_context);
 	cleanContext(trace);
 	
 	disposeTypeMapping();
 	disposeStringPool();
-
-	if (tmp_prog_path)
-		free(tmp_prog_path);
 }
 
 }
