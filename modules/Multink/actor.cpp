@@ -291,7 +291,7 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 		return NULL_OBJ;
 	}
 
-	// pthread_detach(new_thread);
+	pthread_detach(new_thread);
 	string *name = new string(as<Ink_String>(argv[0])->getValue().c_str());
 	InkActor_addActor(*name, new_engine, new_thread, name);
 	InkActor_unlockThreadCreateLock();

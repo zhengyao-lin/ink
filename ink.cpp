@@ -23,14 +23,12 @@ int main(int argc, char **argv)
 	InkActor_initActorMap();
 	Ink_initNativeExpression();
 	// Ink_GlobalConstantInit();
-	pthread_t root_actor = pthread_self();
 
 	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
 	string *tmp_name = new string(INK_ROOT_ACTOR_NAME);
-	InkActor_addActor(*tmp_name, engine, root_actor, tmp_name, true);
-	engine->startParse(Ink_InputSetting::parseArg(argc, argv));
-	// printf("root: %ld, engine: %d\n", pthread_self(), engine);
+	InkActor_addActor(*tmp_name, engine, pthread_self(), tmp_name, true);
 
+	engine->startParse(Ink_InputSetting::parseArg(argc, argv));
 	engine->execute();
 
 	InkActor_setDeadActor(engine);
