@@ -214,8 +214,10 @@ InkWarn_Failed_Finding_Method(Ink_InterpreteEngine *engine, const char *name)
 inline void
 InkWarn_Wrong_Type(Ink_InterpreteEngine *engine, Ink_TypeTag expect, Ink_TypeTag type)
 {
-	InkWarn_doPrintWarning(engine, "Expecting type <$(expect)>, <$(type)> offered",
-						   getTypeName(engine, expect), getTypeName(engine, type));
+	stringstream strm;
+	strm << "Expecting type <" << getTypeName(engine, expect)
+		 << ">, <" << getTypeName(engine, type) << "> offered";
+	InkWarn_doPrintWarning(engine, strm.str().c_str());
 	return;
 }
 
@@ -233,16 +235,19 @@ InkWarn_Too_Less_Argument(Ink_InterpreteEngine *engine, Ink_ArgcType min, Ink_Ar
 inline void
 InkWarn_Wrong_Argument_Type(Ink_InterpreteEngine *engine, Ink_TypeTag expect, Ink_TypeTag type)
 {
-	InkWarn_doPrintWarning(engine, "Expecting object of type <$(expect)>, that of <$(type)> offered",
-						   getTypeName(engine, expect), getTypeName(engine, type));
+	stringstream strm;
+	strm << "Expecting object of type <" << getTypeName(engine, expect)
+		 << ", that of <" << getTypeName(engine, type) << " offered";
+	InkWarn_doPrintWarning(engine, strm.str().c_str());
 	return;
 }
 
 inline void
 InkWarn_Method_Fallthrough(Ink_InterpreteEngine *engine, Ink_TypeTag type)
 {
-	InkWarn_doPrintWarning(engine, "Method fallthrough to $(type)",
-						   getTypeName(engine, type));
+	stringstream strm;
+	strm << "Method fallthrough to " << getTypeName(engine, type);
+	InkWarn_doPrintWarning(engine, strm.str().c_str());
 	return;
 }
 
@@ -350,14 +355,20 @@ InkWarn_Eval_Called_Without_Current_Engine(Ink_InterpreteEngine *engine)
 inline void
 InkWarn_Invalid_Argument_For_String_Add(Ink_InterpreteEngine *engine, Ink_TypeTag type)
 {
-	InkWarn_doPrintWarning(engine, "Invalid argument of type '$(type)', expecting numeric, string or object with to_str method", getTypeName(engine, type));
+	stringstream strm;
+	strm << "Invalid argument of type \'" << getTypeName(engine, type)
+		 << "\', expecting numeric, string or object with to_str method";
+	InkWarn_doPrintWarning(engine, strm.str().c_str());
 	return;
 }
 
 inline void
 InkWarn_Invalid_Return_Value_Of_To_String(Ink_InterpreteEngine *engine, Ink_TypeTag type)
 {
-	InkWarn_doPrintWarning(engine, "Invalid return value of type '$(type)' of to_str method, expecting string", getTypeName(engine, type));
+	stringstream strm;
+	strm << "Invalid return value of type \'" << getTypeName(engine, type)
+		 << "\' of to_str method, expecting string";
+	InkWarn_doPrintWarning(engine, strm.str().c_str());
 	return;
 }
 

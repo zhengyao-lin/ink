@@ -50,21 +50,22 @@ string
 ErrorInfo::createFormatMessage(string message, va_list args)
 {
 	string::size_type i, length;
+	string tmp = string(message);
 
-	for (i = 0; i < message.length() && message.c_str()[i] != '\0'; i++)
+	for (i = 0; i < tmp.length() && tmp.c_str()[i] != '\0'; i++)
 	{
-		if (message.c_str()[i] != '$') {
+		if (tmp.c_str()[i] != '$') {
 			continue;
-		} else if (message.c_str()[i + 1] != '(') {
+		} else if (tmp.c_str()[i + 1] != '(') {
 			continue;
 		}
 
-		for (length = 1; message.c_str()[i + length] != ')'; length++);
-		message.replace(i, length + 1, va_arg(args, char *));
+		for (length = 1; tmp.c_str()[i + length] != ')'; length++);
+		tmp.replace(i, length + 1, va_arg(args, const char *));
 		i += length;
 	}
 
-	return message;
+	return tmp;
 }
 
 ErrorInfo::ErrorInfo(string message, ...)

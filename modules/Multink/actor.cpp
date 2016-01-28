@@ -269,11 +269,6 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	tmp_argc = argc - 1;
 	tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * (argc - 1));
 	for (i = 1; i < argc; i++) {
-		/*
-		if (argv[i]->type != INK_STRING) {
-			InkWarn_Multink_Not_String_Argument(engine);
-		}
-		*/
 		new_engine->initDeepClone();
 		tmp_argv[i - 1] = argv[i]->cloneDeep(new_engine);
 	}

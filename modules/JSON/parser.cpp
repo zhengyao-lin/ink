@@ -10,7 +10,7 @@
 
 using namespace ink;
 
-struct {
+struct token_name_map_tmp_t {
 	const char *name;
 } token_name_map[] = {
 	{ NULL },
@@ -257,7 +257,8 @@ JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
 					}
 				} else {
 					fprintf(stderr, "Unexpected %s and %s, expecting string constant\n",
-							token_name_map[token_stack[j].token], token_name_map[token_stack[j + 1].token]);
+							token_name_map[token_stack[j].token].name,
+							token_name_map[token_stack[j + 1].token].name);
 					return JSON_ParserReturnVal(NULL, j);
 				}
 			}
@@ -283,7 +284,7 @@ JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
 						continue;
 					} else {
 						fprintf(stderr, "Unexpected %s, expecting comma or bracket\n",
-								token_name_map[token_stack[j + 1].token]);
+								token_name_map[token_stack[j + 1].token].name);
 						cleanArrayHashTable(arr_val);
 						return JSON_ParserReturnVal(NULL, j);
 					}
@@ -315,7 +316,8 @@ Ink_Object *JSON_parse(Ink_InterpreteEngine *engine, string str)
 	JSON_ParserReturnVal ret_val = JSON_parser(engine, token_stack);
 
 	if (ret_val.end_index + 1 < token_stack.size()) {
-		fprintf(stderr, "Unexpected %s, expecting ending\n", token_name_map[token_stack[ret_val.end_index + 1].token]);
+		fprintf(stderr, "Unexpected %s, expecting ending\n",
+				token_name_map[token_stack[ret_val.end_index + 1].token].name);
 		return NULL_OBJ;
 	}
 
