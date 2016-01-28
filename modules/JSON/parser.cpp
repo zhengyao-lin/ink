@@ -10,6 +10,22 @@
 
 using namespace ink;
 
+struct {
+	const char *name;
+} token_name_map[] = {
+	{ NULL },
+	{ "left brace" },
+	{ "right brace" },
+	{ "left bracket" },
+	{ "right bracket" },
+	{ "colon" },
+	{ "comma" },
+	{ "quote mark" },
+	{ "string" },
+	{ "numeric" },
+	{ "null" }
+};
+
 InkJSON_TokenStack
 JSON_lexer(string str)
 {
@@ -166,6 +182,8 @@ JSON_lexer(string str)
 				}
 				break;
 			case 'n':
+			case 't':
+			case 'f':
 				if (state == JLS_IN_STRING) {
 					string_literal += str.substr(i, 1);
 					break;
@@ -173,6 +191,16 @@ JSON_lexer(string str)
 				if (i + 3 < str.length() && str.substr(i, 4) == "null") {
 					i += 3;
 					ret.push_back(InkJSON_Token(JT_NULL, tmp_val));
+					break;
+				} else if (i + 3 < str.length() && str.substr(i, 4) == "true") {
+					i += 3;
+					tmp_val.num = 1;
+					ret.push_back(InkJSON_Token(JT_NUMERIC, tmp_val));
+					break;
+				} else if (i + 4 < str.length() && str.substr(i, 5) == "false") {
+					i += 4;
+					tmp_val.num = 0;
+					ret.push_back(InkJSON_Token(JT_NUMERIC, tmp_val));
 					break;
 				}
 				// fallthrough
@@ -228,8 +256,8 @@ JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
 						return JSON_ParserReturnVal(NULL, j);
 					}
 				} else {
-					fprintf(stderr, "Unexpected %d and %d, expecting string constant\n",
-							token_stack[j].token, token_stack[j + 1].token);
+					fprintf(stderr, "Unexpected %s and %s, expecting string constant\n",
+							token_name_map[token_stack[j].token], token_name_map[token_stack[j + 1].token]);
 					return JSON_ParserReturnVal(NULL, j);
 				}
 			}
@@ -254,8 +282,8 @@ JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
 						j += 2;
 						continue;
 					} else {
-						fprintf(stderr, "Unexpected %d, expecting comma or bracket\n",
-								token_stack[j + 1].token);
+						fprintf(stderr, "Unexpected %s, expecting comma or bracket\n",
+								token_name_map[token_stack[j + 1].token]);
 						cleanArrayHashTable(arr_val);
 						return JSON_ParserReturnVal(NULL, j);
 					}
@@ -287,7 +315,7 @@ Ink_Object *JSON_parse(Ink_InterpreteEngine *engine, string str)
 	JSON_ParserReturnVal ret_val = JSON_parser(engine, token_stack);
 
 	if (ret_val.end_index + 1 < token_stack.size()) {
-		fprintf(stderr, "Unexpected %d, expecting ending\n", token_stack[ret_val.end_index + 1].token);
+		fprintf(stderr, "Unexpected %s, expecting ending\n", token_name_map[token_stack[ret_val.end_index + 1].token]);
 		return NULL_OBJ;
 	}
 

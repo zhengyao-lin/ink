@@ -789,9 +789,19 @@ param_list_sub
 		$1->push_back(Ink_Parameter($4, false, true));
 		$$ = $1;
 	}
+	| param_list TCOMMA nllo TLAND nllo TIDENTIFIER TECLI
+	{
+		$1->push_back(Ink_Parameter($6, true, true));
+		$$ = $1;
+	}
 	| param_list TCOMMA nllo TECLI
 	{
-		$1->push_back(Ink_Parameter(new string("arg"), false, true));
+		$1->push_back(Ink_Parameter(new string("args"), false, true));
+		$$ = $1;
+	}
+	| param_list TCOMMA nllo TLAND nllo TECLI
+	{
+		$1->push_back(Ink_Parameter(new string("args"), true, true));
 		$$ = $1;
 	}
 	;
