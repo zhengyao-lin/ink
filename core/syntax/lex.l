@@ -15,9 +15,6 @@ SPS				({SP})+
 #include <stdlib.h>
 #include <string>
 #include "includes/universal.h"
-#if defined(INK_PLATFORM_WIN32) && !defined(_TIMESPEC_DEFINED)
-	#define _TIMESPEC_DEFINED
-#endif
 #include "core/expression.h"
 #include "core/interface/engine.h"
 #include "grammar.hpp"

@@ -977,9 +977,11 @@ try_actor = fn () {
 }
 
 let i = 1;
-while (i < 10) {
-	p(i++);
+while (i < 1000) {
+	i++;
+	p(i)
 	try_actor();
+	// join_all();
 }
 
 try_arg = actor (arg1, argv...) {

@@ -25,10 +25,10 @@ namespace ink {
 }
 
 #elif defined(INK_PLATFORM_WIN32)
-namespace ink {
 	#include <stdio.h>
 	#include <windows.h>
 	#include <conio.h>
+namespace ink {
 
 	inline int removeDir(const std::string path, bool if_delete_sub = true)
 	{
@@ -39,7 +39,7 @@ namespace ink {
 		WIN32_FIND_DATA file_info;
 
 		pattern = path + "\\*";
-		file_handle = ::FindFirstFile(pattern.c_str(), &file_info);
+		file_handle = FindFirstFile(pattern.c_str(), &file_info);
 		if (file_handle != INVALID_HANDLE_VALUE) {
 			do {
 				if (file_info.cFileName[0] != '.') {
@@ -52,29 +52,29 @@ namespace ink {
 							if (i) return i;
 						} else has_sub_dir = true;
 					} else {
-					  if (::SetFileAttributes(tmp_file_path.c_str(),
+					  if (SetFileAttributes(tmp_file_path.c_str(),
 					                         FILE_ATTRIBUTE_NORMAL) == false)
-					    return ::GetLastError();
+					    return GetLastError();
 
-					  if (::DeleteFile(tmp_file_path.c_str()) == false)
-					    return ::GetLastError();
+					  if (DeleteFile(tmp_file_path.c_str()) == false)
+					    return GetLastError();
 					}
 				}
-			} while (::FindNextFile(file_handle, &file_info) == true);
+			} while (FindNextFile(file_handle, &file_info) == true);
 
-			::FindClose(file_handle);
+			FindClose(file_handle);
 
-			DWORD dwError = ::GetLastError();
+			DWORD dwError = GetLastError();
 			if (dwError != ERROR_NO_MORE_FILES)
 				return dwError;
 			else {
 				if (!has_sub_dir) {
-					if (::SetFileAttributes(path.c_str(),
+					if (SetFileAttributes(path.c_str(),
 										   FILE_ATTRIBUTE_NORMAL) == false)
-					return ::GetLastError();
+					return GetLastError();
 
-					if (::RemoveDirectory(path.c_str()) == false)
-						return ::GetLastError();
+					if (RemoveDirectory(path.c_str()) == false)
+						return GetLastError();
 				}
 			}
 		}

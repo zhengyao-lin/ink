@@ -1,6 +1,7 @@
 #ifndef _SWITCHES_H_
 #define _SWITCHES_H_
 
+#include <string.h>
 #include "universal.h"
 
 #define INK_DEBUG_FLAG 1
@@ -17,6 +18,7 @@
 
 #define INK_IS_BOTH_SPLIT(c) ((c) == '/' || (c) == '\\')
 
+namespace ink {
 inline char *getBasePath(const char *path)
 {
 	char *ret = NULL;
@@ -35,13 +37,14 @@ inline char *getBasePath(const char *path)
 
 	return ret;
 }
-
+}
 
 #if defined(INK_PLATFORM_LINUX)
 	#include <unistd.h>
 	#include <sys/stat.h>
 	#include <dirent.h>
 
+namespace ink {
 	inline bool isDirExist(const char *path)
 	{
 		DIR *dir;
@@ -51,13 +54,16 @@ inline char *getBasePath(const char *path)
 		}
 		return false;
 	}
+}
 #elif defined(INK_PLATFORM_WIN32)
 	#include <io.h>
 
+namespace ink {
 	inline bool isDirExist(const char *path)
 	{
 		return _access(path, 0) != -1;
 	}
+}
 #endif
 
 #endif
