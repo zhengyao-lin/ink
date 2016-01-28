@@ -447,6 +447,13 @@ InkWarn_Unreachable_Bonding(Ink_InterpreteEngine *engine)
 	return;
 }
 
+inline void
+InkWarn_Divided_By_Zero(Ink_InterpreteEngine *engine)
+{
+	InkWarn_doPrintWarning(engine, "Divided by zero");
+	return;
+}
+
 }
 
 #endif

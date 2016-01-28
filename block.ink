@@ -1274,3 +1274,5 @@ def a { | name |
 }
 
 a("Rod");
+
+p(bignum("10") / 0);

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include "expression.h"
 #include "protocol.h"
 #include "general.h"
@@ -14,9 +15,79 @@
 					  engine->current_line_number = (line_number >= 0 ? line_number : engine->current_line_number))
 #define RESTORE_LINE_NUM (engine->current_file_name = file_name_back, engine->current_line_number = line_num_back)
 #define INTER_SIGNAL_RECEIVED (engine->CGC_interrupt_signal != INTER_NONE)
+#define IS_DEC(c) ((c) <= '9' && (c) >= '0')
+#define IS_HEX(c) (IS_DEC(c) || ((c) <= 'f' && (c) >= 'a') || ((c) <= 'F' && (c) >= 'A'))
+#define IS_OCT(c) ((c) <= '7' && (c) >= '0')
+
+#define IS_CAPITAL(c) ((c) <= 'Z' && (c) >= 'A')
+#define TO_LOWER(c) (IS_CAPITAL(c) ? 'a' + (c) - 'A' : (c))
+
+#define DEC_TO_NUM(c) ((c) - '0')
+#define HEX_TO_NUM(c) (IS_DEC(c) ? DEC_TO_NUM(c) : TO_LOWER(c) - 'a' + 10)
+#define OCT_TO_NUM(c) (DEC_TO_NUM(c))
+
+#define IS_LEGAL(mode, c) (IS_DEC(c) ? (c) < ('0' + (mode)) \
+									 : (IS_HEX(c) ? (TO_LOWER(c) - 'a') < 6 : false))
+
+#define TO_NUM(mode, c) ((mode) <= 10 ? DEC_TO_NUM(c) : HEX_TO_NUM(c))
 
 namespace ink {
 
+Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success)
+{
+	Ink_NumericValue ret = 0.0;
+	string::size_type i;
+	int flag = 1, decimal = 0;
+	enum {
+		DEC = 10,
+		HEX = 16,
+		OCT = 8
+	} mode = DEC;
+
+	if (is_success)
+		*is_success = true;
+
+	if (code.length() && code[0] == '-') {
+		flag = -1;
+		code = code.substr(1);
+	}
+
+	if (code.length() && code[0] == '0') {
+		code = code.substr(1);
+		if (code.length()) {
+			if (code[0] == 'x' || code[0] == 'X') {
+				mode = HEX;
+				code = code.substr(1);
+			} else if (IS_OCT(code[0])) {
+				mode = OCT;
+			}
+		}
+	}
+
+	for (i = 0; i < code.length(); i++) {
+		if (code[i] == '.') {
+			decimal++;
+			continue;
+		}
+		if (IS_LEGAL(mode, code[i])) {
+			if (decimal > 0) {
+				ret += TO_NUM(mode, code[i]) / pow(mode, decimal);
+				decimal++;
+			} else {
+				ret = ret * mode + TO_NUM(mode, code[i]);
+			}
+		} else {
+			fprintf(stderr, "Illegal character \'%c\'\n", code[i]);
+			if (is_success)
+				*is_success = false;
+			break;
+		}
+	}
+
+	return ret * flag;
+}
+
+#if 0
 Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success)
 {
 	unsigned long val = 0;
@@ -51,6 +122,7 @@ Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success
 
 	return 0.0;
 }
+#endif
 
 Ink_Expression *Ink_NumericConstant::parse(string code)
 {

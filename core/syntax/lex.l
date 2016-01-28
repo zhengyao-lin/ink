@@ -2,7 +2,7 @@
 SP				[ \t\v\f]
 NEWLINE			[\r\n]
 PM				[+-]
-DIGIT			[0-9]
+DEC				[0-9]
 HEX				[a-fA-F0-9]
 OCT				[0-7]
 LETTER			[a-zA-Z_?$]
@@ -190,14 +190,14 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>{SP}						/* Blank */;
 
  /* Constants */
-<INITIAL>{LETTER}({LETTER}|{DIGIT})* {
+<INITIAL>{LETTER}({LETTER}|{DEC})* {
 	SAVE_TOKEN();
 	if (Ink_getParseEngine()->findProtocol(yylval.string->c_str())) {
 		return TPROTOCOL;
 	}
 	return TIDENTIFIER;
 }
-<INITIAL>{DIGIT}+\.{DIGIT}+ {
+<INITIAL>"0"{OCT}+\.{OCT}* { // oct
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
@@ -205,11 +205,23 @@ int ink_yyinput(char *buf, int max_size)
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
+<INITIAL>"0"[xX]{HEX}+\.{HEX}* { // hex
+	SAVE_TOKEN();
+	return TNUMERIC;
+}
 <INITIAL>"0"[xX]{HEX}+ { // hex
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>{DIGIT}+ { // dec
+<INITIAL>{DEC}*\.{DEC}* { // dec
+	SAVE_TOKEN();
+	return TNUMERIC;
+}
+<INITIAL>0 { // dec
+	SAVE_TOKEN();
+	return TNUMERIC;
+}
+<INITIAL>[1-9]{DEC}* { // dec
 	SAVE_TOKEN();
 	return TNUMERIC;
 }

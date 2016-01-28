@@ -247,6 +247,12 @@ Ink_Object *InkNative_BigNumeric_Div(Ink_InterpreteEngine *engine, Ink_ContextCh
 							  ? as<Ink_Numeric>(argv[0])->value
 							  : as<Ink_BigNumeric>(argv[0])->value;
 	Ink_BigNumericValue ret = 0;
+
+	if (val == 0) {
+		InkWarn_Divided_By_Zero(engine);
+		return NULL_OBJ;
+	}
+
 	if (argc > 1 && argv[1]->type == INK_NUMERIC) {
 		ret = as<Ink_BigNumeric>(base)->value.dividedBy(val, as<Ink_Numeric>(argv[1])->value);
 	} else {
