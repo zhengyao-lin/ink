@@ -312,9 +312,12 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 			tmp[0] = rval_ret;
 			lval_ret->address->setter->setSlot("base", lval_ret);
 			ret = lval_ret->address->setter->call(engine, context_chain, 1, tmp);
-			// TODO: setter signal trap?
-			engine->setSignal(INTER_NONE);
+			// engine->setSignal(INTER_NONE);
 			free(tmp);
+			if (INTER_SIGNAL_RECEIVED) {
+				RESTORE_LINE_NUM;
+				return engine->getInterruptValue();
+			}
 			return ret;
 		} else {
 			/* no setter, directly assign */
@@ -492,9 +495,11 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 	if (!flags.is_left_value && address->getter) {
 		address->getter->setSlot("base", address->getValue());
 		ret = address->getter->call(engine, context_chain, 0, NULL);
-		/* trap all interrupt signal */
-		// TODO: getter signal trap?
-		engine->setSignal(INTER_NONE);
+		// /* trap all interrupt signal */
+		// engine->setSignal(INTER_NONE);
+		if (INTER_SIGNAL_RECEIVED) {
+			return engine->getInterruptValue();
+		}
 	}
 
 	return ret;
@@ -772,10 +777,11 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 		hash->getter->setSlot("base", hash->getter);
 		tmp = hash->getter->call(engine, context_chain, 0, NULL);
 
-		/* trap all interrupt signal */
-		// TODO: getter signal trap?
-		engine->setSignal(INTER_NONE);
-
+		// /* trap all interrupt signal */
+		// engine->setSignal(INTER_NONE);
+		if (INTER_SIGNAL_RECEIVED) {
+			return engine->getInterruptValue();
+		}
 		return tmp;
 	}
 	// hash->value->setSlot("this", hash->value);

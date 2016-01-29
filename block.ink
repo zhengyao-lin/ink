@@ -365,7 +365,7 @@ String = fn (str) {
 	this = clone str;
 	this.size = 10;
 	this.getter("size") {
-		retn this.length();
+		drop this.length();
 	}
 	this.setter("size") {
 		p("readonly!!");
@@ -1296,6 +1296,11 @@ $do = inl (block, &argv...) {
 			block();
 		}
 	}
+}
+
+$do.'throw' = fn () {
+	p("AH... something wrong..");
+	drop
 }
 
 let i = 0;
