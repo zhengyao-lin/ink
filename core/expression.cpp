@@ -169,7 +169,7 @@ Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	// no temp engine means no coroutine
 	if (!engine->ink_sync_call_tmp_engine) {
 		InkErr_Yield_Without_Coroutine(engine);
-		// unreachable
+		return NULL_OBJ;
 	}
 
 	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : NULL_OBJ;

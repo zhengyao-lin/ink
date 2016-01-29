@@ -99,11 +99,7 @@ public:
 	}
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
-							 Ink_Object *this_p = NULL, bool if_return_this = true)
-	{
-		InkErr_Calling_Non_Function_Object(engine);
-		return NULL;
-	}
+							 Ink_Object *this_p = NULL, bool if_return_this = true);
 	virtual void doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
 	{
 		return;
@@ -138,11 +134,7 @@ public:
 
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
-							 Ink_Object *this_p = NULL, bool if_return_this = true)
-	{
-		InkErr_Calling_Undefined_Object(engine);
-		return NULL;
-	}
+							 Ink_Object *this_p = NULL, bool if_return_this = true);
 };
 
 class Ink_NullObject: public Ink_Object {

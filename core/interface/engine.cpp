@@ -105,7 +105,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	Ink_GlobalMethodInit(this, global_context);
 
 	global_context->context->setDebugName("__global_context__");
-	addTrace(global_context->context)->setDebug(-1, global_context->context);
+	addTrace(global_context->context)->setDebug("<root engine>", -1, global_context->context);
 
 	// make sure the slot name is $<type name>
 	global_context->context->setSlot("$object", tmp = new Ink_Object(this));

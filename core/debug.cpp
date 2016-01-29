@@ -133,9 +133,9 @@ void Ink_InterpreteEngine::printDebugInfo(FILE *fp, Ink_Object *obj, string pref
 		slot_name = obj->getDebugName();
 	}
 
-	fprintf(fp, "%sobject@%lx of type \'%s\' in slot \'%s\'", prefix.c_str(), obj,
+	fprintf(fp, "%sobject@%lx of type \'%s\' in %s", prefix.c_str(), obj,
 			obj ? getTypeName(obj->type) : "unpointed",
-			(!slot_name || !strlen(slot_name) ? "anonymous slot" : slot_name));
+			(!slot_name || !strlen(slot_name) ? "anonymous slot" : ("slot \'" + string(slot_name) + "\'").c_str()));
 	if (obj && obj->type == INK_FUNCTION) {
 		printFunctionInfo(fp, as<Ink_FunctionObject>(obj), slot_prefix);
 	}
@@ -153,7 +153,7 @@ void Ink_InterpreteEngine::printTrace(FILE *fp, Ink_ContextChain *context, strin
 
 	fprintf(fp, "%srising from:\n", prefix.c_str());
 	for (i = inner_most; i; i = i->outer) {
-		fprintf(fp, DBG_TAB "line %lu: ", i->getLineno());
+		fprintf(fp, DBG_TAB "%s: line %lu: ", i->getFileName(), i->getLineno());
 		initPrintDebugInfo();
 		printDebugInfo(false, fp, i->getCreater(), "", DBG_TAB);
 	}

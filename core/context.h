@@ -12,6 +12,7 @@ public:
 	Ink_ContextObject *context;
 	Ink_ContextChain *inner;
 
+	const char *debug_file_name;
 	Ink_LineNoType debug_lineno;
 	Ink_Object *debug_creater;
 
@@ -20,17 +21,21 @@ public:
 	{
 		outer = NULL;
 		inner = NULL;
+		debug_file_name = NULL;
 		debug_lineno = -1;
 		debug_creater = NULL;
 	}
 
-	inline void setDebug(Ink_LineNoType lineno, Ink_Object *creater)
+	inline void setDebug(const char *file_name, Ink_LineNoType lineno, Ink_Object *creater)
 	{
+		debug_file_name = file_name;
 		debug_lineno = lineno;
 		debug_creater = creater;
 		return;
 	}
 
+	inline const char *getFileName()
+	{ return debug_file_name ? debug_file_name : "<unknown input>"; }
 	inline Ink_LineNoType getLineno()
 	{ return debug_lineno; }
 	inline Ink_Object *getCreater()

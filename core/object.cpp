@@ -348,7 +348,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	context->addContext(local);
 
 	/* set trace(unsed for mark&sweep GC) and set debug info */
-	engine->addTrace(local)->setDebug(engine->current_line_number, this);
+	engine->addTrace(local)->setDebug(engine->current_file_name, engine->current_line_number, this);
 
 	/* set local context */
 	// gc_engine->initContext(context);
@@ -793,6 +793,22 @@ void Ink_Array::doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
 		}
 	}
 	return;
+}
+
+Ink_Object *Ink_Object::call(Ink_InterpreteEngine *engine,
+							 Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
+							 Ink_Object *this_p, bool if_return_this)
+{
+	InkErr_Calling_Non_Function_Object(engine);
+	return NULL_OBJ;
+}
+
+Ink_Object *Ink_Undefined::call(Ink_InterpreteEngine *engine,
+								Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
+								Ink_Object *this_p, bool if_return_this)
+{
+	InkErr_Calling_Undefined_Object(engine);
+	return NULL_OBJ;
 }
 
 }

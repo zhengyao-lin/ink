@@ -37,9 +37,9 @@ InkErr_Calling_Undefined_Object(Ink_InterpreteEngine *engine)
 }
 
 inline void
-InkErr_Missing_Semicolon(Ink_InterpreteEngine *engine)
+InkErr_Yield_Without_Coroutine(Ink_InterpreteEngine *engine)
 {
-	InkErr_doPrintError(engine, "Missing semicolon");
+	InkErr_doPrintError(engine, "Function yield, but no coroutine is created");
 	return;
 }
 
@@ -404,13 +404,6 @@ inline void
 InkWarn_Else_If_Has_No_Condition(Ink_InterpreteEngine *engine)
 {
 	InkWarn_doPrintWarning(engine, "Condition for else if missing");
-	return;
-}
-
-inline void
-InkErr_Yield_Without_Coroutine(Ink_InterpreteEngine *engine)
-{
-	InkErr_doPrintError(engine, "Function yield, but no coroutine is created");
 	return;
 }
 

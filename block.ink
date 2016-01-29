@@ -1285,6 +1285,7 @@ $do = inl (block, &argv...) {
 		if (argv[i]() == "while") {
 			if (i + 1 < argv.size()) {
 				cond_i = i + 1;
+				dfdsfdfaf()
 				cond = fn () { argv[cond_i]()[0] };
 			}
 		}
