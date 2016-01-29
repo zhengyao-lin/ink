@@ -1,22 +1,18 @@
 #ifndef _OBJECT_H_
 #define _OBJECT_H_
 
-#include <vector>
-#include <string>
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
+#include <vector>
+#include <string>
 #include "type.h"
 #include "inttype.h"
 #include "hash.h"
-#include "error.h"
 #include "general.h"
 #include "numeric.h"
 #include "coroutine/coroutine.h"
 
 namespace ink {
-
-using namespace std;
 
 class Ink_Expression;
 class Ink_ContextObject;
@@ -81,8 +77,8 @@ public:
 	*/
 	Ink_Object *getSlot(Ink_InterpreteEngine *engine, const char *key);
 	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key);
-	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true, string *key_p = NULL);
-	inline Ink_HashTable *setSlot(const char *key, Ink_Object *value, string *key_p) {
+	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true, std::string *key_p = NULL);
+	inline Ink_HashTable *setSlot(const char *key, Ink_Object *value, std::string *key_p) {
 		return setSlot(key, value, true, key_p);
 	}
 	void deleteSlot(const char *key);
@@ -340,7 +336,7 @@ class Ink_BigNumeric: public Ink_Object {
 public:
 	Ink_BigNumericValue value;
 
-	Ink_BigNumeric(Ink_InterpreteEngine *engine, string value)
+	Ink_BigNumeric(Ink_InterpreteEngine *engine, std::string value)
 	: Ink_Object(engine), value(Ink_BigNumericValue(value))
 	{ type = INK_BIGNUMERIC; }
 
@@ -363,14 +359,14 @@ public:
 };
 
 class Ink_String: public Ink_Object {
-	string *value;
+	std::string *value;
 public:
 
-	Ink_String(Ink_InterpreteEngine *engine, string value)
-	: Ink_Object(engine), value(new string(value))
+	Ink_String(Ink_InterpreteEngine *engine, std::string value)
+	: Ink_Object(engine), value(new std::string(value))
 	{ type = INK_STRING; }
 
-	Ink_String(Ink_InterpreteEngine *engine, string *value)
+	Ink_String(Ink_InterpreteEngine *engine, std::string *value)
 	: Ink_Object(engine), value(value)
 	{ type = INK_STRING; }
 
@@ -380,7 +376,7 @@ public:
 	}
 	void Ink_StringMethodInit(Ink_InterpreteEngine *engine);
 
-	inline string getValue()
+	inline std::string getValue()
 	{
 		return *value;
 	}
@@ -398,7 +394,7 @@ public:
 	}
 };
 
-typedef vector<Ink_HashTable *> Ink_ArrayValue;
+typedef std::vector<Ink_HashTable *> Ink_ArrayValue;
 
 class Ink_Array: public Ink_Object {
 public:

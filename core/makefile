@@ -11,7 +11,11 @@ REQUIRE=\
 	interface/interface.o \
 	syntax/syntax.o \
 	hash.o \
-	object.o \
+	slot.o\
+	clone.o\
+	array.o\
+	function.o \
+	coroutine.o \
 	expression.o \
 	context.o \
 	general.o \
