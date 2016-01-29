@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "error.h"
+#include "object.h"
+#include "context.h"
 #include "expression.h"
 #include "protocol.h"
 #include "general.h"
@@ -32,6 +35,8 @@
 #define TO_NUM(mode, c) ((mode) <= 10 ? DEC_TO_NUM(c) : HEX_TO_NUM(c))
 
 namespace ink {
+
+using namespace std;
 
 Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success)
 {
@@ -822,6 +827,11 @@ Ink_Object *Ink_UndefinedConstant::eval(Ink_InterpreteEngine *engine, Ink_Contex
 Ink_Object *Ink_NumericConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	return new Ink_Numeric(engine, value);
+}
+
+Ink_Object *Ink_BigNumericConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+{
+	return new Ink_BigNumeric(engine, value);
 }
 
 Ink_Object *Ink_StringConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)

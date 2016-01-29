@@ -1,12 +1,10 @@
 #ifndef _OBJECT_H_
 #define _OBJECT_H_
 
-#include <stdlib.h>
 #include <string.h>
 #include <vector>
 #include <string>
 #include "type.h"
-#include "inttype.h"
 #include "hash.h"
 #include "general.h"
 #include "numeric.h"
@@ -307,8 +305,6 @@ public:
 
 	virtual ~Ink_FunctionObject();
 };
-
-typedef double Ink_NumericValue;
 
 class Ink_Numeric: public Ink_Object {
 public:

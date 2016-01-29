@@ -1,20 +1,15 @@
 #ifndef _EXPRESSION_H_
 #define _EXPRESSION_H_
 
-#include <iostream>
 #include <vector>
-#include <stdlib.h>
 #include "type.h"
-#include "object.h"
-#include "context.h"
-#include "error.h"
 #include "general.h"
 
 namespace ink {
 
-using namespace std;
-
 class Ink_Expression;
+class Ink_ContextChain;
+
 class Ink_EvalFlag {
 public:
 	bool is_left_value;
@@ -28,7 +23,7 @@ class Ink_Expression {
 public:
 	const char *file_name;
 	Ink_LineNoType line_number;
-	string *file_name_p;
+	std::string *file_name_p;
 
 	Ink_Expression()
 	: file_name(NULL), line_number(-1), file_name_p(NULL)
@@ -162,11 +157,11 @@ public:
 class Ink_HashTableMappingSingle {
 public:
 	Ink_LineNoType line_number;
-	string *name;
+	std::string *name;
 	Ink_Expression *key;
 	Ink_Expression *value;
 
-	Ink_HashTableMappingSingle(string *name, Ink_Expression *value)
+	Ink_HashTableMappingSingle(std::string *name, Ink_Expression *value)
 	: name(name), key(NULL), value(value)
 	{ }
 
@@ -182,7 +177,7 @@ public:
 	}
 };
 
-typedef vector<Ink_HashTableMappingSingle *> Ink_HashTableMapping;
+typedef std::vector<Ink_HashTableMappingSingle *> Ink_HashTableMapping;
 
 class Ink_HashTableExpression: public Ink_Expression {
 public:
@@ -225,9 +220,9 @@ public:
 class Ink_HashExpression: public Ink_Expression {
 public:
 	Ink_Expression *base;
-	string *slot_id;
+	std::string *slot_id;
 
-	Ink_HashExpression(Ink_Expression *base, string *slot_id)
+	Ink_HashExpression(Ink_Expression *base, std::string *slot_id)
 	: base(base), slot_id(slot_id)
 	{ }
 
@@ -245,12 +240,13 @@ public:
 
 	static ProtoSearchRet searchPrototype(Ink_InterpreteEngine *engine, Ink_Object *obj, const char *id);
 
-	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_Object *obj, const char *id, string *id_p = NULL)
+	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_Object *obj,
+							   const char *id, std::string *id_p = NULL)
 	{
 		return getSlot(engine, context_chain, obj, id, Ink_EvalFlag(), id_p);
 	}
 	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
-							   Ink_Object *obj, const char *id, Ink_EvalFlag flags, string *id_p = NULL);
+							   Ink_Object *obj, const char *id, Ink_EvalFlag flags, std::string *id_p = NULL);
 
 	virtual ~Ink_HashExpression()
 	{
@@ -264,13 +260,13 @@ public:
 	Ink_ParamList param;
 	Ink_ExpressionList exp_list;
 	bool is_inline;
-	string *protocol_name;
+	std::string *protocol_name;
 
 	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, bool is_inline = false)
 	: param(param), exp_list(exp_list), is_inline(is_inline), protocol_name(NULL)
 	{ }
 
-	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, string *protocol_name)
+	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, std::string *protocol_name)
 	: param(param), exp_list(exp_list), is_inline(false), protocol_name(protocol_name)
 	{ }
 
@@ -321,11 +317,11 @@ typedef enum {
 
 class Ink_IdentifierExpression: public Ink_Expression {
 public:
-	string *id;
+	std::string *id;
 	IDContextType context_type;
 	bool if_create_slot;
 
-	Ink_IdentifierExpression(string *id, IDContextType context_type = ID_COMMON, bool if_create_slot = false)
+	Ink_IdentifierExpression(std::string *id, IDContextType context_type = ID_COMMON, bool if_create_slot = false)
 	: id(id), context_type(context_type), if_create_slot(if_create_slot)
 	{ }
 
@@ -363,30 +359,27 @@ public:
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
-	static Ink_NumericValue parseNumeric(string code, bool *is_success = NULL);
-	static Ink_Expression *parse(string code);
+	static Ink_NumericValue parseNumeric(std::string code, bool *is_success = NULL);
+	static Ink_Expression *parse(std::string code);
 	virtual ~Ink_NumericConstant() { }
 };
 
 class Ink_BigNumericConstant: public Ink_Expression {
 public:
-	string value;
+	std::string value;
 
-	Ink_BigNumericConstant(string value)
+	Ink_BigNumericConstant(std::string value)
 	: value(value)
 	{ }
 
-	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
-	{
-		return new Ink_BigNumeric(engine, value);
-	}
+	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 };
 
 class Ink_StringConstant: public Ink_Expression {
 public:
-	string *value;
+	std::string *value;
 
-	Ink_StringConstant(string *value)
+	Ink_StringConstant(std::string *value)
 	: value(value)
 	{ }
 
