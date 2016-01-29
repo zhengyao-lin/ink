@@ -451,11 +451,10 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 	Ink_Object **argv;
 	ProtoSearchRet search_res;
 
-	if (obj->type == INK_UNDEFINED) {
-		InkWarn_Get_Undefined_Hash(engine);
-	}
-
 	if (!(hash = obj->getSlotMapping(engine, id)) /* cannot find slot in the origin object */) {
+		if (obj->type == INK_UNDEFINED) {
+			InkWarn_Get_Slot_Of_Undefined(engine, id);
+		}
 		/* search prototype */
 		engine->initPrototypeSearch();
 		hash = (search_res = searchPrototype(engine, obj, id)).hash;

@@ -73,9 +73,9 @@ InkWarn_Unfit_Argument(Ink_InterpreteEngine *engine)
 }
 
 inline void
-InkWarn_Get_Undefined_Hash(Ink_InterpreteEngine *engine)
+InkWarn_Get_Slot_Of_Undefined(Ink_InterpreteEngine *engine, const char *name)
 {
-	InkWarn_doPrintWarning(engine, "Getting hash of undefined value");
+	InkWarn_doPrintWarning(engine, "Getting slot \'$(name)\' of undefined value", name);
 	return;
 }
 

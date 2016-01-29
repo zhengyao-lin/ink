@@ -393,13 +393,13 @@ p("###################################");
 a = new Array(10, 20);
 
 foreach = fn (a, &val, block) {
-	a.each () { | v |
+	a.each { | v |
 		val() = v
 		block()
 	}
 }
 
-var elem;
+let elem = null;
 foreach (a, elem) {
 	p(elem);
 }
@@ -1305,7 +1305,7 @@ try {
 } catch { | err_msg |
 	p("Error Message: " + err_msg.msg);
 	p("a = " + a);
-	//error_func = fn () { "right!!!" }
+	error_func = fn () { "right!!!" }
 	retry
 } final {
 	p("finally!!");
