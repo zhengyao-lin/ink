@@ -238,7 +238,7 @@ InkWarn_Wrong_Argument_Type(Ink_InterpreteEngine *engine, Ink_TypeTag expect, In
 {
 	stringstream strm;
 	strm << "Expecting object of type <" << getTypeName(engine, expect)
-		 << ", that of <" << getTypeName(engine, type) << " offered";
+		 << ">, that of <" << getTypeName(engine, type) << "> offered";
 	InkWarn_doPrintWarning(engine, strm.str().c_str());
 	return;
 }
