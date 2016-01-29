@@ -246,11 +246,14 @@ void InkNative_IO_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
 Ink_Object *InkMod_File_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *global_context = context->getGlobal()->context;
-	DBG_CustomTypeType *type_p = (DBG_CustomTypeType *)malloc(sizeof(DBG_CustomTypeType));
+	DBG_CustomTypeType *type_p = NULL;
 
-	*type_p = (DBG_CustomTypeType)engine->registerType("io.file.file_pointer");
-	engine->addEngineCom(ink_native_file_mod_id, type_p);
-	engine->addDestructor(Ink_EngineDestructor(InkNative_IO_EngineComCleaner, new com_cleaner_arg(ink_native_file_mod_id)));
+	if (!engine->getEngineComAs<Ink_TypeTag>(ink_native_file_mod_id)) {
+		type_p = (DBG_CustomTypeType *)malloc(sizeof(DBG_CustomTypeType));
+		*type_p = (DBG_CustomTypeType)engine->registerType("io.file.file_pointer");
+		engine->addEngineCom(ink_native_file_mod_id, type_p);
+		engine->addDestructor(Ink_EngineDestructor(InkNative_IO_EngineComCleaner, new com_cleaner_arg(ink_native_file_mod_id)));
+	}
 	
 	global_context->setSlot("File", new Ink_FunctionObject(engine, InkNative_File_Constructor));
 	global_context->setSlot("file_exist", new Ink_FunctionObject(engine, InkNative_File_Exist));

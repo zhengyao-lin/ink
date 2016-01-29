@@ -61,8 +61,9 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 	if (!engine) return ret;
 
 	ret = engine->searchNativeMethod(type, key);
-	if (ret)
-		ret = setSlot(key, ret->getValue()->clone(engine));
+	if (ret) {
+		ret = setSlot(ret->key, ret->getValue()->clone(engine));
+	}
 
 	return ret;
 }
