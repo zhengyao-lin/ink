@@ -66,6 +66,11 @@ enum Ink_InputMode {
 	INK_STRING_INPUT
 };
 
+enum Ink_ErrorMode {
+	INK_ERRMODE_DEFAULT,
+	INK_ERRMODE_STRICT
+};
+
 extern DBG_FixedTypeMapping dbg_fixed_type_mapping[];
 
 class Ink_InterpreteEngine {
@@ -74,6 +79,7 @@ public:
 	IGC_CollectEngine *gc_engine;
 	Ink_ContextChain *global_context;
 
+	Ink_ErrorMode error_mode;
 	Ink_InputMode input_mode;
 	const char *input_file_path;
 
@@ -126,6 +132,17 @@ public:
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline void setErrorMode(Ink_ErrorMode mode)
+	{
+		error_mode = mode;
+		return;
+	}
+
+	inline Ink_ErrorMode getErrorMode()
+	{
+		return error_mode;
+	}
 
 	inline Ink_InterruptSignal getSignal()
 	{

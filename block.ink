@@ -535,9 +535,7 @@ a = {
 }
 p("final value(100?): " + a.b)
 
-p("################ try/catch test ################");
-
-try = fn (block, args...) {
+/*try = fn (block, args...) {
 	let final = fn () {}
 	block.'throw' = fn () { where(); drop }
 	for (let i = 0, i < args.size(), i++) {
@@ -555,25 +553,7 @@ try = fn (block, args...) {
 	}
 	block();
 	final();
-}
-
-error_func = fn () {
-	throw "this is a fault!!"
-	"fault?";
-}
-
-a = "origin"
-
-try {
-	a = error_func();
-} catch { | throw_val |
-	p("I caught that! " + throw_val);
-	p("a = " + a);
-	a = "right!!"
-} final {
-	p("finally!!");
-	p("a = " + a);
-}
+}*/
 
 a = "hello?"
 obj = {
@@ -1311,3 +1291,22 @@ $do {
 
 p((let obj = json.decode("{ \"i\": true, \"a\": false }")).i);
 p(obj.a);
+
+p("################ try/catch test ################");
+
+error_func = fn () {
+	let a.b.c.d.e.f.g = 10;
+}
+
+a = "origin"
+
+try {
+	a = error_func();
+} catch { | err_msg |
+	p("Error Message: " + err_msg.msg);
+	p("a = " + a);
+	a = "right!!"
+} final {
+	p("finally!!");
+	p("a = " + a);
+}

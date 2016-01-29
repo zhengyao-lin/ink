@@ -70,23 +70,32 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
 	igc_mark_period = 1;
 	igc_global_ret_val = NULL;
+
+	error_mode = INK_ERRMODE_DEFAULT;
+
 	input_file_path = NULL;
 	current_file_name = NULL;
 	current_line_number = -1;
+	
 	trace = NULL;
+	
 	interrupt_signal = INTER_NONE;
 	interrupt_value = NULL;
+
 	ink_sync_call_tmp_engine = NULL;
 	pthread_mutex_init(&ink_sync_call_mutex, NULL);
 	ink_sync_call_max_thread = 0;
 	ink_sync_call_current_thread = -1;
 	ink_sync_call_end_flag = vector<bool>();
+
 	string_pool = vector<string *>();
 	dbg_type_mapping_length = 0;
 	dbg_type_mapping = NULL;
+	
 	protocol_map = Ink_ProtocolMap();
 	pthread_mutex_init(&message_mutex, NULL);
 	message_queue = Ink_ActorMessageQueue();
+	
 	custom_destructor_queue = Ink_CustomDestructorQueue();
 	custom_engine_com_map = Ink_CustomEngineComMap();
 

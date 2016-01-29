@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
+#include <sstream>
 #include <string>
 #include "core/error.h"
 #include "core/package/load.h"
@@ -24,21 +25,23 @@ InkWarn_Excess_Argument(Ink_InterpreteEngine *engine, const char *name)
 inline void
 InkErr_No_Lib_Given(Ink_InterpreteEngine *engine)
 {
-	InkErr_doPrintError(engine, "Ink Packer: No library file given");
+	InkErr_doPrintError(engine, -1, "Ink Packer: No library file given");
 	return;
 }
 
 inline void
 InkErr_No_Dest_Given(Ink_InterpreteEngine *engine)
 {
-	InkErr_doPrintError(engine, "Ink Packer: No output file given");
+	InkErr_doPrintError(engine, -1, "Ink Packer: No output file given");
 	return;
 }
 
 inline void
 InkErr_Could_Not_Create_File(Ink_InterpreteEngine *engine, const char *path)
 {
-	InkErr_doPrintError(engine, "Ink Packer: Couldn't create file $(path)", path);
+	stringstream strm;
+	strm << "Ink Packer: Couldn't create file " << path;
+	InkErr_doPrintError(engine, -1, strm.str().c_str());
 	return;
 }
 

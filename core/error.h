@@ -13,8 +13,7 @@ class Ink_InterpreteEngine;
 
 void cleanAll(Ink_InterpreteEngine *engine);
 
-void InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg);
-void InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg, const char *arg1);
+void InkErr_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, const char *msg);
 
 void InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg);
 void InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char *arg1);
@@ -25,28 +24,30 @@ const char *getTypeName(Ink_InterpreteEngine *engine, Ink_TypeTag type);
 inline void
 InkErr_Calling_Non_Function_Object(Ink_InterpreteEngine *engine)
 {
-	InkErr_doPrintError(engine, "Calling non-function object");
+	InkErr_doPrintError(engine, -1, "Calling non-function object");
 	return;
 }
 
 inline void
 InkErr_Calling_Undefined_Object(Ink_InterpreteEngine *engine)
 {
-	InkErr_doPrintError(engine, "Calling undefined object");
+	InkErr_doPrintError(engine, -2, "Calling undefined object");
 	return;
 }
 
 inline void
 InkErr_Yield_Without_Coroutine(Ink_InterpreteEngine *engine)
 {
-	InkErr_doPrintError(engine, "Function yield, but no coroutine is created");
+	InkErr_doPrintError(engine, -3, "Function yield, but no coroutine is created");
 	return;
 }
 
 inline void
 InkErr_Failed_Open_File(Ink_InterpreteEngine *engine, const char *path)
 {
-	InkErr_doPrintError(engine, "Failed to open file $(path)", path);
+	stringstream strm;
+	strm << "Failed to open file " << path;
+	InkErr_doPrintError(engine, -4, strm.str().c_str());
 	return;
 }
 
@@ -455,6 +456,52 @@ inline void
 InkWarn_Divided_By_Zero(Ink_InterpreteEngine *engine)
 {
 	InkWarn_doPrintWarning(engine, "Divided by zero");
+	return;
+}
+
+inline void
+InkWarn_Try_Unknown_Instr(Ink_InterpreteEngine *engine, const char *instr)
+{
+	stringstream strm;
+	strm << "Unknown instruction of try: \'" << instr << "\'";
+	InkWarn_doPrintWarning(engine, strm.str().c_str());
+	return;
+}
+
+inline void
+InkWarn_No_Argument_Follwing_Catch(Ink_InterpreteEngine *engine)
+{
+	InkWarn_doPrintWarning(engine, "No argument following catch");
+	return;
+}
+
+inline void
+InkWarn_Expect_Block_After_Catch(Ink_InterpreteEngine *engine)
+{
+	InkWarn_doPrintWarning(engine, "Expect block after catch");
+	return;
+}
+
+inline void
+InkWarn_No_Argument_Follwing_Final(Ink_InterpreteEngine *engine)
+{
+	InkWarn_doPrintWarning(engine, "No argument following final");
+	return;
+}
+
+inline void
+InkWarn_Expect_Block_After_Final(Ink_InterpreteEngine *engine)
+{
+	InkWarn_doPrintWarning(engine, "Expect block after final");
+	return;
+}
+
+inline void
+InkWarn_Try_Unknown_Instr_Type(Ink_InterpreteEngine *engine, Ink_TypeTag type)
+{
+	stringstream strm;
+	strm << "Unknown instruction type of try: <" << getTypeName(engine, type) << ">";
+	InkWarn_doPrintWarning(engine, strm.str().c_str());
 	return;
 }
 
