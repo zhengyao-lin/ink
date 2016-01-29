@@ -430,6 +430,7 @@ Ink_Object *Ink_Try(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink
 	Ink_Object **tmp_argv = NULL;
 	Ink_InterruptSignal signal_back = INTER_NONE;
 	Ink_ErrorMode err_mode_back = engine->getErrorMode();
+	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
 
 	if (!checkArgument(engine, argc, argv, 1, INK_FUNCTION)) {
 		return NULL_OBJ;
@@ -468,6 +469,7 @@ Ink_Object *Ink_Try(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink
 		}
 	}
 
+RETRY:
 	engine->setErrorMode(INK_ERRMODE_STRICT);
 	ret = test_block->call(engine, context);
 	engine->setErrorMode(err_mode_back);
@@ -480,6 +482,11 @@ Ink_Object *Ink_Try(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink
 			catch_block->call(engine, context, 1, tmp_argv);
 
 			free(tmp_argv);
+			if (engine->getSignal() == INTER_RETRY) {
+				engine->trapSignal();
+				gc_engine->checkGC();
+				goto RETRY;
+			}
 			if (engine->getSignal() != INTER_NONE) {
 				signal_back = engine->getSignal();
 				engine->setSignal(INTER_NONE);

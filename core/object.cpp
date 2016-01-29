@@ -425,6 +425,11 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 							tmp_argv[0] = value_backup;
 							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
 						} break;
+					case INTER_RETRY:
+						if ((tmp = getSlot(engine, "retry"))->type == INK_FUNCTION) {
+							tmp_argv[0] = value_backup;
+							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
+						} break;
 					default: ;
 				}
 				free(tmp_argv);

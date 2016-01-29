@@ -1305,7 +1305,8 @@ try {
 } catch { | err_msg |
 	p("Error Message: " + err_msg.msg);
 	p("a = " + a);
-	a = "right!!"
+	//error_func = fn () { "right!!!" }
+	retry
 } final {
 	p("finally!!");
 	p("a = " + a);

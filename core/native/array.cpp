@@ -101,6 +101,8 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 				return engine->getInterruptValue(); // signal penetrated
 			case INTER_DROP:
 			case INTER_BREAK:
+				free(args);
+				cleanArrayHashTable(ret_val);
 				return engine->trapSignal(); // trap the signal
 			case INTER_CONTINUE:
 				engine->trapSignal(); // trap the signal, but do not return

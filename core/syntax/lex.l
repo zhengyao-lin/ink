@@ -128,6 +128,7 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"continue"					return TOKEN(TCONTINUE);
 <INITIAL>"drop"						return TOKEN(TDROP);
 <INITIAL>"throw"					return TOKEN(TTHROW);
+<INITIAL>"retry"					return TOKEN(TRETRY);
 <INITIAL>"yield"					return TOKEN(TYIELD);
 <INITIAL>"with"						return TOKEN(TWITH);
 

@@ -93,7 +93,8 @@ typedef enum {
 	INTER_BREAK = 1 << 3,
 	INTER_CONTINUE = 1 << 4,
 	INTER_DROP = 1 << 5,
-	INTER_THROW = 1 << 6
+	INTER_THROW = 1 << 6,
+	INTER_RETRY = 1 << 7
 } Ink_InterruptSignal;
 
 class Ink_Expression;
