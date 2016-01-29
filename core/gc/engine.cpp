@@ -106,7 +106,7 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 			 i; i = i->inner) {
 			doMark(i->context);
 		}
-		doMark(engine->CGC_interrupt_value);
+		doMark(engine->getInterruptValue());
 	}
 	doCollect();
 	//printf("GC time duration: %lf\n", (double)(clock() - st) / CLOCKS_PER_SEC);

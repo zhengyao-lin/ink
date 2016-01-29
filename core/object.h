@@ -204,7 +204,7 @@ public:
 	: interrupt_signal_trap(trap)
 	{ }
 
-	inline bool hasTrap(InterruptSignal sig)
+	inline bool hasTrap(Ink_InterruptSignal sig)
 	{
 		return hasSignal(interrupt_signal_trap, sig);
 	}

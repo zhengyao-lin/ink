@@ -36,7 +36,7 @@ namespace ink {
 	ink::Ink_HashTableMappingSingle		*hash_table_mapping_single;
 	std::string							*string;
 	ink::IDContextType					context_type;
-	ink::InterruptSignal				signal;
+	ink::Ink_InterruptSignal			signal;
 	int									token;
 }
 

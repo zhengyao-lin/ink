@@ -91,8 +91,8 @@ public:
 	Ink_Object *igc_global_ret_val;
 	// std::map<int, IGC_CollectEngine *> gc_engine_map;
 
-	InterruptSignal CGC_interrupt_signal;
-	Ink_Object *CGC_interrupt_value;
+	Ink_InterruptSignal interrupt_signal;
+	Ink_Object *interrupt_value;
 
 	IGC_CollectEngine *ink_sync_call_tmp_engine;
 	pthread_mutex_t ink_sync_call_mutex;
@@ -126,6 +126,43 @@ public:
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline Ink_InterruptSignal getSignal()
+	{
+		return interrupt_signal;
+	}
+
+	inline void setSignal(Ink_InterruptSignal sig)
+	{
+		interrupt_signal = sig;
+		return;
+	}
+
+	inline Ink_Object *getInterruptValue()
+	{
+		return interrupt_value;
+	}
+
+	inline void setInterruptValue(Ink_Object *val)
+	{
+		interrupt_value = val;
+		return;
+	}
+
+	inline void setInterrupt(Ink_InterruptSignal sig, Ink_Object *val)
+	{
+		interrupt_signal = sig;
+		interrupt_value = val;
+		return;
+	}
+
+	inline Ink_Object *trapSignal()
+	{
+		Ink_Object *tmp = interrupt_value;
+		interrupt_signal = INTER_NONE;
+		interrupt_value = NULL;
+		return tmp;
+	}
 
 	inline void setGlobalReturnValue(Ink_Object *ret_val)
 	{

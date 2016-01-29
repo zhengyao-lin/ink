@@ -11,30 +11,13 @@ InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg)
 {
 	stringstream strm;
 	const char *tmp;
-	bool is_root = InkActor_isRootActor(engine);
 	strm << (engine && (tmp = engine->current_file_name) ?
 			tmp : "<unknown input>") << ": "
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 	
 	cleanAll(engine);
-	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Error, true, is_root ? ErrorInfo::Abort
-																	   : ErrorInfo::NoAct,
+	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Error, true, ErrorInfo::NoAct,
 									   strm.str().c_str()));
-
-	if (!is_root) {
-		/*if (engine && engine->actor_argument) {
-			Ink_ActorFunction_sub_Argument *tmp_arg = engine->actor_argument;
-			
-			tmp_arg->engine->top_level = Ink_ExpressionList();
-			InkActor_setDeadActor(tmp_arg->engine);
-			if (tmp_arg->argv)
-				free(tmp_arg->argv);
-			delete tmp_arg->engine;
-			delete tmp_arg;
-		}*/
-		delete engine;
-		pthread_exit(NULL);
-	}
 
 	return;
 }
@@ -44,30 +27,14 @@ InkErr_doPrintError(Ink_InterpreteEngine *engine, const char *msg, const char *a
 {
 	stringstream strm;
 	const char *tmp;
-	bool is_root = InkActor_isRootActor(engine);
 	strm << (engine && (tmp = engine->current_file_name) ?
 			tmp : "<unknown input>") << ": "
 		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
 
 	cleanAll(engine);
-	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Error, true, is_root ? ErrorInfo::Abort
-																	   : ErrorInfo::NoAct,
+	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Error, true, ErrorInfo::NoAct,
 									   strm.str().c_str(), arg1));
-	if (!is_root) {
-		/*if (engine && engine->actor_argument) {
-			Ink_ActorFunction_sub_Argument *tmp_arg = engine->actor_argument;
-			
-			tmp_arg->engine->top_level = Ink_ExpressionList();
-			InkActor_setDeadActor(tmp_arg->engine);
-			if (tmp_arg->argv)
-				free(tmp_arg->argv);
-			delete tmp_arg->engine;
-			delete tmp_arg;
-		}*/
-		delete engine;
-		pthread_exit(NULL);
-	}
-
+	
 	return;
 }
 

@@ -94,16 +94,16 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	for (i = 0; i < array->value.size(); i++) {
 		args[0] = array->value[i] ? array->value[i]->getValue() : UNDEFINED;
 		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, 1, args)));
-		switch (engine->CGC_interrupt_signal) {
+		switch (engine->getSignal()) {
 			case INTER_RETURN:
 				free(args);
 				cleanArrayHashTable(ret_val);
-				return engine->CGC_interrupt_value; // signal penetrated
+				return engine->getInterruptValue(); // signal penetrated
 			case INTER_DROP:
 			case INTER_BREAK:
-				return trapSignal(engine); // trap the signal
+				return engine->trapSignal(); // trap the signal
 			case INTER_CONTINUE:
-				trapSignal(engine); // trap the signal, but do not return
+				engine->trapSignal(); // trap the signal, but do not return
 				continue;
 			default: ;
 		}

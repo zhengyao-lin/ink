@@ -14,7 +14,7 @@
 					  engine->current_file_name = (file_name ? file_name : engine->current_file_name), \
 					  engine->current_line_number = (line_number >= 0 ? line_number : engine->current_line_number))
 #define RESTORE_LINE_NUM (engine->current_file_name = file_name_back, engine->current_line_number = line_num_back)
-#define INTER_SIGNAL_RECEIVED (engine->CGC_interrupt_signal != INTER_NONE)
+#define INTER_SIGNAL_RECEIVED (engine->getSignal() != INTER_NONE)
 #define IS_DEC(c) ((c) <= '9' && (c) >= '0')
 #define IS_HEX(c) (IS_DEC(c) || ((c) <= 'f' && (c) >= 'a') || ((c) <= 'F' && (c) >= 'A'))
 #define IS_OCT(c) ((c) <= '7' && (c) >= '0')
@@ -152,7 +152,7 @@ Ink_Object *Ink_CommaExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 		ret = exp_list[i]->eval(engine, context_chain);
 		if (INTER_SIGNAL_RECEIVED) {
 			RESTORE_LINE_NUM;
-			return engine->CGC_interrupt_value;
+			return engine->getInterruptValue();
 		}
 	}
 
@@ -175,9 +175,9 @@ Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : NULL_OBJ;
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
-		return engine->CGC_interrupt_value;
+		return engine->getInterruptValue();
 	}
-	engine->CGC_interrupt_value = ret;
+	engine->setInterruptValue(ret);
 
 	ThreadLayerType self_layer = engine->getCurrentLayer();
 	ThreadID self_id = engine->getThreadID();
@@ -210,7 +210,7 @@ REWAIT:
 	engine->setCurrentGC(gc_engine_backup);
 
 	RESTORE_LINE_NUM;
-	return engine->CGC_interrupt_value;
+	return engine->getInterruptValue();
 }
 
 Ink_Object *Ink_InterruptExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
@@ -222,13 +222,12 @@ Ink_Object *Ink_InterruptExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : NULL_OBJ;
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
-		return engine->CGC_interrupt_value;
+		return engine->getInterruptValue();
 	}
 
 	RESTORE_LINE_NUM;
 
-	engine->CGC_interrupt_value = ret;
-	engine->CGC_interrupt_signal = signal;
+	engine->setInterrupt(sig, ret);
 
 	return ret;
 }
@@ -247,7 +246,7 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	/* interrupt signal received */
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
-		return engine->CGC_interrupt_value;
+		return engine->getInterruptValue();
 	}
 
 	if (isTrue(lhs)) {
@@ -260,7 +259,7 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 			rhs = rval->eval(engine, context_chain);
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
-				return engine->CGC_interrupt_value;
+				return engine->getInterruptValue();
 			}
 			if (isTrue(rhs)) {
 				ret_val = true;
@@ -271,7 +270,7 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 		if (type == LOGIC_OR && isTrue(rval->eval(engine, context_chain))) {
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
-				return engine->CGC_interrupt_value;
+				return engine->getInterruptValue();
 			}
 			ret_val = true;
 		}
@@ -297,14 +296,14 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	/* eval right hand side first */
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
-		return engine->CGC_interrupt_value;
+		return engine->getInterruptValue();
 	}
 
 	lval_ret = lval->eval(engine, context_chain, Ink_EvalFlag(true));
 	/* left hand side next */
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
-		return engine->CGC_interrupt_value;
+		return engine->getInterruptValue();
 	}
 
 	if (lval_ret->address) {
@@ -313,7 +312,8 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 			tmp[0] = rval_ret;
 			lval_ret->address->setter->setSlot("base", lval_ret);
 			ret = lval_ret->address->setter->call(engine, context_chain, 1, tmp);
-			engine->CGC_interrupt_signal = INTER_NONE;
+			// TODO: setter signal trap?
+			engine->setSignal(INTER_NONE);
 			free(tmp);
 			return ret;
 		} else {
@@ -345,13 +345,13 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 			ret->setSlot(mapping[i]->name->c_str(), mapping[i]->value->eval(engine, context_chain));
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
-				return engine->CGC_interrupt_value;
+				return engine->getInterruptValue();
 			}
 		} else {
 			key = mapping[i]->key->eval(engine, context_chain);
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
-				return engine->CGC_interrupt_value;
+				return engine->getInterruptValue();
 			}
 			if (key->type != INK_STRING) {
 				InkWarn_Hash_Table_Mapping_Expect_String(engine);
@@ -362,7 +362,7 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 						 mapping[i]->value->eval(engine, context_chain), true, tmp);
 			if (INTER_SIGNAL_RECEIVED) {
 				RESTORE_LINE_NUM;
-				return engine->CGC_interrupt_value;
+				return engine->getInterruptValue();
 			}
 		}
 	}
@@ -385,7 +385,7 @@ Ink_Object *Ink_TableExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 		if (INTER_SIGNAL_RECEIVED) {
 			RESTORE_LINE_NUM;
 			Ink_Array::disposeArrayValue(val);
-			return engine->CGC_interrupt_value;
+			return engine->getInterruptValue();
 		}
 	}
 
@@ -402,7 +402,7 @@ Ink_Object *Ink_HashExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	Ink_Object *base_obj = base->eval(engine, context_chain);
 	if (INTER_SIGNAL_RECEIVED) {
 		RESTORE_LINE_NUM;
-		return engine->CGC_interrupt_value;
+		return engine->getInterruptValue();
 	}
 
 	RESTORE_LINE_NUM;
@@ -493,7 +493,8 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 		address->getter->setSlot("base", address->getValue());
 		ret = address->getter->call(engine, context_chain, 0, NULL);
 		/* trap all interrupt signal */
-		engine->CGC_interrupt_signal = INTER_NONE;
+		// TODO: getter signal trap?
+		engine->setSignal(INTER_NONE);
 	}
 
 	return ret;
@@ -548,7 +549,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	Ink_Object *func = callee->eval(engine, context_chain);
 	Ink_FunctionObject *tmp_func = NULL;
 	if (INTER_SIGNAL_RECEIVED)
-		return engine->CGC_interrupt_value;
+		return engine->getInterruptValue();
 	Ink_ParamList param_list = Ink_ParamList();
 	Ink_ArgumentList dispose_list, tmp_arg_list, another_tmp_arg_list;
 
@@ -576,7 +577,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 			/* eval expandee */
 			expandee = (*arg_list_iter)->expandee->eval(engine, context_chain);
 			if (INTER_SIGNAL_RECEIVED) {
-				ret_val = engine->CGC_interrupt_value;
+				ret_val = engine->getInterruptValue();
 				goto DISPOSE_LIST;
 			}
 
@@ -620,7 +621,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 				/* normal argument */
 				argv[i] = tmp_arg_list[i]->arg->eval(engine, context_chain);
 				if (INTER_SIGNAL_RECEIVED) {
-					ret_val = engine->CGC_interrupt_value;
+					ret_val = engine->getInterruptValue();
 					/* goto dispose and interrupt */
 					goto DISPOSE_ARGV;
 				}
@@ -772,7 +773,8 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 		tmp = hash->getter->call(engine, context_chain, 0, NULL);
 
 		/* trap all interrupt signal */
-		engine->CGC_interrupt_signal = INTER_NONE;
+		// TODO: getter signal trap?
+		engine->setSignal(INTER_NONE);
 
 		return tmp;
 	}
@@ -794,7 +796,7 @@ Ink_Object *Ink_ArrayLiteral::eval(Ink_InterpreteEngine *engine, Ink_ContextChai
 		if (INTER_SIGNAL_RECEIVED) {
 			RESTORE_LINE_NUM;
 			Ink_Array::disposeArrayValue(val);
-			return engine->CGC_interrupt_value;
+			return engine->getInterruptValue();
 		}
 	}
 

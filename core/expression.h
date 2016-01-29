@@ -93,11 +93,11 @@ public:
 
 class Ink_InterruptExpression: public Ink_Expression {
 public:
-	InterruptSignal signal;
+	Ink_InterruptSignal sig;
 	Ink_Expression *ret_val;
 
-	Ink_InterruptExpression(InterruptSignal signal, Ink_Expression *ret_val)
-	: signal(signal), ret_val(ret_val)
+	Ink_InterruptExpression(Ink_InterruptSignal sig, Ink_Expression *ret_val)
+	: sig(sig), ret_val(ret_val)
 	{ }
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);

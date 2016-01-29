@@ -94,7 +94,7 @@ typedef enum {
 	INTER_CONTINUE = 1 << 4,
 	INTER_DROP = 1 << 5,
 	INTER_THROW = 1 << 6
-} InterruptSignal;
+} Ink_InterruptSignal;
 
 class Ink_Expression;
 class Ink_Argument;
@@ -183,17 +183,15 @@ public:
 };
 typedef std::vector<Ink_Parameter> Ink_ParamList;
 
-inline bool hasSignal(Ink_InterruptSignalTrap set, InterruptSignal sign)
+inline bool hasSignal(Ink_InterruptSignalTrap set, Ink_InterruptSignal sign)
 {
 	return (~(~set | sign) != set);
 }
 
-inline Ink_InterruptSignalTrap addSignal(Ink_InterruptSignalTrap set, InterruptSignal sign)
+inline Ink_InterruptSignalTrap addSignal(Ink_InterruptSignalTrap set, Ink_InterruptSignal sign)
 {
 	return set | sign;
 }
-
-Ink_Object *trapSignal(Ink_InterpreteEngine *engine);
 
 template <class T> T *as(Ink_Expression *obj)
 {

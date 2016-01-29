@@ -390,16 +390,15 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 			ret_val = exp_list[i]->eval(engine, context); // eval each expression
 
 			/* interrupt signal received */
-			if (engine->CGC_interrupt_signal != INTER_NONE) {
+			if (engine->getSignal() != INTER_NONE) {
 				/* interrupt event triggered */
-				InterruptSignal signal_backup = engine->CGC_interrupt_signal;
+				Ink_InterruptSignal signal_backup = engine->getSignal();
 				Ink_Object *value_backup
 							= local->ret_val /* set return value of context object for GC to mark */
-							= engine->CGC_interrupt_value;
+							= engine->getInterruptValue();
 
 				tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
-				engine->CGC_interrupt_signal = INTER_NONE;
-				engine->CGC_interrupt_value = NULL;
+				engine->setInterrupt(INTER_NONE, NULL);
 				switch (signal_backup) {
 					case INTER_RETURN:
 						if ((tmp = getSlot(engine, "retn"))->type == INK_FUNCTION) {
@@ -430,14 +429,13 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 				}
 				free(tmp_argv);
 				/* restore signal if it hasn't been changed */
-				if (engine->CGC_interrupt_signal == INTER_NONE) {
-					engine->CGC_interrupt_signal = signal_backup;
-					engine->CGC_interrupt_value = value_backup;
+				if (engine->getSignal() == INTER_NONE) {
+					engine->setInterrupt(signal_backup, value_backup);
 				}
 
 				/* whether trap the signal */
-				if (attr.hasTrap(engine->CGC_interrupt_signal)) {
-					ret_val = trapSignal(engine);
+				if (attr.hasTrap(engine->getSignal())) {
+					ret_val = engine->trapSignal();
 				} else {
 					ret_val = NULL;
 				}

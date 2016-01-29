@@ -74,8 +74,8 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	current_file_name = NULL;
 	current_line_number = -1;
 	trace = NULL;
-	CGC_interrupt_signal = INTER_NONE;
-	CGC_interrupt_value = NULL;
+	interrupt_signal = INTER_NONE;
+	interrupt_value = NULL;
 	ink_sync_call_tmp_engine = NULL;
 	pthread_mutex_init(&ink_sync_call_mutex, NULL);
 	ink_sync_call_max_thread = 0;
@@ -260,8 +260,8 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 	for (i = 0; i < top_level.size(); i++) {
 		getCurrentGC()->checkGC();
 		ret = top_level[i]->eval(this, context);
-		if (CGC_interrupt_signal != INTER_NONE) {
-			trapSignal(this); // trap all
+		if (interrupt_signal != INTER_NONE) {
+			trapSignal(); // trap all
 			break;
 		}
 	}

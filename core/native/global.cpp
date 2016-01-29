@@ -125,14 +125,14 @@ Ink_Object *Ink_WhileExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *
 		gc_engine->checkGC();
 		if (block) {
 			ret = block->call(engine, context);
-			switch (engine->CGC_interrupt_signal) {
+			switch (engine->getSignal()) {
 				case INTER_RETURN:
-					return engine->CGC_interrupt_value; // fallthrough the signal
+					return engine->getInterruptValue(); // fallthrough the signal
 				case INTER_DROP:
 				case INTER_BREAK:
-					return trapSignal(engine); // trap the signal
+					return engine->trapSignal(); // trap the signal
 				case INTER_CONTINUE:
-					trapSignal(engine); // trap the signal, but do not return
+					engine->trapSignal(); // trap the signal, but do not return
 					continue;
 				default: ;
 			}
@@ -302,8 +302,6 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 				yyerror_prefix = "from import: ";
 				current_engine->startParse(fp);
 				current_engine->execute(context);
-
-				engine->CGC_interrupt_signal = INTER_NONE;
 
 				Ink_insertNativeExpression(current_engine->top_level.begin(),
 										   current_engine->top_level.end());
