@@ -173,7 +173,7 @@ Ink_Object *InkNative_Object_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 	}
 
 	args = (Ink_Object **)malloc(2 * sizeof(Ink_Object *));
-	for (hash = base->hash_table; hash; hash = hash->next) {
+	for (hash = base->hash_table; hash && hash->getValue(); hash = hash->next) {
 		args[0] = new Ink_String(engine, string(hash->key));
 		args[1] = hash->getValue() ? hash->getValue() : UNDEFINED;
 		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, 2, args)));
