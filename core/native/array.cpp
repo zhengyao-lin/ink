@@ -22,7 +22,7 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
-	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+	if (!checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
 
