@@ -177,20 +177,25 @@ Ink_Object *InkNative_Object_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 		args[0] = new Ink_String(engine, string(hash->key));
 		args[1] = hash->getValue() ? hash->getValue() : UNDEFINED;
 		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, 2, args)));
-		switch (engine->getSignal()) {
-			case INTER_RETURN:
-				free(args);
-				cleanArrayHashTable(ret_val);
-				return engine->getInterruptValue(); // signal penetrated
-			case INTER_DROP:
-			case INTER_BREAK:
-				free(args);
-				cleanArrayHashTable(ret_val);
-				return engine->trapSignal(); // trap the signal
-			case INTER_CONTINUE:
-				engine->trapSignal(); // trap the signal, but do not return
-				continue;
-			default: ;
+		if (engine->getSignal() != INTER_NONE) {
+			switch (engine->getSignal()) {
+				case INTER_RETURN:
+					free(args);
+					cleanArrayHashTable(ret_val);
+					return engine->getInterruptValue(); // signal penetrated
+				case INTER_DROP:
+				case INTER_BREAK:
+					free(args);
+					cleanArrayHashTable(ret_val);
+					return engine->trapSignal(); // trap the signal
+				case INTER_CONTINUE:
+					engine->trapSignal(); // trap the signal, but do not return
+					continue;
+				default:
+					free(args);
+					cleanArrayHashTable(ret_val);
+					return NULL_OBJ;
+			}
 		}
 	}
 	free(args);

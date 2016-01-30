@@ -125,16 +125,19 @@ Ink_Object *Ink_WhileExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *
 		gc_engine->checkGC();
 		if (block) {
 			ret = block->call(engine, context);
-			switch (engine->getSignal()) {
-				case INTER_RETURN:
-					return engine->getInterruptValue(); // fallthrough the signal
-				case INTER_DROP:
-				case INTER_BREAK:
-					return engine->trapSignal(); // trap the signal
-				case INTER_CONTINUE:
-					engine->trapSignal(); // trap the signal, but do not return
-					continue;
-				default: ;
+			if (engine->getSignal() != INTER_NONE) {
+				switch (engine->getSignal()) {
+					case INTER_RETURN:
+						return engine->getInterruptValue(); // fallthrough the signal
+					case INTER_DROP:
+					case INTER_BREAK:
+						return engine->trapSignal(); // trap the signal
+					case INTER_CONTINUE:
+						engine->trapSignal(); // trap the signal, but do not return
+						continue;
+					default:
+						return NULL_OBJ;
+				}
 			}
 		}
 	}
@@ -590,7 +593,7 @@ InkNative_MethodTable object_native_method_table[] = {
 	{"clone", new Ink_FunctionObject(NULL, InkNative_Object_Clone)},
 	{"getter", new Ink_FunctionObject(NULL, InkNative_Object_SetGetter)},
 	{"setter", new Ink_FunctionObject(NULL, InkNative_Object_SetSetter)},
-	{"each", new Ink_FunctionObject(NULL, InkNative_Object_Each)},
+	{"each", new Ink_FunctionObject(NULL, InkNative_Object_Each)}
 };
 
 int array_native_method_table_count = 6;

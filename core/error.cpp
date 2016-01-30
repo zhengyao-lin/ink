@@ -14,18 +14,18 @@ InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, co
 {
 	va_list args;
 	const char *tmp;
-	bool if_abort = (engine == NULL);
+	bool if_exit = (engine == NULL);
 	const char *file_name = engine && (tmp = engine->current_file_name) ? tmp : "<unknown input>";
 	Ink_LineNoType line_number = engine ? engine->current_line_number : -1;
 	
 	va_start(args, msg);
 	Ink_ErrorMessage err_msg = Ink_ErrorMessage(file_name, line_number, msg, args);
 	err_msg.popWith(Ink_ErrorMessage::INK_ERR_LEVEL_ERROR,
-					if_abort ? Ink_ErrorMessage::INK_ERR_ACTION_EXIT1
-					  		 : Ink_ErrorMessage::INK_ERR_ACTION_NONE);
+					if_exit ? Ink_ErrorMessage::INK_ERR_ACTION_EXIT1
+					  		: Ink_ErrorMessage::INK_ERR_ACTION_NONE);
 	va_end(args);
 
-	if (engine && engine->getErrorMode() == INK_ERRMODE_STRICT) {
+	if (engine) {
 		engine->printTrace(stderr, engine->getTrace(), "***INK EXCEPTION*** ");
 		engine->setInterrupt(INTER_THROW, new Ink_ExceptionMessage(engine, ex_code, line_number, *(err_msg.message)));
 	}
