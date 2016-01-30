@@ -59,6 +59,7 @@ void InkActor_lockThreadCreateLock();
 void InkActor_unlockThreadCreateLock();
 void InkActor_initActorMap();
 bool InkActor_addActor(std::string name, Ink_InterpreteEngine *engine, pthread_t handle, std::string *name_p, bool is_root = false);
+bool InkActor_setRootEngine(Ink_InterpreteEngine *engine);
 void InkActor_setDeadActor(Ink_InterpreteEngine *engine);
 Ink_InterpreteEngine *InkActor_getActor(std::string name);
 void InkActor_joinAllActor(Ink_InterpreteEngine *self_engine, Ink_InterpreteEngine *except = NULL);

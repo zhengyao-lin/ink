@@ -12,12 +12,12 @@ public:
 
 	Ink_ExceptionMessage(Ink_InterpreteEngine *engine,
 						 Ink_ExceptionCode ex_code,
-						 Ink_LineNoType lineno, const char *msg)
+						 Ink_LineNoType lineno, string msg)
 	: Ink_Object(engine)
 	{
 		setSlot("ex_code", new Ink_Numeric(engine, ex_code));
 		setSlot("lineno", new Ink_Numeric(engine, lineno));
-		setSlot("msg", new Ink_String(engine, string(msg)));
+		setSlot("msg", new Ink_String(engine, msg));
 	} 
 };
 

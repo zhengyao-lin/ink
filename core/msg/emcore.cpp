@@ -1,53 +1,104 @@
+#include <sstream>
 #include <iostream>
-#include <stdlib.h>
+#include <string>
+#include <string>
 #include "emcore.h"
-#include "../thread/thread.h"
+#include "../../includes/universal.h"
+
+#if defined(INK_PLATFORM_LINUX)
+
+	#define INK_COLOR_NONE         "\033[m"
+	#define INK_COLOR_BOLD         "\033[1m"
+	#define INK_COLOR_RED          "\033[0;32;31m"
+	#define INK_COLOR_LIGHT_RED    "\033[1;31m"
+	#define INK_COLOR_GREEN        "\033[0;32;32m"
+	#define INK_COLOR_LIGHT_GREEN  "\033[1;32m"
+	#define INK_COLOR_BLUE         "\033[0;32;34m"
+	#define INK_COLOR_LIGHT_BLUE   "\033[1;34m"
+	#define INK_COLOR_DARY_GRAY    "\033[1;30m"
+	#define INK_COLOR_CYAN         "\033[0;36m"
+	#define INK_COLOR_LIGHT_CYAN   "\033[1;36m"
+	#define INK_COLOR_PURPLE       "\033[0;35m"
+	#define INK_COLOR_LIGHT_PURPLE "\033[1;35m"
+	#define INK_COLOR_BROWN        "\033[0;33m"
+	#define INK_COLOR_YELLOW       "\033[1;33m"
+	#define INK_COLOR_LIGHT_GRAY   "\033[0;37m"
+	#define INK_COLOR_WHITE        "\033[1;37m"
+	#define INK_COLOR_DEFAULT      "\033[0m"
+	#define INK_COLOR_NEXT_LINE    "\n"
+	#define INK_COLOR_CLOSE_COLOR  "\033[0m\n"
+
+#else
+
+	#define INK_COLOR_NONE         ""
+	#define INK_COLOR_BOLD         ""
+	#define INK_COLOR_RED          ""
+	#define INK_COLOR_LIGHT_RED    ""
+	#define INK_COLOR_GREEN        ""
+	#define INK_COLOR_LIGHT_GREEN  ""
+	#define INK_COLOR_BLUE         ""
+	#define INK_COLOR_LIGHT_BLUE   ""
+	#define INK_COLOR_DARY_GRAY    ""
+	#define INK_COLOR_CYAN         ""
+	#define INK_COLOR_LIGHT_CYAN   ""
+	#define INK_COLOR_PURPLE       ""
+	#define INK_COLOR_LIGHT_PURPLE ""
+	#define INK_COLOR_BROWN        ""
+	#define INK_COLOR_YELLOW       ""
+	#define INK_COLOR_LIGHT_GRAY   ""
+	#define INK_COLOR_WHITE        ""
+	#define INK_COLOR_DEFAULT      ""
+	#define INK_COLOR_NEXT_LINE    ""
+	#define INK_COLOR_CLOSE_COLOR  ""
+
+#endif
 
 namespace ink {
 
-string
-ErrorInfo::setMessageStyle(string message, Prefix prefix)
-{
-	switch (prefix) {
-		case None:
-			break;
-		case Note:
-			message = LIGHT_BLUE + string("Note: ") + NONE + message;
-			break;
-		case Warning:
-			message = YELLOW + string("Warning: ") + NONE + message;
-			break;
-		case Error:
-			message = LIGHT_RED + string("Error: ") + NONE + message;
-			break;
-	}
+using namespace std;
 
-	return message;
+void Ink_ErrorMessage::popWith(ErrorLevel level, Action action, ostream& out_s)
+{
+	stringstream strm;
+	strm << getLevelPrefix(level) << " "
+		 << file_name->c_str() << ": "
+		 << "line " << line_number << ": "
+		 << message->c_str();
+
+	out_s << strm.str() << endl;
+	doAction(action);
+
+	return;
 }
 
-string
-ErrorInfo::setMessageStyle(string message, Prefix prefix, bool is_bold)
+void Ink_ErrorMessage::doAction(Action action)
 {
-	switch (prefix) {
-		case None:
-			message = (is_bold ? BOLD : NONE) + message + NONE;
-			break;
-		case Note:
-			message = LIGHT_BLUE + string("Note: ") + NONE + (is_bold ? BOLD : NONE) + message + NONE;
-			break;
-		case Warning:
-			message = YELLOW + string("Warning: ") + NONE + (is_bold ? BOLD : NONE) + message + NONE;
-			break;
-		case Error:
-			message = LIGHT_RED + string("Error: ") + NONE + (is_bold ? BOLD : NONE) + message + NONE;
-			break;
+	switch (action) {
+		case INK_ERR_ACTION_EXIT0:
+			exit(0);
+		case INK_ERR_ACTION_EXIT1:
+			exit(1);
+		case INK_ERR_ACTION_ABORT:
+			abort();
+		default: ;
 	}
-
-	return message;
+	return;
 }
 
-string
-ErrorInfo::createFormatMessage(string message, va_list args)
+string Ink_ErrorMessage::getLevelPrefix(ErrorLevel level)
+{
+	switch (level) {
+		case INK_ERR_LEVEL_NOTE:
+			return INK_COLOR_LIGHT_BLUE + string("***NOTE***") + INK_COLOR_NONE;
+		case INK_ERR_LEVEL_WARNING:
+			return INK_COLOR_YELLOW + string("***WARNING***") + INK_COLOR_NONE;
+		case INK_ERR_LEVEL_ERROR:
+			return INK_COLOR_LIGHT_RED + string("***ERROR***") + INK_COLOR_NONE;
+	}
+	return "";
+}
+
+string Ink_ErrorMessage::formatMessage(string message, va_list args)
 {
 	string::size_type i, length;
 	string tmp = string(message);
@@ -66,251 +117,6 @@ ErrorInfo::createFormatMessage(string message, va_list args)
 	}
 
 	return tmp;
-}
-
-ErrorInfo::ErrorInfo(string message, ...)
-: AF(NoAct)
-{
-	va_list args;
-
-	va_start(args, message);
-	MSG = createFormatMessage(message, args);
-	va_end(args);
-
-	return;
-}
-
-ErrorInfo::ErrorInfo(ActionFlag action, string message, ...)
-: AF(action)
-{
-	va_list args;
-
-	va_start(args, message);
-	MSG = createFormatMessage(message, args);
-	va_end(args);
-
-	return;
-}
-
-ErrorInfo::ErrorInfo(Prefix prefix, string message, ...)
-: AF(NoAct)
-{
-	va_list args;
-
-	va_start(args, message);
-	MSG = createFormatMessage(message, args);
-	va_end(args);
-
-	return;
-}
-
-ErrorInfo::ErrorInfo(Prefix prefix, bool is_bold, string message, ...)
-: AF(NoAct)
-{
-	va_list args;
-
-	va_start(args, message);
-	MSG = setMessageStyle(createFormatMessage(message, args),
-						  prefix, is_bold);
-	va_end(args);
-
-	return;
-}
-
-ErrorInfo::ErrorInfo(Prefix prefix, ActionFlag action, string message, ...)
-: AF(action)
-{
-	va_list args;
-
-	va_start(args, message);
-	MSG = setMessageStyle(createFormatMessage(message, args),
-						  prefix);
-	va_end(args);
-
-	return;
-}
-
-ErrorInfo::ErrorInfo(Prefix prefix, bool is_bold, ActionFlag action, string message, ...)
-: AF(action)
-{
-	va_list args;
-
-	va_start(args, message);
-	MSG = setMessageStyle(createFormatMessage(message, args),
-						  prefix, is_bold);
-	va_end(args);
-
-	return;
-}
-
-ErrorInfo::ActionFlag
-ErrorInfo::getActionFlag()
-{
-	return AF;
-}
-
-void
-ErrorInfo::setActionFlag(ActionFlag action)
-{
-	AF = action;
-	return;
-}
-
-void
-ErrorInfo::doPrint(ostream& strm)
-{
-	strm << MSG << endl;
-	switch (AF) {
-		case NoAct:
-			break;
-		case Exit0:
-			exit(0);
-			break;
-		case Exit1:
-			exit(1);
-			break;
-		case Abort:
-			abort();
-			break;
-		case ExitThread:
-			pthread_exit(NULL);
-			break;
-	}
-
-	return;
-}
-
-void
-ErrorInfo::doPrint(ostream& strm, ActionFlag action)
-{
-	strm << MSG << endl;
-	switch (action) {
-		case NoAct:
-			break;
-		case Exit0:
-			exit(0);
-			break;
-		case Exit1:
-			exit(1);
-			break;
-		case Abort:
-			abort();
-			break;
-		case ExitThread:
-			pthread_exit(NULL);
-			break;
-	}
-
-	return;
-}
-
-void
-ErrorInfo::addPrefix(string prefix)
-{
-	MSG = prefix + MSG;
-	return;
-}
-
-void
-ErrorMessage::newMessage(ErrorInfo *info)
-{
-	Buffer.push(info);
-	return;
-}
-
-void
-ErrorMessage::popMessage(ErrorInfo info)
-{
-	info.doPrint(cerr);
-	return;
-}
-
-void
-ErrorMessage::popAll(ostream& strm)
-{
-	while (Buffer.size() > 0)
-	{
-		Buffer.front()->doPrint(strm, ErrorInfo::NoAct);
-		delete Buffer.front();
-		Buffer.pop();
-	}
-
-	return;
-}
-
-void
-ErrorMessage::popInDefaultAction(ostream& strm)
-{
-	while (Buffer.size() > 0)
-	{
-		Buffer.front()->doPrint(strm);
-		delete Buffer.front();
-		Buffer.pop();
-	}
-
-	return;
-}
-
-void
-ErrorMessage::popAllAndExit1(ostream& strm)
-{
-	while (Buffer.size() > 0)
-	{
-		Buffer.front()->doPrint(strm);
-		delete Buffer.front();
-		Buffer.pop();
-	}
-
-	exit(1);
-	return;
-}
-
-void
-ErrorMessage::setTopLineNumber(Ink_LineNoType line_number)
-{
-	stringstream strm;
-	strm << line_number << ": ";
-
-	Buffer.front()->addPrefix(strm.str());
-	Buffer.front()->addPrefix("line ");
-	return;
-}
-
-void
-ErrorMessage::setTopFileName(char *file_name)
-{
-	Buffer.front()->addPrefix(string(file_name) + ": ");
-	return;
-}
-
-void
-ErrorMessage::tmpError(string msg)
-{
-	ErrorInfo *err = new ErrorInfo(ErrorInfo::Error, true,
-								   ErrorInfo::Exit1, msg);
-	err->doPrint(cerr);
-	delete err;
-	return;
-}
-
-void
-ErrorMessage::tmpWarning(string msg)
-{
-	ErrorInfo *warn = new ErrorInfo(ErrorInfo::Warning, true,
-									ErrorInfo::NoAct, msg);
-	warn->doPrint(cerr);
-	delete warn;
-	return;
-}
-
-void
-ErrorMessage::tmpNote(string msg)
-{
-	ErrorInfo *note = new ErrorInfo(ErrorInfo::Note, true,
-									ErrorInfo::NoAct, msg);
-	note->doPrint(cerr);
-	delete note;
-	return;
 }
 
 }

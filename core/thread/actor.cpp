@@ -47,6 +47,12 @@ bool InkActor_addActor(string name, Ink_InterpreteEngine *engine, pthread_t hand
 	return ret;
 }
 
+bool InkActor_setRootEngine(Ink_InterpreteEngine *engine)
+{
+	string *tmp_name = new string(INK_ROOT_ACTOR_NAME);
+	return InkActor_addActor(*tmp_name, engine, pthread_self(), tmp_name, true);
+}
+
 void InkActor_setDeadActor(Ink_InterpreteEngine *engine)
 {
 	Ink_ActorMap::iterator actor_it;

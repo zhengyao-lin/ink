@@ -1,6 +1,7 @@
 #include <signal.h>
 #include "object.h"
 #include "error.h"
+#include "general.h"
 #include "exception.h"
 #include "thread/actor.h"
 #include "thread/thread.h"
@@ -9,89 +10,62 @@
 namespace ink {
 
 void
-InkErr_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, const char *msg)
+InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, const char *msg, ...)
 {
-	stringstream strm;
+	va_list args;
+	const char *tmp;
 	bool if_abort = (engine == NULL);
-	const char *tmp;
-	strm << (engine && (tmp = engine->current_file_name) ?
-			tmp : "<unknown input>") << ": "
-		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
+	const char *file_name = engine && (tmp = engine->current_file_name) ? tmp : "<unknown input>";
+	Ink_LineNoType line_number = engine ? engine->current_line_number : -1;
 	
-	cleanAll(engine);
-	
-	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Error, true, if_abort ? ErrorInfo::Abort
-																		: ErrorInfo::NoAct,
-									   strm.str().c_str()));
+	va_start(args, msg);
+	Ink_ErrorMessage err_msg = Ink_ErrorMessage(file_name, line_number, msg, args);
+	err_msg.popWith(Ink_ErrorMessage::INK_ERR_LEVEL_ERROR,
+					if_abort ? Ink_ErrorMessage::INK_ERR_ACTION_ABORT
+					  		 : Ink_ErrorMessage::INK_ERR_ACTION_NONE);
+	va_end(args);
 
-	if (engine) {
+	if (engine && engine->getErrorMode() == INK_ERRMODE_STRICT) {
 		engine->printTrace(stderr, engine->getTrace(), "***INK EXCEPTION*** ");
-		engine->setInterrupt(INTER_THROW,
-							 new Ink_ExceptionMessage(engine, ex_code, engine->current_line_number, msg));
+		engine->setInterrupt(INTER_THROW, new Ink_ExceptionMessage(engine, ex_code, line_number, *(err_msg.message)));
 	}
 
 	return;
 }
 
 void
-InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg)
+InkErro_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, ...)
 {
-	stringstream strm;
+	va_list args;
 	const char *tmp;
-	strm << (engine && (tmp = engine->current_file_name) ?
-			tmp : "<unknown input>") << ": "
-		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
-
-	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
-									   strm.str().c_str()));
-
-	if (engine && engine->getErrorMode() == INK_ERRMODE_STRICT) {
-		engine->printTrace(stderr, engine->getTrace(), "***INK EXCEPTION(strict mode)*** ");
-		engine->setInterrupt(INTER_THROW,
-							 new Ink_ExceptionMessage(engine, 0, engine->current_line_number, msg));
-	}
-
-	return;
-}
-
-void
-InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char *arg1)
-{
-	stringstream strm;
-	const char *tmp;
-	strm << (engine && (tmp = engine->current_file_name) ?
-			tmp : "<unknown input>") << ": "
-		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
-
-	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
-									   strm.str().c_str(), arg1));
-
-	if (engine && engine->getErrorMode() == INK_ERRMODE_STRICT) {
-		engine->printTrace(stderr, engine->getTrace(), "***INK EXCEPTION(strict mode)*** ");
-		engine->setInterrupt(INTER_THROW,
-							 new Ink_ExceptionMessage(engine, 0, engine->current_line_number, msg));
-	}
-
-	return;
-}
-
-void
-InkWarn_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, const char *arg1, const char *arg2)
-{
-	stringstream strm;
-	const char *tmp;
-	strm << (engine && (tmp = engine->current_file_name) ?
-			tmp : "<unknown input>") << ": "
-		 << "line " << (engine ? engine->current_line_number : -1) << ": " << msg;
+	const char *file_name = engine && (tmp = engine->current_file_name) ? tmp : "<unknown input>";
+	Ink_LineNoType line_number = engine ? engine->current_line_number : -1;
 	
-	ErrorMessage::popMessage(ErrorInfo(ErrorInfo::Warning, true, ErrorInfo::NoAct,
-									   strm.str().c_str(), arg1, arg2));
+	va_start(args, msg);
+	Ink_ErrorMessage err_msg(file_name, line_number, msg, args);
+	err_msg.popWith(Ink_ErrorMessage::INK_ERR_LEVEL_WARNING);
+	va_end(args);
 
 	if (engine && engine->getErrorMode() == INK_ERRMODE_STRICT) {
 		engine->printTrace(stderr, engine->getTrace(), "***INK EXCEPTION(strict mode)*** ");
-		engine->setInterrupt(INTER_THROW,
-							 new Ink_ExceptionMessage(engine, 0, engine->current_line_number, msg));
+		engine->setInterrupt(INTER_THROW, new Ink_ExceptionMessage(engine, 0, line_number, *(err_msg.message)));
 	}
+
+	return;
+}
+
+void
+InkErro_doPrintNote(Ink_InterpreteEngine *engine, const char *msg, ...)
+{
+	va_list args;
+	const char *tmp;
+	const char *file_name = engine && (tmp = engine->current_file_name) ? tmp : "<unknown input>";
+	Ink_LineNoType line_number = engine ? engine->current_line_number : -1;
+	
+	va_start(args, msg);
+	Ink_ErrorMessage err_msg(file_name, line_number, msg, args);
+	err_msg.popWith(Ink_ErrorMessage::INK_ERR_LEVEL_NOTE);
+	va_end(args);
 
 	return;
 }

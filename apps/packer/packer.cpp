@@ -11,37 +11,37 @@ using namespace std;
 inline void
 InkWarn_Unknown_Argument(Ink_InterpreteEngine *engine, const char *name)
 {
-	InkWarn_doPrintWarning(engine, "Ink Packer: Unknown argument \"$(name)\"", name);
+	InkErro_doPrintWarning(engine, "Ink Packer: Unknown argument \"$(name)\"", name);
 	return;
 }
 
 inline void
 InkWarn_Excess_Argument(Ink_InterpreteEngine *engine, const char *name)
 {
-	InkWarn_doPrintWarning(engine, "Ink Packer: Excess argument \"$(name)\"", name);
+	InkErro_doPrintWarning(engine, "Ink Packer: Excess argument \"$(name)\"", name);
 	return;
 }
 
 inline void
-InkErr_No_Lib_Given(Ink_InterpreteEngine *engine)
+InkError_No_Lib_Given(Ink_InterpreteEngine *engine)
 {
-	InkErr_doPrintError(engine, -1, "Ink Packer: No library file given");
+	InkErro_doPrintError(engine, -1, "Ink Packer: No library file given");
 	return;
 }
 
 inline void
-InkErr_No_Dest_Given(Ink_InterpreteEngine *engine)
+InkError_No_Dest_Given(Ink_InterpreteEngine *engine)
 {
-	InkErr_doPrintError(engine, -1, "Ink Packer: No output file given");
+	InkErro_doPrintError(engine, -1, "Ink Packer: No output file given");
 	return;
 }
 
 inline void
-InkErr_Could_Not_Create_File(Ink_InterpreteEngine *engine, const char *path)
+InkError_Could_Not_Create_File(Ink_InterpreteEngine *engine, const char *path)
 {
 	stringstream strm;
 	strm << "Ink Packer: Couldn't create file " << path;
-	InkErr_doPrintError(engine, -1, strm.str().c_str());
+	InkErro_doPrintError(engine, -1, strm.str().c_str());
 	return;
 }
 
@@ -129,12 +129,12 @@ int main(int argc, char **argv)
 	}
 
 	if (!so_file) {
-		InkErr_No_Lib_Given(NULL);
+		InkError_No_Lib_Given(NULL);
 		// unreachable
 	}
 
 	if (!target) {
-		InkErr_No_Dest_Given(NULL);
+		InkError_No_Dest_Given(NULL);
 		// unreachable
 	}
 
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
 	fp = fopen(target, "wb");
 
 	if (!fp) {
-		InkErr_Could_Not_Create_File(NULL, target);
+		InkError_Could_Not_Create_File(NULL, target);
 		// unreachable
 	}
 

@@ -4,6 +4,8 @@
 
 namespace ink {
 
+using namespace std;
+
 inline bool isArg(const char *arg)
 {
 	if (strlen(arg) && arg[0] == '-') {
@@ -25,7 +27,7 @@ Ink_InputSetting Ink_InputSetting::parseArg(int argc, char **argv)
 				// arguments dealing
 			} else { // file input
 				if (!(fp = fopen(argv[i], "r"))) {
-					InkErr_Failed_Open_File(NULL, argv[i]);
+					InkError_Failed_Open_File(NULL, argv[i]);
 					break;
 				}
 				ret.setFilePath(argv[i]);

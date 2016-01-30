@@ -309,7 +309,7 @@ Ink_Object *Ink_Object::call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
 							 Ink_Object *this_p, bool if_return_this)
 {
-	InkErr_Calling_Non_Function_Object(engine);
+	InkError_Calling_Non_Function_Object(engine);
 	return NULL_OBJ;
 }
 
@@ -317,7 +317,7 @@ Ink_Object *Ink_Undefined::call(Ink_InterpreteEngine *engine,
 								Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
 								Ink_Object *this_p, bool if_return_this)
 {
-	InkErr_Calling_Undefined_Object(engine);
+	InkError_Calling_Undefined_Object(engine);
 	return NULL_OBJ;
 }
 

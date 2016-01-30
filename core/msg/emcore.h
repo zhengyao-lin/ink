@@ -1,157 +1,51 @@
 #ifndef _EMCORE_H_
 #define _EMCORE_H_
 
-#include <fstream>
 #include <sstream>
 #include <iostream>
-#include <queue>
 #include <string>
 #include <stdarg.h>
 #include "../general.h"
-#include "../../includes/universal.h"
 
 namespace ink {
 
-#if defined(INK_PLATFORM_LINUX)
-
-	#define NONE         "\033[m"
-	#define BOLD         "\033[1m"
-	#define RED          "\033[0;32;31m"
-	#define LIGHT_RED    "\033[1;31m"
-	#define GREEN        "\033[0;32;32m"
-	#define LIGHT_GREEN  "\033[1;32m"
-	#define BLUE         "\033[0;32;34m"
-	#define LIGHT_BLUE   "\033[1;34m"
-	#define DARY_GRAY    "\033[1;30m"
-	#define CYAN         "\033[0;36m"
-	#define LIGHT_CYAN   "\033[1;36m"
-	#define PURPLE       "\033[0;35m"
-	#define LIGHT_PURPLE "\033[1;35m"
-	#define BROWN        "\033[0;33m"
-	#define YELLOW       "\033[1;33m"
-	#define LIGHT_GRAY   "\033[0;37m"
-	#define WHITE        "\033[1;37m"
-	#define DEFAULT      "\033[0m"
-	#define NEXT_LINE    "\n"
-	#define CLOSE_COLOR  "\033[0m\n"
-
-#else
-
-	#define NONE         ""
-	#define BOLD         ""
-	#define RED          ""
-	#define LIGHT_RED    ""
-	#define GREEN        ""
-	#define LIGHT_GREEN  ""
-	#define BLUE         ""
-	#define LIGHT_BLUE   ""
-	#define DARY_GRAY    ""
-	#define CYAN         ""
-	#define LIGHT_CYAN   ""
-	#define PURPLE       ""
-	#define LIGHT_PURPLE ""
-	#define BROWN        ""
-	#define YELLOW       ""
-	#define LIGHT_GRAY   ""
-	#define WHITE        ""
-	#define DEFAULT      ""
-	#define NEXT_LINE    ""
-	#define CLOSE_COLOR  ""
-
-#endif
-
-using namespace std;
-
-class ErrorInfo {
+class Ink_ErrorMessage {
 public:
-	enum ActionFlag {
-		NoAct,
-		Exit0,
-		Exit1,
-		Abort,
-		ExitThread
-	};
-	enum Prefix {
-		None,
-		Note,
-		Warning,
-		Error
+	enum Action {
+		INK_ERR_ACTION_NONE,
+		INK_ERR_ACTION_EXIT0,
+		INK_ERR_ACTION_EXIT1,
+		INK_ERR_ACTION_ABORT
 	};
 
-private:
-	string MSG;
-	ActionFlag AF;
+	enum ErrorLevel {
+		INK_ERR_LEVEL_NOTE,
+		INK_ERR_LEVEL_WARNING,
+		INK_ERR_LEVEL_ERROR
+	};
 
-	string
-	setMessageStyle(string message, Prefix prefix);
+	std::string *file_name;
+	Ink_LineNoType line_number;
+	std::string *message;
 
-	string
-	setMessageStyle(string message, Prefix prefix, bool is_bold);
+	Ink_ErrorMessage(const char *file_name, Ink_LineNoType line_number, const char *msg, va_list args)
+	: file_name(new std::string(file_name)), line_number(line_number)
+	{
+		message = new std::string(formatMessage(std::string(msg), args));
+	}
 
-	string
-	createFormatMessage(string message, va_list args);
+	void popWith(ErrorLevel level, Action action = INK_ERR_ACTION_NONE, std::ostream& out_s = std::cerr);
 
-public:
-	ErrorInfo(string message, ...);
+	static void doAction(Action action);
+	static std::string getLevelPrefix(ErrorLevel level);
+	static std::string formatMessage(std::string message, va_list args);
 
-	ErrorInfo(ActionFlag action, string message, ...);
+	~Ink_ErrorMessage()
+	{
+		delete file_name;
+		delete message;
+	}
 
-	ErrorInfo(Prefix prefix, string message, ...);
-
-	ErrorInfo(Prefix prefix, bool is_bold, string message, ...);
-
-	ErrorInfo(Prefix prefix, ActionFlag action, string message, ...);
-
-	ErrorInfo(Prefix prefix, bool is_bold, ActionFlag action, string message, ...);
-
-	ActionFlag
-	getActionFlag();
-
-	void
-	setActionFlag(ActionFlag action);
-
-	void
-	doPrint(ostream& strm);
-
-	void
-	doPrint(ostream& strm, ActionFlag action);
-
-	void
-	addPrefix(string prefix);
-};
-
-class ErrorMessage {
-	queue<ErrorInfo *> Buffer;
-
-public:
-	ErrorMessage() { }
-
-	void
-	newMessage(ErrorInfo *info);
-
-	void
-	popAll(ostream& strm);
-
-	void
-	popInDefaultAction(ostream& strm);
-
-	void
-	popAllAndExit1(ostream& strm);
-
-	void
-	setTopLineNumber(Ink_LineNoType line_number);
-
-	void
-	setTopFileName(char *file_name);
-
-	static void
-	tmpError(string msg);
-	static void
-	tmpWarning(string msg);
-	static void
-	tmpNote(string msg);
-	static void
-	popMessage(ErrorInfo info);
 };
 
 }

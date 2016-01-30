@@ -196,6 +196,10 @@ inline Ink_InterruptSignalTrap addSignal(Ink_InterruptSignalTrap set, Ink_Interr
 	return set | sign;
 }
 
+void Ink_initEnv();
+void Ink_removeTmpDir();
+void Ink_disposeEnv();
+
 template <class T> T *as(Ink_Expression *obj)
 {
 	return dynamic_cast<T*>(obj);

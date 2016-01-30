@@ -39,7 +39,7 @@ Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 	ASSUME_BASE_TYPE(engine, INK_STRING);
 
 	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
-		InkWarn_Method_Fallthrough(engine, INK_OBJECT);
+		InkNote_Method_Fallthrough(engine, "[]", INK_STRING, INK_OBJECT);
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
 	base_str = as<Ink_String>(base)->getValue();

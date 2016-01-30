@@ -199,7 +199,7 @@ public:
 		if (fp) {
 			dl_file = new InkPack_FileBlock(fp);
 		} else {
-			InkErr_Failed_Open_File(NULL, dl_file_path);
+			InkError_Failed_Open_File(NULL, dl_file_path);
 			// unreachable
 		}
 	}

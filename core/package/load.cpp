@@ -153,7 +153,7 @@ void Ink_Package::preload(const char *path)
 	const char *errmsg;
 
 	if (!fp) {
-		InkErr_Failed_Open_File(NULL, path);
+		InkError_Failed_Open_File(NULL, path);
 		// unreachable
 	}
 
