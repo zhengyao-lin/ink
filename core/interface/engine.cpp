@@ -1,10 +1,11 @@
 #include "engine.h"
-#include "core/gc/collect.h"
 #include "core/hash.h"
 #include "core/object.h"
 #include "core/expression.h"
 #include "core/general.h"
+#include "core/native/native.h"
 #include "core/thread/thread.h"
+#include "core/gc/collect.h"
 
 namespace ink {
 
@@ -111,6 +112,8 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	global_context->context->setSlot("this", global_context->context);
 	global_context->context->setSlot("top", global_context->context);
 	global_context->context->setSlot("let", global_context->context);
+	global_context->context->setSlot("auto", tmp = new Ink_Object(this));
+	tmp->setSlot("missing", new Ink_FunctionObject(this, Ink_Auto_Missing));
 	Ink_GlobalMethodInit(this, global_context);
 
 	global_context->context->setDebugName("__global_context__");

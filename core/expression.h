@@ -329,7 +329,7 @@ public:
 	static Ink_Object *getContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
 									  const char *name,
 									  IDContextType context_type,
-									  Ink_EvalFlag flags, bool if_create_slot);
+									  Ink_EvalFlag flags, bool if_create_slot, std::string *name_p = NULL);
 
 	virtual ~Ink_IdentifierExpression()
 	{

@@ -80,6 +80,8 @@ Ink_Object *InkNative_BigNumeric_Add_Unary(Ink_InterpreteEngine *engine, Ink_Con
 Ink_Object *InkNative_BigNumeric_Sub_Unary(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_BigNumeric_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 
+Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+
 Ink_Object **arrayValueToObject(Ink_ArrayValue val);
 
 void Ink_GlobalConstantInit();

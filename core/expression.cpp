@@ -721,7 +721,7 @@ Ink_Object *Ink_IdentifierExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 }
 
 Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, const char *name,
-													 IDContextType context_type, Ink_EvalFlag flags, bool if_create_slot)
+													 IDContextType context_type, Ink_EvalFlag flags, bool if_create_slot, string *name_p)
 {
 	/* Variables */
 	Ink_HashTable *hash, *missing;
@@ -759,7 +759,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	if (!hash) {
 		if (if_create_slot) { /* if has the "var" keyword */
 			ret = new Ink_Object(engine);
-			hash = dest_context->context->setSlot(name, ret);
+			hash = dest_context->context->setSlot(name, ret, name_p);
 		} else { /* generate a undefined value */
 			if (missing && missing->getValue()->type == INK_FUNCTION) {
 				argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
@@ -769,10 +769,12 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 			} else {
 				ret = UNDEFINED;
 			}
-			hash = dest_context->context->setSlot(name, NULL);
+			hash = dest_context->context->setSlot(name, NULL, name_p);
 		}
 	} else {
 		ret = hash->getValue(); /* get value */
+		if (name_p)
+			delete name_p;
 	}
 	ret->address = hash; /* set its address for assigning */
 
