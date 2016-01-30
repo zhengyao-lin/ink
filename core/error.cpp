@@ -21,7 +21,7 @@ InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, co
 	va_start(args, msg);
 	Ink_ErrorMessage err_msg = Ink_ErrorMessage(file_name, line_number, msg, args);
 	err_msg.popWith(Ink_ErrorMessage::INK_ERR_LEVEL_ERROR,
-					if_abort ? Ink_ErrorMessage::INK_ERR_ACTION_ABORT
+					if_abort ? Ink_ErrorMessage::INK_ERR_ACTION_EXIT1
 					  		 : Ink_ErrorMessage::INK_ERR_ACTION_NONE);
 	va_end(args);
 
