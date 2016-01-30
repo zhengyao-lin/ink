@@ -128,8 +128,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 			local->setSlot(param[j].name->c_str(), var_arg);
 		}
 
-		if (argi > argc) { /* still some parameter remaining */
-			InkWarn_Unfit_Argument(engine);
+		if (argi < argc) { /* still some parameter remaining */
+			InkNote_Exceed_Argument(engine);
 		}
 
 		for (i = 0; i < exp_list.size(); i++) {

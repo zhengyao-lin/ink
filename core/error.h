@@ -63,13 +63,6 @@ InkWarn_Hash_not_found(Ink_InterpreteEngine *engine, const char *index)
 }
 
 inline void
-InkWarn_Unfit_Argument(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "Unfit argument(s)");
-	return;
-}
-
-inline void
 InkWarn_Get_Slot_Of_Undefined(Ink_InterpreteEngine *engine, const char *name)
 {
 	InkErro_doPrintWarning(engine, "Getting slot \'$(name)\' of undefined value", name);
@@ -489,6 +482,13 @@ InkNote_Method_Fallthrough(Ink_InterpreteEngine *engine, const char *name, Ink_T
 						name,
 						getTypeName(engine, origin),
 						getTypeName(engine, to_type));
+	return;
+}
+
+inline void
+InkNote_Exceed_Argument(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintNote(engine, "Argument(s) exceed");
 	return;
 }
 

@@ -234,8 +234,8 @@ void *Ink_ActorFunction_sub(void *arg)
 		local->setSlot(tmp->param_list[j].name->c_str(), var_arg);
 	}
 
-	if (argi > tmp->argc) { /* still some parameter remaining */
-		InkWarn_Unfit_Argument(tmp->engine);
+	if (argi < tmp->argc) { /* still some parameter remaining */
+		InkNote_Exceed_Argument(tmp->engine);
 	}
 
 	tmp->engine->execute();

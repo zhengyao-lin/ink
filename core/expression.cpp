@@ -451,6 +451,7 @@ Ink_HashExpression::ProtoSearchRet Ink_HashExpression::searchPrototype(Ink_Inter
 Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
 										Ink_Object *obj, const char *id, Ink_EvalFlag flags, string *id_p)
 {
+	const char *debug_name_back;
 	Ink_HashTable *hash, *address;
 	Ink_Object *base = obj, *ret, *tmp;
 	Ink_Object **argv;
@@ -476,6 +477,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 				argv[0] = new Ink_String(engine, string(id));
 				ret = tmp->call(engine, context_chain, 1, argv);
 				free(argv);
+				goto END;
 			} else {
 				/* return undefined */
 				ret = UNDEFINED;
@@ -491,7 +493,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 	/* set address for possible assignment */
 	ret->address = address;
 	/* set base */
-	const char *debug_name_back = base->getDebugName();
+	debug_name_back = base->getDebugName();
 	ret->setSlot("base", base);
 	base->setDebugName(debug_name_back);
 
@@ -506,6 +508,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 		}
 	}
 
+END:
 	return ret;
 }
 
@@ -766,6 +769,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 				argv[0] = new Ink_String(engine, name);
 				ret = missing->getValue()->call(engine, context_chain, 1, argv);
 				free(argv);
+				goto END;
 			} else {
 				ret = UNDEFINED;
 			}
@@ -792,6 +796,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	}
 	// hash->value->setSlot("this", hash->value);
 
+END:
 	return ret;
 }
 

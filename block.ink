@@ -337,7 +337,7 @@ a = new Object();
 
 package = new Object() { | this_p |
 	this_p.count = 1
-	this_p.load = fn () {
+	this_p.load = fn (pkg) {
 		p("I'm package loader!! -- the " + base.count++ + "th time");
 	}
 }
@@ -345,7 +345,7 @@ package = new Object() { | this_p |
 import package, package, package
 
 for = inl (init, &cond, &iterate, block) {
-	block.'continue' = iterate;
+	block.'continue' = inl (arg) { iterate() }
 	while (cond()) {
 		block();
 		iterate();
@@ -360,14 +360,13 @@ for (let i = 0, i < 10, i++) {
 }
 p("end!");
 
-
 String = fn (str) {
 	this = clone str;
 	this.size = 10;
 	this.getter("size") {
 		drop this.length();
 	}
-	this.setter("size") {
+	this.setter("size") { | val |
 		p("readonly!!");
 	}
 }
@@ -425,7 +424,7 @@ if (0) {
 }*/
 
 TypeA = fn () {
-	this.missing = fn () {
+	this.missing = fn (name) {
 		retn "haha, no"
 	}
 }
@@ -1261,15 +1260,16 @@ p(bignum("10") / 0);
 $do = inl (block, &argv...) {
 	let cond = null;
 	let cond_i = 0;
+
 	for (let i = 0, i < argv.size(), i++) {
 		if (argv[i]() == "while") {
 			if (i + 1 < argv.size()) {
 				cond_i = i + 1;
-				dfdsfdfaf()
 				cond = fn () { argv[cond_i]()[0] };
 			}
 		}
 	}
+
 	block();
 	if (cond) {
 		while (cond()) {
