@@ -237,15 +237,12 @@ public:
 		string proto_name = string("$") + getTypeName(type);
 
 		switch (type) {
-			case INK_OBJECT:
-			case INK_FUNCTION:
-			case INK_NUMERIC:
-			case INK_BIGNUMERIC:
-			case INK_STRING:
-			case INK_ARRAY:
-				break;
-			default:
+			case INK_NULL:
+			case INK_UNDEFINED:
+			case INK_CONTEXT:
 				proto_name = string("$") + getTypeName(INK_OBJECT);
+				break;
+			default: ;
 		}
 
 		while (1) {

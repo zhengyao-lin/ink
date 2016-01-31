@@ -216,7 +216,7 @@ Ink_Object *InkNative_File_Flush(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return NULL_OBJ;
 }
 
-void Ink_FilePointer::setMethod(Ink_InterpreteEngine *engine)
+void Ink_FilePointer::Ink_FilePointerMethodInit(Ink_InterpreteEngine *engine)
 {
 	setSlot("close", new Ink_FunctionObject(engine, InkNative_File_Close));
 	setSlot("puts", new Ink_FunctionObject(engine, InkNative_File_PutString));
@@ -225,6 +225,7 @@ void Ink_FilePointer::setMethod(Ink_InterpreteEngine *engine)
 	setSlot("getc", new Ink_FunctionObject(engine, InkNative_File_GetC));
 	setSlot("read", new Ink_FunctionObject(engine, InkNative_File_ReadAll));
 	setSlot("flush", new Ink_FunctionObject(engine, InkNative_File_Flush));
+
 	return;
 }
 
@@ -243,24 +244,46 @@ void InkNative_IO_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
 	return;
 }
 
+void InkMod_Direct_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
+{
+
+}
+
+void InkMod_File_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
+{
+	bondee->setSlot("File", new Ink_FunctionObject(engine, InkNative_File_Constructor));
+	bondee->setSlot("file_exist", new Ink_FunctionObject(engine, InkNative_File_Exist));
+	bondee->setSlot("file_remove", new Ink_FunctionObject(engine, InkNative_File_Remove));
+#if defined(INK_PLATFORM_LINUX)
+	bondee->setSlot("getch", new Ink_FunctionObject(engine, InkNative_File_GetCh)); // no buffering getc
+#endif
+
+	return;
+}
+
+void InkMod_IO_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
+{
+	bondee->setSlot("stdin", new Ink_FilePointer(engine, stdin));
+	bondee->setSlot("stdout", new Ink_FilePointer(engine, stdout));
+	bondee->setSlot("stderr", new Ink_FilePointer(engine, stderr));
+
+	return;
+}
+
 Ink_Object *InkMod_File_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *global_context = context->getGlobal()->context;
-	DBG_CustomTypeType *type_p = NULL;
-
-	if (!engine->getEngineComAs<Ink_TypeTag>(ink_native_file_mod_id)) {
-		type_p = (DBG_CustomTypeType *)malloc(sizeof(DBG_CustomTypeType));
-		*type_p = (DBG_CustomTypeType)engine->registerType("io.file.file_pointer");
-		engine->addEngineCom(ink_native_file_mod_id, type_p);
-		engine->addDestructor(Ink_EngineDestructor(InkNative_IO_EngineComCleaner, new com_cleaner_arg(ink_native_file_mod_id)));
-	}
 	
-	global_context->setSlot("File", new Ink_FunctionObject(engine, InkNative_File_Constructor));
-	global_context->setSlot("file_exist", new Ink_FunctionObject(engine, InkNative_File_Exist));
-	global_context->setSlot("file_remove", new Ink_FunctionObject(engine, InkNative_File_Remove));
-#if defined(INK_PLATFORM_LINUX)
-	global_context->setSlot("getch", new Ink_FunctionObject(engine, InkNative_File_GetCh)); // no buffering getc
-#endif
+	InkMod_File_bondTo(engine, global_context);
+
+	return NULL_OBJ;
+}
+
+Ink_Object *InkMod_Direct_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *global_context = context->getGlobal()->context;
+	
+	InkMod_Direct_bondTo(engine, global_context);
 
 	return NULL_OBJ;
 }
@@ -269,11 +292,11 @@ Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 {
 	Ink_Object *global_context = context->getGlobal()->context;
 
-	if (argc)
+	if (argc) {
 		argv[0]->getSlot(engine, "file")->getSlot(engine, "load")->call(engine, context);
-	global_context->setSlot("stdin", new Ink_FilePointer(engine, stdin));
-	global_context->setSlot("stdout", new Ink_FilePointer(engine, stdout));
-	global_context->setSlot("stderr", new Ink_FilePointer(engine, stderr));
+		argv[0]->getSlot(engine, "direct")->getSlot(engine, "load")->call(engine, context);
+	}
+	InkMod_IO_bondTo(engine, global_context);
 
 	return NULL_OBJ;
 }
@@ -281,8 +304,26 @@ Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 extern "C" {
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
-		addPackage(engine, addPackage(engine, context, "io", new Ink_FunctionObject(engine, InkMod_IO_Loader)),
-				   "file", new Ink_FunctionObject(engine, InkMod_File_Loader));
+		Ink_Object *tmp;
+		DBG_CustomTypeType *type_p = NULL;
+
+		if (!engine->getEngineComAs<Ink_TypeTag>(ink_native_file_mod_id)) {
+			type_p = (DBG_CustomTypeType *)malloc(sizeof(DBG_CustomTypeType));
+			*type_p = (DBG_CustomTypeType)engine->registerType("io.file.File");
+			engine->addEngineCom(ink_native_file_mod_id, type_p);
+			engine->addDestructor(Ink_EngineDestructor(InkNative_IO_EngineComCleaner, new com_cleaner_arg(ink_native_file_mod_id)));
+
+			context->getGlobal()->context->setSlot("$io.file.File", tmp = new Ink_FilePointer(engine));
+			tmp->derivedMethodInit(engine);
+		}
+
+		Ink_Object *io_pkg = addPackage(engine, context, "io", new Ink_FunctionObject(engine, InkMod_IO_Loader));
+		Ink_Object *io_file_pkg = addPackage(engine, io_pkg, "file", new Ink_FunctionObject(engine, InkMod_File_Loader));
+		Ink_Object *io_direct_pkg = addPackage(engine, io_pkg, "direct", new Ink_FunctionObject(engine, InkMod_Direct_Loader));
+
+		InkMod_IO_bondTo(engine, io_pkg);
+		InkMod_File_bondTo(engine, io_file_pkg);
+		InkMod_Direct_bondTo(engine, io_direct_pkg);
 	}
 
 	int InkMod_Init(InkMod_ModuleID id)

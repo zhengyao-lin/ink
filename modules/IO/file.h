@@ -20,10 +20,14 @@ public:
 	: Ink_Object(engine), fp(fp)
 	{
 		type = FILE_POINTER_TYPE;
-		setMethod(engine);
+		// setMethod(engine);
 	}
 
-	void setMethod(Ink_InterpreteEngine *engine);
+	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
+	{
+		Ink_FilePointerMethodInit(engine);
+	}
+	void Ink_FilePointerMethodInit(Ink_InterpreteEngine *engine);
 };
 
 #if defined(INK_PLATFORM_LINUX)

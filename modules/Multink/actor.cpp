@@ -338,15 +338,19 @@ void InkMod_Actor_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 Ink_Object *InkMod_Actor_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *global_context = context->getGlobal()->context;
+
 	InkMod_Actor_bondTo(engine, global_context);
+	
 	return NULL_OBJ;
 }
 
 extern "C" {
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
-		Ink_Object *actor_obj = addPackage(engine, context, "multink", new Ink_FunctionObject(engine, InkMod_Actor_Loader));
-		InkMod_Actor_bondTo(engine, actor_obj);
+		Ink_Object *actor_pkg = addPackage(engine, context, "multink", new Ink_FunctionObject(engine, InkMod_Actor_Loader));
+		
+		InkMod_Actor_bondTo(engine, actor_pkg);
+		
 		engine->addProtocol("actor", InkMod_Actor_ActorProtocol);
 
 		return;
