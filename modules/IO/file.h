@@ -78,7 +78,7 @@ public:
 inline void
 InkWarn_IO_Uninitialized_File_Pointer(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintWarning(engine, "Operating uninitialized file pointer");
+	InkErro_doPrintWarning(engine, "Operating uninitialized file pointer(has closed or destructed)");
 	return;
 }
 

@@ -521,6 +521,29 @@ Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 													ID_COMMON, Ink_EvalFlag(), false, tmp_str);
 }
 
+Ink_Object *Ink_Exit(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	int exit_code = 0;
+	if (argc) {
+		if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+			return NULL_OBJ;
+		}
+		exit_code = as<Ink_Numeric>(argv[0])->value;
+	}
+
+	Ink_disposeEnv();
+	exit(exit_code);
+
+	return NULL_OBJ;
+}
+
+Ink_Object *Ink_Abort(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_disposeEnv();
+	abort();
+	return NULL_OBJ;
+}
+
 void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 {
 	context->context->setSlot("if", new Ink_FunctionObject(engine, Ink_IfExpression, true));
@@ -537,6 +560,9 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 	context->context->setSlot("numval", new Ink_FunctionObject(engine, Ink_NumVal));
 	context->context->setSlot("bignum", new Ink_FunctionObject(engine, Ink_BigNum));
 	context->context->setSlot("cocall", new Ink_FunctionObject(engine, Ink_CoroutineCall));
+
+	context->context->setSlot("exit", new Ink_FunctionObject(engine, Ink_Exit));
+	context->context->setSlot("abort", new Ink_FunctionObject(engine, Ink_Abort));
 
 	context->context->setSlot("debug", new Ink_FunctionObject(engine, Ink_Debug));
 	context->context->setSlot("where", new Ink_FunctionObject(engine, Ink_Where));
