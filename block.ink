@@ -1,6 +1,5 @@
 #! /usr/bin/ink
 
-
 func = { | a, b, block, block2 |
 	p(a + b);
 	block(a + b);
@@ -83,7 +82,6 @@ func = fn () {
 p(func());
 p(!0);
 p(!123);
-
 
 func = fn () {
 	let a = 10.1;
@@ -272,8 +270,8 @@ fib = fn () {
 	generator.next = fn () {
 		let i = 0;
 		let j = 1;
-		let '$while' = fn () {
-			retn '$yield' (fn () {
+		let $while = fn () {
+			retn $yield (fn () {
 				let t = i;
 				i = j;
 				j = j + t;
@@ -1057,6 +1055,7 @@ ARGV.each() { | elem |
 	stdout.puts(elem + " ");
 }
 (if (ARGV.size()) { p } else { fn(a){} })("");
+
 
 TypeA = fn () {
 	this.a = 10
