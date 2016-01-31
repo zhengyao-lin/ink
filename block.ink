@@ -1326,6 +1326,27 @@ if (dir.exist()) {
 rmdir("new_dir");
 
 p("##################### children of core dir #####################");
-(new Directory("core")) each().each { | val |
+(new Directory("core")).each().each("file: " + _).each { | val |
 	p(val);
+}
+
+_.missing = fn (name) {
+	fn (args...) {
+		fn (b) {
+			b[name]() with args
+		}
+	}
+}
+
+p((_ + 1)(10));
+
+p_for_each = _.each(p(_));
+p_for_each([1, 2, 3]);
+
+x = y = _
+
+formular1 = x * y
+
+for (let i = 0, i < 10, i++) {
+	p("when x = y = " + i + ", formular1 = " + formular1(i)(i));
 }
