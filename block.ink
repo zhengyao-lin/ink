@@ -1332,9 +1332,20 @@ p("##################### children of core dir #####################");
 
 _.missing = fn (name) {
 	fn (args...) {
-		fn (b) {
+		let ret = fn (b) {
 			b[name]() with args
 		}
+		ret.missing = fn (name) {
+			let tmp_base = base
+			fn (args...) {
+				let ret = fn (b) {
+					tmp_base(b)[name]() with args;
+				}
+				ret.missing = tmp_base.missing
+				ret
+			}
+		}
+		ret
 	}
 }
 
@@ -1343,10 +1354,10 @@ p((_ + 1)(10));
 p_for_each = _.each(p(_));
 p_for_each([1, 2, 3]);
 
-x = y = _
+x = _
 
-formular1 = x * y
+formular1 = _ * 2 + 1
 
 for (let i = 0, i < 10, i++) {
-	p("when x = y = " + i + ", formular1 = " + formular1(i)(i));
+	p("when x = " + i + ", formular1 = " + formular1(i));
 }
