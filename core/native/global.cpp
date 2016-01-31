@@ -260,7 +260,7 @@ Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *context, I
 	else if (argv[0]->type == INK_UNDEFINED)
 		printf("(undefined)\n");
 	else
-		printf("print: non-printable type: %d\n", argv[0]->type);
+		printf("print: non-printable type: %ld\n", argv[0]->type);
 
 	return NULL_OBJ;
 }
@@ -528,6 +528,7 @@ Ink_Object *Ink_Exit(Ink_InterpreteEngine *engine, Ink_ContextChain *context, In
 		if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 			return NULL_OBJ;
 		}
+		Ink_disposeEnv();
 		exit_code = as<Ink_Numeric>(argv[0])->value;
 	}
 

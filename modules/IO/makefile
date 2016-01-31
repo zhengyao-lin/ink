@@ -1,6 +1,8 @@
 TARGET=build/IO.$(GLOBAL_LIB_SUFFIX)
 REQUIRE=\
-	file.o
+	io.o \
+	file.o \
+	direct.o
 
 CPPFLAGS=-c -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=-shared -static-libgcc -static-libstdc++ -L$(GLOBAL_LIB_PATH) -l$(GLOBAL_CORE_LIB_NAME)

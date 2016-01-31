@@ -112,7 +112,7 @@ public:
 
 	vector<string *> string_pool;
 
-	DBG_CustomTypeType dbg_type_mapping_length;
+	Ink_TypeTag dbg_type_mapping_length;
 	DBG_TypeMapping *dbg_type_mapping;
 	vector<Ink_Object *> dbg_traced_stack;
 
@@ -511,7 +511,7 @@ public:
 
 	inline void initTypeMapping()
 	{
-		DBG_CustomTypeType i;
+		Ink_TypeTag i;
 
 		dbg_type_mapping_length = INK_LAST;
 		dbg_type_mapping = (DBG_TypeMapping *)malloc(sizeof(DBG_TypeMapping) * dbg_type_mapping_length);
@@ -529,16 +529,16 @@ public:
 		return;
 	}
 
-	inline DBG_CustomTypeType registerType(const char *name)
+	inline Ink_TypeTag registerType(const char *name)
 	{
-		DBG_CustomTypeType ret = dbg_type_mapping_length++;
+		Ink_TypeTag ret = dbg_type_mapping_length++;
 		dbg_type_mapping = (DBG_TypeMapping *)realloc(dbg_type_mapping,
 													  sizeof(DBG_TypeMapping) * dbg_type_mapping_length);
 		dbg_type_mapping[ret] = DBG_TypeMapping(ret, addToStringPool(name)->c_str());
 		return ret;
 	}
 
-	inline const char *getTypeName(DBG_CustomTypeType type_tag)
+	inline const char *getTypeName(Ink_TypeTag type_tag)
 	{
 		return dbg_type_mapping[type_tag].friendly_name;
 	}

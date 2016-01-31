@@ -956,8 +956,8 @@ try_actor = fn () {
 let i = 1;
 while (i <= 1) {
 	p(i++)
-	try_actor();
-	join_all();
+	//try_actor();
+	//join_all();
 }
 
 try_arg = actor (arg1, argv...) {
@@ -1310,3 +1310,8 @@ try {
 	p("finally!!");
 	p("a = " + a);
 }
+
+import io
+
+dir = new Directory("new_dir");
+p(dir.exist());

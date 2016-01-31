@@ -13,14 +13,12 @@ namespace ink {
 class Ink_Object;
 class Ink_ContextChain;
 
-typedef long DBG_CustomTypeType;
-
 class DBG_TypeMapping {
 public:
-	DBG_CustomTypeType type;
+	Ink_TypeTag type;
 	const char *friendly_name;
 
-	DBG_TypeMapping(DBG_CustomTypeType type, const char *name)
+	DBG_TypeMapping(Ink_TypeTag type, const char *name)
 	: type(type), friendly_name(name)
 	{ }
 };
