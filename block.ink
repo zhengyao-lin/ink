@@ -422,14 +422,16 @@ if (0) {
 }*/
 
 TypeA = fn () {
+	this.a = null
 	this.missing = fn (name) {
-		retn "haha, no"
+		p("haha, no")
+		retn base.a
 	}
 }
 
 a = new TypeA();
 a.b? = 10;
-p(a.b?);
+p(a.a);
 
 p((1 + _)(2));
 func = fn (arg...) {

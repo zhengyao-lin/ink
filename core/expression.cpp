@@ -473,6 +473,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 		} else {
 			if ((tmp = obj->getSlot(engine, "missing"))->type == INK_FUNCTION) {
 				/* has missing method, call it */
+				tmp->setSlot("base", obj);
 				argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 				argv[0] = new Ink_String(engine, string(id));
 				ret = tmp->call(engine, context_chain, 1, argv);
