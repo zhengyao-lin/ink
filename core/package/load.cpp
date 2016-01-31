@@ -290,24 +290,24 @@ void Ink_preloadModule(const char *name)
 #elif defined(INK_PLATFORM_WIN32)
 	void Ink_loadAllModules()
 	{
-	    WIN32_FIND_DATA data;
-	    HANDLE dir_handle = NULL;
+		WIN32_FIND_DATA data;
+		HANDLE dir_handle = NULL;
 
-	    dir_handle = FindFirstFile((string(INK_MODULE_DIR) + "/*").c_str(), &data);  // find for all files
-	    if (dir_handle == INVALID_HANDLE_VALUE) {
-	    	InkWarn_Failed_Find_Mod(NULL, INK_MODULE_DIR);
-	        return;
-	    }
+		dir_handle = FindFirstFile((string(INK_MODULE_DIR) + "/*").c_str(), &data);  // find for all files
+		if (dir_handle == INVALID_HANDLE_VALUE) {
+			InkWarn_Failed_Find_Mod(NULL, INK_MODULE_DIR);
+			return;
+		}
 
-	    do {
-	        if (hasSuffix(data.cFileName, "mod")) {
+		do {
+			if (hasSuffix(data.cFileName, "mod")) {
 				Ink_Package::preload((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(data.cFileName)).c_str());
 			} else if (hasSuffix(data.cFileName, INK_DL_SUFFIX)) {
 				Ink_preloadModule(data.cFileName);
 			}
-	    } while (FindNextFile(dir_handle, &data));
+		} while (FindNextFile(dir_handle, &data));
 
-	    FindClose(dir_handle);
+		FindClose(dir_handle);
 	}
 #endif
 

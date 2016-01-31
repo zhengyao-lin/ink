@@ -650,7 +650,7 @@ argument_attachment_opt
 	;
 
 space_hash_expression
-	: single_element_expression TIDENTIFIER
+	: primary_expression TIDENTIFIER
 	{
 		$$ = new Ink_HashExpression($1, $2);
 		SET_LINE_NO($$);

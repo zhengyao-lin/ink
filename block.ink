@@ -1314,4 +1314,16 @@ try {
 import io
 
 dir = new Directory("new_dir");
-p(dir.exist());
+if (dir.exist()) {
+	p("freak!!!");
+} else {
+	p(dir.create());
+	p("exactly!!!");
+}
+
+rmdir("new_dir");
+
+p("##################### children of core dir #####################");
+(new Directory("core")) each().each { | val |
+	p(val);
+}

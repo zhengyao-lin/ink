@@ -54,10 +54,9 @@ namespace ink {
 		}
 		return false;
 	}
-	inline void makeDir(const char *path)
+	inline bool makeDir(const char *path)
 	{
-		mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-		return;
+		return mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0;
 	}
 }
 #elif defined(INK_PLATFORM_WIN32)
@@ -70,10 +69,9 @@ namespace ink {
 	{
 		return _access(path, 0) != -1;
 	}
-	inline void makeDir(const char *path)
+	inline bool makeDir(const char *path)
 	{
-		_mkdir(path);
-		return;
+		return _mkdir(path) == 0;
 	}
 }
 #endif
