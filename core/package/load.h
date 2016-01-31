@@ -45,7 +45,7 @@ namespace ink {
 
 	#define INK_DEFAULT_MAGIC_NUM INK_0_LINUX
 #elif defined(INK_PLATFORM_WIN32)
-	#include "winbase.h"
+	#include <windows.h>
 
 	#define INK_DL_SUFFIX "dll"
 	#define INK_DL_HANDLER HINSTANCE
@@ -231,32 +231,14 @@ void Ink_disposeModules();
 void Ink_preloadModule(const char *name);
 void Ink_loadAllModules();
 void Ink_applyAllModules(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
-inline bool createDirIfNotExist(const char *path); /* return: if exist */
-
-#if defined(INK_PLATFORM_LINUX)
-	inline bool
-	createDirIfNotExist(const char *path)
-	{
-		if (!isDirExist(path)) {
-			mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-			return true;
-		}
+inline bool createDirIfNotExist(const char *path) /* return: if exist */
+{
+	if (!isDirExist(path)) {
+		makeDir(path);
 		return false;
 	}
-#elif defined(INK_PLATFORM_WIN32)
-	#include <windows.h>
-	#include <direct.h>
-
-	inline bool
-	createDirIfNotExist(const char *path)
-	{
-		if (!isDirExist(path)) {
-			_mkdir(path);
-			return true;
-		}
-		return false;
-	}
-#endif
+	return true;
+}
 
 }
 

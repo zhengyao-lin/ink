@@ -17,6 +17,10 @@ InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, co
 	bool if_exit = (engine == NULL);
 	const char *file_name = engine && (tmp = engine->current_file_name) ? tmp : "<unknown input>";
 	Ink_LineNoType line_number = engine ? engine->current_line_number : -1;
+
+	if (if_exit) {
+		Ink_disposeEnv();
+	}
 	
 	va_start(args, msg);
 	Ink_ErrorMessage err_msg = Ink_ErrorMessage(file_name, line_number, msg, args);

@@ -54,14 +54,26 @@ namespace ink {
 		}
 		return false;
 	}
+	inline void makeDir(const char *path)
+	{
+		mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		return;
+	}
 }
 #elif defined(INK_PLATFORM_WIN32)
+	#include <windows.h>
 	#include <io.h>
+	#include <direct.h>
 
 namespace ink {
 	inline bool isDirExist(const char *path)
 	{
 		return _access(path, 0) != -1;
+	}
+	inline void makeDir(const char *path)
+	{
+		_mkdir(path);
+		return;
 	}
 }
 #endif

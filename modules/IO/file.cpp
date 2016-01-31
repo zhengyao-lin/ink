@@ -77,8 +77,12 @@ Ink_Object *InkNative_File_Close(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
 
 	tmp = as<Ink_FilePointer>(base)->fp;
-	if (tmp)
+	if (tmp) {
+		as<Ink_FilePointer>(base)->fp = NULL;
 		fclose(tmp);
+	} else {
+		InkWarn_IO_Uninitialized_File_Pointer(engine);
+	}
 
 	return NULL_OBJ;
 }
@@ -94,8 +98,10 @@ Ink_Object *InkNative_File_PutString(Ink_InterpreteEngine *engine, Ink_ContextCh
 	}
 
 	tmp = as<Ink_FilePointer>(base)->fp;
-	if (tmp)
-		fputs(getStringVal(engine, context, argv[0])->getValue().c_str(), tmp);
+	if (tmp) fputs(getStringVal(engine, context, argv[0])->getValue().c_str(), tmp);
+	else {
+		InkWarn_IO_Uninitialized_File_Pointer(engine);
+	}
 
 	return NULL_OBJ;
 }
@@ -116,8 +122,10 @@ Ink_Object *InkNative_File_PutC(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	}
 
 	tmp = as<Ink_FilePointer>(base)->fp;
-	if (tmp)
-		fputc(ch, tmp);
+	if (tmp) fputc(ch, tmp);
+	else {
+		InkWarn_IO_Uninitialized_File_Pointer(engine);
+	}
 
 	return NULL_OBJ;
 }
@@ -135,6 +143,8 @@ Ink_Object *InkNative_File_GetString(Ink_InterpreteEngine *engine, Ink_ContextCh
 		return new Ink_String(engine, string(fgets(buffer, FILE_GETS_BUFFER_SIZE, tmp)));
 	}
 
+	InkWarn_IO_Uninitialized_File_Pointer(engine);
+
 	return NULL_OBJ;
 }
 
@@ -149,6 +159,8 @@ Ink_Object *InkNative_File_GetC(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	if (tmp) {
 		return new Ink_Numeric(engine, fgetc(tmp));
 	}
+
+	InkWarn_IO_Uninitialized_File_Pointer(engine);
 
 	return NULL_OBJ;
 }
@@ -199,6 +211,8 @@ Ink_Object *InkNative_File_ReadAll(Ink_InterpreteEngine *engine, Ink_ContextChai
 		return ret;
 	}
 
+	InkWarn_IO_Uninitialized_File_Pointer(engine);
+
 	return NULL_OBJ;
 }
 
@@ -212,6 +226,8 @@ Ink_Object *InkNative_File_Flush(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp)
 		fflush(tmp);
+	else
+		InkWarn_IO_Uninitialized_File_Pointer(engine);
 
 	return NULL_OBJ;
 }

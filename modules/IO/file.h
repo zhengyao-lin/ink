@@ -8,6 +8,13 @@
 #define FILE_GETS_BUFFER_SIZE 1000
 #define FILE_POINTER_TYPE (getFilePointerType(engine))
 
+#if defined(INK_PLATFORM_LINUX)
+	#include <sys/types.h>
+	#include <dirent.h>
+#elif defined(INK_PLATFORM_WIN32)
+	#include <windows.h>
+#endif
+
 using namespace ink;
 
 Ink_TypeTag getFilePointerType(Ink_InterpreteEngine *engine);
@@ -28,6 +35,11 @@ public:
 		Ink_FilePointerMethodInit(engine);
 	}
 	void Ink_FilePointerMethodInit(Ink_InterpreteEngine *engine);
+
+	virtual ~Ink_FilePointer()
+	{
+		if (fp && fp != stdin && fp != stdout && fp != stderr) fclose(fp);
+	}
 };
 
 #if defined(INK_PLATFORM_LINUX)
@@ -62,5 +74,12 @@ public:
 		return;
 	}
 #endif
+
+inline void
+InkWarn_IO_Uninitialized_File_Pointer(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, "Operating uninitialized file pointer");
+	return;
+}
 
 #endif

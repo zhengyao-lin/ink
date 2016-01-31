@@ -65,17 +65,17 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 
 Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_check_exist, string *key_p)
 {
-	Ink_HashTable *i, *slot = NULL, *bond_tracer, *last;
-
-	if (if_check_exist) {
-		for (i = hash_table; i; i = i->next) {
+	Ink_HashTable *i, *slot = NULL, *bond_tracer, *last = NULL;
+	
+	for (i = hash_table; i; i = i->next) {
+		if (if_check_exist) {
 			if (!strcmp(i->key, key)) {
 				for (bond_tracer = i; bond_tracer->bonding; bond_tracer = bond_tracer->bonding) ;
 				bond_tracer->bondee = i;
 				slot = bond_tracer;
 			}
-			last = i;
 		}
+		last = i;
 	}
 
 	if (slot) {

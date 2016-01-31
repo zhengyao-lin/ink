@@ -9,12 +9,15 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+	Ink_InputSetting setting = Ink_InputSetting::parseArg(argc, argv);
+	Ink_InterpreteEngine *engine = NULL;
+
 	Ink_initEnv();
 
-	Ink_InterpreteEngine *engine = new Ink_InterpreteEngine();
+	engine = new Ink_InterpreteEngine();
 	InkActor_setRootEngine(engine);
 
-	engine->startParse(Ink_InputSetting::parseArg(argc, argv));
+	engine->startParse(setting);
 	engine->execute();
 
 	InkActor_setDeadActor(engine);
