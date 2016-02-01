@@ -1366,8 +1366,38 @@ for (let i = 0, i < 10, i++) {
 	p("when x = " + i + ", formular1 = " + formular1(i));
 }
 
-test_func = fn (&block) {
-	p(block());
+test_func = fn (first, &args...) {
+	p(first)
+	for (let i = 0, i < args.size(), i++) {
+		p(args[i]());
+	}
 }
 
-test_func(_)(123);
+test_func(_)(123, 32434);
+
+f = x * x
+
+f.'[]' = fn (x) {
+	tmp = base
+	while (typename(tmp) == "function") {
+		tmp = tmp(x)
+	}
+	tmp
+}
+
+$function.reconstruct = fn (context) {
+	context::(fn (exps) { exps.rebuild() })(base.exp())
+	// rebuild in the dest context
+}
+
+test_func = fn (func) {
+	let a = "this is a"
+	let b = "this is b"
+	func.reconstruct(fn(){} /* capture current context */)();
+}
+
+let a = "what?"
+test_func() {
+	p(a)
+	p(b)
+}
