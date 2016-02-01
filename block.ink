@@ -442,9 +442,13 @@ func = fn (arg...) {
 	p(ret)
 }
 
+p("######################");
+
 PAF = func() with [1, _, 2, _, 8, _, 0];
 PAF2 = PAF(2) with [2] with [2, _, 5, 3]
 PAF3 = PAF2(_, 2, 3, 4)(2);
+
+p(1 + 2 + 8 + 0 + 2 + 2 + 2 + 5 + 3 + 2 + 2 + 3 + 4)
 
 a = 0;
 p(a++ = 10)
@@ -1191,7 +1195,7 @@ p("######################## namespace ########################");
 
 namespace = {
 	missing: fn (name) {
-		ret = (top this)[name] = fn () { }
+		ret = top[name] = fn () { }
 		delete name
 		ret
 	}
@@ -1241,7 +1245,7 @@ a.p with [fn () { p("ha") }]
 p("######## ruby-like function definition ########");
 
 $def_func = fn (name, fblock) {
-	top this[name] = fblock
+	top[name] = fblock
 }
 
 def = {
@@ -1326,7 +1330,7 @@ if (dir.exist()) {
 rmdir("new_dir");
 
 p("##################### children of core dir #####################");
-(new Directory("core")).each().each("file: " + _).each { | val |
+(new Directory("core")).each("file: " + _).each { | val |
 	p(val);
 }
 
@@ -1361,3 +1365,9 @@ formular1 = _ * 2 + 1
 for (let i = 0, i < 10, i++) {
 	p("when x = " + i + ", formular1 = " + formular1(i));
 }
+
+test_func = fn (&block) {
+	p(block());
+}
+
+test_func(_)(123);

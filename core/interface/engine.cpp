@@ -109,16 +109,6 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	global_context = new Ink_ContextChain(new Ink_ContextObject(this));
 	// gc_engine->initContext(global_context);
 
-	global_context->context->setSlot("this", global_context->context);
-	global_context->context->setSlot("top", global_context->context);
-	global_context->context->setSlot("let", global_context->context);
-	global_context->context->setSlot("auto", tmp = new Ink_Object(this));
-	tmp->setSlot("missing", new Ink_FunctionObject(this, Ink_Auto_Missing));
-	Ink_GlobalMethodInit(this, global_context);
-
-	global_context->context->setDebugName("__global_context__");
-	addTrace(global_context->context)->setDebug("<root engine>", -1, global_context->context);
-
 	// make sure the slot name is $<type name>
 	global_context->context->setSlot("$object", tmp = new Ink_Object(this));
 	tmp->derivedMethodInit(this);
@@ -132,6 +122,16 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	tmp->derivedMethodInit(this);
 	global_context->context->setSlot("$array", tmp = new Ink_Array(this));
 	tmp->derivedMethodInit(this);
+
+	// global_context->context->setSlot("this", global_context->context);
+	global_context->context->setSlot("top", global_context->context);
+	global_context->context->setSlot("let", global_context->context);
+	global_context->context->setSlot("auto", tmp = new Ink_Object(this));
+	tmp->setSlot("missing", new Ink_FunctionObject(this, Ink_Auto_Missing));
+	Ink_GlobalMethodInit(this, global_context);
+
+	global_context->context->setDebugName("__global_context__");
+	addTrace(global_context->context)->setDebug("<root engine>", -1, global_context->context);
 }
 
 Ink_ContextChain *Ink_InterpreteEngine::addTrace(Ink_ContextObject *context)

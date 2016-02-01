@@ -131,6 +131,10 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"retry"					return TOKEN(TRETRY);
 <INITIAL>"yield"					return TOKEN(TYIELD);
 <INITIAL>"with"						return TOKEN(TWITH);
+<INITIAL>"_" {
+	SAVE_TOKEN();
+	return TUNKNOWN;
+}
 
 <INITIAL>"&&"						return TOKEN(TCAND);
 <INITIAL>"||"						return TOKEN(TCOR);
