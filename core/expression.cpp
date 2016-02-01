@@ -30,7 +30,7 @@
 #define OCT_TO_NUM(c) (DEC_TO_NUM(c))
 
 #define IS_LEGAL(mode, c) (IS_DEC(c) ? (c) < ('0' + (mode)) \
-									 : (IS_HEX(c) ? (TO_LOWER(c) - 'a') < 6 : false))
+									 : (mode == HEX && IS_HEX(c) ? (TO_LOWER(c) - 'a') < 6 : false))
 
 #define TO_NUM(mode, c) ((mode) <= 10 ? DEC_TO_NUM(c) : HEX_TO_NUM(c))
 
@@ -63,8 +63,9 @@ Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success
 			if (code[0] == 'x' || code[0] == 'X') {
 				mode = HEX;
 				code = code.substr(1);
-			} else if (IS_OCT(code[0])) {
+			} else if (code[0] == 'o' || code[0] == 'O') {
 				mode = OCT;
+				code = code.substr(1);
 			}
 		}
 	}
@@ -92,43 +93,6 @@ Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success
 	return ret * flag;
 }
 
-#if 0
-Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success)
-{
-	unsigned long val = 0;
-	double fval = 0.0;
-	int flag = 1;
-
-	/* is minus */
-	if (code[0] == '-') {
-		flag = -1;
-		code = code.substr(1);
-	}
-
-	/* is float */
-	if (sscanf(code.c_str(), "%lf", &fval) > 0) {
-		if (is_success)
-			*is_success = true;
-		return fval * flag;
-	}
-
-	/* is integer */
-	if (sscanf(code.c_str(), "0x%lx", &val) > 0
-		|| sscanf(code.c_str(), "0X%lX", &val) > 0
-		|| sscanf(code.c_str(), "0%lo", &val) > 0
-		|| sscanf(code.c_str(), "%lu", &val) > 0) {
-		if (is_success)
-			*is_success = true;
-		return val * flag;
-	}
-
-	if (is_success)
-		*is_success = false;
-
-	return 0.0;
-}
-#endif
-
 Ink_Expression *Ink_NumericConstant::parse(string code)
 {
 	bool is_success = false;
@@ -140,6 +104,8 @@ Ink_Expression *Ink_NumericConstant::parse(string code)
 
 	if (is_success)
 		return new Ink_NumericConstant(val);
+	else
+
 	
 	return NULL;
 }
@@ -222,6 +188,7 @@ Ink_Object *Ink_InterruptExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 {
 	const char *file_name_back;
 	Ink_LineNoType line_num_back;
+	Ink_InterruptSignal tmp_sig;
 	SET_LINE_NUM;
 
 	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : NULL_OBJ;
@@ -231,6 +198,16 @@ Ink_Object *Ink_InterruptExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 	}
 
 	RESTORE_LINE_NUM;
+
+	if (custom_sig) {
+		tmp_sig = engine->getCustomInterruptSignal(*custom_sig);
+		if (!tmp_sig) {
+			InkWarn_Undefined_Custom_Interrupt_Name(engine, custom_sig->c_str());
+			return ret;
+		}
+		engine->setInterrupt(tmp_sig, ret);
+		return ret;
+	}
 
 	engine->setInterrupt(sig, ret);
 

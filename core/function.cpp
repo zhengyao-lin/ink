@@ -68,6 +68,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	bool if_delete_argv = false;
 	const char *debug_name_back = getDebugName();
 	const char *base_debug_name_back = getSlot(engine, "base")->getDebugName();
+	string *tmp_str = NULL;
 
 	/* init GC engine */
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine(engine);
@@ -146,39 +147,28 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 
 				tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 				engine->setInterrupt(INTER_NONE, NULL);
-				switch (signal_backup) {
-					case INTER_RETURN:
-						if ((tmp = getSlot(engine, "retn"))->type == INK_FUNCTION) {
+				if (signal_backup < INTER_LAST && signal_backup != INTER_EXIT) {
+					if ((tmp = getSlot(engine, (string("@") + getNativeSignalName(signal_backup)).c_str()))
+						->type== INK_FUNCTION) {
+						tmp_argv[0] = value_backup;
+						callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
+					}
+				} else if (signal_backup > INTER_LAST) {
+					// custom signal
+					tmp_str = engine->getCustomInterruptSignalName(signal_backup);
+					if (tmp_str) {
+						if ((tmp = getSlot(engine, (string("@") + *tmp_str).c_str()))
+							->type == INK_FUNCTION) {
 							tmp_argv[0] = value_backup;
 							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
-						} break;
-					case INTER_CONTINUE:
-						if ((tmp = getSlot(engine, "continue"))->type == INK_FUNCTION) {
-							tmp_argv[0] = value_backup;
-							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
-						} break;
-					case INTER_BREAK:
-						if ((tmp = getSlot(engine, "break"))->type == INK_FUNCTION) {
-							tmp_argv[0] = value_backup;
-							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
-						} break;
-					case INTER_DROP:
-						if ((tmp = getSlot(engine, "drop"))->type == INK_FUNCTION) {
-							tmp_argv[0] = value_backup;
-							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
-						} break;
-					case INTER_THROW:
-						if ((tmp = getSlot(engine, "throw"))->type == INK_FUNCTION) {
-							tmp_argv[0] = value_backup;
-							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
-						} break;
-					case INTER_RETRY:
-						if ((tmp = getSlot(engine, "retry"))->type == INK_FUNCTION) {
-							tmp_argv[0] = value_backup;
-							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
-						} break;
-					default: ;
+						}
+					} else {
+						InkWarn_Unregistered_Interrupt_Signal(engine, signal_backup);
+					}
+				} else {
+					InkWarn_Unregistered_Interrupt_Signal(engine, signal_backup);
 				}
+
 				free(tmp_argv);
 				/* restore signal if it hasn't been changed */
 				if (engine->getSignal() == INTER_NONE) {

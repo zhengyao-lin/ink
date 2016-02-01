@@ -343,7 +343,7 @@ package = new Object() { | this_p |
 import package, package, package
 
 for = inl (init, &cond, &iterate, block) {
-	block.'continue' = inl (arg) { iterate() }
+	block.@continue = inl (arg) { iterate() }
 	while (cond()) {
 		block();
 		iterate();
@@ -518,14 +518,14 @@ inline = inl () {
 	drop 10; // drop signal
 }
 
-inline.'drop' = inl (ret_val) {
+inline.@drop = inl (ret_val) {
 	ret_val.p = 10;
 	p("previous return value: " + ret_val);
 	p("override to 100");
 	drop 100; // change return value
 }
 
-inline.'drop'.'drop' = { |ret_val|
+inline.@drop.@drop = { |ret_val|
 	ret_val.p = 10;
 	p("previous return value: " + ret_val);
 	p("I'm NOT overriding to 1000");
@@ -540,11 +540,11 @@ p("final value(100?): " + a.b)
 
 /*try = fn (block, args...) {
 	let final = fn () {}
-	block.'throw' = fn () { where(); drop }
+	block.@throw = fn () { where(); drop }
 	for (let i = 0, i < args.size(), i++) {
 		if (typename(args[i]) == "string") {
 			if (args[i] == "catch" && i + 1 < args.size()) {
-				block.'throw' = (args[i + 1] << block.'throw');
+				block.@throw = (args[i + 1] << block.@throw);
 				continue i++;
 			} else {
 				if (args[i] == "final" && i + 1 < args.size()) {
@@ -720,7 +720,7 @@ switch = inl (&cond, args...) {
 }
 
 cond = 10;
-switch (cond) @
+switch (cond) \
 case (5) {
   	p("cond is 5");
   	// break;
@@ -729,7 +729,7 @@ case (5) {
 	// break; // fallthrough!!
 } default {
 	p("default: cond is " + cond);
-} @
+}
 
 p("all ended");
 
@@ -1283,7 +1283,7 @@ $do = inl (block, &argv...) {
 	}
 }
 
-$do.'throw' = fn () {
+$do.@throw = fn () {
 	p("AH... something wrong..");
 	drop
 }
@@ -1409,3 +1409,19 @@ test_func = fn (mac) {
 }
 
 test_func(macro(){ p(a);p(b) })
+
+regsig("hello")
+regsig("yes")
+
+test_func = fn () {
+	:hello 132
+}
+
+test_func @hello = fn (val) {
+	p("hello signal, value = " + val);
+	drop
+}
+
+test_func();
+
+:yes

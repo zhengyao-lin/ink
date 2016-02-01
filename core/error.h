@@ -476,6 +476,31 @@ InkWarn_Try_Unknown_Instr_Type(Ink_InterpreteEngine *engine, Ink_TypeTag type)
 }
 
 inline void
+InkWarn_Undefined_Custom_Interrupt_Name(Ink_InterpreteEngine *engine, const char *name)
+{
+	InkErro_doPrintWarning(engine, "Undefined custom interrupt signal name \'$(name)\'",
+						   name);
+	return;
+}
+
+inline void
+InkWarn_Unregistered_Interrupt_Signal(Ink_InterpreteEngine *engine, Ink_InterruptSignal sig)
+{
+	std::stringstream strm;
+	strm << "Unregisterred interrupt signal: " << sig;
+	InkErro_doPrintWarning(engine, strm.str().c_str());
+	return;
+}
+
+inline void
+InkWarn_Trapping_Untrapped_Signal(Ink_InterpreteEngine *engine, const char *name)
+{
+	InkErro_doPrintWarning(engine, "Trapping untrapped signal \'$(name)\'",
+						   name);
+	return;
+}
+
+inline void
 InkNote_Method_Fallthrough(Ink_InterpreteEngine *engine, const char *name, Ink_TypeTag origin, Ink_TypeTag to_type)
 {
 	InkErro_doPrintNote(engine, "Method \'$(name)\' of object of type <$(origin)> fallthrough to that of type <$(to)>",

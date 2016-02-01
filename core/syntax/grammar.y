@@ -217,6 +217,16 @@ interrupt_expression
 		$$ = new Ink_InterruptExpression($1, $2);
 		SET_LINE_NO($$);
 	}
+	| TCOLON TIDENTIFIER
+	{
+		$$ = new Ink_InterruptExpression($2, NULL);
+		SET_LINE_NO($$);
+	}
+	| TCOLON TIDENTIFIER nestable_expression
+	{
+		$$ = new Ink_InterruptExpression($2, $3);
+		SET_LINE_NO($$);
+	}
 	;
 
 import_expression

@@ -5,7 +5,7 @@ PM				[+-]
 DEC				[0-9]
 HEX				[a-fA-F0-9]
 OCT				[0-7]
-LETTER			[a-zA-Z_?$]
+LETTER			[a-zA-Z_?$@]
 
 DIGITS			({DIGIT})+
 SPS				({SP})+
@@ -179,10 +179,6 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"/"						return TOKEN(TDIV);
 <INITIAL>"%"						return TOKEN(TMOD);
 
-<INITIAL>"@" {
-	if_ignore_nl = !if_ignore_nl;
-}
-
 <INITIAL>"\\"{SP}*{NEWLINE} {
 	LINE_NUMBER_INC();
 }
@@ -201,15 +197,15 @@ int ink_yyinput(char *buf, int max_size)
 	}
 	return TIDENTIFIER;
 }
-<INITIAL>"0"{OCT}+\.{OCT}* { // oct
+<INITIAL>"0"[oO]{OCT}+\.{OCT}+ { // oct
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>"0"{OCT}+ { // oct
+<INITIAL>"0"[oO]{OCT}+ { // oct
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>"0"[xX]{HEX}+\.{HEX}* { // hex
+<INITIAL>"0"[xX]{HEX}+\.{HEX}+ { // hex
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
@@ -217,7 +213,7 @@ int ink_yyinput(char *buf, int max_size)
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>{DEC}*\.{DEC}* { // dec
+<INITIAL>{DEC}*\.{DEC}+ { // dec
 	SAVE_TOKEN();
 	return TNUMERIC;
 }

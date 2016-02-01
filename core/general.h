@@ -87,16 +87,28 @@ namespace ink {
 
 namespace ink {
 
+typedef Ink_UInt64 Ink_InterruptSignal;
+#define INTER_NONE			((Ink_InterruptSignal)INTER_NONE_tag)
+#define INTER_RETURN		((Ink_InterruptSignal)INTER_RETURN_tag)
+#define INTER_BREAK			((Ink_InterruptSignal)INTER_BREAK_tag)
+#define INTER_CONTINUE		((Ink_InterruptSignal)INTER_CONTINUE_tag)
+#define INTER_DROP			((Ink_InterruptSignal)INTER_DROP_tag)
+#define INTER_THROW			((Ink_InterruptSignal)INTER_THROW_tag)
+#define INTER_RETRY			((Ink_InterruptSignal)INTER_RETRY_tag)
+#define INTER_EXIT			((Ink_InterruptSignal)INTER_EXIT_tag)
+#define INTER_LAST			((Ink_InterruptSignal)INTER_LAST_tag)
+
 typedef enum {
-	INTER_NONE = 1 << 1,
-	INTER_RETURN = 1 << 2,
-	INTER_BREAK = 1 << 3,
-	INTER_CONTINUE = 1 << 4,
-	INTER_DROP = 1 << 5,
-	INTER_THROW = 1 << 6,
-	INTER_RETRY = 1 << 7,
-	INTER_EXIT = 1 << 8
-} Ink_InterruptSignal;
+	INTER_NONE_tag 		= 1 << 1,
+	INTER_RETURN_tag 	= 1 << 2,
+	INTER_BREAK_tag 	= 1 << 3,
+	INTER_CONTINUE_tag 	= 1 << 4,
+	INTER_DROP_tag 		= 1 << 5,
+	INTER_THROW_tag 	= 1 << 6,
+	INTER_RETRY_tag 	= 1 << 7,
+	INTER_EXIT_tag 		= 1 << 8,
+	INTER_LAST_tag 		= 1 << 16
+} Ink_InterruptSignal_tag;
 
 class Ink_Expression;
 class Ink_Argument;
@@ -106,7 +118,7 @@ class Ink_HashTable;
 class Ink_Undefined;
 class Ink_NullObject;
 
-typedef Ink_UInt64 Ink_InterruptSignalTrap;
+typedef Ink_InterruptSignal Ink_InterruptSignalTrap;
 typedef std::vector<Ink_Expression *> Ink_ExpressionList;
 typedef std::vector<Ink_Argument *> Ink_ArgumentList;
 
@@ -187,9 +199,9 @@ public:
 };
 typedef std::vector<Ink_Parameter> Ink_ParamList;
 
-inline bool hasSignal(Ink_InterruptSignalTrap set, Ink_InterruptSignal sign)
+inline bool hasSignal(Ink_InterruptSignalTrap set, Ink_InterruptSignal sig)
 {
-	return (~(~set | sign) != set);
+	return (~(~set | sig) != set) && sig < INTER_LAST;
 }
 
 inline Ink_InterruptSignalTrap addSignal(Ink_InterruptSignalTrap set, Ink_InterruptSignal sign)

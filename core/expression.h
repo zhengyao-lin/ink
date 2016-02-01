@@ -90,10 +90,15 @@ public:
 class Ink_InterruptExpression: public Ink_Expression {
 public:
 	Ink_InterruptSignal sig;
+	std::string *custom_sig;
 	Ink_Expression *ret_val;
 
 	Ink_InterruptExpression(Ink_InterruptSignal sig, Ink_Expression *ret_val)
-	: sig(sig), ret_val(ret_val)
+	: sig(sig), custom_sig(NULL), ret_val(ret_val)
+	{ }
+
+	Ink_InterruptExpression(std::string *custom_sig, Ink_Expression *ret_val)
+	: sig(0), custom_sig(custom_sig), ret_val(ret_val)
 	{ }
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
@@ -102,6 +107,8 @@ public:
 	{
 		if (ret_val)
 			delete ret_val;
+		if (custom_sig)
+			delete custom_sig;
 	}
 };
 

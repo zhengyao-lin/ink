@@ -97,6 +97,8 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	pthread_mutex_init(&message_mutex, NULL);
 	message_queue = Ink_ActorMessageQueue();
 	
+	custom_interrupt_signal = Ink_CustomInterruptSignal();
+
 	custom_destructor_queue = Ink_CustomDestructorQueue();
 	custom_engine_com_map = Ink_CustomEngineComMap();
 
@@ -267,12 +269,24 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 
 	Ink_Object *ret = NULL_OBJ;
 	unsigned int i;
+	const char *tmp_sig_name = NULL;
+	string *tmp_str;
 
 	if (!context) context = global_context;
 	for (i = 0; i < top_level.size(); i++) {
 		getCurrentGC()->checkGC();
 		ret = top_level[i]->eval(this, context);
 		if (interrupt_signal != INTER_NONE) {
+			if (interrupt_signal < INTER_LAST) {
+				tmp_sig_name = getNativeSignalName(interrupt_signal);
+			} else {
+				if ((tmp_str = getCustomInterruptSignalName(interrupt_signal)) != NULL) {
+					tmp_sig_name = tmp_str->c_str();
+				} else {
+					tmp_sig_name = "<unregisterred>";
+				}
+			}
+			InkWarn_Trapping_Untrapped_Signal(engine, tmp_sig_name);
 			ret = trapSignal(); // trap all
 			break;
 		}
@@ -335,6 +349,7 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 	
 	disposeTypeMapping();
 	disposeStringPool();
+	disposeCustomInterruptSignal();
 }
 
 }

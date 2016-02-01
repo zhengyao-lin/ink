@@ -4,6 +4,7 @@
 #include <string>
 #include <stdio.h>
 #include "type.h"
+#include "general.h"
 
 #define DBG_TAB "    "
 #define DBG_DEFAULT_PREFIX "INK_DEBUG: "
@@ -27,6 +28,13 @@ struct DBG_FixedTypeMapping {
 	Ink_TypeTag tag;
 	const char *name;
 };
+
+struct DBG_NativeSignalMapping {
+	Ink_InterruptSignal sig;
+	const char *name;
+};
+
+const char *getNativeSignalName(Ink_InterruptSignal sig);
 
 }
 

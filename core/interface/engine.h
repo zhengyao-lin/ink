@@ -46,6 +46,7 @@ public:
 typedef vector<Ink_EngineDestructor> Ink_CustomDestructorQueue;
 typedef void *Ink_CustomEngineCom;
 typedef map<InkMod_ModuleID, Ink_CustomEngineCom> Ink_CustomEngineComMap;
+typedef vector<string *> Ink_CustomInterruptSignal;
 
 extern pthread_mutex_t ink_native_exp_list_lock;
 extern Ink_ExpressionList ink_native_exp_list;
@@ -124,6 +125,8 @@ public:
 	vector<Ink_Object *> deep_clone_traced_stack;
 	vector<Ink_Object *> prototype_traced_stack;
 
+	Ink_CustomInterruptSignal custom_interrupt_signal;
+
 	Ink_CustomDestructorQueue custom_destructor_queue;
 	Ink_CustomEngineComMap custom_engine_com_map;
 
@@ -132,6 +135,56 @@ public:
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline Ink_InterruptSignal addCustomInterruptSignal(string id)
+	{
+		custom_interrupt_signal.push_back(new string(id));
+		return custom_interrupt_signal.size() + INTER_LAST;
+	}
+
+	inline Ink_InterruptSignal getCustomInterruptSignal(string id)
+	{
+		Ink_CustomInterruptSignal::iterator sig_iter;
+		for (sig_iter = custom_interrupt_signal.begin();
+			 sig_iter != custom_interrupt_signal.end(); sig_iter++) {
+			if (id == **sig_iter)
+				return sig_iter - custom_interrupt_signal.begin() + 1 + INTER_LAST;
+		}
+		return 0;
+	}
+
+	inline string *getCustomInterruptSignalName(Ink_InterruptSignal sig)
+	{
+		sig -= INTER_LAST + 1;
+		if (sig >= 0 && sig < custom_interrupt_signal.size()) {
+			return custom_interrupt_signal[sig];
+		}
+		return NULL;
+	}
+
+	inline bool deleteCustomInterruptSignal(string id)
+	{
+		Ink_CustomInterruptSignal::iterator sig_iter;
+		for (sig_iter = custom_interrupt_signal.begin();
+			 sig_iter != custom_interrupt_signal.end(); sig_iter++) {
+			if (id == **sig_iter) {
+				delete *sig_iter;
+				custom_interrupt_signal.erase(sig_iter);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	inline void disposeCustomInterruptSignal()
+	{
+		Ink_CustomInterruptSignal::iterator sig_iter;
+		for (sig_iter = custom_interrupt_signal.begin();
+			 sig_iter != custom_interrupt_signal.end(); sig_iter++) {
+			delete *sig_iter;
+		}
+		return;
+	}
 
 	inline void setErrorMode(Ink_ErrorMode mode)
 	{

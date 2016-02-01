@@ -528,6 +528,26 @@ Ink_Object *Ink_Abort(Ink_InterpreteEngine *engine, Ink_ContextChain *context, I
 	return NULL_OBJ;
 }
 
+Ink_Object *Ink_RegisterSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	engine->addCustomInterruptSignal(as<Ink_String>(argv[0])->getValue());
+
+	return NULL_OBJ;
+}
+
+Ink_Object *Ink_DeleteSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, engine->deleteCustomInterruptSignal(as<Ink_String>(argv[0])->getValue()));
+}
+
 void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 {
 	context->context->setSlot("if", new Ink_FunctionObject(engine, Ink_IfExpression, true));
@@ -546,6 +566,8 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 	context->context->setSlot("cocall", new Ink_FunctionObject(engine, Ink_CoroutineCall));
 
 	context->context->setSlot("abort", new Ink_FunctionObject(engine, Ink_Abort));
+	context->context->setSlot("regsig", new Ink_FunctionObject(engine, Ink_RegisterSignal));
+	context->context->setSlot("delsig", new Ink_FunctionObject(engine, Ink_DeleteSignal));
 
 	context->context->setSlot("debug", new Ink_FunctionObject(engine, Ink_Debug));
 	context->context->setSlot("where", new Ink_FunctionObject(engine, Ink_Where));

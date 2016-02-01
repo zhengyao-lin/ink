@@ -10,11 +10,21 @@
 #include "context.h"
 #include "interface/engine.h"
 
+#define INTER_NONE			((Ink_InterruptSignal)INTER_NONE_tag)
+#define INTER_RETURN		((Ink_InterruptSignal)INTER_RETURN_tag)
+#define INTER_BREAK			((Ink_InterruptSignal)INTER_BREAK_tag)
+#define INTER_CONTINUE		((Ink_InterruptSignal)INTER_CONTINUE_tag)
+#define INTER_DROP			((Ink_InterruptSignal)INTER_DROP_tag)
+#define INTER_THROW			((Ink_InterruptSignal)INTER_THROW_tag)
+#define INTER_RETRY			((Ink_InterruptSignal)INTER_RETRY_tag)
+#define INTER_EXIT			((Ink_InterruptSignal)INTER_EXIT_tag)
+#define INTER_LAST			((Ink_InterruptSignal)INTER_LAST_tag)
+
 namespace ink {
 
 using namespace std;
 
-DBG_FixedTypeMapping dbg_fixed_type_mapping[] = 
+struct DBG_FixedTypeMapping dbg_fixed_type_mapping[] = 
 {
 	{ INK_NULL,			"null" },
 	{ INK_UNDEFINED,	"undefined" },
@@ -27,6 +37,25 @@ DBG_FixedTypeMapping dbg_fixed_type_mapping[] =
 	{ INK_ARRAY,		"array" },
 	{ INK_UNKNOWN,		"unknown" }
 };
+
+struct DBG_NativeSignalMapping dbg_native_signal_mapping[] =
+{
+	{ INTER_NONE,		"none" },
+	{ INTER_RETURN,		"retn" },
+	{ INTER_BREAK,		"break" },
+	{ INTER_CONTINUE,	"continue" },
+	{ INTER_DROP,		"drop" },
+	{ INTER_THROW,		"throw" },
+	{ INTER_RETRY,		"retry" },
+	{ INTER_EXIT,		"exit" }
+};
+
+const char *getNativeSignalName(Ink_InterruptSignal sig)
+{
+	int i;
+	for (i = 0; sig > 1 << 1; sig = sig >> 1, i++) ;
+	return dbg_native_signal_mapping[i].name;
+}
 
 #define btos(b) ((b) ? "true" : "false")
 
