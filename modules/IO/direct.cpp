@@ -161,7 +161,7 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 	closedir(dir_handle);
 #elif defined(INK_PLATFORM_WIN32)
-		} while (FindNextFile(dir_handle, &data))
+		} while (FindNextFile(dir_handle, &data));
 	} else {
 		InkWarn_Direct_Not_Exist(engine, tmp_path->c_str());
 		free(args);

@@ -32,6 +32,22 @@ INSTALL_LIB_PATH = $(GLOBAL_INSTALL_PATH)/lib
 INSTALL_LIB_NAME = ink
 INSTALL_MODULE_PATH = modules
 
+ifeq ($(PLATFORM), win32)
+	ifeq ($(METHOD), simulate)
+		PTHREAD_LIB = third_parties/libwinpthread/linux/i686/libwinpthread-1.dll
+	else
+		PTHREAD_LIB = third_parties/libwinpthread/windows/i686/libwinpthread-1.dll
+	endif
+else
+	ifeq ($(PLATFORM), win64)
+		ifeq ($(METHOD), simulate)
+			PTHREAD_LIB = third_parties/libwinpthread/linux/x86_64/libwinpthread-1.dll
+		else
+			PTHREAD_LIB = third_parties/libwinpthread/windows/x86_64/libwinpthread-1.dll
+		endif
+	endif
+endif
+
 export BIN_OUTPUT = bin
 export LIB_OUTPUT = lib
 export WIN_OUTPUT = output
@@ -56,11 +72,7 @@ ifneq ($(GLOBAL_PLATFORM), windows)
 	LDFLAGS+= -ldl
 	STATIC_LDFLAGS+= -ldl -pthread
 else
-	ifeq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
-		STATIC_LDFLAGS+= -pthread
-	else
-		STATIC_LDFLAGS+= -Wl,-Bstatic -lwinpthread
-	endif
+	STATIC_LDFLAGS+= -Wl,-Bstatic -lwinpthread
 endif
 
 CREATE_OUTPUT_DIR = \
@@ -73,9 +85,12 @@ CREATE_OUTPUT_DIR = \
 
 all: main_prog apps modules
 
-main_prog: $(TARGET) static
+main_prog: $(TARGET)
 	$(CREATE_OUTPUT_DIR)
 	cp $(LIBS) $(LIB_OUTPUT)
+ifeq ($(GLOBAL_PLATFORM), windows)
+	cp $(PTHREAD_LIB) $(LIB_OUTPUT)
+endif
 
 $(TARGET): $(REQUIRE) $(LIBS)
 	$(CREATE_OUTPUT_DIR)

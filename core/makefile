@@ -31,11 +31,7 @@ STATIC_LDFLAGS=
 ifneq ($(GLOBAL_PLATFORM), windows)
 	LDFLAGS+= -ldl -pthread
 else
-	ifeq ($(GLOBAL_PLATFORM_NAME), MINGW32_NT-6.2)
-		LDFLAGS+= -pthread
-	else
-		LDFLAGS+= -Wl,-Bstatic -lwinpthread
-	endif
+	LDFLAGS+= -Wl,-Bstatic -lwinpthread
 endif
 
 $(TARGET): $(REQUIRE)
