@@ -273,7 +273,7 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 		getCurrentGC()->checkGC();
 		ret = top_level[i]->eval(this, context);
 		if (interrupt_signal != INTER_NONE) {
-			trapSignal(); // trap all
+			ret = trapSignal(); // trap all
 			break;
 		}
 	}
