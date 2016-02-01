@@ -261,10 +261,11 @@ public:
 	Ink_ParamList param;
 	Ink_ExpressionList exp_list;
 	bool is_inline;
+	bool is_macro;
 	std::string *protocol_name;
 
-	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, bool is_inline = false)
-	: param(param), exp_list(exp_list), is_inline(is_inline), protocol_name(NULL)
+	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, bool is_inline = false, bool is_macro = false)
+	: param(param), exp_list(exp_list), is_inline(is_inline), is_macro(is_macro), protocol_name(NULL)
 	{ }
 
 	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, std::string *protocol_name)

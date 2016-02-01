@@ -522,11 +522,11 @@ Ink_Object *Ink_FunctionExpression::eval(Ink_InterpreteEngine *engine, Ink_Conte
 
 	if (protocol_name && (protocol = engine->findProtocol(protocol_name->c_str()))) {
 		RESTORE_LINE_NUM;
-		return protocol(engine, param, exp_list, context_chain->copyContextChain());
+		return protocol(engine, param, exp_list, is_macro ? NULL : context_chain->copyContextChain());
 	}
 
 	RESTORE_LINE_NUM;
-	return new Ink_FunctionObject(engine, param, exp_list, context_chain->copyContextChain(), is_inline);
+	return new Ink_FunctionObject(engine, param, exp_list, is_macro ? NULL : context_chain->copyContextChain(), is_inline);
 }
 
 /* expand argument -- expand array object to parameter */

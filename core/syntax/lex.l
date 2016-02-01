@@ -121,6 +121,7 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>"clone"					return TOKEN(TCLONE);
 <INITIAL>"fn"						return TOKEN(TFUNC);
 <INITIAL>"inl"						return TOKEN(TINLINE);
+<INITIAL>"macro"					return TOKEN(TMACRO);
 <INITIAL>"do"						return TOKEN(TDO);
 <INITIAL>"end"						return TOKEN(TEND);
 <INITIAL>"import"					return TOKEN(TIMPORT);

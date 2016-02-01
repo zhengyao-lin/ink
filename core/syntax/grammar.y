@@ -43,7 +43,7 @@ namespace ink {
 %token <string> TIDENTIFIER TNUMERIC TSTRING TPROTOCOL TUNKNOWN
 
 %token <token> TRETURN TNEW TDELETE TCLONE
-			   TFUNC TINLINE TDO TEND
+			   TFUNC TINLINE TMACRO TDO TEND
 			   TIMPORT TBREAK TCONTINUE TDROP TTHROW TRETRY TEXIT
 			   TYIELD TWITH
 %token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TDCOLON TCOLON TASSIGN
@@ -876,6 +876,20 @@ function_expression
 	| TINLINE nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
 	{
 		$$ = new Ink_FunctionExpression(*$4, *$8, true);
+		delete $4;
+		delete $8;
+		SET_LINE_NO($$);
+	}
+	| TMACRO nllo TLPAREN param_opt TRPAREN nllo TLBRACE expression_list_opt TRBRACE
+	{
+		$$ = new Ink_FunctionExpression(*$4, *$8, false, true);
+		delete $4;
+		delete $8;
+		SET_LINE_NO($$);
+	}
+	| TMACRO nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
+	{
+		$$ = new Ink_FunctionExpression(*$4, *$8, false, true);
 		delete $4;
 		delete $8;
 		SET_LINE_NO($$);

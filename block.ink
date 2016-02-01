@@ -1401,3 +1401,11 @@ test_func() {
 	p(a)
 	p(b)
 }
+
+test_func = fn (mac) {
+	let a = 10
+	let b = "hi"
+	mac()
+}
+
+test_func(macro(){ p(a);p(b) })
