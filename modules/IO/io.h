@@ -127,4 +127,11 @@ InkWarn_IO_Uninitialized_Direct_Pointer(Ink_InterpreteEngine *engine)
 	return;
 }
 
+inline void
+InkWarn_Direct_Not_Exist(Ink_InterpreteEngine *engine, const char *path)
+{
+	InkErro_doPrintWarning(engine, "Directory $(path) does not exist", path);
+	return;
+}
+
 #endif

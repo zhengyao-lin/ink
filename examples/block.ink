@@ -1330,7 +1330,7 @@ if (dir.exist()) {
 rmdir("new_dir");
 
 p("##################### children of core dir #####################");
-(new Directory("core")).each("file: " + _).each { | val |
+(new Directory("../core")).each("file: " + _).each { | val |
 	p(val);
 }
 

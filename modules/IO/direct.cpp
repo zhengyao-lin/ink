@@ -102,6 +102,12 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 	DIR *dir_handle = opendir(tmp_path->c_str());
 	struct dirent *child;
 
+	if (!dir_handle) {
+		InkWarn_Direct_Not_Exist(engine, tmp_path->c_str());
+		free(args);
+		return NULL_OBJ;
+	}
+
 	while ((child = readdir(dir_handle)) != NULL) {
 
 	#define CLOSE_HANDLER closedir(dir_handle)
@@ -156,6 +162,10 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 	closedir(dir_handle);
 #elif defined(INK_PLATFORM_WIN32)
 		} while (FindNextFile(dir_handle, &data))
+	} else {
+		InkWarn_Direct_Not_Exist(engine, tmp_path->c_str());
+		free(args);
+		return NULL_OBJ;
 	}
 
 	FindClose(dir_handle);

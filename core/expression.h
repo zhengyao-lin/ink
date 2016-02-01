@@ -269,7 +269,7 @@ public:
 	{ }
 
 	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, std::string *protocol_name)
-	: param(param), exp_list(exp_list), is_inline(false), protocol_name(protocol_name)
+	: param(param), exp_list(exp_list), is_inline(false), is_macro(false), protocol_name(protocol_name)
 	{ }
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
