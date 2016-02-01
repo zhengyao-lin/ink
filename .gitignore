@@ -31,3 +31,8 @@ upload.sh
 upload.log
 date.log
 spec.md
+
+!third_parties/*
+!third_parties/*/*
+!third_parties/*/*/*
+!third_parties/*/*/*/*
