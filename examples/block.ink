@@ -1415,13 +1415,17 @@ regsig("yes")
 
 test_func = fn () {
 	:hello 132
+	p("continue!!");
 }
 
-test_func @hello = fn (val) {
+test_func@hello = fn (val) {
 	p("hello signal, value = " + val);
-	drop
 }
 
 test_func();
+
+@yes = fn (val) {
+	p("yes received");
+}
 
 :yes

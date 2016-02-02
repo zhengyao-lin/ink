@@ -268,16 +268,23 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 	}
 
 	Ink_Object *ret = NULL_OBJ;
+	Ink_ContextObject *local = NULL;
 	unsigned int i;
 	const char *tmp_sig_name = NULL;
-	string *tmp_str;
+	string *tmp_str  =NULL;
 
 	if (!context) context = global_context;
+	local = context->getLocal()->context;
 	for (i = 0; i < top_level.size(); i++) {
 		getCurrentGC()->checkGC();
 		ret = top_level[i]->eval(this, context);
-		if (interrupt_signal != INTER_NONE) {
-			if (interrupt_signal < INTER_LAST) {
+		if (getSignal() != INTER_NONE) {
+			/* interrupt event triggered */
+			Ink_FunctionObject::triggerInterruptEvent(engine, context, local, local);
+
+			if (getSignal() == INTER_NONE) continue;
+
+			if (getSignal() < INTER_LAST) {
 				tmp_sig_name = getNativeSignalName(interrupt_signal);
 			} else {
 				if ((tmp_str = getCustomInterruptSignalName(interrupt_signal)) != NULL) {
@@ -286,7 +293,8 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 					tmp_sig_name = "<unregisterred>";
 				}
 			}
-			InkWarn_Trapping_Untrapped_Signal(engine, tmp_sig_name);
+			if (getSignal() != INTER_EXIT)
+				InkWarn_Trapping_Untrapped_Signal(engine, tmp_sig_name);
 			ret = trapSignal(); // trap all
 			break;
 		}

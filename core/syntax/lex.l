@@ -5,7 +5,8 @@ PM				[+-]
 DEC				[0-9]
 HEX				[a-fA-F0-9]
 OCT				[0-7]
-LETTER			[a-zA-Z_?$@]
+LETTER			[a-zA-Z_?$]
+FIRST_LETTER	({LETTER}|[@])
 
 DIGITS			({DIGIT})+
 SPS				({SP})+
@@ -190,7 +191,7 @@ int ink_yyinput(char *buf, int max_size)
 <INITIAL>{SP}						/* Blank */;
 
  /* Constants */
-<INITIAL>{LETTER}({LETTER}|{DEC})* {
+<INITIAL>{FIRST_LETTER}({LETTER}|{DEC})* {
 	SAVE_TOKEN();
 	if (Ink_getParseEngine()->findProtocol(yylval.string->c_str())) {
 		return TPROTOCOL;

@@ -1,5 +1,5 @@
 if (_CONTAINER_H_) {
-	retn
+	exit
 }
 _CONTAINER_H_ = 1
 

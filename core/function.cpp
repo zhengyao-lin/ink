@@ -51,6 +51,53 @@ inline Ink_Object **copyDeepArgv(Ink_InterpreteEngine *engine,
 	return ret;
 }
 
+void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
+											   Ink_ContextObject *local, Ink_Object *receiver)
+{
+	Ink_Object *tmp = NULL;
+	Ink_Object **tmp_argv = NULL;
+	Ink_InterruptSignal signal_backup = engine->getSignal();
+	Ink_Object *value_backup
+				= local->ret_val /* set return value of context object for GC to mark */
+				= engine->getInterruptValue();
+	string *tmp_str = NULL;
+	bool event_found = false;
+
+	tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
+	engine->setInterrupt(INTER_NONE, NULL);
+	if (signal_backup < INTER_LAST && signal_backup != INTER_EXIT) {
+		if ((tmp = receiver->getSlot(engine, (string("@") + getNativeSignalName(signal_backup)).c_str()))
+			->type == INK_FUNCTION) {
+			tmp_argv[0] = value_backup;
+			event_found = true;
+			callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
+		}
+	} else if (signal_backup > INTER_LAST) {
+		// custom signal
+		tmp_str = engine->getCustomInterruptSignalName(signal_backup);
+		if (tmp_str) {
+			if ((tmp = receiver->getSlot(engine, (string("@") + *tmp_str).c_str()))
+				->type == INK_FUNCTION) {
+				tmp_argv[0] = value_backup;
+				event_found = true;
+				callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
+			}
+		} else {
+			InkWarn_Unregistered_Interrupt_Signal(engine, signal_backup);
+		}
+	} else if (signal_backup != INTER_EXIT) {
+		InkWarn_Unregistered_Interrupt_Signal(engine, signal_backup);
+	}
+	free(tmp_argv);
+
+	/* restore signal if no event found */
+	if (!event_found) {
+		engine->setInterrupt(signal_backup, value_backup);
+	}
+	
+	return;
+}
+
 Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 									 Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
@@ -62,13 +109,10 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	Ink_Object *ret_val = NULL;
 	Ink_Array *var_arg = NULL;
 	IGC_CollectEngine *gc_engine_backup = engine->getCurrentGC();
-	Ink_Object *tmp = NULL;
-	Ink_Object **tmp_argv = NULL;
 	bool force_return = false;
 	bool if_delete_argv = false;
 	const char *debug_name_back = getDebugName();
 	const char *base_debug_name_back = getSlot(engine, "base")->getDebugName();
-	string *tmp_str = NULL;
 
 	/* init GC engine */
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine(engine);
@@ -140,40 +184,10 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 			/* interrupt signal received */
 			if (engine->getSignal() != INTER_NONE) {
 				/* interrupt event triggered */
-				Ink_InterruptSignal signal_backup = engine->getSignal();
-				Ink_Object *value_backup
-							= local->ret_val /* set return value of context object for GC to mark */
-							= engine->getInterruptValue();
+				triggerInterruptEvent(engine, context, local, this);
 
-				tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
-				engine->setInterrupt(INTER_NONE, NULL);
-				if (signal_backup < INTER_LAST && signal_backup != INTER_EXIT) {
-					if ((tmp = getSlot(engine, (string("@") + getNativeSignalName(signal_backup)).c_str()))
-						->type== INK_FUNCTION) {
-						tmp_argv[0] = value_backup;
-						callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
-					}
-				} else if (signal_backup > INTER_LAST) {
-					// custom signal
-					tmp_str = engine->getCustomInterruptSignalName(signal_backup);
-					if (tmp_str) {
-						if ((tmp = getSlot(engine, (string("@") + *tmp_str).c_str()))
-							->type == INK_FUNCTION) {
-							tmp_argv[0] = value_backup;
-							callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
-						}
-					} else {
-						InkWarn_Unregistered_Interrupt_Signal(engine, signal_backup);
-					}
-				} else {
-					InkWarn_Unregistered_Interrupt_Signal(engine, signal_backup);
-				}
-
-				free(tmp_argv);
-				/* restore signal if it hasn't been changed */
-				if (engine->getSignal() == INTER_NONE) {
-					engine->setInterrupt(signal_backup, value_backup);
-				}
+				if (engine->getSignal() == INTER_NONE)
+					continue;
 
 				/* whether trap the signal */
 				if (attr.hasTrap(engine->getSignal())) {

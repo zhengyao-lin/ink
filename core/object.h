@@ -271,6 +271,9 @@ public:
 	}
 	void Ink_FunctionMethodInit(Ink_InterpreteEngine *engine);
 
+	static void triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
+									  Ink_ContextObject *local, Ink_Object *receiver);
+
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true);

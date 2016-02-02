@@ -1,5 +1,5 @@
 if (_GENERAL_H_) {
-	retn
+	exit
 }
 _GENERAL_H_ = 1
 
