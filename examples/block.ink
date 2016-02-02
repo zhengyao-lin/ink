@@ -1429,3 +1429,33 @@ test_func();
 }
 
 :yes
+
+@exit = fn (val) {
+	p("exiting!!");
+	// exit
+}
+
+exit
+
+p("not end!!");
+
+TypeA = fn () {
+	let this.a = 10
+	let this.p = fn () {
+		p(base.a);
+	}
+}
+
+TypeB = fn () {
+	let this.a = 20
+}
+TypeB.prototype = new TypeA();
+
+tmp = new TypeB();
+tmp.p();
+
+ExArray = fn () {
+	this.a = 10
+}
+ExArray.prototype = new Array()
+tmp = new ExArray();

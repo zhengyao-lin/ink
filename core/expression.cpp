@@ -445,7 +445,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 		/* create barrier to prevent changes on prototype */
 		address = obj->setSlot(id, NULL, id_p);
 		if (hash) { /* if found the slot in prototype */
-			base = search_res.base; /* set base as the prototype(to make some native method run correctly) */
+			// base = search_res.base; /* set base as the prototype(to make some native method run correctly) */
 			ret = hash->getValue();
 		} else {
 			if ((tmp = obj->getSlot(engine, "missing"))->type == INK_FUNCTION) {

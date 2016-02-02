@@ -65,7 +65,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 
 	tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 	engine->setInterrupt(INTER_NONE, NULL);
-	if (signal_backup < INTER_LAST && signal_backup != INTER_EXIT) {
+	if (signal_backup < INTER_LAST) {
 		if ((tmp = receiver->getSlot(engine, (string("@") + getNativeSignalName(signal_backup)).c_str()))
 			->type == INK_FUNCTION) {
 			tmp_argv[0] = value_backup;
@@ -85,7 +85,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 		} else {
 			InkWarn_Unregistered_Interrupt_Signal(engine, signal_backup);
 		}
-	} else if (signal_backup != INTER_EXIT) {
+	} else {
 		InkWarn_Unregistered_Interrupt_Signal(engine, signal_backup);
 	}
 	free(tmp_argv);
