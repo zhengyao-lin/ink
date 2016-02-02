@@ -76,6 +76,21 @@ Ink_Object *InkNative_Direct_Remove(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return new Ink_Numeric(engine, removeDir(tmp_path->c_str()) == 0);
 }
 
+Ink_Object *InkNative_Direct_Path(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+	string *tmp_path;
+
+	ASSUME_BASE_TYPE(engine, DIRECT_TYPE);
+
+	if (!(tmp_path = as<Ink_DirectPointer>(base)->path)) {
+		InkWarn_IO_Uninitialized_Direct_Pointer(engine);
+		return NULL_OBJ;
+	}
+
+	return new Ink_String(engine, *tmp_path);
+}
+
 Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -208,6 +223,7 @@ void Ink_DirectPointer::Ink_DirectMethodInit(Ink_InterpreteEngine *engine)
 	setSlot("exist", new Ink_FunctionObject(engine, InkNative_Direct_Exist));
 	setSlot("create", new Ink_FunctionObject(engine, InkNative_Direct_Create));
 	setSlot("remove", new Ink_FunctionObject(engine, InkNative_Direct_Remove));
+	setSlot("path", new Ink_FunctionObject(engine, InkNative_Direct_Path));
 
 #if defined(INK_PLATFORM_LINUX) || defined(INK_PLATFORM_WIN32)
 	setSlot("each", new Ink_FunctionObject(engine, InkNative_Direct_Each));
@@ -228,9 +244,13 @@ void InkMod_Direct_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 
 Ink_Object *InkMod_Direct_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *global_context = context->getGlobal()->context;
+	if (!checkArgument(engine, argc, 2)) {
+		return NULL_OBJ;
+	}
+
+	Ink_Object *apply_to = argv[1];
 	
-	InkMod_Direct_bondTo(engine, global_context);
+	InkMod_Direct_bondTo(engine, apply_to);
 
 	return NULL_OBJ;
 }

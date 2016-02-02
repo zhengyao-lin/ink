@@ -38,13 +38,40 @@ void InkMod_IO_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 
 Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *global_context = context->getGlobal()->context;
-
-	if (argc) {
-		argv[0]->getSlot(engine, "file")->getSlot(engine, "load")->call(engine, context);
-		argv[0]->getSlot(engine, "direct")->getSlot(engine, "load")->call(engine, context);
+	if (!checkArgument(engine, argc, 2)) {
+		return NULL_OBJ;
 	}
-	InkMod_IO_bondTo(engine, global_context);
+
+	Ink_Object *self = argv[0];
+	Ink_Object *apply_to = argv[1];
+	Ink_Object **tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 2);
+
+	Ink_Object *file_pkg = self->getSlot(engine, "file");
+	Ink_Object *direct_pkg = self->getSlot(engine, "direct");
+
+	Ink_Object *file_loader = file_pkg->getSlot(engine, "load");
+	Ink_Object *direct_loader = direct_pkg->getSlot(engine, "load");
+
+	tmp_argv[0] = file_pkg;
+	tmp_argv[1] = apply_to;
+
+	if (file_loader->type == INK_FUNCTION) {
+		file_loader->call(engine, context, 2, tmp_argv);
+	} else {
+		InkWarn_Package_Broken(engine, "io.file");
+	}
+
+	tmp_argv[0] = direct_pkg;
+
+	if (direct_loader->type == INK_FUNCTION) {
+		direct_loader->call(engine, context, 2, tmp_argv);
+	} else {
+		InkWarn_Package_Broken(engine, "io.direct");
+	}
+
+	free(tmp_argv);
+
+	InkMod_IO_bondTo(engine, apply_to);
 
 	return NULL_OBJ;
 }

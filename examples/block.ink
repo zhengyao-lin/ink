@@ -335,7 +335,7 @@ a = new Object();
 
 package = new Object() { | this_p |
 	this_p.count = 1
-	this_p.load = fn (pkg) {
+	this_p.load = fn (pkg, apply_to) {
 		p("I'm package loader!! -- the " + base.count++ + "th time");
 	}
 }

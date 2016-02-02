@@ -297,21 +297,20 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 				free(redirect);
 			}
 
-			if (current_engine) {
-				context->removeLast();
-				top_level_backup = current_engine->top_level;
-				setParserCurrentLineno(0);
+			context->removeLast();
+			top_level_backup = current_engine->top_level;
+			setParserCurrentLineno(0);
 
-				yyerror_prefix = "from import: ";
-				current_engine->startParse(fp);
-				current_engine->execute(context);
+			yyerror_prefix = "from import: ";
+			current_engine->startParse(fp);
+			current_engine->execute(context);
 
-				Ink_insertNativeExpression(current_engine->top_level.begin(),
-										   current_engine->top_level.end());
-				current_engine->top_level = top_level_backup;
+			Ink_insertNativeExpression(current_engine->top_level.begin(),
+									   current_engine->top_level.end());
+			current_engine->top_level = top_level_backup;
 
-				context->addContext(new Ink_ContextObject(engine));
-			}
+			context->addContext(new Ink_ContextObject(engine));
+
 			fclose(fp);
 
 			if (current_dir) {
@@ -326,10 +325,13 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 		} else {
 			// call load method
 			if ((load = getSlotWithProto(engine, context, argv[i], "load"))->type == INK_FUNCTION) {
-				tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
+				context->removeLast();
+				tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 2);
 				tmp_argv[0] = argv[i];
-				load->call(engine, context, 1, tmp_argv);
+				tmp_argv[1] = context->getLocal()->context;
+				load->call(engine, context, 2, tmp_argv);
 				free(tmp_argv);
+				context->addContext(new Ink_ContextObject(engine));
 			} else {
 				InkWarn_Not_Package(engine);
 			}

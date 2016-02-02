@@ -501,6 +501,14 @@ InkWarn_Trapping_Untrapped_Signal(Ink_InterpreteEngine *engine, const char *name
 }
 
 inline void
+InkWarn_Package_Broken(Ink_InterpreteEngine *engine, const char *name)
+{
+	InkErro_doPrintWarning(engine, "Package \'$(name)\' reported a broken sign",
+						   name);
+	return;
+}
+
+inline void
 InkNote_Method_Fallthrough(Ink_InterpreteEngine *engine, const char *name, Ink_TypeTag origin, Ink_TypeTag to_type)
 {
 	InkErro_doPrintNote(engine, "Method \'$(name)\' of object of type <$(origin)> fallthrough to that of type <$(to)>",

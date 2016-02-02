@@ -259,9 +259,13 @@ void InkMod_File_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 
 Ink_Object *InkMod_File_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *global_context = context->getGlobal()->context;
-	
-	InkMod_File_bondTo(engine, global_context);
+	if (!checkArgument(engine, argc, 2)) {
+		return NULL_OBJ;
+	}
+
+	Ink_Object *apply_to = argv[1];
+
+	InkMod_File_bondTo(engine, apply_to);
 
 	return NULL_OBJ;
 }
