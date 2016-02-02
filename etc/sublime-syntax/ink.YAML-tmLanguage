@@ -19,9 +19,21 @@ patterns:
   name: keyword.other.ink
   match: \b(this|base|ARGV|prototype|let|top|auto)\b
 
+- comment: Interrupt signal events
+  name: constant.language.ink
+  match: (@([a-zA-Z_?$])(([a-zA-Z_?$])|([0-9]))*)
+
+- comment: Custom interrupt signals
+  name: keyword.control.ink
+  match: :\s*(@?([a-zA-Z_?$])(([a-zA-Z_?$])|([0-9]))*)
+
 - comment: Interrupt signals
   name: keyword.control.ink
-  match: \b(retn|break|continue|throw|drop|retry|yield)\b
+  match: \b(retn|break|continue|throw|drop|retry|exit|yield)\b
+
+- comment: Semicolon in the end of line
+  name: comment.line.ink
+  match: ;\s*[\n\r]+
 
 - comment: Line comment, start with # or //
   name: comment.line.ink
@@ -34,7 +46,7 @@ patterns:
 
 - comment: Numeric
   name: constant.numeric.ink
-  match: \b((0(x|X)[0-9a-fA-F]+)|([0-9]+(\.[0-9]+)?))\b
+  match: \b((0(x|X)[0-9a-fA-F]+)|(0(o|O)[0-7]+(\.[0-7]+)?)|([1-9]+([0-9])*)|0|([0-9]*\.[0-9]+))\b
 
 - comment: Native functions & objects
   name: constant.character.ink
@@ -52,7 +64,7 @@ patterns:
 
 - comment: Function generator's name, e.g. fn ([arg[, arg]])
   name: none
-  match: \b(fn|inl|actor)\b\s*\((\s*&?\s*([a-zA-Z_?$]([a-zA-Z_?$]|[0-9])*)\s*(\.\.\.)?\s*(,\s*&?\s*([a-zA-Z_?$]([a-zA-Z_?$]|[0-9])*)\s*(\.\.\.)?\s*)*)*\s*\)
+  match: \b(fn|inl|macro|actor)\b\s*\((\s*&?\s*([a-zA-Z_?$]([a-zA-Z_?$]|[0-9])*)\s*(\.\.\.)?\s*(,\s*&?\s*([a-zA-Z_?$]([a-zA-Z_?$]|[0-9])*)\s*(\.\.\.)?\s*)*)*\s*\)
   captures:
     '1': {name: keyword.other.ink}
     '2': {name: variable.parameter.ink}

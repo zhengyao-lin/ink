@@ -33,6 +33,8 @@ Ink_InputSetting Ink_InputSetting::parseArg(int argc, char **argv)
 				ret.setFilePath(argv[i]);
 				ret.setInput(fp);
 				ret.close_fp = true;
+
+				tmp_argv.push_back(argv[i]);
 			}
 		} else {
 			tmp_argv.push_back(argv[i]);
