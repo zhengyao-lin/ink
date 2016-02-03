@@ -4,7 +4,6 @@
 #include <string.h>
 #include "universal.h"
 
-#define INK_DEBUG_FLAG 1
 #define INK_ROOT_ACTOR_NAME "root"
 #define INK_ARGV_NAME "ARGV"
 
