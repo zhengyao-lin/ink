@@ -69,7 +69,7 @@ Ink_Object *InkNative_Numeric_Mod(Ink_InterpreteEngine *engine, Ink_ContextChain
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, (int)as<Ink_Numeric>(base)->value % (int)as<Ink_Numeric>(argv[0])->value);
+	return new Ink_Numeric(engine, fmod(as<Ink_Numeric>(base)->value, as<Ink_Numeric>(argv[0])->value));
 }
 
 Ink_Object *InkNative_Numeric_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -177,6 +177,33 @@ Ink_Object *InkNative_Numeric_ToString(Ink_InterpreteEngine *engine, Ink_Context
 	ss << as<Ink_Numeric>(base)->value;
 
 	return new Ink_String(engine, string(ss.str()));
+}
+
+Ink_Object *InkNative_Numeric_Ceil(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
+
+	return new Ink_Numeric(engine, ceil(as<Ink_Numeric>(base)->value));
+}
+
+Ink_Object *InkNative_Numeric_Floor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
+
+	return new Ink_Numeric(engine, floor(as<Ink_Numeric>(base)->value));
+}
+
+Ink_Object *InkNative_Numeric_Round(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
+
+	return new Ink_Numeric(engine, round(as<Ink_Numeric>(base)->value));
 }
 
 // Big Numeric
