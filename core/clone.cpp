@@ -86,25 +86,6 @@ Ink_Object *Ink_Numeric::cloneDeep(Ink_InterpreteEngine *engine)
 	return new_obj;
 }
 
-Ink_Object *Ink_BigNumeric::clone(Ink_InterpreteEngine *engine)
-{
-	Ink_Object *new_obj = new Ink_BigNumeric(engine, value);
-
-	cloneHashTable(this, new_obj);
-
-	return new_obj;
-}
-
-Ink_Object *Ink_BigNumeric::cloneDeep(Ink_InterpreteEngine *engine)
-{
-	engine->addDeepCloneTrace(this);
-	Ink_Object *new_obj = new Ink_BigNumeric(engine, value);
-
-	cloneDeepHashTable(engine, this, new_obj);
-
-	return new_obj;
-}
-
 Ink_Object *Ink_String::clone(Ink_InterpreteEngine *engine)
 {
 	Ink_Object *new_obj = new Ink_String(engine, getValue());

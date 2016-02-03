@@ -64,9 +64,6 @@ string *JSON_stringifyObject(Ink_Object *obj)
 			break;
 		} case INK_UNDEFINED: {
 			break;
-		} case INK_BIGNUMERIC: {
-			ret += as<Ink_BigNumeric>(obj)->value.toString();
-			break;
 		} default: {
 			ret += "{";
 			for (hash_i = obj->hash_table; hash_i;

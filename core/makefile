@@ -21,8 +21,7 @@ REQUIRE=\
 	general.o \
 	debug.o \
 	error.o \
-	protocol.o \
-	numeric.o
+	protocol.o
 
 CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=-shared -static-libgcc -static-libstdc++ -lm

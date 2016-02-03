@@ -7,7 +7,6 @@ typedef long Ink_TypeTag;
 #define INK_UNDEFINED INK_UNDEFINED_tag
 #define INK_OBJECT INK_OBJECT_tag
 #define INK_NUMERIC INK_NUMERIC_tag
-#define INK_BIGNUMERIC INK_BIGNUMERIC_tag
 #define INK_STRING INK_STRING_tag
 #define INK_CONTEXT INK_CONTEXT_tag
 #define INK_FUNCTION INK_FUNCTION_tag
@@ -21,7 +20,6 @@ enum Ink_TypeTag_tag {
 
 	INK_OBJECT_tag,
 	INK_NUMERIC_tag,
-	INK_BIGNUMERIC_tag,
 	INK_STRING_tag,
 	INK_CONTEXT_tag,
 	INK_FUNCTION_tag,

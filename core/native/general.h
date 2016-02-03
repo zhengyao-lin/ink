@@ -16,7 +16,7 @@
 namespace ink {
 
 inline Ink_Object *getSlotWithProto(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
-									Ink_Object *base, const char *name, string *id_p = NULL)
+									Ink_Object *base, const char *name, std::string *id_p = NULL)
 {
 	return Ink_HashExpression::getSlot(engine, context, base, name, id_p);
 }
@@ -150,9 +150,9 @@ inline Ink_String *getStringVal(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	if (obj->type == INK_STRING) {
 		return as<Ink_String>(obj);
 	} else if (obj->type == INK_NUMERIC) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << as<Ink_Numeric>(obj)->value;
-		return new Ink_String(engine, string(ss.str()));
+		return new Ink_String(engine, std::string(ss.str()));
 	} else if ((tmp = getSlotWithProto(engine, context, obj, "to_str"))
 			   ->type == INK_FUNCTION) {
 		if ((tmp = tmp->call(engine, context))->type != INK_STRING) {

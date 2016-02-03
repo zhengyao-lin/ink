@@ -5,6 +5,8 @@
 
 namespace ink {
 
+using namespace std;
+
 inline string::size_type getRealIndex(long index, string::size_type size)
 {
 	while (index < 0) index += size;

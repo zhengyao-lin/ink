@@ -7,7 +7,6 @@
 #include "type.h"
 #include "hash.h"
 #include "general.h"
-#include "numeric.h"
 #include "coroutine/coroutine.h"
 
 namespace ink {
@@ -338,32 +337,6 @@ public:
 		Ink_NumericMethodInit(engine);
 	}
 	void Ink_NumericMethodInit(Ink_InterpreteEngine *engine);
-
-	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
-	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
-	virtual bool isTrue()
-	{
-		return value != 0.0;
-	}
-};
-
-class Ink_BigNumeric: public Ink_Object {
-public:
-	Ink_BigNumericValue value;
-
-	Ink_BigNumeric(Ink_InterpreteEngine *engine, std::string value)
-	: Ink_Object(engine), value(Ink_BigNumericValue(value))
-	{ type = INK_BIGNUMERIC; }
-
-	Ink_BigNumeric(Ink_InterpreteEngine *engine, Ink_BigNumericValue value)
-	: Ink_Object(engine), value(value)
-	{ type = INK_BIGNUMERIC; }
-
-	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
-	{
-		Ink_BigNumericMethodInit(engine);
-	}
-	void Ink_BigNumericMethodInit(Ink_InterpreteEngine *engine);
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);

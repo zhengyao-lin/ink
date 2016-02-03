@@ -118,8 +118,6 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	tmp->derivedMethodInit(this);
 	global_context->context->setSlot("$numeric", tmp = new Ink_Numeric(this));
 	tmp->derivedMethodInit(this);
-	global_context->context->setSlot("$bignum", tmp = new Ink_BigNumeric(this, "0"));
-	tmp->derivedMethodInit(this);
 	global_context->context->setSlot("$string", tmp = new Ink_String(this, ""));
 	tmp->derivedMethodInit(this);
 	global_context->context->setSlot("$array", tmp = new Ink_Array(this));

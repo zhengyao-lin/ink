@@ -883,12 +883,14 @@ sender = fn () {
 p("################ actor test ################");
 
 import multink
+import bignum
 
 p(typename(receive.'->'));
 
 try_actor = fn () {
 	actor1 = actor () {
 		import multink
+		import bignum
 
 		p("my name is " + actor_self());
 

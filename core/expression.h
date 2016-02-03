@@ -373,17 +373,6 @@ public:
 	virtual ~Ink_NumericConstant() { }
 };
 
-class Ink_BigNumericConstant: public Ink_Expression {
-public:
-	std::string value;
-
-	Ink_BigNumericConstant(std::string value)
-	: value(value)
-	{ }
-
-	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
-};
-
 class Ink_StringConstant: public Ink_Expression {
 public:
 	std::string *value;

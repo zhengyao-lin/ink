@@ -7,7 +7,6 @@
 #include "expression.h"
 #include "protocol.h"
 #include "general.h"
-#include "numeric.h"
 #include "gc/collect.h"
 #include "coroutine/coroutine.h"
 #include "interface/engine.h"
@@ -98,14 +97,9 @@ Ink_Expression *Ink_NumericConstant::parse(string code)
 	bool is_success = false;
 	Ink_NumericValue val = Ink_NumericConstant::parseNumeric(code, &is_success);
 
-	if (isinf(val)) {
-		return new Ink_BigNumericConstant(code);
-	}
-
 	if (is_success)
 		return new Ink_NumericConstant(val);
 	else
-
 	
 	return NULL;
 }
@@ -762,11 +756,6 @@ Ink_Object *Ink_UndefinedConstant::eval(Ink_InterpreteEngine *engine, Ink_Contex
 Ink_Object *Ink_NumericConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	return new Ink_Numeric(engine, value);
-}
-
-Ink_Object *Ink_BigNumericConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
-{
-	return new Ink_BigNumeric(engine, value);
 }
 
 Ink_Object *Ink_StringConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
