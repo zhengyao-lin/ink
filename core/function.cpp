@@ -34,8 +34,8 @@ inline Ink_Object *callWithAttr(Ink_Object *obj, Ink_FunctionAttribution attr,
 	return ret;
 }
 
-inline Ink_Object **copyDeepArgv(Ink_InterpreteEngine *engine,
-								 Ink_ArgcType argc, Ink_Object **argv)
+Ink_Object **Ink_FunctionObject::copyDeepArgv(Ink_InterpreteEngine *engine,
+											  Ink_ArgcType argc, Ink_Object **argv)
 {
 	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * argc);
 	Ink_ArgcType i;
@@ -98,6 +98,72 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 	return;
 }
 
+Ink_Object *Ink_FunctionObject::checkUnkownArgument(Ink_ArgcType &argc, Ink_Object **&argv,
+													Ink_Object *this_p, bool if_return_this,
+													bool &if_delete_argv)
+{
+	Ink_ArgcType tmp_argc, j, argi;
+	Ink_Object **tmp_argv;
+	Ink_Object *ret_val = NULL;
+	bool is_arg_completed = true;
+
+	/* if some arguments have been applied already */
+	if (pa_argv) {
+		tmp_argc = pa_argc;
+		tmp_argv = copyArgv(pa_argc, pa_argv);
+
+		for (j = 0, argi = 0; j < tmp_argc; j++) {
+			/* find unknown place to put in arguments */
+			if (isUnknown(tmp_argv[j])) {
+				if (argi < argc /* not excess */
+					&& !isUnknown(argv[argi]) /* not another unknown argument */)
+					tmp_argv[j] = argv[argi];
+				else
+					is_arg_completed = false;
+				argi++;
+			}
+		}
+
+		if (!is_arg_completed) {
+			/* still missing arguments -- return another PAF */
+			if (argi < argc) {
+				Ink_ArgcType remainc = argc - argi; /* remaining arguments */
+				argc = remainc + tmp_argc;
+				/* link the PA arguments and remaining arguments */
+				argv = linkArgv(tmp_argc, tmp_argv,
+								remainc, &argv[argi]);
+
+				free(tmp_argv);
+				tmp_argc = argc;
+				tmp_argv = argv;
+			}
+			ret_val = cloneWithPA(engine, tmp_argc, tmp_argv,
+								  this_p, if_return_this, true);
+			goto RETURN;
+		}
+
+		Ink_ArgcType remainc = argc - argi; /* remaining arguments */
+		argc = remainc + tmp_argc;
+		/* link the PA arguments and remaining arguments */
+		argv = linkArgv(tmp_argc, tmp_argv,
+						remainc, &argv[argi]);
+		free(tmp_argv);
+		if_delete_argv = true;
+	}
+
+	for (argi = 0; argi < argc; argi++) {
+		if (isUnknown(argv[argi])) { /* find unknown argument */
+			ret_val = cloneWithPA(engine, argc, copyArgv(argc, argv),
+								  this_p, if_return_this, true);
+			goto RETURN;
+		}
+	}
+
+RETURN:
+
+	return ret_val;
+}
+
 Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 									 Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
@@ -106,13 +172,21 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	Ink_ArgcType argi;
 	Ink_ParamList::size_type j;
 	Ink_ContextObject *local;
-	Ink_Object *ret_val = NULL;
+	Ink_Object *ret_val = NULL, *pa_ret = NULL;
 	Ink_Array *var_arg = NULL;
 	IGC_CollectEngine *gc_engine_backup = engine->getCurrentGC();
 	bool force_return = false;
 	bool if_delete_argv = false;
 	const char *debug_name_back = getDebugName();
 	const char *base_debug_name_back = getSlot(engine, "base")->getDebugName();
+
+	if ((pa_ret = checkUnkownArgument(argc, argv, this_p,
+									  if_return_this, if_delete_argv))
+		!= NULL) {
+		if (if_delete_argv)
+			free(argv);
+		return pa_ret;
+	}
 
 	/* init GC engine */
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine(engine);
@@ -257,8 +331,10 @@ Ink_Object *Ink_FunctionObject::clone(Ink_InterpreteEngine *engine)
 	if (closure_context)
 		new_obj->closure_context = closure_context->copyContextChain();
 	new_obj->attr = attr;
-	new_obj->partial_applied_argc = partial_applied_argc;
-	new_obj->partial_applied_argv = copyArgv(partial_applied_argc, partial_applied_argv);
+	new_obj->pa_argc = pa_argc;
+	new_obj->pa_argv = copyArgv(pa_argc, pa_argv);
+	new_obj->pa_info_this_p = pa_info_this_p;
+	new_obj->pa_info_if_return_this = pa_info_if_return_this;
 
 	cloneHashTable(this, new_obj);
 
@@ -281,8 +357,10 @@ Ink_Object *Ink_FunctionObject::cloneDeep(Ink_InterpreteEngine *engine)
 		new_obj->closure_context = closure_context->copyDeepContextChain(engine);
 	}
 	new_obj->attr = attr;
-	new_obj->partial_applied_argc = partial_applied_argc;
-	new_obj->partial_applied_argv = copyDeepArgv(engine, partial_applied_argc, partial_applied_argv);
+	new_obj->pa_argc = pa_argc;
+	new_obj->pa_argv = copyDeepArgv(engine, pa_argc, pa_argv);
+	new_obj->pa_info_this_p = pa_info_this_p ? pa_info_this_p->cloneDeep(engine) : NULL;
+	new_obj->pa_info_if_return_this = pa_info_if_return_this;
 
 	cloneDeepHashTable(engine, this, new_obj);
 
@@ -301,11 +379,16 @@ void Ink_FunctionObject::doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker mar
 		marker(engine, j->context);
 	}
 
-	if (partial_applied_argv) {
-		for (argi = 0; argi < partial_applied_argc; argi++) {
-			marker(engine, partial_applied_argv[argi]);
+	if (pa_argv) {
+		for (argi = 0; argi < pa_argc; argi++) {
+			marker(engine, pa_argv[argi]);
 		}
 	}
+
+	if (pa_info_this_p) {
+		marker(engine, pa_info_this_p);
+	}
+
 	return;
 }
 
@@ -328,7 +411,7 @@ Ink_Object *Ink_Undefined::call(Ink_InterpreteEngine *engine,
 Ink_FunctionObject::~Ink_FunctionObject()
 {
 	if (closure_context) Ink_ContextChain::disposeContextChain(closure_context);
-	if (partial_applied_argv) free(partial_applied_argv);
+	if (pa_argv) free(pa_argv);
 	cleanHashTable();
 }
 

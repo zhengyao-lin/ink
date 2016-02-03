@@ -533,25 +533,20 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	SET_LINE_NUM;
 
 	Ink_ArgumentList::size_type i;
-	Ink_Object **argv = NULL, **argv_back = NULL;
+	Ink_Object **argv = NULL;
 	Ink_Object *ret_val, *expandee;
 	/* eval callee to get parameter declaration */
 	Ink_Object *func = callee->eval(engine, context_chain);
-	Ink_FunctionObject *tmp_func = NULL;
-	if (INTER_SIGNAL_RECEIVED)
+	if (INTER_SIGNAL_RECEIVED) {
+		RESTORE_LINE_NUM;
 		return engine->getInterruptValue();
+	}
 	Ink_ParamList param_list = Ink_ParamList();
 	Ink_ArgumentList dispose_list, tmp_arg_list, another_tmp_arg_list;
-
-	/* this part was moved from Ink_FunctionObject::call */
-	bool is_arg_completed = true,
-		 if_delete_argv = false;
-	Ink_ArgcType tmp_argc, j, argi, argc;
-	Ink_Object **tmp_argv;
+	Ink_ArgcType argc;
 
 	if (func->type == INK_FUNCTION) {
 		param_list = as<Ink_FunctionObject>(func)->param;
-		tmp_func = as<Ink_FunctionObject>(func);
 	}
 	if (is_new) {
 		func = Ink_HashExpression::getSlot(engine, context_chain, func, "new");
@@ -586,12 +581,11 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	if (tmp_arg_list.size()) {
 		/* allocate argument list */
 		argv = (Ink_Object **)malloc(tmp_arg_list.size() * sizeof(Ink_Object *));
-		argv_back = argv;
 
 		/* set argument list, according to the parameter declaration */
 		for (i = 0; i < tmp_arg_list.size(); i++) {
 			if (i < param_list.size() && param_list[i].is_ref) {
-				/* if the paramete is declared as reference, seal the expression to a anonymous function */
+				/* if the parameter is declared as reference, seal the expression to a anonymous function */
 				if (param_list[i].is_variant) {
 					for (; i < tmp_arg_list.size(); i++) {
 						if (tmp_arg_list[i]->arg->is_unknown) {
@@ -628,63 +622,11 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	}
 
 	argc = tmp_arg_list.size();
-	/* if some arguments have been applied already */
-	if (tmp_func && tmp_func->partial_applied_argv) {
-		tmp_argc = tmp_func->partial_applied_argc;
-		tmp_argv = copyArgv(tmp_func->partial_applied_argc,
-							tmp_func->partial_applied_argv);
-		for (j = 0, argi = 0; j < tmp_argc; j++) {
-			/* find unknown place to put in arguments */
-			if (isUnknown(tmp_argv[j])) {
-				if (argi < argc /* not excess */
-					&& !isUnknown(argv[argi]) /* not another unknown argument */)
-					tmp_argv[j] = argv[argi];
-				else
-					is_arg_completed = false;
-				argi++;
-			}
-		}
-
-		if (!is_arg_completed) {
-			/* still missing arguments -- return another PAF */
-			if (argi < argc) {
-				Ink_ArgcType remainc = argc - argi; /* remaining arguments */
-				argc = remainc + tmp_argc;
-				/* link the PA arguments and remaining arguments */
-				argv = linkArgv(tmp_argc, tmp_argv,
-								remainc, &argv[argi]);
-
-				free(tmp_argv);
-				tmp_argc = argc;
-				tmp_argv = argv;
-			}
-			ret_val = tmp_func->cloneWithPA(engine, tmp_argc, tmp_argv, true);
-			goto DISPOSE_ARGV;
-		}
-
-		Ink_ArgcType remainc = argc - argi; /* remaining arguments */
-		argc = remainc + tmp_argc;
-		/* link the PA arguments and remaining arguments */
-		argv = linkArgv(tmp_argc, tmp_argv,
-						remainc, &argv[argi]);
-		free(tmp_argv);
-		if_delete_argv = true;
-	}
-
-	for (argi = 0; tmp_func && argi < argc; argi++) {
-		if (isUnknown(argv[argi])) { /* find unknown argument */
-			ret_val = tmp_func->cloneWithPA(engine, argc, copyArgv(argc, argv), true);
-			goto DISPOSE_ARGV;
-		}
-	}
 
 	ret_val = func->call(engine, context_chain, argc, argv);
 
 DISPOSE_ARGV:
-	if (if_delete_argv)
-		free(argv);
-	if (argv_back)
-		free(argv_back);
+	free(argv);
 
 DISPOSE_LIST:
 	for (i = 0; i < dispose_list.size(); i++) {

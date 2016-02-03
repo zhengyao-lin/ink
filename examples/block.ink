@@ -1355,7 +1355,14 @@ _.missing = fn (name) {
 
 p((_ + 1)(10));
 
-p_for_each = _.each(p(_));
+p_all = fn (argv...) {
+	argv.each { | val |
+		stdout.puts(val.to_str());
+	}
+	p("");
+}
+
+p_for_each = _.each(p_all("from each: ", _));
 p_for_each([1, 2, 3]);
 
 x = _

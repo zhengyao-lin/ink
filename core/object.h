@@ -211,21 +211,25 @@ public:
 
 	Ink_FunctionAttribution attr;
 
-	Ink_ArgcType partial_applied_argc;
-	Ink_Object **partial_applied_argv;
+	Ink_ArgcType pa_argc;
+	Ink_Object **pa_argv;
+	Ink_Object *pa_info_this_p;
+	bool pa_info_if_return_this;
 
 	Ink_FunctionObject(Ink_InterpreteEngine *engine)
 	: Ink_Object(engine),
 	  is_native(false), is_inline(false), is_generator(false), native(NULL),
 	  param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL),
-	  attr(Ink_FunctionAttribution()), partial_applied_argc(0), partial_applied_argv(NULL)
+	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_this_p(NULL),
+	  pa_info_if_return_this(false)
 	{ type = INK_FUNCTION; }
 
 	Ink_FunctionObject(Ink_InterpreteEngine *engine, Ink_NativeFunction native, bool is_inline = false)
 	: Ink_Object(engine),
 	  is_native(true), is_inline(is_inline), is_generator(false), native(native),
 	  param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL),
-	  attr(Ink_FunctionAttribution()), partial_applied_argc(0), partial_applied_argv(NULL)
+	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_this_p(NULL),
+	  pa_info_if_return_this(false)
 	{
 		type = INK_FUNCTION;
 		if (is_inline) {
@@ -237,7 +241,8 @@ public:
 	: Ink_Object(engine),
 	  is_native(true), is_inline(false), is_generator(false), native(native),
 	  param(param), exp_list(Ink_ExpressionList()), closure_context(NULL),
-	  attr(Ink_FunctionAttribution()), partial_applied_argc(0), partial_applied_argv(NULL)
+	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_this_p(NULL),
+	  pa_info_if_return_this(false)
 	{
 		type = INK_FUNCTION;
 		if (is_inline) {
@@ -251,7 +256,7 @@ public:
 	: Ink_Object(engine),
 	  is_native(false), is_inline(is_inline), is_generator(is_generator), native(NULL),
 	  param(param), exp_list(exp_list), closure_context(closure_context), attr(Ink_FunctionAttribution()),
-	  partial_applied_argc(0), partial_applied_argv(NULL)
+	  pa_argc(0), pa_argv(NULL), pa_info_this_p(NULL), pa_info_if_return_this(false)
 	{
 		type = INK_FUNCTION;
 		if (is_inline) {
@@ -273,6 +278,8 @@ public:
 
 	static void triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
 									  Ink_ContextObject *local, Ink_Object *receiver);
+	Ink_Object *checkUnkownArgument(Ink_ArgcType &argc, Ink_Object **&argv,
+									Ink_Object *this_p, bool if_return_this, bool &if_delete_argv);
 
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
@@ -285,25 +292,34 @@ public:
 	}
 	inline Ink_Object *cloneWithPA(Ink_InterpreteEngine *engine,
 								   Ink_ArgcType argc, Ink_Object **argv,
+								   Ink_Object *this_p, bool if_return_this,
 								   bool if_delete_argv = false)
 	{
-		Ink_ArgcType back_argc = partial_applied_argc;
-		Ink_Object **back_argv = partial_applied_argv;
+		Ink_ArgcType back_argc = pa_argc;
+		Ink_Object **back_argv = pa_argv;
+		Ink_Object *this_p_back = pa_info_this_p;
+		bool if_return_this_back = pa_info_if_return_this;
 		Ink_Object *tmp;
 
-		partial_applied_argc = argc;
-		partial_applied_argv = argv;
+		pa_argc = argc;
+		pa_argv = argv;
+		pa_info_this_p = this_p;
+		pa_info_if_return_this = if_return_this;
 
 		tmp = clone(engine);
 
-		partial_applied_argc = back_argc;
-		partial_applied_argv = back_argv;
+		pa_argc = back_argc;
+		pa_argv = back_argv;
+		pa_info_this_p = this_p_back;
+		pa_info_if_return_this = if_return_this_back;
 
 		if (if_delete_argv)
 			free(argv);
 
 		return tmp;
 	}
+	Ink_Object **copyDeepArgv(Ink_InterpreteEngine *engine, Ink_ArgcType argc, Ink_Object **argv);
+	
 	virtual void doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker);
 
 	virtual ~Ink_FunctionObject();

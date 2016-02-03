@@ -85,7 +85,7 @@ void printFunctionInfo(FILE *fp, Ink_FunctionObject *func, string prefix = "")
 	fprintf(fp, "%s" DBG_TAB "is native: %s\n", prefix.c_str(), btos(func->is_native));
 	fprintf(fp, "%s" DBG_TAB "is inline: %s\n", prefix.c_str(), btos(func->is_inline));
 	fprintf(fp, "%s" DBG_TAB "is generator: %s\n", prefix.c_str(), btos(func->is_generator));
-	fprintf(fp, "%s" DBG_TAB "is partial applied: %s\n", prefix.c_str(), btos(func->partial_applied_argc > 0));
+	fprintf(fp, "%s" DBG_TAB "is partial applied: %s\n", prefix.c_str(), btos(func->pa_argc > 0));
 
 	fprintf(fp, "%s" DBG_TAB "parameter%s: (", prefix.c_str(), func->param.size() > 1 ? "s" : "");
 	for (i = 0; i < func->param.size(); i++) {

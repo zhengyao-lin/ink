@@ -248,16 +248,25 @@ void *Ink_ActorFunction_sub(void *arg)
 Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
 									Ink_Object *this_p, bool if_return_this)
 {
-	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
-		return NULL_OBJ;
-	}
-
 	Ink_InterpreteEngine *new_engine;
 	pthread_t new_thread;
 	Ink_InterpreteEngine *check;
 	Ink_ActorFunction_sub_Argument *tmp_arg;
 	Ink_ArgcType tmp_argc, i;
-	Ink_Object **tmp_argv;
+	Ink_Object **tmp_argv, *pa_ret;
+	bool if_delete_argv = false;
+
+	if ((pa_ret = checkUnkownArgument(argc, argv, this_p,
+									  if_return_this, if_delete_argv))
+		!= NULL) {
+		if (if_delete_argv)
+			free(argv);
+		return pa_ret;
+	}
+
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
 
 	if ((check = InkActor_getActor(as<Ink_String>(argv[0])->getValue())) != NULL) {
 		InkWarn_Actor_Conflict(engine, as<Ink_String>(argv[0])->getValue().c_str());
@@ -291,13 +300,17 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	InkActor_addActor(*name, new_engine, new_thread, name);
 	InkActor_unlockThreadCreateLock();
 
+	if (if_delete_argv) {
+		free(argv);
+	}
+
 	return TRUE_OBJ;
 }
 
 Ink_Object *Ink_ActorFunction::clone(Ink_InterpreteEngine *engine)
 {
-	Ink_ActorFunction *new_obj = new Ink_ActorFunction(engine);
-
+	Ink_FunctionObject *new_obj = new Ink_ActorFunction(engine);
+	
 	new_obj->is_native = is_native;
 	new_obj->is_inline = is_inline;
 	new_obj->is_generator = is_generator;
@@ -308,10 +321,38 @@ Ink_Object *Ink_ActorFunction::clone(Ink_InterpreteEngine *engine)
 	if (closure_context)
 		new_obj->closure_context = closure_context->copyContextChain();
 	new_obj->attr = attr;
-	new_obj->partial_applied_argc = partial_applied_argc;
-	new_obj->partial_applied_argv = copyArgv(partial_applied_argc, partial_applied_argv);
+	new_obj->pa_argc = pa_argc;
+	new_obj->pa_argv = copyArgv(pa_argc, pa_argv);
+	new_obj->pa_info_this_p = pa_info_this_p;
+	new_obj->pa_info_if_return_this = pa_info_if_return_this;
 
 	cloneHashTable(this, new_obj);
+
+	return new_obj;
+}
+
+Ink_Object *Ink_ActorFunction::cloneDeep(Ink_InterpreteEngine *engine)
+{
+	engine->addDeepCloneTrace(this);
+	Ink_FunctionObject *new_obj = new Ink_ActorFunction(engine);
+	
+	new_obj->is_native = is_native;
+	new_obj->is_inline = is_inline;
+	new_obj->is_generator = is_generator;
+	new_obj->native = native;
+
+	new_obj->param = param;
+	new_obj->exp_list = exp_list;
+	if (closure_context) {
+		new_obj->closure_context = closure_context->copyDeepContextChain(engine);
+	}
+	new_obj->attr = attr;
+	new_obj->pa_argc = pa_argc;
+	new_obj->pa_argv = copyDeepArgv(engine, pa_argc, pa_argv);
+	new_obj->pa_info_this_p = pa_info_this_p ? pa_info_this_p->cloneDeep(engine) : NULL;
+	new_obj->pa_info_if_return_this = pa_info_if_return_this;
+
+	cloneDeepHashTable(engine, this, new_obj);
 
 	return new_obj;
 }
