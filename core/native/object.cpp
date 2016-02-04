@@ -1,10 +1,11 @@
 #include <sstream>
+#include "native.h"
 #include "../object.h"
 #include "../context.h"
 #include "../expression.h"
 #include "../general.h"
-#include "native.h"
 #include "../interface/engine.h"
+#include "../gc/collect.h"
 
 namespace ink {
 
@@ -171,41 +172,48 @@ Ink_Object *InkNative_Object_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 	Ink_Object **args;
 	Ink_Object *ret_tmp;
 	Ink_HashTable *hash;
-	Ink_ArrayValue ret_val;
+	Ink_Array *ret = NULL;
+	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
 
 	if (!checkArgument(engine, argc, argv, 1, INK_FUNCTION)) {
 		return NULL_OBJ;
 	}
 
+	ret = new Ink_Array(engine);
+	engine->addPardonObject(ret);
+
 	args = (Ink_Object **)malloc(2 * sizeof(Ink_Object *));
 	for (hash = base->hash_table; hash && hash->getValue(); hash = hash->next) {
+		gc_engine->checkGC();
+
 		args[0] = new Ink_String(engine, string(hash->key));
 		args[1] = hash->getValue() ? hash->getValue() : UNDEFINED;
-		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, 2, args)));
+		ret->value.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, 2, args)));
 		if (engine->getSignal() != INTER_NONE) {
 			switch (engine->getSignal()) {
 				case INTER_RETURN:
 					free(args);
-					cleanArrayHashTable(ret_val);
+					engine->removePardonObject(ret);
 					return engine->getInterruptValue(); // signal penetrated
 				case INTER_DROP:
 				case INTER_BREAK:
 					free(args);
-					cleanArrayHashTable(ret_val);
+					engine->removePardonObject(ret);
 					return engine->trapSignal(); // trap the signal
 				case INTER_CONTINUE:
 					engine->trapSignal(); // trap the signal, but do not return
 					continue;
 				default:
 					free(args);
-					cleanArrayHashTable(ret_val);
+					engine->removePardonObject(ret);
 					return NULL_OBJ;
 			}
 		}
 	}
 	free(args);
+	engine->removePardonObject(ret);
 
-	return new Ink_Array(engine, ret_val);
+	return ret;
 }
 
 extern int object_native_method_table_count;

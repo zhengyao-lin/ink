@@ -47,6 +47,7 @@ typedef vector<Ink_EngineDestructor> Ink_CustomDestructorQueue;
 typedef void *Ink_CustomEngineCom;
 typedef map<InkMod_ModuleID, Ink_CustomEngineCom> Ink_CustomEngineComMap;
 typedef vector<string *> Ink_CustomInterruptSignal;
+typedef vector<Ink_Object *> Ink_PardonList;
 
 extern pthread_mutex_t ink_native_exp_list_lock;
 extern Ink_ExpressionList ink_native_exp_list;
@@ -96,6 +97,7 @@ public:
 	IGC_MarkType igc_mark_period;
 	IGC_BondingList igc_bonding_list;
 	Ink_Object *igc_global_ret_val;
+	Ink_PardonList igc_pardon_list;
 	// std::map<int, IGC_CollectEngine *> gc_engine_map;
 
 	Ink_InterruptSignal interrupt_signal;
@@ -135,6 +137,24 @@ public:
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline void addPardonObject(Ink_Object *obj)
+	{
+		igc_pardon_list.push_back(obj);
+		return;
+	}
+
+	inline Ink_Object *removePardonObject(Ink_Object *obj)
+	{
+		Ink_PardonList::iterator pardon_iter = find(igc_pardon_list.begin(),
+													igc_pardon_list.end(), obj);
+		if (pardon_iter != igc_pardon_list.end()) {
+			igc_pardon_list.erase(pardon_iter);
+			return obj;
+		}
+
+		return NULL;
+	}
 
 	inline Ink_InterruptSignal addCustomInterruptSignal(string id)
 	{
@@ -616,7 +636,7 @@ public:
 	void startParse(Ink_InputSetting setting);
 	void startParse(FILE *input = stdin, bool close_fp = false);
 	void startParse(string code);
-	Ink_Object *execute(Ink_ContextChain *context = NULL);
+	Ink_Object *execute(Ink_ContextChain *context = NULL, bool if_trap_signal = true);
 	Ink_Object *execute(Ink_Expression *exp);
 	static void cleanExpressionList(Ink_ExpressionList exp_list);
 	static void cleanContext(Ink_ContextChain *context);

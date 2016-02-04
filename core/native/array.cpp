@@ -1,8 +1,9 @@
 #include <vector>
+#include "native.h"
 #include "../object.h"
 #include "../context.h"
-#include "native.h"
 #include "../interface/engine.h"
+#include "../gc/collect.h"
 
 namespace ink {
 
@@ -82,8 +83,9 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	Ink_Array *array = as<Ink_Array>(base);
 	Ink_Object **args;
 	Ink_Object *ret_tmp;
-	Ink_ArrayValue ret_val;
+	Ink_Array *ret = NULL;
 	Ink_ArrayValue::size_type i;
+	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
@@ -91,34 +93,40 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 		return NULL_OBJ;
 	}
 
+	ret = new Ink_Array(engine);
+	engine->addPardonObject(ret);
+
 	args = (Ink_Object **)malloc(sizeof(Ink_Object *));
 	for (i = 0; i < array->value.size(); i++) {
+		gc_engine->checkGC();
+
 		args[0] = array->value[i] ? array->value[i]->getValue() : UNDEFINED;
-		ret_val.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, 1, args)));
+		ret->value.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, 1, args)));
 		if (engine->getSignal() != INTER_NONE) {
 			switch (engine->getSignal()) {
 				case INTER_RETURN:
 					free(args);
-					cleanArrayHashTable(ret_val);
+					engine->removePardonObject(ret);
 					return engine->getInterruptValue(); // signal penetrated
 				case INTER_DROP:
 				case INTER_BREAK:
 					free(args);
-					cleanArrayHashTable(ret_val);
+					engine->removePardonObject(ret);
 					return engine->trapSignal(); // trap the signal
 				case INTER_CONTINUE:
 					engine->trapSignal(); // trap the signal, but do not return
 					continue;
 				default:
 					free(args);
-					cleanArrayHashTable(ret_val);
+					engine->removePardonObject(ret);
 					return NULL_OBJ;
 			}
 		}
 	}
 	free(args);
+	engine->removePardonObject(ret);
 
-	return new Ink_Array(engine, ret_val);
+	return ret;
 }
 
 Ink_Object *InkNative_Array_Remove(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)

@@ -2,7 +2,9 @@
 #define _NATIVE_FILE_H
 
 #include <stdio.h>
+#include <string>
 #include "core/object.h"
+#include "core/error.h"
 #include "../../includes/universal.h"
 
 #define FILE_GETS_BUFFER_SIZE 1000
@@ -55,10 +57,10 @@ public:
 
 class Ink_DirectPointer: public Ink_Object {
 public:
-	string *path;
+	std::string *path;
 
-	Ink_DirectPointer(Ink_InterpreteEngine *engine, string path)
-	: Ink_Object(engine), path(new string(path))
+	Ink_DirectPointer(Ink_InterpreteEngine *engine, std::string path)
+	: Ink_Object(engine), path(new std::string(path))
 	{
 		type = DIRECT_TYPE;
 	}

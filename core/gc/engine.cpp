@@ -97,6 +97,7 @@ void IGC_CollectEngine::doCollect()
 void IGC_CollectEngine::collectGarbage(bool delete_all)
 {
 	Ink_ContextChain *i;
+	Ink_PardonList::iterator pardon_iter;
 	//clock_t st;
 
 	//st = clock();
@@ -106,7 +107,12 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 			 i; i = i->inner) {
 			doMark(i->context);
 		}
+		for (pardon_iter = engine->igc_pardon_list.begin();
+			 pardon_iter != engine->igc_pardon_list.end(); pardon_iter++) {
+			doMark(*pardon_iter);
+		}
 		doMark(engine->getInterruptValue());
+
 	}
 	doCollect();
 	//printf("GC time duration: %lf\n", (double)(clock() - st) / CLOCKS_PER_SEC);

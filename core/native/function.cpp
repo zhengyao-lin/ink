@@ -1,8 +1,10 @@
+#include "native.h"
 #include "../object.h"
 #include "../context.h"
 #include "../expression.h"
 #include "../error.h"
-#include "native.h"
+#include "../interface/engine.h"
+#include "../gc/collect.h"
 
 namespace ink {
 
@@ -52,9 +54,10 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_Object *range;
 	Ink_ArrayValue range_val, tmp_arr_val;
-	Ink_ArrayValue ret_val;
+	Ink_Array *ret = NULL;
 	Ink_Object **tmp;
 	Ink_ArrayValue::size_type i;
+	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
 
 	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 
@@ -75,23 +78,29 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 		return NULL_OBJ;
 	}
 
-	ret_val = Ink_ArrayValue();
+	ret = new Ink_Array(engine);
+	engine->addPardonObject(ret);
+	engine->addPardonObject(range);
 	range_val = as<Ink_Array>(range)->value;
 
 	for (i = 0; i < range_val.size(); i++) {
+		// gc_engine->doMark(range);
+		gc_engine->checkGC();
 		if (range_val[i]
 			&& range_val[i]->getValue()->type == INK_ARRAY) {
 			tmp_arr_val = as<Ink_Array>(range_val[i]->getValue())->value;
 			tmp = arrayValueToObject(tmp_arr_val);
-			ret_val.push_back(new Ink_HashTable("", base->call(engine, context, tmp_arr_val.size(), tmp)));
+			ret->value.push_back(new Ink_HashTable(base->call(engine, context, tmp_arr_val.size(), tmp)));
 			free(tmp);
 		} else {
 			InkWarn_Incorrect_Range_Type(engine);
-			return NULL_OBJ;
+			ret->value.push_back(new Ink_HashTable(NULL_OBJ));
 		}
 	}
+	engine->removePardonObject(ret);
+	engine->removePardonObject(range);
 
-	return new Ink_Array(engine, ret_val);
+	return ret;
 }
 
 Ink_Object *InkNative_Function_GetExp(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)

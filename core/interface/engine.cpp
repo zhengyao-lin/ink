@@ -71,6 +71,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
 	igc_mark_period = 1;
 	igc_global_ret_val = NULL;
+	igc_pardon_list = Ink_PardonList();
 
 	error_mode = INK_ERRMODE_DEFAULT;
 
@@ -251,7 +252,7 @@ void Ink_InterpreteEngine::startParse(string code)
 	return;
 }
 
-Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
+Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context, bool if_trap_signal)
 {
 	char *current_dir = NULL, *redirect = NULL;
 	Ink_InterpreteEngine *engine = this;
@@ -293,7 +294,11 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context)
 			}
 			if (getSignal() != INTER_EXIT)
 				InkWarn_Trapping_Untrapped_Signal(engine, tmp_sig_name);
-			ret = trapSignal(); // trap all
+
+			ret = getInterruptValue();
+			if (if_trap_signal) {
+				trapSignal();
+			}
 			break;
 		}
 	}

@@ -8,7 +8,7 @@
 	#include "core/interface/engine.h"
 	#include "core/interface/setting.h"
 	#define SET_LINE_NO(exp) (exp->line_number = current_line_number)
-	#define YYERROR_VERBOSE 1
+	#define YYERROR_VERBOSE 1s
 	#define YYDEBUG 1
 
 	using namespace ink;

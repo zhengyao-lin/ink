@@ -225,7 +225,7 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, In
 		setParserCurrentLineno(0);
 		yyerror_prefix = "from eval: ";
 		current_engine->startParse(as<Ink_String>(argv[0])->getValue());
-		ret = current_engine->execute(context);
+		ret = current_engine->execute(context, false);
 
 		Ink_insertNativeExpression(current_engine->top_level.begin(),
 								   current_engine->top_level.end());

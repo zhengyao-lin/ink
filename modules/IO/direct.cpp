@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <string>
+#include "io.h"
 #include "core/general.h"
 #include "core/debug.h"
 #include "core/native/native.h"
+#include "core/gc/collect.h"
 #include "core/interface/engine.h"
 #include "includes/switches.h"
-#include "io.h"
 
 using namespace ink;
 using namespace std;
@@ -97,9 +98,10 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 	string *tmp_path;
 	Ink_Object **args = NULL;
 	Ink_Object *ret_tmp;
-	Ink_ArrayValue ret_val;
+	Ink_Array *ret = NULL;
 	Ink_ArrayValue::size_type i;
 	Ink_Object *block = NULL;
+	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
 
 	ASSUME_BASE_TYPE(engine, DIRECT_TYPE);
 
@@ -110,6 +112,9 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 	if (argc && argv[0]->type == INK_FUNCTION)
 		block = argv[0];
+
+	ret = new Ink_Array(engine);
+	engine->addPardonObject(ret);
 
 	args = (Ink_Object **)malloc(sizeof(Ink_Object *));
 
@@ -139,21 +144,21 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 	#define CLOSE_HANDLER FindClose(dir_handle)
 	#define CHILD_NAME (data.cFileName)
 #endif
-
+	gc_engine->checkGC();
 	if (block) {
 		args[0] = new Ink_String(engine, string(CHILD_NAME));
-		ret_val.push_back(new Ink_HashTable(ret_tmp = block->call(engine, context, 1, args)));
+		ret->value.push_back(new Ink_HashTable(ret_tmp = block->call(engine, context, 1, args)));
 		if (engine->getSignal() != INTER_NONE) {
 			switch (engine->getSignal()) {
 				case INTER_RETURN:
 					free(args);
-					cleanArrayHashTable(ret_val);
+					engine->removePardonObject(ret);
 					CLOSE_HANDLER;
 					return engine->getInterruptValue(); // signal penetrated
 				case INTER_DROP:
 				case INTER_BREAK:
 					free(args);
-					cleanArrayHashTable(ret_val);
+					engine->removePardonObject(ret);
 					CLOSE_HANDLER;
 					return engine->trapSignal(); // trap the signal
 				case INTER_CONTINUE:
@@ -161,13 +166,13 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 					continue;
 				default:
 					free(args);
-					cleanArrayHashTable(ret_val);
+					engine->removePardonObject(ret);
 					CLOSE_HANDLER;
 					return NULL_OBJ;
 			}
 		}
 	} else {
-		ret_val.push_back(new Ink_HashTable(new Ink_String(engine, string(CHILD_NAME))));
+		ret->value.push_back(new Ink_HashTable(new Ink_String(engine, string(CHILD_NAME))));
 	}
 
 
@@ -187,8 +192,9 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 #endif
 
 	free(args);
+	engine->removePardonObject(ret);
 
-	return new Ink_Array(engine, ret_val);
+	return ret;
 }
 
 Ink_Object *InkNative_Direct_Exist_Static(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
