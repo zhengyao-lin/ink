@@ -42,17 +42,29 @@ let object_to_str = fn (obj) {
 	} else if (type == "string") {
 		retn "\"" + obj + "\""
 	} else if (type == "array") {
-		let ret = "["
+		let ret = "[ "
 		obj.each { | v |
-			if (ret != "[") {
+			if (ret != "[ ") {
 				ret = ret + ", ";
 			}
 			ret = ret + object_to_str(v)
 		}
-		ret = ret + "]"
+		ret = ret + " ]"
 		retn ret
 	} else if (type == "null" || type == "undefined") {
 		retn type
+	} else if (type == "function") {
+		retn "fn () { ... }"
+	} else {
+		let ret = "{ "
+		obj.each { | k, v |
+			if (ret != "{ ") {
+				ret = ret + ", ";
+			}
+			ret = ret + k + ": " + object_to_str(v)
+		}
+		ret = ret + " }"
+		retn ret
 	}
 }
 
