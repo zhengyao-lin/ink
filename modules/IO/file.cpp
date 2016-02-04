@@ -78,7 +78,8 @@ Ink_Object *InkNative_File_Close(Ink_InterpreteEngine *engine, Ink_ContextChain 
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp) {
-		as<Ink_FilePointer>(base)->fp = NULL;
+		if (NOT_STDIO(tmp))
+			as<Ink_FilePointer>(base)->fp = NULL;
 		fclose(tmp);
 	} else {
 		InkWarn_IO_Uninitialized_File_Pointer(engine);

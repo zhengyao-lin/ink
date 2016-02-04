@@ -8,6 +8,7 @@
 #define FILE_GETS_BUFFER_SIZE 1000
 #define FILE_POINTER_TYPE (getFilePointerType(engine))
 #define DIRECT_TYPE (getDirectType(engine))
+#define NOT_STDIO(fp) ((fp) != stdout && (fp) != stdin && (fp) != stderr)
 
 #if defined(INK_PLATFORM_LINUX)
 	#include <sys/types.h>
@@ -48,7 +49,7 @@ public:
 
 	virtual ~Ink_FilePointer()
 	{
-		if (fp && fp != stdin && fp != stdout && fp != stderr) fclose(fp);
+		if (fp && NOT_STDIO(fp)) fclose(fp);
 	}
 };
 
