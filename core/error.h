@@ -511,10 +511,12 @@ InkWarn_Package_Broken(Ink_InterpreteEngine *engine, const char *name)
 inline void
 InkNote_Method_Fallthrough(Ink_InterpreteEngine *engine, const char *name, Ink_TypeTag origin, Ink_TypeTag to_type)
 {
+#ifdef INK_DEBUG_FLAG
 	InkErro_doPrintNote(engine, "Method \'$(name)\' of object of type <$(origin)> fallthrough to that of type <$(to)>",
 						name,
 						getTypeName(engine, origin),
 						getTypeName(engine, to_type));
+#endif
 	return;
 }
 
