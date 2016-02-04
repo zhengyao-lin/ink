@@ -232,6 +232,27 @@ Ink_Object *InkNative_File_Flush(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return NULL_OBJ;
 }
 
+Ink_Object *InkNative_File_Reopen(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+	FILE *tmp = NULL;
+
+	if (!checkArgument(engine, argc, argv, 2, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
+
+	tmp = as<Ink_FilePointer>(base)->fp;
+	if (tmp) {
+		tmp = freopen(as<Ink_String>(argv[0])->getValue().c_str(),
+					  as<Ink_String>(argv[1])->getValue().c_str(), tmp);
+	} else
+		InkWarn_IO_Uninitialized_File_Pointer(engine);
+
+	return new Ink_Numeric(engine, tmp != NULL);
+}
+
 void Ink_FilePointer::Ink_FilePointerMethodInit(Ink_InterpreteEngine *engine)
 {
 	setSlot("close", new Ink_FunctionObject(engine, InkNative_File_Close));
@@ -241,6 +262,7 @@ void Ink_FilePointer::Ink_FilePointerMethodInit(Ink_InterpreteEngine *engine)
 	setSlot("getc", new Ink_FunctionObject(engine, InkNative_File_GetC));
 	setSlot("read", new Ink_FunctionObject(engine, InkNative_File_ReadAll));
 	setSlot("flush", new Ink_FunctionObject(engine, InkNative_File_Flush));
+	setSlot("reopen", new Ink_FunctionObject(engine, InkNative_File_Reopen));
 
 	return;
 }
