@@ -54,7 +54,7 @@ bool isEqual(Ink_Object *a, Ink_Object *b)
 	if (a->type == INK_UNDEFINED && b->type == INK_UNDEFINED) return true;
 	if (a->type == INK_NULL && b->type == INK_NULL) return true;
 
-	return false;
+	return a == b;
 }
 
 Ink_Object *InkNative_Object_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)

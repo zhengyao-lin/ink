@@ -2,6 +2,17 @@
 
 import io
 
+$array.find = fn (obj) {
+	let i = 0
+	base.each { | v |
+		if (v == obj) {
+			retn i
+		}
+		i++
+	}
+	-1
+}
+
 let show_director = fn () {
 	stdout.puts("inki> ")
 }
@@ -18,7 +29,13 @@ let println = fn (str) {
 	print(str.to_str() + "\n")
 }
 
+let object_traced_stack = new Array()
 let object_to_str = fn (obj) {
+	if (object_traced_stack.find(obj) >= 0) {
+		retn "<traced>"
+	}
+	object_traced_stack.push(obj)
+
 	let type = typename(obj)
 	if (type == "numeric") {
 		retn obj.to_str()
@@ -40,11 +57,13 @@ let object_to_str = fn (obj) {
 }
 
 let init = fn () {
+	scope = fn () { fn () {} } ()
 	while (1) {
 		show_director()
-		let ret = eval(readln())
+		let ret = scope::(eval(readln()))
 
-		println("==> " + object_to_str(ret));
+		object_traced_stack = new Array()
+		println("==> " + object_to_str(ret))
 	}
 }
 
