@@ -7,7 +7,7 @@ namespace ink {
 
 using namespace std;
 
-inline string::size_type getRealIndex(long index, string::size_type size)
+inline wstring::size_type getRealIndex(long index, wstring::size_type size)
 {
 	while (index < 0) index += size;
 	return index;
@@ -25,7 +25,7 @@ Ink_Object *InkNative_String_Add(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	}
 
 	if ((tmp = getStringVal(engine, context, argv[0])) != NULL) {
-		return new Ink_String(engine, as<Ink_String>(base)->getValue() + tmp->getValue());
+		return new Ink_String(engine, as<Ink_String>(base)->getWValue() + tmp->getWValue());
 	}
 
 	InkWarn_Invalid_Argument_For_String_Add(engine, argv[0]->type);
@@ -35,8 +35,8 @@ Ink_Object *InkNative_String_Add(Ink_InterpreteEngine *engine, Ink_ContextChain 
 Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
-	string base_str;
-	string::size_type index;
+	wstring base_str;
+	wstring::size_type index;
 
 	ASSUME_BASE_TYPE(engine, INK_STRING);
 
@@ -44,7 +44,7 @@ Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 		InkNote_Method_Fallthrough(engine, "[]", INK_STRING, INK_OBJECT);
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
-	base_str = as<Ink_String>(base)->getValue();
+	base_str = as<Ink_String>(base)->getWValue();
 	index = getRealIndex(as<Ink_Numeric>(argv[0])->value, base_str.length());
 
 	return new Ink_String(engine, base_str.substr(index, 1));
@@ -56,14 +56,14 @@ Ink_Object *InkNative_String_Length(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 	ASSUME_BASE_TYPE(engine, INK_STRING);
 
-	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().length());
+	return new Ink_Numeric(engine, as<Ink_String>(base)->getWValue().length());
 }
 
 Ink_Object *InkNative_String_SubStr(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
-	string::size_type offset;
-	string::size_type length;
+	wstring::size_type offset;
+	wstring::size_type length;
 
 	ASSUME_BASE_TYPE(engine, INK_STRING);
 
@@ -71,7 +71,7 @@ Ink_Object *InkNative_String_SubStr(Ink_InterpreteEngine *engine, Ink_ContextCha
 		return NULL_OBJ;
 	}
 
-	string origin = as<Ink_String>(base)->getValue();
+	wstring origin = as<Ink_String>(base)->getWValue();
 	if (argc > 1 && argv[1]->type == INK_NUMERIC) {
 		offset = getRealIndex(as<Ink_Numeric>(argv[0])->value, origin.length());
 		length = as<Ink_Numeric>(argv[1])->value;
@@ -100,8 +100,8 @@ Ink_Object *InkNative_String_Greater(Ink_InterpreteEngine *engine, Ink_ContextCh
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().c_str()[0]
-								   > as<Ink_String>(argv[0])->getValue().c_str()[0]);
+	return new Ink_Numeric(engine, as<Ink_String>(base)->getWValue().c_str()[0]
+								   > as<Ink_String>(argv[0])->getWValue().c_str()[0]);
 }
 
 Ink_Object *InkNative_String_Less(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -113,7 +113,8 @@ Ink_Object *InkNative_String_Less(Ink_InterpreteEngine *engine, Ink_ContextChain
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().c_str()[0] < as<Ink_String>(argv[0])->getValue().c_str()[0]);
+	return new Ink_Numeric(engine, as<Ink_String>(base)->getWValue().c_str()[0]
+								   < as<Ink_String>(argv[0])->getWValue().c_str()[0]);
 }
 
 Ink_Object *InkNative_String_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -137,7 +138,8 @@ Ink_Object *InkNative_String_LessOrEqual(Ink_InterpreteEngine *engine, Ink_Conte
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, as<Ink_String>(base)->getValue().c_str()[0] <= as<Ink_String>(argv[0])->getValue().c_str()[0]);
+	return new Ink_Numeric(engine, as<Ink_String>(base)->getWValue().c_str()[0]
+								   <= as<Ink_String>(argv[0])->getWValue().c_str()[0]);
 }
 
 Ink_Object *InkNative_String_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)

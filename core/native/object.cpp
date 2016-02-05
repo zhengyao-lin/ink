@@ -72,17 +72,19 @@ Ink_Object *InkNative_Object_NotEqual(Ink_InterpreteEngine *engine, Ink_ContextC
 Ink_Object *InkNative_Object_Index(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
+	string tmp;
 
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
-	
-	if (!base->getSlotMapping(engine, as<Ink_String>(argv[0])->getValue().c_str())) {
-		string *tmp = new string(as<Ink_String>(argv[0])->getValue());
-		return getSlotWithProto(engine, context, base, tmp->c_str(), tmp);
+
+	tmp = as<Ink_String>(argv[0])->getValue();
+	if (!base->getSlotMapping(engine, tmp.c_str())) {
+		string *tmp_p = new string(tmp);
+		return getSlotWithProto(engine, context, base, tmp_p->c_str(), tmp_p);
 	}
 
-	return getSlotWithProto(engine, context, base, as<Ink_String>(argv[0])->getValue().c_str());
+	return getSlotWithProto(engine, context, base, tmp.c_str());
 }
 
 Ink_Object *InkNative_Object_New(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -126,14 +128,14 @@ Ink_Object *InkNative_Object_SetGetter(Ink_InterpreteEngine *engine, Ink_Context
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_HashTable *hash;
-	const char *tmp;
+	string tmp;
 
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
 
-	tmp = as<Ink_String>(argv[0])->getValue().c_str();
-	if (!(hash = base->getSlotMapping(engine, tmp))) {
+	tmp = as<Ink_String>(argv[0])->getValue();
+	if (!(hash = base->getSlotMapping(engine, tmp.c_str()))) {
 		string *tmp_p = new string(tmp);
 		hash = base->setSlot(tmp_p->c_str(), NULL, tmp_p);
 	}
@@ -147,14 +149,14 @@ Ink_Object *InkNative_Object_SetSetter(Ink_InterpreteEngine *engine, Ink_Context
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_HashTable *hash;
-	const char *tmp;
+	string tmp;
 
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
 
-	tmp = as<Ink_String>(argv[0])->getValue().c_str();
-	if (!(hash = base->getSlotMapping(engine, tmp))) {
+	tmp = as<Ink_String>(argv[0])->getValue();
+	if (!(hash = base->getSlotMapping(engine, tmp.c_str()))) {
 		string *tmp_p = new string(tmp);
 		hash = base->setSlot(tmp_p->c_str(), NULL, tmp_p);
 	}

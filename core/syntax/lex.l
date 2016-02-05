@@ -362,7 +362,9 @@ void yyerror(const char *msg);
 }
 
 . {
-	yyerror("Unknown token");
+	char buf[30];
+	sprintf(buf, "Unknown token \\x%x", yytext[0]);
+	yyerror(buf);
 	yyterminate();
 }
 

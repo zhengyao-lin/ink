@@ -35,7 +35,6 @@ namespace ink {
 	ink::Ink_HashTableMapping			*hash_table_mapping;
 	ink::Ink_HashTableMappingSingle		*hash_table_mapping_single;
 	std::string							*string;
-	ink::IDContextType					context_type;
 	ink::Ink_InterruptSignal			signal;
 	int									token;
 }
@@ -921,18 +920,6 @@ function_expression
 	| functional_block
 	;
 
-/*
-id_context_type
-	: TLET
-	{
-		$$ = ID_LOCAL;
-	}
-	| TGLOBAL
-	{
-		$$ = ID_GLOBAL;
-	}
-*/
-
 element_list
 	: nestable_expression
 	{
@@ -1023,26 +1010,6 @@ single_element_expression
 		$$->is_unknown = true;
 		SET_LINE_NO($$);
 	}
-	/*| TVAR nllo TIDENTIFIER
-	{
-		$$ = new Ink_IdentifierExpression($3, ID_COMMON, true);
-		SET_LINE_NO($$);
-	}
-	| id_context_type nllo TIDENTIFIER
-	{
-		$$ = new Ink_IdentifierExpression($3, $1, $1 == ID_LOCAL);
-		SET_LINE_NO($$);
-	}
-	| TVAR nllo id_context_type nllo TIDENTIFIER
-	{
-		$$ = new Ink_IdentifierExpression($5, $3, true);
-		SET_LINE_NO($$);
-	}
-	| id_context_type nllo TVAR nllo TIDENTIFIER
-	{
-		$$ = new Ink_IdentifierExpression($5, $1, true);
-		SET_LINE_NO($$);
-	}*/
 	;
 
 primary_expression

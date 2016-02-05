@@ -7,6 +7,7 @@
 #include "type.h"
 #include "hash.h"
 #include "general.h"
+#include "utf8.h"
 #include "coroutine/coroutine.h"
 
 namespace ink {
@@ -347,16 +348,36 @@ public:
 };
 
 class Ink_String: public Ink_Object {
-	std::string *value;
+	// std::string *value;
+	std::wstring *value;
 public:
 
-	Ink_String(Ink_InterpreteEngine *engine, std::string value)
-	: Ink_Object(engine), value(new std::string(value))
+	Ink_String(Ink_InterpreteEngine *engine, std::wstring v)
+	: Ink_Object(engine), value(new std::wstring(v))
 	{ type = INK_STRING; }
 
-	Ink_String(Ink_InterpreteEngine *engine, std::string *value)
-	: Ink_Object(engine), value(value)
+	Ink_String(Ink_InterpreteEngine *engine, std::wstring *v)
+	: Ink_Object(engine), value(v)
 	{ type = INK_STRING; }
+
+	Ink_String(Ink_InterpreteEngine *engine, std::string v)
+	: Ink_Object(engine)
+	{
+		type = INK_STRING;
+		wchar_t *tmp = Ink_mbstowcs_alloc(v.c_str());
+		value = new std::wstring(tmp);
+		free(tmp);
+	}
+
+	Ink_String(Ink_InterpreteEngine *engine, std::string *v)
+	: Ink_Object(engine)
+	{
+		type = INK_STRING;
+		wchar_t *tmp = Ink_mbstowcs_alloc(v->c_str());
+		value = new std::wstring(tmp);
+		free(tmp);
+		delete v;
+	}
 
 	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
 	{
@@ -365,6 +386,14 @@ public:
 	void Ink_StringMethodInit(Ink_InterpreteEngine *engine);
 
 	inline std::string getValue()
+	{
+		char *tmp = Ink_wcstombs_alloc(value->c_str());
+		std::string ret = std::string(tmp);
+		free(tmp);
+		return ret;
+	}
+
+	inline std::wstring getWValue()
 	{
 		return *value;
 	}

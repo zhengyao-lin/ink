@@ -646,7 +646,7 @@ Ink_Object *Ink_IdentifierExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 }
 
 Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, const char *name,
-													 IDContextType context_type, Ink_EvalFlag flags, bool if_create_slot, string *name_p)
+													 Ink_IDContextType context_type, Ink_EvalFlag flags, bool if_create_slot, string *name_p)
 {
 	/* Variables */
 	Ink_HashTable *hash, *missing;

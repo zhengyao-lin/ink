@@ -322,22 +322,22 @@ typedef enum {
 	ID_LOCAL,
 	ID_GLOBAL,
 	ID_COMMON
-} IDContextType;
+} Ink_IDContextType;
 
 class Ink_IdentifierExpression: public Ink_Expression {
 public:
 	std::string *id;
-	IDContextType context_type;
+	Ink_IDContextType context_type;
 	bool if_create_slot;
 
-	Ink_IdentifierExpression(std::string *id, IDContextType context_type = ID_COMMON, bool if_create_slot = false)
+	Ink_IdentifierExpression(std::string *id, Ink_IDContextType context_type = ID_COMMON, bool if_create_slot = false)
 	: id(id), context_type(context_type), if_create_slot(if_create_slot)
 	{ }
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 	static Ink_Object *getContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
 									  const char *name,
-									  IDContextType context_type,
+									  Ink_IDContextType context_type,
 									  Ink_EvalFlag flags, bool if_create_slot, std::string *name_p = NULL);
 
 	virtual ~Ink_IdentifierExpression()

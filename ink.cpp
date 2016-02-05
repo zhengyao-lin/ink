@@ -9,6 +9,8 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+	setlocale(LC_CTYPE, "");
+
 	Ink_InputSetting setting = Ink_InputSetting::parseArg(argc, argv);
 	Ink_InterpreteEngine *engine = NULL;
 
