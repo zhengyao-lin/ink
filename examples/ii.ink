@@ -1,4 +1,4 @@
-io.load(io)
+io.load(io, top)
 
 /*p("contents\n");
 src = new File("block.ik");
@@ -9,7 +9,7 @@ src.close();*/
 
 
 while (1) {
-	stdout.putc(stdin.getc());
+	p(getch());
 }
 
 fun = fn (n, o) {

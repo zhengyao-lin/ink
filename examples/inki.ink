@@ -13,12 +13,12 @@ $array.find = fn (obj) {
 	-1
 }
 
-let show_director = fn () {
-	stdout.puts("inki> ")
+let get_prompt = fn () {
+	"inki> "
 }
 
-let readln = fn () {
-	stdin.gets()
+let readln = fn (prompt) {
+	readline.rl_read(prompt)
 }
 
 let print = fn (str) {
@@ -71,8 +71,7 @@ let object_to_str = fn (obj) {
 let init = fn () {
 	scope = fn () { fn () {} } ()
 	while (1) {
-		show_director()
-		let ret = scope::(eval(readln()))
+		let ret = scope::(eval(readln(get_prompt())))
 
 		object_traced_stack = new Array()
 		println("==> " + object_to_str(ret))
