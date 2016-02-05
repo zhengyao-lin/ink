@@ -29,9 +29,10 @@ Ink_Object *InkNative_Actor_Send_Sub(Ink_InterpreteEngine *engine, Ink_ContextCh
 		return NULL_OBJ;
 	}
 
-	Ink_InterpreteEngine *dest = InkActor_getActor(as<Ink_String>(argv[0])->getValue());
+	string tmp = as<Ink_String>(argv[0])->getValue();
+	Ink_InterpreteEngine *dest = InkActor_getActor(tmp);
 	if (!dest) {
-		InkWarn_Multink_Actor_Not_Found(engine, as<Ink_String>(argv[0])->getValue().c_str());
+		InkWarn_Multink_Actor_Not_Found(engine, tmp.c_str());
 		return NULL_OBJ;
 	}
 
@@ -137,9 +138,10 @@ Ink_Object *InkNative_Actor_JoinAllBut(Ink_InterpreteEngine *engine, Ink_Context
 		return NULL_OBJ;
 	}
 
+	string tmp = as<Ink_String>(argv[0])->getValue();
 	Ink_InterpreteEngine *dest = InkActor_getActor(as<Ink_String>(argv[0])->getValue());
 	if (!dest) {
-		InkWarn_Multink_Actor_Not_Found(engine, as<Ink_String>(argv[0])->getValue().c_str());
+		InkWarn_Multink_Actor_Not_Found(engine, tmp.c_str());
 		return NULL_OBJ;
 	}
 
@@ -268,8 +270,10 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 		return NULL_OBJ;
 	}
 
-	if ((check = InkActor_getActor(as<Ink_String>(argv[0])->getValue())) != NULL) {
-		InkWarn_Actor_Conflict(engine, as<Ink_String>(argv[0])->getValue().c_str());
+	string tmp_str = as<Ink_String>(argv[0])->getValue();
+
+	if ((check = InkActor_getActor(tmp_str)) != NULL) {
+		InkWarn_Actor_Conflict(engine, tmp_str.c_str());
 		return NULL_OBJ;
 	}
 
@@ -296,7 +300,7 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	}
 
 	pthread_detach(new_thread);
-	string *name = new string(as<Ink_String>(argv[0])->getValue().c_str());
+	string *name = new string(tmp_str.c_str());
 	InkActor_addActor(*name, new_engine, new_thread, name);
 	InkActor_unlockThreadCreateLock();
 

@@ -250,11 +250,14 @@ Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *context, I
 	if (!checkArgument(engine, argc, 1)) {
 		return NULL_OBJ;
 	}
+	string tmp_str;
 
 	if (argv[0]->type == INK_NUMERIC)
 		printf("print(numeric): %f\n", as<Ink_Numeric>(argv[0])->value);
-	else if (argv[0]->type == INK_STRING)
-		printf("%s\n", as<Ink_String>(argv[0])->getValue().c_str());
+	else if (argv[0]->type == INK_STRING) {
+		tmp_str = as<Ink_String>(argv[0])->getValue();
+		printf("%s\n", tmp_str.c_str());
+	}
 	else if (argv[0]->type == INK_NULL)
 		printf("(null)\n");
 	else if (argv[0]->type == INK_UNDEFINED)
@@ -281,7 +284,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 
 	for (i = 0; i < argc; i++) {
 		if (argv[i]->type == INK_STRING) {
-			tmp = new string(as<Ink_String>(argv[i])->getValue().c_str());
+			tmp = new string(as<Ink_String>(argv[i])->getValue());
 			if (!(fp = fopen(tmp->c_str(), "r"))) {
 				InkError_Failed_Open_File(current_engine, tmp->c_str());
 				continue;
@@ -431,7 +434,7 @@ Ink_Object *Ink_Try(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink
 
 	for (i = 1; i < argc; i++) {
 		if (argv[i]->type == INK_STRING) {
-			if (as<Ink_String>(argv[i])->getValue() == "catch") {
+			if (as<Ink_String>(argv[i])->getWValue() == L"catch") {
 				if (i + 1 < argc) {
 					if (argv[i + 1]->type == INK_FUNCTION) {
 						catch_block = argv[i + 1];
@@ -442,7 +445,7 @@ Ink_Object *Ink_Try(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink
 					InkWarn_No_Argument_Follwing_Catch(engine);
 				}
 				i++;
-			} else if (as<Ink_String>(argv[i])->getValue() == "final") {
+			} else if (as<Ink_String>(argv[i])->getWValue() == L"final") {
 				if (i + 1 < argc) {
 					if (argv[i + 1]->type == INK_FUNCTION) {
 						final_block = argv[i + 1];
@@ -454,7 +457,8 @@ Ink_Object *Ink_Try(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink
 				}
 				i++;
 			} else {
-				InkWarn_Try_Unknown_Instr(engine, as<Ink_String>(argv[i])->getValue().c_str());
+				string tmp_str = as<Ink_String>(argv[i])->getValue();
+				InkWarn_Try_Unknown_Instr(engine, tmp_str.c_str());
 			}
 		} else {
 			InkWarn_Try_Unknown_Instr_Type(engine, argv[i]->type);
@@ -504,7 +508,7 @@ Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 		return UNDEFINED;
 	}
 
-	tmp_str = new string(as<Ink_String>(argv[0])->getValue().c_str());
+	tmp_str = new string(as<Ink_String>(argv[0])->getValue());
 
 	return Ink_IdentifierExpression::getContextSlot(engine, context, tmp_str->c_str(),
 													ID_COMMON, Ink_EvalFlag(), false, tmp_str);

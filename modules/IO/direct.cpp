@@ -202,8 +202,9 @@ Ink_Object *InkNative_Direct_Exist_Static(Ink_InterpreteEngine *engine, Ink_Cont
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
+	string tmp = as<Ink_String>(argv[0])->getValue();
 
-	return new Ink_Numeric(engine, isDirExist(as<Ink_String>(argv[0])->getValue().c_str()));
+	return new Ink_Numeric(engine, isDirExist(tmp.c_str()));
 }
 
 Ink_Object *InkNative_Direct_Create_Static(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -211,8 +212,9 @@ Ink_Object *InkNative_Direct_Create_Static(Ink_InterpreteEngine *engine, Ink_Con
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
+	string tmp = as<Ink_String>(argv[0])->getValue();
 
-	return new Ink_Numeric(engine, makeDir(as<Ink_String>(argv[0])->getValue().c_str()));
+	return new Ink_Numeric(engine, makeDir(tmp.c_str()));
 }
 
 Ink_Object *InkNative_Direct_Remove_Static(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -220,8 +222,9 @@ Ink_Object *InkNative_Direct_Remove_Static(Ink_InterpreteEngine *engine, Ink_Con
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
+	string tmp = as<Ink_String>(argv[0])->getValue();
 
-	return new Ink_Numeric(engine, removeDir(as<Ink_String>(argv[0])->getValue().c_str()) == 0);
+	return new Ink_Numeric(engine, removeDir(tmp.c_str()) == 0);
 }
 
 void Ink_DirectPointer::Ink_DirectMethodInit(Ink_InterpreteEngine *engine)

@@ -336,7 +336,7 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 				InkWarn_Hash_Table_Mapping_Expect_String(engine);
 				return NULL_OBJ;
 			}
-			string *tmp = new string(as<Ink_String>(key)->getValue().c_str());
+			string *tmp = new string(as<Ink_String>(key)->getValue());
 			ret->setSlot(tmp->c_str(),
 						 mapping[i]->value->eval(engine, context_chain), true, tmp);
 			if (INTER_SIGNAL_RECEIVED) {
