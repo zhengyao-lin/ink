@@ -136,7 +136,7 @@ func = fn (a, b) {
 
 p(func(undefined, undefined));
 str = "str";
-p("str" == 'str');
+p("str" == `str`);
 
 str = " haha";
 
@@ -262,7 +262,7 @@ Object = fn () {};
 ///////////////////////////////////////////////////////////
 fib = fn () {
 	let generator = new Object();
-	let '$yield' = fn (k, value) {
+	let $yield = fn (k, value) {
 		generator.next = k;
 		retn value;
 	};
@@ -275,10 +275,10 @@ fib = fn () {
 				let t = i;
 				i = j;
 				j = j + t;
-				retn '$while'();
+				retn $while();
 			}, i);
 		};
-		retn '$while'();
+		retn $while();
 	}
 	retn generator;
 }
@@ -573,8 +573,8 @@ p(json.encode(
 	hello? : "wow!",
 	["haha"] : "eh..",
 	yes : ["I'm elem1", "I'm elem2"],
-	'I shouldn\'t appear' : fn () {},
-	'is it null?' : null
+	`I shouldn\'t appear` : fn () {},
+	`is it null?` : null
 }));
 p(json.encode("this is a string"));
 p(json.encode(undefined));
@@ -590,8 +590,8 @@ p(json.encode(json.decode(json.encode(
 	hello? : "wow!",
 	["haha"] : "eh..",
 	yes : ["I'm elem1", "I'm elem2"],
-	'I shouldn\'t appear' : fn () {},
-	'is it null?' : null
+	`I shouldn\'t appear` : fn () {},
+	`is it null?` : null
 }))));
 
 p(json.encode(json.decode("
@@ -885,7 +885,7 @@ p("################ actor test ################");
 import multink
 import bignum
 
-p(typename(receive.'->'));
+p(typename(receive.`->`));
 
 try_actor = fn () {
 	actor1 = actor () {
@@ -1082,7 +1082,7 @@ p(a print());
 
 // BG
 What = {
-	's Rod': {
+	`s Rod`: {
 		s: {
 			Chinese: fn () {
 				let ret = {}
@@ -1165,10 +1165,10 @@ Can = {
 }
 // BG
 
-What's Rod's Chinese name?
+What`s Rod`s Chinese name?
 Say no to John
 Say no to Nick
-Say no to 'My Dear Teacher'
+Say no to `My Dear Teacher`
 You got to be kidding me. Rod?
 Can you play basketball?
 Can you play football?
@@ -1178,12 +1178,12 @@ Can I borrow your girlfriend??
 Can I borrow your pencil?
 Can I borrow your homework?
 
-numeric_sub = $numeric.'-';
-$numeric.'-' = fn (op) {
+numeric_sub = $numeric.`-`;
+$numeric.`-` = fn (op) {
 	let ret = base.to_str() + " " + op
-	ret.'-' = fn (op) {
+	ret.`-` = fn (op) {
 		let ret = base + " " + op;
-		ret.'-' = this;
+		ret.`-` = this;
 		ret
 	}
 	ret;
@@ -1191,7 +1191,7 @@ $numeric.'-' = fn (op) {
 
 p(182-1589-9452)
 
-$numeric.'-' = numeric_sub
+$numeric.`-` = numeric_sub
 
 p("######################## namespace ########################");
 
@@ -1386,7 +1386,7 @@ test_func(_)(123, 32434);
 
 f = x * x
 
-f.'[]' = fn (x) {
+f.`[]` = fn (x) {
 	tmp = base
 	while (typename(tmp) == "function") {
 		tmp = tmp(x)

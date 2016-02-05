@@ -86,13 +86,22 @@ patterns:
     name: constant.character.escape.ink
     match: \\.
 
-- comment: Identifier literal
-  name: constant.other.ink
+- comment: String literal
+  name: string.quoted.single.ink
   begin: \'
   end: \'
   patterns:
   - comment: Escape characters
-    name: string.quoted.single.ink
+    name: constant.character.escape.ink
+    match: \\.
+
+- comment: Identifier literal
+  name: constant.other.ink
+  begin: \`
+  end: \`
+  patterns:
+  - comment: Escape characters
+    name: string.quoted.other.ink
     match: \\.
 
 - comment: Invalid block comment

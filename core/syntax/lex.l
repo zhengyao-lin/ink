@@ -109,10 +109,12 @@ int ink_yyinput(char *buf, int max_size)
 	return result;
 }
 
+void yyerror(const char *msg);
+
 %}
 
 %option noyywrap
-%start C_COMMENT CC_COMMENT ID_LITERAL STRING_LITERAL
+%start C_COMMENT CC_COMMENT ID_LITERAL DOUBLE_STRING_LITERAL SINGLE_STRING_LITERAL
 
 %%
 
@@ -237,7 +239,7 @@ int ink_yyinput(char *buf, int max_size)
 }
 <C_COMMENT>"*/"								BEGIN INITIAL;
 <C_COMMENT><<EOF>> {
-	printf("EOF in comment\n");
+	yyerror("EOF in comment");
 	exit(1);
 }
 <C_COMMENT>.								;
@@ -250,11 +252,11 @@ int ink_yyinput(char *buf, int max_size)
 <CC_COMMENT>.								;
 
  /* ID Literal */
-<INITIAL>\' {
+<INITIAL>` {
 	id_literal = new std::string("", 0);
     BEGIN ID_LITERAL;
 }
-<ID_LITERAL>\' {
+<ID_LITERAL>` {
 	yylval.string = id_literal;
 	id_literal = NULL;
 	BEGIN INITIAL;
@@ -274,59 +276,93 @@ int ink_yyinput(char *buf, int max_size)
 	*id_literal += yytext[0];
     LINE_NUMBER_INC();
 }
-<ID_LITERAL>\\\"      *id_literal += '"';
-<ID_LITERAL>\\'       *id_literal += '\'';
 <ID_LITERAL>\\n       *id_literal += '\n';
 <ID_LITERAL>\\t       *id_literal += '\t';
 <ID_LITERAL>\\\\      *id_literal += '\\';
 <ID_LITERAL><<EOF>>   {
-	printf("EOF in id literal\n");
+	yyerror("EOF in id literal");
 	yyterminate();
 }
 <ID_LITERAL>.         {
     *id_literal += yytext[0];
 }
 
- /* String Literal */
+ /* Double String Literal */
 <INITIAL>\" {
 	string_literal = new std::string("", 0);
-    BEGIN STRING_LITERAL;
+    BEGIN DOUBLE_STRING_LITERAL;
 }
-<STRING_LITERAL>\" {
+<DOUBLE_STRING_LITERAL>\" {
 	yylval.string = string_literal;
 	string_literal = NULL;
 	BEGIN INITIAL;
 	return TSTRING;
 }
-<STRING_LITERAL>\\{OCT}{1,3} {
+<DOUBLE_STRING_LITERAL>\\{OCT}{1,3} {
 	unsigned int letter;
 	sscanf(&yytext[1], "%o", &letter);
     *string_literal += letter;
 }
-<STRING_LITERAL>\\[xX]{HEX}{1,2} {
+<DOUBLE_STRING_LITERAL>\\[xX]{HEX}{1,2} {
 	unsigned int letter;
 	sscanf(&yytext[2], "%x", &letter);
     *string_literal += letter;
 }
-<STRING_LITERAL>{NEWLINE}        {
+<DOUBLE_STRING_LITERAL>{NEWLINE}        {
 	*string_literal += yytext[0];
     LINE_NUMBER_INC();
 }
-<STRING_LITERAL>\\\"      *string_literal += '"';
-<STRING_LITERAL>\\'       *string_literal += '\'';
-<STRING_LITERAL>\\n       *string_literal += '\n';
-<STRING_LITERAL>\\t       *string_literal += '\t';
-<STRING_LITERAL>\\\\      *string_literal += '\\';
-<STRING_LITERAL><<EOF>>   {
-	printf("EOF in string literal\n");
+<DOUBLE_STRING_LITERAL>\\\"      *string_literal += '"';
+<DOUBLE_STRING_LITERAL>\\n       *string_literal += '\n';
+<DOUBLE_STRING_LITERAL>\\t       *string_literal += '\t';
+<DOUBLE_STRING_LITERAL>\\\\      *string_literal += '\\';
+<DOUBLE_STRING_LITERAL><<EOF>>   {
+	yyerror("EOF in string literal");
 	yyterminate();
 }
-<STRING_LITERAL>.         {
+<DOUBLE_STRING_LITERAL>.         {
+    *string_literal += yytext[0];
+}
+
+ /* Single String Literal */
+<INITIAL>' {
+	string_literal = new std::string("", 0);
+    BEGIN SINGLE_STRING_LITERAL;
+}
+<SINGLE_STRING_LITERAL>' {
+	yylval.string = string_literal;
+	string_literal = NULL;
+	BEGIN INITIAL;
+	return TSTRING;
+}
+<SINGLE_STRING_LITERAL>\\{OCT}{1,3} {
+	unsigned int letter;
+	sscanf(&yytext[1], "%o", &letter);
+    *string_literal += letter;
+}
+<SINGLE_STRING_LITERAL>\\[xX]{HEX}{1,2} {
+	unsigned int letter;
+	sscanf(&yytext[2], "%x", &letter);
+    *string_literal += letter;
+}
+<SINGLE_STRING_LITERAL>{NEWLINE}        {
+	*string_literal += yytext[0];
+    LINE_NUMBER_INC();
+};
+<SINGLE_STRING_LITERAL>\\'       *string_literal += '\'';
+<SINGLE_STRING_LITERAL>\\n       *string_literal += '\n';
+<SINGLE_STRING_LITERAL>\\t       *string_literal += '\t';
+<SINGLE_STRING_LITERAL>\\\\      *string_literal += '\\';
+<SINGLE_STRING_LITERAL><<EOF>>   {
+	yyerror("EOF in string literal");
+	yyterminate();
+}
+<SINGLE_STRING_LITERAL>.         {
     *string_literal += yytext[0];
 }
 
 . {
-	printf("Unknown token\n");
+	yyerror("Unknown token");
 	yyterminate();
 }
 

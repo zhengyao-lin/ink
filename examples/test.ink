@@ -181,7 +181,7 @@ TypeB = fn () {
 	this.value = 10;
 };
 
-a = TypeB.'new'();
+a = TypeB.`new`();
 
 p(a.value);
 

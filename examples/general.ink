@@ -15,17 +15,17 @@ func = fn (f, s) {
 	p("" + f + "--->" + s);
 }
 
-// p(typename(a.'*'()));
+// p(typename(a.`*`()));
 c = a * b;
 c.p();
 
 c = null;
-c.'[]' = (new Array()).prototype.'[]';
+c.`[]` = (new Array()).prototype.`[]`;
 p(c[1]);
 
 func = fn () { }
 a = new Array();
-a.'<<' = func.'<<';
+a.`<<` = func.`<<`;
 a << 0;
 
 st = new Stack();
@@ -48,7 +48,7 @@ for (let i = 0, i < input.length(), i++) {
 		v1 = st.pop();
 		v2 = st.pop();
 		if (!v1 || !v2) {
-			p("Error: no enough stack for operator '+'");
+			p("Error: no enough stack for operator `+`");
 		} {
 			st.push(v1 + v2);
 		}
@@ -57,7 +57,7 @@ for (let i = 0, i < input.length(), i++) {
 			v1 = st.pop();
 			v2 = st.pop();
 			if (!v1 || !v2) {
-				p("Error: no enough stack for operator '-'");
+				p("Error: no enough stack for operator `-`");
 			} {
 				st.push(v1 - v2);
 			}
@@ -66,7 +66,7 @@ for (let i = 0, i < input.length(), i++) {
 				v1 = st.pop();
 				v2 = st.pop();
 				if (!v1 || !v2) {
-					p("Error: no enough stack for operator '*'");
+					p("Error: no enough stack for operator `*`");
 				} {
 					st.push(v1 * v2);
 				}
@@ -75,7 +75,7 @@ for (let i = 0, i < input.length(), i++) {
 					v1 = st.pop();
 					v2 = st.pop();
 					if (!v1 || !v2) {
-						p("Error: no enough stack for operator '/'");
+						p("Error: no enough stack for operator `/`");
 					} {
 						st.push(v1 / v2);
 					}
