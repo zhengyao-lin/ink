@@ -10,7 +10,7 @@
 #include "../general.h"
 #include "../../includes/universal.h"
 
-#define INKCO_STACK_SIZE (1 << 25)
+#define INKCO_STACK_SIZE (1024 * 1024 * 10)
 
 namespace ink {
 
