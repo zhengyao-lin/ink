@@ -111,10 +111,7 @@ public:
 	ThreadIDMapStack thread_id_map_stack;
 	ThreadPool thread_pool;
 
-	vector<string *> string_pool;
-
-	Ink_TypeTag dbg_type_mapping_length;
-	DBG_TypeMapping *dbg_type_mapping;
+	vector<DBG_TypeMapping *> dbg_type_mapping;
 	vector<Ink_Object *> dbg_traced_stack;
 
 	Ink_ProtocolMap protocol_map;
@@ -135,6 +132,23 @@ public:
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline Ink_HashTable *getTypePrototype(Ink_TypeTag type)
+	{
+		if (type < dbg_type_mapping.size()) {
+			return dbg_type_mapping[type]->proto;
+		}
+		return NULL;
+	}
+
+	inline bool setTypePrototype(Ink_TypeTag type, Ink_HashTable *proto_hash)
+	{
+		if (type < dbg_type_mapping.size()) {
+			dbg_type_mapping[type]->proto = proto_hash;
+			return true;
+		}
+		return false;
+	}
 
 	inline InkCoro_Scheduler *newScheduler()
 	{
@@ -583,38 +597,14 @@ public:
 		return  input_file_path;
 	}
 
-	inline string *addToStringPool(const char *str)
-	{
-		string *tmp;
-		string_pool.push_back(tmp = new string(str ? str : ""));
-		return tmp;
-	}
-
-	inline string *addToStringPool(string *str)
-	{
-		string_pool.push_back(str);
-		return str;
-	}
-
-	inline void disposeStringPool()
-	{
-		vector<string *>::size_type i;
-		for (i = 0; i < string_pool.size(); i++) {
-			delete string_pool[i];
-		}
-		string_pool = vector<string *>();
-		return;
-	}
-
 	inline void initTypeMapping()
 	{
 		Ink_TypeTag i;
 
-		dbg_type_mapping_length = INK_LAST;
-		dbg_type_mapping = (DBG_TypeMapping *)malloc(sizeof(DBG_TypeMapping) * dbg_type_mapping_length);
+		dbg_type_mapping = vector<DBG_TypeMapping *>();
 
 		for (i = 0; i < INK_LAST; i++) {
-			dbg_type_mapping[i] = DBG_TypeMapping(i, dbg_fixed_type_mapping[i].name);
+			dbg_type_mapping.push_back(new DBG_TypeMapping(i, dbg_fixed_type_mapping[i].name));
 		}
 
 		return;
@@ -622,22 +612,28 @@ public:
 
 	inline void disposeTypeMapping()
 	{
-		free(dbg_type_mapping);
+		vector<DBG_TypeMapping *>::iterator type_iter;
+
+		for (type_iter = dbg_type_mapping.begin();
+			 type_iter != dbg_type_mapping.end(); type_iter++) {
+			delete *type_iter;
+		}
+		dbg_type_mapping = vector<DBG_TypeMapping *>();
+
 		return;
 	}
 
 	inline Ink_TypeTag registerType(const char *name)
 	{
-		Ink_TypeTag ret = dbg_type_mapping_length++;
-		dbg_type_mapping = (DBG_TypeMapping *)realloc(dbg_type_mapping,
-													  sizeof(DBG_TypeMapping) * dbg_type_mapping_length);
-		dbg_type_mapping[ret] = DBG_TypeMapping(ret, addToStringPool(name)->c_str());
+		string *tmp_str = new string(name);
+		Ink_TypeTag ret = dbg_type_mapping.size();
+		dbg_type_mapping.push_back(new DBG_TypeMapping(ret, tmp_str->c_str(), tmp_str));
 		return ret;
 	}
 
 	inline const char *getTypeName(Ink_TypeTag type_tag)
 	{
-		return dbg_type_mapping[type_tag].friendly_name;
+		return dbg_type_mapping[type_tag]->name;
 	}
 
 	inline void initPrintDebugInfo()

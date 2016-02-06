@@ -32,6 +32,8 @@ public:
 	IGC_CollectEngine *alloc_engine;
 	const char *debug_name;
 
+	Ink_HashTable *proto;
+
 	Ink_InterpreteEngine *engine;
 
 	Ink_Object(Ink_InterpreteEngine *engine)
@@ -44,11 +46,16 @@ public:
 		base = NULL;
 		alloc_engine = NULL;
 		debug_name = NULL;
+		proto = NULL;
+		
+		initProto(engine);
 
 		if (engine)
 			IGC_addObject(engine, this);
 		// initMethod();
 	}
+
+	void initProto(Ink_InterpreteEngine *engine);
 
 	inline void setDebugName(const char *name)
 	{
@@ -59,6 +66,32 @@ public:
 	inline const char *getDebugName()
 	{
 		return debug_name;
+	}
+
+	inline Ink_HashTable *setProto(Ink_HashTable *proto_hash)
+	{
+		if (proto_hash) {
+			return setProto(proto_hash->getValue());
+		}
+		return NULL;
+	}
+
+	inline Ink_HashTable *setProto(Ink_Object *obj)
+	{
+		if (proto) {
+			proto->setValue(obj);
+		} else {
+			proto = new Ink_HashTable("prototype", obj);
+		}
+		return proto;
+	}
+
+	inline Ink_Object *getProto()
+	{
+		if (proto) {
+			return proto->getValue();
+		}
+		return NULL;
 	}
 
 	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
@@ -222,7 +255,10 @@ public:
 	  param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL),
 	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_this_p(NULL),
 	  pa_info_if_return_this(false)
-	{ type = INK_FUNCTION; }
+	{
+		type = INK_FUNCTION;
+		initProto(engine);
+	}
 
 	Ink_FunctionObject(Ink_InterpreteEngine *engine, Ink_NativeFunction native, bool is_inline = false)
 	: Ink_Object(engine),
@@ -232,6 +268,7 @@ public:
 	  pa_info_if_return_this(false)
 	{
 		type = INK_FUNCTION;
+		initProto(engine);
 		if (is_inline) {
 			setAttr(Ink_FunctionAttribution(INTER_DROP));
 		}
@@ -245,6 +282,7 @@ public:
 	  pa_info_if_return_this(false)
 	{
 		type = INK_FUNCTION;
+		initProto(engine);
 		if (is_inline) {
 			setAttr(Ink_FunctionAttribution(INTER_DROP));
 		}
@@ -259,6 +297,7 @@ public:
 	  pa_argc(0), pa_argv(NULL), pa_info_this_p(NULL), pa_info_if_return_this(false)
 	{
 		type = INK_FUNCTION;
+		initProto(engine);
 		if (is_inline) {
 			setAttr(Ink_FunctionAttribution(INTER_DROP));
 		}
@@ -331,7 +370,10 @@ public:
 
 	Ink_Numeric(Ink_InterpreteEngine *engine, Ink_NumericValue value = 0)
 	: Ink_Object(engine), value(value)
-	{ type = INK_NUMERIC; }
+	{
+		type = INK_NUMERIC;
+		initProto(engine);
+	}
 
 	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
 	{
@@ -354,16 +396,23 @@ public:
 
 	Ink_String(Ink_InterpreteEngine *engine, std::wstring v)
 	: Ink_Object(engine), value(new std::wstring(v))
-	{ type = INK_STRING; }
+	{
+		type = INK_STRING;
+		initProto(engine);
+	}
 
 	Ink_String(Ink_InterpreteEngine *engine, std::wstring *v)
 	: Ink_Object(engine), value(v)
-	{ type = INK_STRING; }
+	{
+		type = INK_STRING;
+		initProto(engine);
+	}
 
 	Ink_String(Ink_InterpreteEngine *engine, std::string v)
 	: Ink_Object(engine)
 	{
 		type = INK_STRING;
+		initProto(engine);
 		wchar_t *tmp = Ink_mbstowcs_alloc(v.c_str());
 		value = new std::wstring(tmp);
 		free(tmp);
@@ -373,6 +422,7 @@ public:
 	: Ink_Object(engine)
 	{
 		type = INK_STRING;
+		initProto(engine);
 		wchar_t *tmp = Ink_mbstowcs_alloc(v->c_str());
 		value = new std::wstring(tmp);
 		free(tmp);
@@ -419,7 +469,10 @@ public:
 
 	Ink_Array(Ink_InterpreteEngine *engine, Ink_ArrayValue value = Ink_ArrayValue())
 	: Ink_Object(engine), value(value)
-	{ type = INK_ARRAY; }
+	{
+		type = INK_ARRAY;
+		initProto(engine);
+	}
 
 	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
 	{

@@ -86,10 +86,6 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 
 	coro_tmp_engine = NULL;
 	coro_scheduler_stack = Ink_SchedulerStack();
-
-	string_pool = vector<string *>();
-	dbg_type_mapping_length = 0;
-	dbg_type_mapping = NULL;
 	
 	protocol_map = Ink_ProtocolMap();
 	pthread_mutex_init(&message_mutex, NULL);
@@ -356,7 +352,6 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 	cleanContext(trace);
 	
 	disposeTypeMapping();
-	disposeStringPool();
 	disposeCustomInterruptSignal();
 }
 

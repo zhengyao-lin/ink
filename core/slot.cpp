@@ -44,7 +44,12 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 {
 	Ink_HashTable *i;
 	Ink_HashTable *ret = NULL;
-	// Ink_Object *method = NULL;
+
+#if 0
+	if (!strcmp(key, "prototype")) {
+		return proto;
+	}
+#endif
 
 	for (i = hash_table; i; i = i->next) {
 		if (!strcmp(i->key, key) && (i->getValue() || i->bonding)) {
@@ -55,10 +60,23 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 	}
 	if (!engine) return ret;
 
+#if 1
 	ret = engine->searchNativeMethod(type, key);
 	if (ret) {
 		ret = setSlot(ret->key, ret->getValue()->clone(engine));
 	}
+#endif
+
+#if 0
+	Ink_Object *p = NULL;
+
+	if ((p = getProto()) != NULL) {
+		ret = p->getSlotMapping(engine, key);
+		if (ret) {
+			ret = setSlot(ret->key, ret->getValue());
+		}
+	}
+#endif
 
 	return ret;
 }

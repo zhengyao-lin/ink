@@ -11,7 +11,8 @@ REQUIRE=\
 	interface/interface.o \
 	syntax/syntax.o \
 	hash.o \
-	slot.o\
+	object.o \
+	slot.o \
 	clone.o\
 	array.o\
 	function.o \

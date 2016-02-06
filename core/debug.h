@@ -4,6 +4,7 @@
 #include <string>
 #include <stdio.h>
 #include "type.h"
+#include "hash.h"
 #include "general.h"
 
 #define DBG_TAB "    "
@@ -17,11 +18,20 @@ class Ink_ContextChain;
 class DBG_TypeMapping {
 public:
 	Ink_TypeTag type;
-	const char *friendly_name;
+	const char *name;
+	Ink_HashTable *proto;
+	std::string *name_p;
 
-	DBG_TypeMapping(Ink_TypeTag type, const char *name)
-	: type(type), friendly_name(name)
-	{ }
+	DBG_TypeMapping(Ink_TypeTag type, const char *name, std::string *name_p = NULL)
+	: type(type), name(name), name_p(name_p)
+	{
+		proto = NULL;
+	}
+
+	~DBG_TypeMapping()
+	{
+		if (name_p) delete name_p;
+	}
 };
 
 struct DBG_FixedTypeMapping {

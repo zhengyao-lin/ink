@@ -1,7 +1,11 @@
 #ifndef _TYPE_H_
 #define _TYPE_H_
 
-typedef long Ink_TypeTag;
+#include "inttype.h"
+
+namespace ink {
+
+typedef Ink_UInt64 Ink_TypeTag;
 
 #define INK_NULL INK_NULL_tag
 #define INK_UNDEFINED INK_UNDEFINED_tag
@@ -27,5 +31,7 @@ enum Ink_TypeTag_tag {
 	INK_UNKNOWN_tag,
 	INK_LAST_tag
 };
+
+}
 
 #endif
