@@ -941,6 +941,7 @@ try_actor = fn () {
 	fib_async = actor (total, mod) {
 		import multink
 		import io
+		import bignum
 
 		p("my name is " + actor_self());
 
@@ -982,14 +983,13 @@ try_actor = fn () {
 	send("stop") -> "echo"
 	p("all ended");
 
-	//join_all();
+	join_all();
 }
 
 let i = 1;
-while (i <= 1) {
+while (0) {
 	p(i++)
-	//try_actor();
-	//join_all();
+	try_actor();
 }
 
 try_arg = actor (arg1, argv...) {

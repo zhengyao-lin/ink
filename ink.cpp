@@ -16,7 +16,6 @@ int main(int argc, char **argv)
 
 	Ink_initEnv();
 
-	Ink_initCoroutine();
 	engine = new Ink_InterpreteEngine();
 	InkActor_setRootEngine(engine);
 

@@ -2,6 +2,7 @@
 #include "general.h"
 #include "object.h"
 #include "expression.h"
+#include "coroutine/coroutine.h"
 #include "thread/actor.h"
 #include "interface/engine.h"
 #include "package/load.h"
@@ -16,6 +17,7 @@ void Ink_initEnv()
 	Ink_loadAllModules();
 	InkActor_initActorMap();
 	Ink_initNativeExpression();
+	Ink_initCoroutine();
 	return;
 }
 
