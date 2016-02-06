@@ -48,6 +48,7 @@ typedef void *Ink_CustomEngineCom;
 typedef map<InkMod_ModuleID, Ink_CustomEngineCom> Ink_CustomEngineComMap;
 typedef vector<string *> Ink_CustomInterruptSignal;
 typedef vector<Ink_Object *> Ink_PardonList;
+typedef vector<InkCoro_Scheduler *> Ink_SchedulerStack;
 
 extern pthread_mutex_t ink_native_exp_list_lock;
 extern Ink_ExpressionList ink_native_exp_list;
@@ -109,6 +110,8 @@ public:
 	ThreadID ink_sync_call_current_thread;
 	vector<bool> ink_sync_call_end_flag;
 
+	Ink_SchedulerStack coro_scheduler_stack;
+
 	pthread_mutex_t thread_pool_lock;
 	ThreadIDMapStack thread_id_map_stack;
 	ThreadPool thread_pool;
@@ -137,6 +140,32 @@ public:
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	inline InkCoro_Scheduler *newScheduler()
+	{
+		InkCoro_Scheduler *ret = new InkCoro_Scheduler();
+		coro_scheduler_stack.push_back(ret);
+		return ret;
+	}
+
+	inline void popScheduler()
+	{
+		Ink_SchedulerStack::size_type size;
+		if ((size = coro_scheduler_stack.size()) > 0) {
+			delete currentScheduler();
+			coro_scheduler_stack.erase(coro_scheduler_stack.begin()
+									   + (size - 1));
+		}
+		return;
+	}
+
+	inline InkCoro_Scheduler *currentScheduler()
+	{
+		if (!coro_scheduler_stack.size()) {
+			return NULL;
+		}
+		return coro_scheduler_stack.back();
+	}
 
 	inline void addPardonObject(Ink_Object *obj)
 	{

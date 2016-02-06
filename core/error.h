@@ -509,6 +509,15 @@ InkWarn_Package_Broken(Ink_InterpreteEngine *engine, const char *name)
 }
 
 inline void
+InkWarn_Failed_Create_Coroutine(Ink_InterpreteEngine *engine, int err_code)
+{
+	std::stringstream strm;
+	strm << "Failed to create coroutine, error code: " << err_code;
+	InkErro_doPrintWarning(engine, strm.str().c_str());
+	return;
+}
+
+inline void
 InkNote_Method_Fallthrough(Ink_InterpreteEngine *engine, const char *name, Ink_TypeTag origin, Ink_TypeTag to_type)
 {
 #ifdef INK_DEBUG_FLAG

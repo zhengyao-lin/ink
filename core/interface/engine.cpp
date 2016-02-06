@@ -90,6 +90,8 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	ink_sync_call_current_thread = -1;
 	ink_sync_call_end_flag = vector<bool>();
 
+	coro_scheduler_stack = Ink_SchedulerStack();
+
 	string_pool = vector<string *>();
 	dbg_type_mapping_length = 0;
 	dbg_type_mapping = NULL;

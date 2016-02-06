@@ -131,8 +131,9 @@ Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 
-	// no temp engine means no coroutine
-	if (!engine->ink_sync_call_tmp_engine) {
+	InkCoro_Scheduler *sched;
+
+	if (!(sched = engine->currentScheduler())) {
 		InkError_Yield_Without_Coroutine(engine);
 		return NULL_OBJ;
 	}
@@ -144,33 +145,9 @@ Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	}
 	engine->setInterruptValue(ret);
 
-	ThreadLayerType self_layer = engine->getCurrentLayer();
-	ThreadID self_id = engine->getThreadID();
 	IGC_CollectEngine *gc_engine_backup = engine->getCurrentGC();
 
-	// printf("***Coroutine yield: id %u at layer %u\n", self_id, self_layer);
-
-	pthread_mutex_lock(&engine->ink_sync_call_mutex);
-	InkCoCall_switchCoroutine(engine);
-	pthread_mutex_unlock(&engine->ink_sync_call_mutex);
-
-REWAIT:
-	do {
-		while (1) {
-			pthread_mutex_lock(&engine->ink_sync_call_mutex);
-			if (engine->ink_sync_call_current_thread == self_id) {
-				pthread_mutex_unlock(&engine->ink_sync_call_mutex);
-				break;
-			}
-			pthread_mutex_unlock(&engine->ink_sync_call_mutex);
-		}
-	} while (engine->getCurrentLayer() != self_layer);
-	pthread_mutex_lock(&engine->ink_sync_call_mutex);
-	if (engine->ink_sync_call_current_thread != self_id) {
-		pthread_mutex_unlock(&engine->ink_sync_call_mutex);
-		goto REWAIT;
-	}
-	pthread_mutex_unlock(&engine->ink_sync_call_mutex);
+	sched->yield();
 
 	engine->setCurrentGC(gc_engine_backup);
 

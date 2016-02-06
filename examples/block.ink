@@ -748,7 +748,6 @@ p(local_val);								// (undefined)
 
 p((start, 20, 30));
 
-
 f::(
 	local_val = "changed again!!",
 	p("hello")
@@ -794,20 +793,24 @@ f5 = fn () {
 	}
 }
 
+cocall(f1, [], f2, [], f3, []);
+cocall(f1, [], f2, [], f3, []);
+
 i = 1;
 while (0) {
 	p("run " + i++);
 	cocall(f1, [], f2, [], f3, []);
 }
-//cocall(f1, [], f2, [], f3, []);
 
 consumer = fn (n) {
 	let i = 0;
 	while (i < n) {
-		p(yield null);
+		p((yield null).to_str());
 		i++
 	}
 }
+
+import bignum
 
 producer = fn (n) {
 	let a = 0;
@@ -829,7 +832,7 @@ fib_async = fn (n) {
 	cocall(consumer, [n], producer, [n]);
 }
 
-//fib_async(1476);
+// fib_async(100);
 
 func = fn (&a...) {
 	p(typename(a[0]));
@@ -838,6 +841,27 @@ func = fn (&a...) {
 
 func("no s**t", "wooo");
 
+
+f3 = fn () {
+	cocall(f4, [], f5, []);
+	p("7");
+	if (1) {
+		yield null
+		p("10");
+	}
+}
+f1 = fn () {
+	p("1");
+	yield null
+	p("8");
+}
+f2 = fn () {
+	p("2");
+	if (1) {
+		yield null
+		p("9");
+	}
+}
 Coroutine = fn (&args...) {
 	this.routines = new Array();
 
@@ -866,7 +890,7 @@ Coroutine = fn (&args...) {
 
 cor = new Coroutine(f1(), f2());
 cor.add(f3());
-// cor.start();
+cor.start();
 
 echo = fn () {
 	let text = yield null
@@ -878,7 +902,7 @@ sender = fn () {
 	p(yield "I'm text");
 }
 
-// cocall(echo, [], sender, []);
+cocall(echo, [], sender, []);
 
 p("################ actor test ################");
 

@@ -492,7 +492,6 @@ inline Ink_Object **linkArgv(Ink_ArgcType argc1, Ink_Object **argv1, Ink_ArgcTyp
 }
 
 Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_CoCallList call_list);
-bool InkCoCall_switchCoroutine(Ink_InterpreteEngine *engine);
 
 }
 
