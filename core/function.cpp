@@ -304,7 +304,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	if (closure_context) Ink_ContextChain::disposeContextChain(context);
 
 	/* link remaining objects to previous GC engine */
-	if (engine->ink_sync_call_tmp_engine) engine->ink_sync_call_tmp_engine->link(gc_engine);
+	if (engine->coro_tmp_engine) engine->coro_tmp_engine->link(gc_engine);
 	else if (gc_engine_backup) {
 		gc_engine_backup->link(gc_engine);
 	}

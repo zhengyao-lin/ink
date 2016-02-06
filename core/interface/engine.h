@@ -104,12 +104,7 @@ public:
 	Ink_InterruptSignal interrupt_signal;
 	Ink_Object *interrupt_value;
 
-	IGC_CollectEngine *ink_sync_call_tmp_engine;
-	pthread_mutex_t ink_sync_call_mutex;
-	ThreadID ink_sync_call_max_thread;
-	ThreadID ink_sync_call_current_thread;
-	vector<bool> ink_sync_call_end_flag;
-
+	IGC_CollectEngine *coro_tmp_engine;
 	Ink_SchedulerStack coro_scheduler_stack;
 
 	pthread_mutex_t thread_pool_lock;

@@ -35,10 +35,10 @@ Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine,
 	int err_code;
 
 	InkCoro_Scheduler *sched;
-	IGC_CollectEngine *ink_sync_call_tmp_engine_back = engine->ink_sync_call_tmp_engine;
+	IGC_CollectEngine *coro_tmp_engine_back = engine->coro_tmp_engine;
 	IGC_CollectEngine *gc_engine_backup = engine->getCurrentGC();
 
-	engine->ink_sync_call_tmp_engine = gc_engine_backup;
+	engine->coro_tmp_engine = gc_engine_backup;
 	sched = engine->newScheduler();
 
 	for (i = 0; i < call_list.size(); i++) {
@@ -56,7 +56,7 @@ Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine,
 		delete dispose_list[j];
 	}
 	engine->setCurrentGC(gc_engine_backup);
-	engine->ink_sync_call_tmp_engine = ink_sync_call_tmp_engine_back;
+	engine->coro_tmp_engine = coro_tmp_engine_back;
 
 	return NULL_OBJ;
 }
