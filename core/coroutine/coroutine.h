@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ucontext.h>
 #include "../general.h"
 #include "../../includes/universal.h"
 
@@ -28,7 +27,22 @@ public:
 	: func(func), argc(argc), argv(argv)
 	{ }
 };
+
 typedef std::vector<Ink_CoCall> Ink_CoCallList;
+
+void Ink_initCoroutine();
+
+}
+
+#ifdef INK_PLATFORM_WIN32
+
+#include "fiber.h"
+
+#else
+
+#include <ucontext.h>
+
+namespace ink {
 
 typedef void (*InkCoro_Function)(void*);
 
@@ -42,13 +56,13 @@ struct InkCoro_Routine {
 	ucontext_t env;
 	void *arg;
 	InkCoro_Function func;
-	enum InkCoro_State state;
+	InkCoro_State state;
 
 	InkCoro_Routine()
 	{
 		arg = NULL;
 		func = NULL;
-		state = INKCO_DEAD;
+		state = INKCO_READY;
 	}
 };
 
@@ -78,5 +92,7 @@ public:
 };
 
 }
+
+#endif
 
 #endif

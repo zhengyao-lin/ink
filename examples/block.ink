@@ -1492,3 +1492,48 @@ ExArray = fn () {
 }
 ExArray.prototype = new Array()
 tmp = new ExArray();
+
+act = actor () {
+	f1 = fn () {
+		p("1");
+		yield null
+		p("8");
+	}
+	f2 = fn () {
+		p("2");
+		if (1) {
+			yield null
+			p("9");
+		}
+	}
+
+	f3 = fn () {
+		cocall(f4, [], f5, []);
+		p("7");
+		if (1) {
+			yield null
+			p("10");
+		}
+	}
+
+	f4 = fn () {
+		p("3");
+		if (1) {
+			yield null
+			p("5");
+		}
+	}
+
+	f5 = fn () {
+		p("4");
+		if (1) {
+			yield null
+			p("6");
+		}
+	}
+
+	cocall(f1, [], f2, [], f3, []);
+}
+
+act("ha")
+join_all();

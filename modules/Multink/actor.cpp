@@ -6,6 +6,7 @@
 #include "core/protocol.h"
 #include "core/context.h"
 #include "core/time.h"
+#include "core/coroutine/coroutine.h"
 #include "core/native/native.h"
 #include "core/interface/engine.h"
 #include "core/thread/thread.h"
@@ -209,6 +210,8 @@ void *Ink_ActorFunction_sub(void *arg)
 	Ink_ParamList::size_type j;
 	Ink_Array *var_arg = NULL;
 	Ink_ContextObject *local = tmp->engine->global_context->context;
+
+	Ink_initCoroutine();
 
 	engine->addDestructor(Ink_EngineDestructor(Ink_ActorFunction_cleanup, arg));
 

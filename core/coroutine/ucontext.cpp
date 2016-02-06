@@ -101,4 +101,6 @@ void InkCoro_Scheduler::yield()
 	}
 }
 
+void Ink_initCoroutine() { return; }
+
 }

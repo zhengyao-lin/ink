@@ -1,6 +1,10 @@
 TARGET=coroutine.o
-REQUIRE=\
-	general.o
+
+ifeq ($(GLOBAL_PLATFORM), windows)
+	REQUIRE=fiber.o
+else
+	REQUIRE=ucontext.o
+endif
 
 CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=

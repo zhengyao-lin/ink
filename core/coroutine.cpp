@@ -43,7 +43,7 @@ Ink_Object *InkCoCall_call(Ink_InterpreteEngine *engine,
 
 	for (i = 0; i < call_list.size(); i++) {
 		tmp = new InkCoCall_Argument(engine, context, call_list[i], 0);
-		if ((err_code = sched->create((void (*)(void *))InkCoCall_primaryCall, tmp)) != 0) {
+		if ((err_code = sched->create((InkCoro_Function)InkCoCall_primaryCall, tmp)) != 0) {
 			InkWarn_Failed_Create_Coroutine(engine, err_code);
 		}
 		dispose_list.push_back(tmp);
