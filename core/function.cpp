@@ -194,8 +194,11 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 
 	/* create new local context */
 	local = new Ink_ContextObject(engine);
-	if (closure_context)
+	if (closure_context) {
 		context = closure_context->copyContextChain(); /* copy closure context chain */
+	} else {
+		context = context->copyContextChain();
+	}
 
 	if (!is_inline) { /* if not inline function, set local context */
 		local->setSlot("base", getSlot(engine, "base"));
@@ -300,8 +303,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 
 	gc_engine->collectGarbage();
 
-	/* dispose closure context created */
-	if (closure_context) Ink_ContextChain::disposeContextChain(context);
+	/* dispose context chain copied */
+	Ink_ContextChain::disposeContextChain(context);
 
 	/* link remaining objects to previous GC engine */
 	if (engine->coro_tmp_engine) engine->coro_tmp_engine->link(gc_engine);
