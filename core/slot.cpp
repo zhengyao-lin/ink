@@ -64,6 +64,11 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 		}
 	}
 
+	/* base pointer has to be local -- it cannot be achieved from prototype */
+	if (!strcmp(key, "base")) {
+		return ret;
+	}
+
 	if (engine && proto) {
 		if (engine->prototypeHasTraced(this)) {
 			InkWarn_Circular_Prototype_Reference(engine);

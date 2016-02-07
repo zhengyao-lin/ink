@@ -660,7 +660,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	Ink_HashTable *hash, *missing;
 	Ink_ContextChain *local = context_chain->getLocal();
 	Ink_ContextChain *global = context_chain->getGlobal();
-	Ink_ContextChain *dest_context = local;
+	Ink_ContextChain *dest_context = local, *base_context = NULL;
 	Ink_Object *tmp, *ret;
 	Ink_Object **argv;
 
@@ -676,15 +676,17 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 		case ID_LOCAL:
 			hash = local->context->getSlotMapping(engine, name);
 			missing = local->context->getSlotMapping(engine, "missing");
+			base_context = local;
 			break;
 		case ID_GLOBAL:
 			hash = global->context->getSlotMapping(engine, name);
 			missing = global->context->getSlotMapping(engine, "missing");
 			dest_context = global;
+			base_context = global;
 			break;
 		default:
 			hash = context_chain->searchSlotMapping(engine, name);
-			missing = context_chain->searchSlotMapping(engine, "missing");
+			missing = context_chain->searchSlotMapping(engine, "missing", &base_context);
 			break;
 	}
 
@@ -711,10 +713,13 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 			delete name_p;
 	}
 	ret->address = hash; /* set its address for assigning */
+	if (base_context)
+		ret->setSlot("base", base_context->context);
 
 	/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
 	if (!flags.is_left_value && hash->getter) {
-		hash->getter->setSlot("base", hash->getter);
+		if (base_context)
+			hash->getter->setSlot("base", base_context->context);
 		tmp = hash->getter->call(engine, context_chain, 0, NULL);
 
 		// /* trap all interrupt signal */

@@ -54,7 +54,7 @@ Ink_Object *Ink_ContextChain::searchSlot(Ink_InterpreteEngine *engine, const cha
 	return ret;
 }
 
-Ink_HashTable *Ink_ContextChain::searchSlotMapping(Ink_InterpreteEngine *engine, const char *slot_id)
+Ink_HashTable *Ink_ContextChain::searchSlotMapping(Ink_InterpreteEngine *engine, const char *slot_id, Ink_ContextChain **found_in)
 {
 	Ink_ContextChain *local = getLocal();
 	Ink_ContextChain *i = local;
@@ -63,6 +63,9 @@ Ink_HashTable *Ink_ContextChain::searchSlotMapping(Ink_InterpreteEngine *engine,
 	while (i && !(ret = i->context->getSlotMapping(engine, slot_id))) {
 		i = i->outer;
 	}
+
+	if (ret && found_in)
+		*found_in = i;
 
 	return ret;
 }

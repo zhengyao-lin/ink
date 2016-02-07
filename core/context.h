@@ -46,7 +46,8 @@ public:
 	Ink_ContextChain *getGlobal();
 	Ink_ContextChain *getLocal();
 	Ink_Object *searchSlot(Ink_InterpreteEngine *engine, const char *slot_id); // from local
-	Ink_HashTable *searchSlotMapping(Ink_InterpreteEngine *engine, const char *slot_id); // from local
+	Ink_HashTable *searchSlotMapping(Ink_InterpreteEngine *engine, const char *slot_id,
+									 Ink_ContextChain **found_in = NULL); // from local
 	Ink_ContextChain *copyContextChain();
 	Ink_ContextChain *copyDeepContextChain(Ink_InterpreteEngine *engine);
 
