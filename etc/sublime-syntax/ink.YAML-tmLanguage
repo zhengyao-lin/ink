@@ -45,7 +45,7 @@ patterns:
 
 - comment: Line comment, start with # or //
   name: comment.line.ink
-  match: (\#|//).*\n
+  match: (\#|//).*\n?
 
 - comment: Block comment, start with /* and end with */
   name: comment.block.ink
