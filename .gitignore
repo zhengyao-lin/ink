@@ -27,7 +27,6 @@
 *.out
 *.app
 
-update.sh
 upload.sh
 upload.log
 date.log
