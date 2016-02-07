@@ -65,7 +65,7 @@ void Ink_addNativeExpression(Ink_Expression *expr)
 Ink_InterpreteEngine::Ink_InterpreteEngine()
 {
 	// gc_lock.init();
-	Ink_Object *tmp;
+	Ink_Object *tmp, *obj_proto;
 
 	igc_object_count = 0;
 	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
@@ -99,6 +99,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	initThread();
 	initTypeMapping();
 	initPrintDebugInfo();
+	initPrototypeSearch();
 
 	gc_engine = new IGC_CollectEngine(this);
 	setCurrentGC(gc_engine);
@@ -106,15 +107,30 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	// gc_engine->initContext(global_context);
 
 	// make sure the slot name is $<type name>
-	global_context->context->setSlot("$object", tmp = new Ink_Object(this));
-	tmp->derivedMethodInit(this);
+	global_context->context->setSlot("$object", obj_proto = new Ink_Object(this));
+	setTypePrototype(INK_OBJECT, obj_proto);
+	obj_proto->derivedMethodInit(this);
+	global_context->context->setProto(obj_proto);
+
+
 	global_context->context->setSlot("$function", tmp = new Ink_FunctionObject(this));
+	setTypePrototype(INK_FUNCTION, tmp);
+	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
+
 	global_context->context->setSlot("$numeric", tmp = new Ink_Numeric(this));
+	setTypePrototype(INK_NUMERIC, tmp);
+	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
+
 	global_context->context->setSlot("$string", tmp = new Ink_String(this, ""));
+	setTypePrototype(INK_STRING, tmp);
+	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
+
 	global_context->context->setSlot("$array", tmp = new Ink_Array(this));
+	setTypePrototype(INK_ARRAY, tmp);
+	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 
 	// global_context->context->setSlot("this", global_context->context);

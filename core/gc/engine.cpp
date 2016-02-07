@@ -34,6 +34,8 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 		return;
 	}
 
+	doMark(engine, obj->getProto());
+
 	for (i = obj->hash_table; i; i = i->next) {
 		if (i->getValue())
 			doMark(engine, i->getValue());
@@ -98,6 +100,7 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 {
 	Ink_ContextChain *i;
 	Ink_PardonList::iterator pardon_iter;
+	vector<DBG_TypeMapping *>::iterator type_iter;
 	//clock_t st;
 
 	//st = clock();
@@ -110,6 +113,10 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 		for (pardon_iter = engine->igc_pardon_list.begin();
 			 pardon_iter != engine->igc_pardon_list.end(); pardon_iter++) {
 			doMark(*pardon_iter);
+		}
+		for (type_iter = engine->dbg_type_mapping.begin();
+			 type_iter != engine->dbg_type_mapping.end(); type_iter++) {
+			doMark((*type_iter)->proto);
 		}
 		doMark(engine->getInterruptValue());
 

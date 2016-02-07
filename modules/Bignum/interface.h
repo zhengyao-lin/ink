@@ -17,11 +17,17 @@ public:
 
 	Ink_BigNumeric(Ink_InterpreteEngine *engine, std::string value)
 	: Ink_Object(engine), value(Ink_Bignum_NumericValue(value))
-	{ type = BIGNUMERIC_TYPE; }
+	{
+		type = BIGNUMERIC_TYPE;
+		initProto(engine);
+	}
 
 	Ink_BigNumeric(Ink_InterpreteEngine *engine, Ink_Bignum_NumericValue value)
 	: Ink_Object(engine), value(value)
-	{ type = BIGNUMERIC_TYPE; }
+	{
+		type = BIGNUMERIC_TYPE;
+		initProto(engine);
+	}
 
 	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
 	{

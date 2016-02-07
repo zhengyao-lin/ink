@@ -133,7 +133,7 @@ public:
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
 
-	inline Ink_HashTable *getTypePrototype(Ink_TypeTag type)
+	inline Ink_Object *getTypePrototype(Ink_TypeTag type)
 	{
 		if (type < dbg_type_mapping.size()) {
 			return dbg_type_mapping[type]->proto;
@@ -141,10 +141,10 @@ public:
 		return NULL;
 	}
 
-	inline bool setTypePrototype(Ink_TypeTag type, Ink_HashTable *proto_hash)
+	inline bool setTypePrototype(Ink_TypeTag type, Ink_Object *proto)
 	{
 		if (type < dbg_type_mapping.size()) {
-			dbg_type_mapping[type]->proto = proto_hash;
+			dbg_type_mapping[type]->proto = proto;
 			return true;
 		}
 		return false;

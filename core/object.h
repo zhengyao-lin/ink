@@ -28,13 +28,12 @@ public:
 	Ink_HashTable *hash_table;
 	Ink_HashTable *address;
 
-	Ink_Object *base;
 	IGC_CollectEngine *alloc_engine;
 	const char *debug_name;
 
-	Ink_HashTable *proto;
-
 	Ink_InterpreteEngine *engine;
+
+	Ink_HashTable *proto_hash;
 
 	Ink_Object(Ink_InterpreteEngine *engine)
 	: engine(engine)
@@ -43,10 +42,9 @@ public:
 		type = INK_OBJECT;
 		hash_table = NULL;
 		address = NULL;
-		base = NULL;
 		alloc_engine = NULL;
 		debug_name = NULL;
-		proto = NULL;
+		proto_hash = NULL;
 		
 		initProto(engine);
 
@@ -57,6 +55,29 @@ public:
 
 	void initProto(Ink_InterpreteEngine *engine);
 
+	inline void setProto(Ink_Object *proto)
+	{
+		// setSlot("prototype", proto);
+		if (proto_hash) {
+			proto_hash->setValue(proto);
+		} else {
+			proto_hash = new Ink_HashTable("prototype", proto);
+		}
+		return;
+	}
+
+	inline Ink_Object *getProto()
+	{
+		/*
+		Ink_HashTable *proto_hash = getSlotMapping(engine, "prototype");
+		*/
+		if (proto_hash && proto_hash->getValue()
+			&& proto_hash->getValue()->type != INK_UNKNOWN) {
+			return proto_hash->getValue();
+		}
+		return NULL;
+	}
+
 	inline void setDebugName(const char *name)
 	{
 		debug_name = name;
@@ -66,32 +87,6 @@ public:
 	inline const char *getDebugName()
 	{
 		return debug_name;
-	}
-
-	inline Ink_HashTable *setProto(Ink_HashTable *proto_hash)
-	{
-		if (proto_hash) {
-			return setProto(proto_hash->getValue());
-		}
-		return NULL;
-	}
-
-	inline Ink_HashTable *setProto(Ink_Object *obj)
-	{
-		if (proto) {
-			proto->setValue(obj);
-		} else {
-			proto = new Ink_HashTable("prototype", obj);
-		}
-		return proto;
-	}
-
-	inline Ink_Object *getProto()
-	{
-		if (proto) {
-			return proto->getValue();
-		}
-		return NULL;
 	}
 
 	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
@@ -107,7 +102,7 @@ public:
 	}
 	*/
 	Ink_Object *getSlot(Ink_InterpreteEngine *engine, const char *key);
-	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key);
+	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto = NULL);
 	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true, std::string *key_p = NULL);
 	inline Ink_HashTable *setSlot(const char *key, Ink_Object *value, std::string *key_p) {
 		return setSlot(key, value, true, key_p);
@@ -134,6 +129,8 @@ public:
 
 	virtual ~Ink_Object()
 	{
+		if (proto_hash)
+			delete proto_hash;
 		cleanHashTable();
 	}
 };
@@ -517,6 +514,7 @@ public:
 	: Ink_Object(engine)
 	{
 		type = INK_UNKNOWN;
+		setProto(NULL);
 	}
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine)

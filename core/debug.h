@@ -19,7 +19,7 @@ class DBG_TypeMapping {
 public:
 	Ink_TypeTag type;
 	const char *name;
-	Ink_HashTable *proto;
+	Ink_Object *proto;
 	std::string *name_p;
 
 	DBG_TypeMapping(Ink_TypeTag type, const char *name, std::string *name_p = NULL)

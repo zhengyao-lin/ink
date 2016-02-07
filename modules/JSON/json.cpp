@@ -1,4 +1,6 @@
 #include <string>
+#include <vector>
+#include <algorithm>
 #include "json.h"
 #include "core/object.h"
 #include "core/general.h"
@@ -32,8 +34,14 @@ inline string JSON_escapeString(string str)
 	return ret;
 } 
 
-string *JSON_stringifyObject(Ink_Object *obj)
+string *JSON_stringifyObject(Ink_InterpreteEngine *engine, vector<Ink_Object *> trace, Ink_Object *obj)
 {
+	if (find(trace.begin(), trace.end(), obj) != trace.end()) {
+		InkWarn_JSON_Cyclic_Reference(engine);
+		return new string("null");
+	}
+	trace.push_back(obj);
+
 	string ret = "", *tmp_str;
 	Ink_Array *tmp_arr;
 	Ink_ArrayValue tmp_arr_val;
@@ -48,7 +56,7 @@ string *JSON_stringifyObject(Ink_Object *obj)
 			tmp_arr_val = tmp_arr->value;
 			ret += "[";
 			for (i = 0; i < tmp_arr_val.size(); i++) {
-				if ((tmp_str = JSON_stringifyObject(tmp_arr_val[i]->getValue())) != NULL) {
+				if ((tmp_str = JSON_stringifyObject(engine, trace, tmp_arr_val[i]->getValue())) != NULL) {
 					if (ret != "[") ret += ", ";
 					ret += *tmp_str;
 					delete tmp_str;
@@ -68,7 +76,12 @@ string *JSON_stringifyObject(Ink_Object *obj)
 			ret += "{";
 			for (hash_i = obj->hash_table; hash_i;
 				 hash_i = hash_i->next) {
-				if ((tmp_str = JSON_stringifyObject(hash_i->getValue())) != NULL) {
+				if (string(hash_i->key) == "prototype"
+					|| string(hash_i->key) == "base") {
+					continue;
+				}
+				if (hash_i->getValue() && hash_i->getValue()->type != INK_UNDEFINED
+					&& (tmp_str = JSON_stringifyObject(engine, trace, hash_i->getValue())) != NULL) {
 					if (ret != "{") ret += ", ";
 					ret += "\"" + string(hash_i->key) + "\"" + ": "
 						   + *tmp_str;\
@@ -88,7 +101,7 @@ Ink_Object *InkNative_JSON_Encode(Ink_InterpreteEngine *engine, Ink_ContextChain
 		return NULL_OBJ;
 	}
 
-	string *tmp_str = JSON_stringifyObject(argv[0]);
+	string *tmp_str = JSON_stringifyObject(engine, vector<Ink_Object *>(), argv[0]);
 	Ink_Object *ret;
 
 	if (tmp_str)

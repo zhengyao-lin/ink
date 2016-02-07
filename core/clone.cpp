@@ -9,6 +9,8 @@ using namespace std;
 void Ink_Object::cloneHashTable(Ink_Object *src, Ink_Object *dest)
 {
 	Ink_HashTable *i;
+
+	dest->setProto(src->getProto());
 	for (i = src->hash_table; i; i = i->next) {
 		if (i->getValue())
 			dest->setSlot(i->key, i->getValue(), false);
@@ -20,6 +22,9 @@ void Ink_Object::cloneHashTable(Ink_Object *src, Ink_Object *dest)
 void Ink_Object::cloneDeepHashTable(Ink_InterpreteEngine *engine, Ink_Object *src, Ink_Object *dest)
 {
 	Ink_HashTable *i;
+	Ink_Object *tmp;
+
+	dest->setProto((tmp = src->getProto()) != NULL ? tmp->cloneDeep(engine) : NULL);
 	for (i = src->hash_table; i; i = i->next) {
 		if (i->getValue()
 			&& !engine->cloneDeepHasTraced(i->getValue()))

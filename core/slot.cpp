@@ -40,14 +40,18 @@ Ink_Object *Ink_Object::getSlot(Ink_InterpreteEngine *engine, const char *key)
 	return ret ? ret->getValue() : UNDEFINED;
 }
 
-Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const char *key)
+Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto)
 {
 	Ink_HashTable *i;
 	Ink_HashTable *ret = NULL;
+	Ink_Object *proto = getProto();
 
-#if 0
+#if 1
 	if (!strcmp(key, "prototype")) {
-		return proto;
+		for (ret = proto_hash; ret->bonding; ret = ret->bonding) ;
+		ret->bondee = proto_hash;
+		if (is_from_proto) *is_from_proto = false;
+		return ret;
 	}
 #endif
 
@@ -55,12 +59,31 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 		if (!strcmp(i->key, key) && (i->getValue() || i->bonding)) {
 			for (ret = i; ret->bonding; ret = ret->bonding) ;
 			ret->bondee = i;
+			if (is_from_proto) *is_from_proto = false;
 			return ret;
 		}
 	}
+
+	if (engine && proto) {
+		if (engine->prototypeHasTraced(this)) {
+			InkWarn_Circular_Prototype_Reference(engine);
+			engine->initPrototypeSearch();
+			return NULL;
+		}
+		engine->addPrototypeTrace(this);
+
+		ret = proto->getSlotMapping(engine, key);
+		
+		if (ret) {
+			if (is_from_proto) *is_from_proto = true;
+			engine->initPrototypeSearch();
+			return ret;
+		}
+	}
+
+#if 0
 	if (!engine) return ret;
 
-#if 1
 	ret = engine->searchNativeMethod(type, key);
 	if (ret) {
 		ret = setSlot(ret->key, ret->getValue()->clone(engine));
@@ -78,12 +101,19 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 	}
 #endif
 
+	engine->initPrototypeSearch();
 	return ret;
 }
 
 Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_check_exist, string *key_p)
 {
 	Ink_HashTable *i, *slot = NULL, *bond_tracer, *last = NULL;
+
+	if (!strcmp(key, "prototype")) {
+		setProto(value);
+		if (key_p) delete key_p;
+		return proto_hash;
+	}
 	
 	for (i = hash_table; i; i = i->next) {
 		if (if_check_exist) {

@@ -401,14 +401,34 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 {
 	const char *debug_name_back;
 	Ink_HashTable *hash, *address;
-	Ink_Object *base = obj, *ret, *tmp;
+	Ink_Object *base = obj, *ret = NULL, *tmp;
 	Ink_Object **argv;
 	ProtoSearchRet search_res;
+	bool is_from_proto = false;
 
-	if (!(hash = obj->getSlotMapping(engine, id)) /* cannot find slot in the origin object */) {
+	if (!(hash = obj->getSlotMapping(engine, id, &is_from_proto)) /* cannot find slot in the origin object */) {
 		if (obj->type == INK_UNDEFINED) {
 			InkWarn_Get_Slot_Of_Undefined(engine, id);
 		}
+		if (id_p) {
+			address = obj->setSlot(id, NULL, id_p);
+		} else {
+			id_p = new string(id);
+			address = obj->setSlot(id_p->c_str(), NULL, id_p);
+		}
+		if ((tmp = obj->getSlot(engine, "missing"))->type == INK_FUNCTION) {
+			/* has missing method, call it */
+			tmp->setSlot("base", obj);
+			argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
+			argv[0] = new Ink_String(engine, string(id));
+			ret = tmp->call(engine, context_chain, 1, argv);
+			free(argv);
+			goto END;
+		} else {
+			/* return undefined */
+			ret = UNDEFINED;
+		}
+#if 0
 		/* search prototype */
 		engine->initPrototypeSearch();
 		hash = (search_res = searchPrototype(engine, obj, id)).hash;
@@ -432,11 +452,22 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 				ret = UNDEFINED;
 			}
 		}
+#endif
 	} else {
 		/* found slot correctly */
-		ret = hash->getValue();
-		address = hash;
-		delete id_p;
+		if (is_from_proto) {
+			ret = hash->getValue()->clone(engine);
+			if (id_p)
+				address = obj->setSlot(id, NULL, id_p);
+			else {
+				id_p = new string(id);
+				address = obj->setSlot(id_p->c_str(), NULL, id_p);
+			}
+		} else {
+			ret = hash->getValue();
+			address = hash;
+			delete id_p;
+		}
 	}
 
 	/* set address for possible assignment */
@@ -447,9 +478,9 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 	base->setDebugName(debug_name_back);
 
 	/* call getter if has one */
-	if (!flags.is_left_value && address->getter) {
-		address->getter->setSlot("base", address->getValue());
-		ret = address->getter->call(engine, context_chain, 0, NULL);
+	if (!flags.is_left_value && hash && hash->getter) {
+		hash->getter->setSlot("base", hash->getValue());
+		ret = hash->getter->call(engine, context_chain, 0, NULL);
 		// /* trap all interrupt signal */
 		// engine->setSignal(INTER_NONE);
 		if (INTER_SIGNAL_RECEIVED) {

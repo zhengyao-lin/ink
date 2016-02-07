@@ -50,6 +50,8 @@ range = fn () {
 		retn new Array(new Array(1, 2), new Array(5, 6));
 	};
 };
+p("new!!!!" + typename(new Array("wwww", "aaaa")));
+p("new2!!!!" + typename(Array.`new`));
 
 func.ar = new Array("wwww", "aaaa");
 
@@ -490,7 +492,7 @@ p({
 a = fn () {};
 p.a
 
-//debug(new String("hi"));
+debug(new String("hi"));
 
 a = fn () {
 	where();
@@ -583,7 +585,7 @@ p(-10.1);
 debug(json.decode("{\"hi\":\"hi\", \"a\" : \"o\"}"));
 debug(json.decode("{\"hi\" : null}"));
 debug(json.decode("[\"hi\"]"));
-//debug(json.decode("[\"I'm elem1\"]"));
+debug(json.decode("[\"I'm elem1\"]"));
 
 p(json.encode(json.decode(json.encode(
 {
@@ -810,7 +812,7 @@ consumer = fn (n) {
 	}
 }
 
-import bignum
+import bignums
 
 producer = fn (n) {
 	let a = 0;
@@ -907,14 +909,14 @@ cocall(echo, [], sender, []);
 p("################ actor test ################");
 
 import multink
-import bignum
+import bignums
 
 p(typename(receive.`->`));
 
 try_actor = fn () {
 	actor1 = actor () {
 		import multink
-		import bignum
+		import bignums
 
 		p("my name is " + actor_self());
 
@@ -941,7 +943,7 @@ try_actor = fn () {
 	fib_async = actor (total, mod) {
 		import multink
 		import io
-		import bignum
+		import bignums
 
 		p("my name is " + actor_self());
 
@@ -1535,5 +1537,5 @@ act = actor () {
 	cocall(f1, [], f2, [], f3, []);
 }
 
-act("ha")
-join_all();
+//act("ha")
+//join_all();

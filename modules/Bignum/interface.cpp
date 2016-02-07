@@ -333,6 +333,7 @@ extern "C" {
 	{
 		Ink_Object *tmp;
 		Ink_TypeTag *type_p = NULL;
+		Ink_Object *obj_proto = engine->getTypePrototype(INK_OBJECT);
 
 		if (!engine->getEngineComAs<Ink_TypeTag>(ink_native_bignum_mod_id)) {
 			type_p = (Ink_TypeTag *)malloc(sizeof(Ink_TypeTag));
@@ -344,10 +345,12 @@ extern "C" {
 													   new com_cleaner_arg(ink_native_bignum_mod_id)));
 
 			context->getGlobal()->context->setSlot("$bignum", tmp = new Ink_BigNumeric(engine, "0"));
+			engine->setTypePrototype(BIGNUMERIC_TYPE, tmp);
+			tmp->setProto(obj_proto);
 			tmp->derivedMethodInit(engine);
 		}
 
-		Ink_Object *bignum_pkg = addPackage(engine, context, "bignum", new Ink_FunctionObject(engine, InkMod_Bignum_Loader));
+		Ink_Object *bignum_pkg = addPackage(engine, context, "bignums", new Ink_FunctionObject(engine, InkMod_Bignum_Loader));
 
 		InkMod_Bignum_bondTo(engine, bignum_pkg);
 	}

@@ -10,8 +10,9 @@ using namespace std;
 
 void Ink_Object::initProto(Ink_InterpreteEngine *engine)
 {
-	if (engine)
-		setProto(engine->getTypePrototype(type));
+	Ink_Object *proto;
+	if (engine && (proto = engine->getTypePrototype(type))) 
+		setProto(proto);
 	return;
 }
 

@@ -81,6 +81,7 @@ extern "C" {
 	{
 		Ink_Object *tmp;
 		Ink_TypeTag *type_p = NULL;
+		Ink_Object *obj_proto = engine->getTypePrototype(INK_OBJECT);
 
 		if (!engine->getEngineComAs<Ink_TypeTag>(ink_native_file_mod_id)) {
 			type_p = (Ink_TypeTag *)malloc(sizeof(Ink_TypeTag) * 2);
@@ -92,8 +93,12 @@ extern "C" {
 			engine->addDestructor(Ink_EngineDestructor(InkNative_IO_EngineComCleaner, new com_cleaner_arg(ink_native_file_mod_id)));
 
 			context->getGlobal()->context->setSlot("$io.file.File", tmp = new Ink_FilePointer(engine));
+			engine->setTypePrototype(FILE_POINTER_TYPE, tmp);
+			tmp->setProto(obj_proto);
 			tmp->derivedMethodInit(engine);
 			context->getGlobal()->context->setSlot("$io.direct.Directory", tmp = new Ink_DirectPointer(engine));
+			engine->setTypePrototype(DIRECT_TYPE, tmp);
+			tmp->setProto(obj_proto);
 			tmp->derivedMethodInit(engine);
 		}
 

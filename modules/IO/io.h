@@ -40,6 +40,7 @@ public:
 	: Ink_Object(engine), fp(fp)
 	{
 		type = FILE_POINTER_TYPE;
+		initProto(engine);
 		// setMethod(engine);
 	}
 
@@ -63,12 +64,14 @@ public:
 	: Ink_Object(engine), path(new std::string(path))
 	{
 		type = DIRECT_TYPE;
+		initProto(engine);
 	}
 
 	Ink_DirectPointer(Ink_InterpreteEngine *engine)
 	: Ink_Object(engine), path(NULL)
 	{
 		type = DIRECT_TYPE;
+		initProto(engine);
 	}
 
 	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
