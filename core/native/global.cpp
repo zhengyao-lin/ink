@@ -211,30 +211,35 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, In
 	Ink_Object *ret = NULL_OBJ;
 	Ink_ExpressionList top_level_backup;
 	Ink_LineNoType line_num_backup = getParserCurrentLineno();
-	Ink_InterpreteEngine *current_engine = engine;
+	const char *file_name_backup = engine->getFilePath();
+	string *new_file_name;
+	stringstream strm;
 
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return ret;
 	}
 
-	if (current_engine) {
-		context->removeLast();
+	setParserCurrentLineno(0);
 
-		top_level_backup = current_engine->top_level;
+	top_level_backup = engine->top_level;
+	yyerror_prefix = "from eval: ";
 
-		setParserCurrentLineno(0);
-		yyerror_prefix = "from eval: ";
-		current_engine->startParse(as<Ink_String>(argv[0])->getValue());
-		ret = current_engine->execute(context, false);
+	strm << file_name_backup << ": eval in line " << line_num_backup;
+	new_file_name = new string(strm.str());
+	engine->setFilePath(new_file_name->c_str());
 
-		Ink_insertNativeExpression(current_engine->top_level.begin(),
-								   current_engine->top_level.end());
-		current_engine->top_level = top_level_backup;
+	context->removeLast();
 
-		context->addContext(new Ink_ContextObject(engine));
-	} else {
-		InkWarn_Eval_Called_Without_Current_Engine(engine);
-	}
+	engine->startParse(as<Ink_String>(argv[0])->getValue());
+	ret = engine->execute(context, false);
+
+	Ink_insertNativeExpression(engine->top_level.begin(),
+							   engine->top_level.end());
+	engine->top_level = top_level_backup;
+
+	context->addContext(new Ink_ContextObject(engine));
+
+	delete new_file_name;
 	setParserCurrentLineno(line_num_backup);
 
 	return ret;
@@ -273,60 +278,74 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	Ink_ArgcType i;
 	FILE *fp;
 	Ink_Object *load, **tmp_argv;
-	string *tmp;
-	char *current_dir = NULL, *redirect = NULL;
-	const char *file_name_back;
-	string *whole_file_name;
-	Ink_InterpreteEngine *current_engine = engine;
 	Ink_ExpressionList top_level_backup;
 	Ink_LineNoType line_num_backup = getParserCurrentLineno();
-	const char *file_path_backup = engine->input_file_path;
+
+	char *current_dir = NULL, *redirect = NULL;
+	const char *file_name_backup;
+	string *tmp;
+	string *full_file_name;
 
 	for (i = 0; i < argc; i++) {
 		if (argv[i]->type == INK_STRING) {
+			/* run a source file */
+
 			tmp = new string(as<Ink_String>(argv[i])->getValue());
 			if (!(fp = fopen(tmp->c_str(), "r"))) {
-				InkError_Failed_Open_File(current_engine, tmp->c_str());
+				InkError_Failed_Open_File(engine, tmp->c_str());
 				continue;
 			}
-			current_dir = getCurrentDir();
-			whole_file_name = new string(string(current_dir) + INK_PATH_SPLIT + string(tmp->c_str()));
-			file_name_back = current_engine->getFilePath();
-			current_engine->setFilePath(whole_file_name->c_str());
 			
+			/* change dir to the dest dir */
 			redirect = getBasePath(tmp->c_str());
 			if (redirect) {
 				changeDir(redirect);
 				free(redirect);
 			}
 
-			context->removeLast();
-			top_level_backup = current_engine->top_level;
+			/* get full path */
+			current_dir = getCurrentDir();
+			full_file_name = new string(string(current_dir) + INK_PATH_SPLIT + string(tmp->c_str()));
+
+			/* backup file name, yacc prefix & lineno and set new */
+			file_name_backup = engine->getFilePath();
+			engine->setFilePath(full_file_name->c_str());
 			setParserCurrentLineno(0);
-
 			yyerror_prefix = "from import: ";
-			current_engine->startParse(fp);
-			current_engine->execute(context);
 
-			Ink_insertNativeExpression(current_engine->top_level.begin(),
-									   current_engine->top_level.end());
-			current_engine->top_level = top_level_backup;
+			/* remove the last context created for import itself */
+			context->removeLast();
 
+			/* backup original top level backup */
+			top_level_backup = engine->top_level;
+
+			/* parse and execute */
+			engine->startParse(fp);
+			engine->execute(context);
+
+			/* store native expressions */
+			Ink_insertNativeExpression(engine->top_level.begin(),
+									   engine->top_level.end());
+
+			/* restore original top level */
+			engine->top_level = top_level_backup;
+
+			/* recreate local context */
 			context->addContext(new Ink_ContextObject(engine));
 
+			/* a few clean steps */
 			fclose(fp);
-
 			if (current_dir) {
 				changeDir(current_dir);
 				free(current_dir);
 			}
-			current_engine->setFilePath(file_name_back);
+			engine->setFilePath(file_name_backup);
 
-			delete whole_file_name;
+			delete full_file_name;
 			delete tmp;
-			// run file
 		} else {
-			// call load method
+			/* call load function of package object */
+
 			if ((load = getSlotWithProto(engine, context, argv[i], "load"))->type == INK_FUNCTION) {
 				context->removeLast();
 				tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 2);
@@ -341,7 +360,6 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 		}
 	}
 	setParserCurrentLineno(line_num_backup);
-	engine->input_file_path = file_path_backup;
 
 	return NULL_OBJ;
 }
