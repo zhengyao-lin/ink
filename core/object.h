@@ -129,8 +129,6 @@ public:
 
 	virtual ~Ink_Object()
 	{
-		if (proto_hash)
-			delete proto_hash;
 		cleanHashTable();
 	}
 };

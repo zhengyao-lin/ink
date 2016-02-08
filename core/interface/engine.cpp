@@ -100,6 +100,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	initTypeMapping();
 	initPrintDebugInfo();
 	initPrototypeSearch();
+	initGCCollect();
 
 	gc_engine = new IGC_CollectEngine(this);
 	setCurrentGC(gc_engine);

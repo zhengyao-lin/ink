@@ -30,9 +30,7 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 	Ink_HashTable *i;
 
 	if (obj && obj->mark != CURRENT_MARK_PERIOD) obj->mark = CURRENT_MARK_PERIOD;
-	else {
-		return;
-	}
+	else return;
 
 	doMark(engine, obj->getProto());
 
@@ -104,7 +102,6 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 	//clock_t st;
 
 	//st = clock();
-	engine->initGCCollect();
 	if (!delete_all) {
 		for (i = engine->trace->getGlobal();
 			 i; i = i->inner) {
@@ -124,6 +121,8 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 	doCollect();
 	//printf("GC time duration: %lf\n", (double)(clock() - st) / CLOCKS_PER_SEC);
 	CURRENT_MARK_PERIOD++;
+
+	engine->initGCCollect();
 
 	return;
 }

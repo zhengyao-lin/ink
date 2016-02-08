@@ -148,16 +148,11 @@ Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_c
 
 void Ink_Object::deleteSlot(const char *key)
 {
-	Ink_HashTable *i, *prev;
+	Ink_HashTable *i;
 
-	for (i = hash_table, prev = NULL; i; prev = i, i = i->next) {
+	for (i = hash_table; i; i = i->next) {
 		if (!strcmp(i->key, key)) {
-			if (prev) {
-				prev->next = i->next;
-			} else {
-				hash_table = i->next;
-			}
-			delete i;
+			i->setValue(NULL);
 			return;
 		}
 	}
@@ -167,6 +162,18 @@ void Ink_Object::deleteSlot(const char *key)
 
 void Ink_Object::cleanHashTable()
 {
+	Ink_Object *obj;
+
+	if (proto_hash) {
+		if ((obj = engine->getGlobalReturnValue()) != NULL
+			&& obj->address == proto_hash) {
+			obj->address = NULL;
+		}
+		engine->breakUnreachableBonding(proto_hash);
+		delete proto_hash;
+		proto_hash = NULL;
+	}
+
 	cleanHashTable(hash_table);
 	hash_table = NULL;
 
@@ -177,6 +184,7 @@ void Ink_Object::cleanHashTable(Ink_HashTable *table)
 {
 	Ink_Object *obj;
 	Ink_HashTable *i, *tmp;
+
 	for (i = table; i;) {
 		tmp = i;
 		i = i->next;
