@@ -109,7 +109,7 @@ public:
 		strcpy(str, s);
 	}
 
-	void writeTo(FILE *fp)
+	inline void writeTo(FILE *fp)
 	{
 		fwrite(&len, sizeof(InkPack_Size), 1, fp);
 		fwrite(str, len + 1, 1, fp);
@@ -146,7 +146,7 @@ public:
 	: size(size), table(table)
 	{ }
 
-	void writeTo(FILE *fp)
+	inline void writeTo(FILE *fp)
 	{
 		fwrite(&size, sizeof(InkPack_Size), 1, fp);
 
@@ -245,7 +245,7 @@ public:
 		return ver_table->findValueByKey(vers, INKPACK_SIZE_INVALID);
 	}
 
-	void writeTo(FILE *fp)
+	inline void writeTo(FILE *fp)
 	{
 		pack_name->writeTo(fp);
 		author->writeTo(fp);
@@ -281,7 +281,7 @@ public:
 	: file_size(size), data(d)
 	{ }
 
-	void writeTo(FILE *fp)
+	inline void writeTo(FILE *fp)
 	{
 		fwrite(&file_size, sizeof(InkPack_Size), 1, fp);
 		fwrite(data, sizeof(byte) * file_size, 1, fp);
@@ -341,7 +341,7 @@ public:
 		return NULL;
 	}
 	
-	void writeTo(FILE *fp)
+	inline void writeTo(FILE *fp)
 	{
 		pack_info->writeTo(fp);
 		fwrite(&dl_file_count, sizeof(InkPack_Size), 1, fp);
