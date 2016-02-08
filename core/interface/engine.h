@@ -13,6 +13,7 @@
 #include "../protocol.h"
 #include "../object.h"
 #include "../error.h"
+#include "../context.h"
 #include "../thread/actor.h"
 #include "../thread/thread.h"
 #include "../package/load.h"
