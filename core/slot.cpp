@@ -48,6 +48,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 
 #if 1
 	if (!strcmp(key, "prototype")) {
+		if (!proto_hash) return NULL;
 		for (ret = proto_hash; ret->bonding; ret = ret->bonding) ;
 		ret->bondee = proto_hash;
 		if (is_from_proto) *is_from_proto = false;
@@ -69,7 +70,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 		return ret;
 	}
 
-	if (engine && proto) {
+	if (engine && proto && proto->type != INK_UNDEFINED) {
 		if (engine->prototypeHasTraced(this)) {
 			InkWarn_Circular_Prototype_Reference(engine);
 			engine->initPrototypeSearch();
