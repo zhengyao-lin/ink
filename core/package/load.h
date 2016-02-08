@@ -43,7 +43,7 @@ namespace ink {
 	#define INK_DL_CLOSE(handler) (dlclose(handler))
 	#define INK_DL_ERROR() (dlerror())
 
-	#define INK_DEFAULT_MAGIC_NUM INK_0_LINUX
+	#define INK_DEFAULT_MAGIC_NUM INK_MAGIC_NUM_0_LINUX
 #elif defined(INK_PLATFORM_WIN32)
 	#include <windows.h>
 
@@ -54,7 +54,7 @@ namespace ink {
 	#define INK_DL_CLOSE(handler) (FreeLibrary(handler))
 	#define INK_DL_ERROR() (NULL)
 
-	#define INK_DEFAULT_MAGIC_NUM INK_0_WINDOWS
+	#define INK_DEFAULT_MAGIC_NUM INK_MAGIC_NUM_0_WINDOWS
 #endif
 
 using namespace std;
@@ -77,11 +77,13 @@ typedef void (*InkMod_Loader_t)(Ink_InterpreteEngine *engine, Ink_ContextChain *
 typedef int (*InkMod_Init_t)(InkMod_ModuleID id);
 typedef vector<INK_DL_HANDLER> DLHandlerPool;
 typedef size_t InkPack_Size;
+#define INKPACK_SIZE_INVALID ((InkPack_Size)-1)
 typedef unsigned char byte;
 
 enum Ink_MagicNumber {
-	INK_0_LINUX = 0,
-	INK_0_WINDOWS
+	INK_MAGIC_NUM_INVALID = 0,
+	INK_MAGIC_NUM_0_LINUX,
+	INK_MAGIC_NUM_0_WINDOWS
 };
 
 class InkPack_String {
@@ -182,7 +184,7 @@ public:
 		return;
 	}
 
-	inline T_T2 findValueByKey(T_T1 k, void *default_val = NULL)
+	inline T_T2 findValueByKey(T_T1 k, T_T2 default_val = NULL)
 	{
 		InkPack_Size i;
 		for (i = 0; i < size; i++) {
@@ -190,7 +192,18 @@ public:
 				return table[i].value;
 			}
 		}
-		return (T_T2)default_val;
+		return default_val;
+	}
+
+	inline T_T1 findKeyByValue(T_T2 v, T_T1 default_val = NULL)
+	{
+		InkPack_Size i;
+		for (i = 0; i < size; i++) {
+			if (v == table[i].value) {
+				return table[i].key;
+			}
+		}
+		return default_val;
 	}
 
 	~InkPack_Table()
@@ -200,7 +213,7 @@ public:
 };
 
 class InkPack_Info {
-	typedef InkPack_Table<InkPack_Size, Ink_MagicNumber> InkPack_VersionTable;
+	typedef InkPack_Table<Ink_MagicNumber, InkPack_Size> InkPack_VersionTable;
 public:
 	InkPack_String *pack_name;
 	InkPack_String *author;
@@ -215,6 +228,22 @@ public:
 				 InkPack_VersionTable *ver_table)
 	: pack_name(pack_name), author(author), ver_table(ver_table)
 	{ }
+
+	inline void addVersion(Ink_MagicNumber vers, InkPack_Size index)
+	{
+		ver_table->addTable(vers, index);
+		return;
+	}
+
+	inline Ink_MagicNumber getVersionByIndex(InkPack_Size index)
+	{
+		return ver_table->findKeyByValue(index, INK_MAGIC_NUM_INVALID);
+	}
+
+	inline InkPack_Size findVersion(Ink_MagicNumber vers)
+	{
+		return ver_table->findValueByKey(vers, INKPACK_SIZE_INVALID);
+	}
 
 	void writeTo(FILE *fp)
 	{
@@ -269,40 +298,41 @@ public:
 
 class Ink_Package {
 public:
-	Ink_MagicNumber magic_num;
 	InkPack_Info *pack_info;
 
 	InkPack_Size dl_file_count;
 	InkPack_FileBlock **dl_file;
 
-	Ink_Package(const char *pack_name, const char *author, const char *dl_file_path, Ink_MagicNumber magic_num = INK_DEFAULT_MAGIC_NUM)
-	: magic_num(magic_num)
+	Ink_Package(const char *pack_name, const char *author, const char *dl_file_path = NULL, Ink_MagicNumber magic_num = INK_DEFAULT_MAGIC_NUM)
 	{
 		pack_info = new InkPack_Info(pack_name, author);
 		dl_file_count = 0;
 		dl_file = NULL;
 		
-		addDLFile(dl_file_path);
+		if (dl_file_path)
+			addDLFile(dl_file_path, magic_num);
 	}
 
-	Ink_Package(Ink_MagicNumber magic, InkPack_Info *info)
-	: magic_num(magic), pack_info(info), dl_file_count(0), dl_file(NULL)
+	Ink_Package(InkPack_Info *info)
+	: pack_info(info), dl_file_count(0), dl_file(NULL)
 	{ }
 
-	inline InkPack_FileBlock *addDLFile(InkPack_FileBlock *file)
+	inline InkPack_FileBlock *addDLFile(InkPack_FileBlock *file, Ink_MagicNumber vers)
 	{
 		dl_file = (InkPack_FileBlock **)realloc(dl_file, sizeof(InkPack_FileBlock *) * (++dl_file_count));
 		dl_file[dl_file_count - 1] = file;
+		pack_info->addVersion(vers, dl_file_count - 1);
 		return file;
 	}
 
-	inline InkPack_FileBlock *addDLFile(const char *dl_file_path)
+	inline InkPack_FileBlock *addDLFile(const char *dl_file_path, Ink_MagicNumber vers)
 	{
 		FILE *fp = fopen(dl_file_path, "rb");
 
 		if (fp) {
 			dl_file = (InkPack_FileBlock **)realloc(dl_file, sizeof(InkPack_FileBlock *) * (++dl_file_count));
 			dl_file[dl_file_count - 1] = new InkPack_FileBlock(fp);
+			pack_info->addVersion(vers, dl_file_count - 1);
 			return dl_file[dl_file_count - 1];
 		} else {
 			InkError_Failed_Open_File(NULL, dl_file_path);
@@ -313,7 +343,6 @@ public:
 	
 	void writeTo(FILE *fp)
 	{
-		fwrite(&magic_num, sizeof(Ink_MagicNumber), 1, fp);
 		pack_info->writeTo(fp);
 		fwrite(&dl_file_count, sizeof(InkPack_Size), 1, fp);
 

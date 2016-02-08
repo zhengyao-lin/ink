@@ -505,7 +505,8 @@ Ink_Object *Ink_FunctionExpression::eval(Ink_InterpreteEngine *engine, Ink_Conte
 	}
 
 	RESTORE_LINE_NUM;
-	return new Ink_FunctionObject(engine, param, exp_list, is_macro ? NULL : context_chain->copyContextChain(), is_inline);
+	return new Ink_FunctionObject(engine, param, exp_list, is_macro ? NULL : context_chain->copyContextChain(),
+								  is_inline || is_macro);
 }
 
 /* expand argument -- expand array object to parameter */

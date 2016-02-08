@@ -349,7 +349,7 @@ InkWarn_Invalid_Return_Value_Of_To_String(Ink_InterpreteEngine *engine, Ink_Type
 inline void
 InkWarn_Load_Mod_On_Wrong_OS(Ink_InterpreteEngine *engine, const char *path)
 {
-	InkErro_doPrintWarning(engine, "Loading module of wrong system version($(path))", path);
+	InkErro_doPrintWarning(engine, "Cannot find module of correct system version in $(path)", path);
 	return;
 }
 

@@ -99,18 +99,18 @@ InkPack_FileBlock *InkPack_FileBlock::readFrom(FILE *fp)
 
 Ink_Package *Ink_Package::readFrom(FILE *fp)
 {
-	Ink_MagicNumber tmp_magic_num;
-	if (!fread(&tmp_magic_num, sizeof(Ink_MagicNumber), 1, fp))
-		return NULL;
 	InkPack_Info *tmp_pack_info = InkPack_Info::readFrom(fp);
+	if (!tmp_pack_info)
+		return NULL;
 	InkPack_Size i, dl_file_count = 0;
-	Ink_Package *ret = new Ink_Package(tmp_magic_num, tmp_pack_info);
+	Ink_Package *ret = new Ink_Package(tmp_pack_info);
 	InkPack_FileBlock *tmp = NULL;
 
 	fread(&dl_file_count, sizeof(InkPack_Size), 1, fp);
 
 	for (i = 0; i < dl_file_count; i++) {
-		ret->addDLFile(tmp = InkPack_FileBlock::readFrom(fp));
+		ret->addDLFile(tmp = InkPack_FileBlock::readFrom(fp),
+					   tmp_pack_info->getVersionByIndex(i));
 		if (!tmp) {
 			delete ret;
 			return NULL;
@@ -165,6 +165,7 @@ void Ink_Package::preload(const char *path)
 	string *tmp;
 	int errnum;
 	const char *errmsg;
+	InkPack_Size index;
 
 	if (!fp) {
 		InkError_Failed_Open_File(NULL, path);
@@ -173,19 +174,22 @@ void Ink_Package::preload(const char *path)
 
 	Ink_Package *pack = Ink_Package::readFrom(fp);
 
-	if (pack->magic_num != INK_DEFAULT_MAGIC_NUM) {
+	if ((index = pack->pack_info->findVersion(INK_DEFAULT_MAGIC_NUM))
+		== INKPACK_SIZE_INVALID) {
 		InkWarn_Load_Mod_On_Wrong_OS(NULL, path);
 		delete pack;
+		fclose(fp);
 		return;
 	}
 
 	if (!pack->dl_file) {
 		InkWarn_No_File_In_Mod(NULL, path);
 		delete pack;
+		fclose(fp);
 		return;
 	}
 
-	tmp = pack->dl_file[0]->bufferToTmp();
+	tmp = pack->dl_file[index]->bufferToTmp();
 	handler = INK_DL_OPEN(tmp->c_str(), RTLD_NOW);
 	delete tmp;
 	InkMod_Loader_t loader = (InkMod_Loader_t)INK_DL_SYMBOL(handler, "InkMod_Loader");
