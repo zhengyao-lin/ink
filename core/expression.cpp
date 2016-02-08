@@ -76,7 +76,7 @@ Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success
 		}
 		if (IS_LEGAL(mode, code[i])) {
 			if (decimal > 0) {
-				ret += TO_NUM(mode, code[i]) / pow(mode, decimal);
+				ret += TO_NUM(mode, code[i]) / pow((int)mode, decimal);
 				decimal++;
 			} else {
 				ret = ret * mode + TO_NUM(mode, code[i]);

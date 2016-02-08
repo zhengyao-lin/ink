@@ -240,6 +240,7 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, In
 	context->addContext(new Ink_ContextObject(engine));
 
 	delete new_file_name;
+	engine->setFilePath(file_name_backup);
 	setParserCurrentLineno(line_num_backup);
 
 	return ret;
@@ -295,17 +296,17 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 				InkError_Failed_Open_File(engine, tmp->c_str());
 				continue;
 			}
-			
+
+			/* get full path */
+			current_dir = getCurrentDir();
+			full_file_name = new string(string(current_dir) + INK_PATH_SPLIT + string(tmp->c_str()));
+
 			/* change dir to the dest dir */
 			redirect = getBasePath(tmp->c_str());
 			if (redirect) {
 				changeDir(redirect);
 				free(redirect);
 			}
-
-			/* get full path */
-			current_dir = getCurrentDir();
-			full_file_name = new string(string(current_dir) + INK_PATH_SPLIT + string(tmp->c_str()));
 
 			/* backup file name, yacc prefix & lineno and set new */
 			file_name_backup = engine->getFilePath();

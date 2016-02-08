@@ -121,23 +121,106 @@ public:
 	}
 };
 
+template <typename T_T1, typename T_T2>
+class InkPack_Table {
+public:
+	InkPack_Size size;
+	struct InkPack_Table_sub {
+		T_T1 key;
+		T_T2 value;
+
+		InkPack_Table_sub(T_T1 key, T_T2 value)
+		: key(key), value(value)
+		{ }
+	} *table;
+
+	InkPack_Table()
+	{
+		size = 0;
+		table = NULL;
+	}
+
+	InkPack_Table(InkPack_Size size, InkPack_Table_sub *table)
+	: size(size), table(table)
+	{ }
+
+	void writeTo(FILE *fp)
+	{
+		fwrite(&size, sizeof(InkPack_Size), 1, fp);
+
+		InkPack_Size i;
+
+		for (i = 0; i < size; i++) {
+			fwrite(&(table[i].key), sizeof(T_T1), 1, fp);
+			fwrite(&(table[i].value), sizeof(T_T2), 1, fp);
+		}
+	}
+
+	static InkPack_Table<T_T1, T_T2> *readFrom(FILE *fp)
+	{
+		InkPack_Size size = 0;
+		InkPack_Table_sub *table = NULL;
+
+		if (!fread(&size, sizeof(InkPack_Size), 1, fp))
+			return NULL;
+
+		table = (InkPack_Table_sub *)malloc(sizeof(InkPack_Table_sub) * size);
+
+		InkPack_Size i;
+		for (i = 0; i < size; i++) {
+			fread(&(table[i].key), sizeof(T_T1), 1, fp);
+			fread(&(table[i].value), sizeof(T_T2), 1, fp);
+		}
+
+		return new InkPack_Table<T_T1, T_T2>(size, table);
+	}
+
+	inline void addTable(T_T1 k, T_T2 v)
+	{
+		table = (InkPack_Table_sub *)realloc(table, sizeof(InkPack_Table_sub) * (++size));
+		table[size - 1] = InkPack_Table_sub(k, v);
+		return;
+	}
+
+	inline T_T2 findValueByKey(T_T1 k, void *default_val = NULL)
+	{
+		InkPack_Size i;
+		for (i = 0; i < size; i++) {
+			if (k == table[i].key) {
+				return table[i].value;
+			}
+		}
+		return (T_T2)default_val;
+	}
+
+	~InkPack_Table()
+	{
+		free(table);
+	}
+};
+
 class InkPack_Info {
+	typedef InkPack_Table<InkPack_Size, Ink_MagicNumber> InkPack_VersionTable;
 public:
 	InkPack_String *pack_name;
 	InkPack_String *author;
+	InkPack_VersionTable *ver_table;
 
 	InkPack_Info(const char *pack_name, const char *author)
-	: pack_name(new InkPack_String(pack_name)), author(new InkPack_String(author))
+	: pack_name(new InkPack_String(pack_name)), author(new InkPack_String(author)),
+	  ver_table(new InkPack_VersionTable())
 	{ }
 
-	InkPack_Info(InkPack_String *pack_name, InkPack_String *author)
-	: pack_name(pack_name), author(author)
+	InkPack_Info(InkPack_String *pack_name, InkPack_String *author,
+				 InkPack_VersionTable *ver_table)
+	: pack_name(pack_name), author(author), ver_table(ver_table)
 	{ }
 
 	void writeTo(FILE *fp)
 	{
 		pack_name->writeTo(fp);
 		author->writeTo(fp);
+		ver_table->writeTo(fp);
 	}
 
 	static InkPack_Info *readFrom(FILE *fp);
@@ -146,6 +229,7 @@ public:
 	{
 		delete pack_name;
 		delete author;
+		delete ver_table;
 	}
 };
 
@@ -187,32 +271,56 @@ class Ink_Package {
 public:
 	Ink_MagicNumber magic_num;
 	InkPack_Info *pack_info;
-	InkPack_FileBlock *dl_file;
+
+	InkPack_Size dl_file_count;
+	InkPack_FileBlock **dl_file;
 
 	Ink_Package(const char *pack_name, const char *author, const char *dl_file_path, Ink_MagicNumber magic_num = INK_DEFAULT_MAGIC_NUM)
 	: magic_num(magic_num)
 	{
-		FILE *fp;
-
 		pack_info = new InkPack_Info(pack_name, author);
-		fp = fopen(dl_file_path, "rb");
-		if (fp) {
-			dl_file = new InkPack_FileBlock(fp);
-		} else {
-			InkError_Failed_Open_File(NULL, dl_file_path);
-			// unreachable
-		}
+		dl_file_count = 0;
+		dl_file = NULL;
+		
+		addDLFile(dl_file_path);
 	}
 
-	Ink_Package(Ink_MagicNumber magic, InkPack_Info *info, InkPack_FileBlock *so)
-	: magic_num(magic), pack_info(info), dl_file(so)
+	Ink_Package(Ink_MagicNumber magic, InkPack_Info *info)
+	: magic_num(magic), pack_info(info), dl_file_count(0), dl_file(NULL)
 	{ }
+
+	inline InkPack_FileBlock *addDLFile(InkPack_FileBlock *file)
+	{
+		dl_file = (InkPack_FileBlock **)realloc(dl_file, sizeof(InkPack_FileBlock *) * (++dl_file_count));
+		dl_file[dl_file_count - 1] = file;
+		return file;
+	}
+
+	inline InkPack_FileBlock *addDLFile(const char *dl_file_path)
+	{
+		FILE *fp = fopen(dl_file_path, "rb");
+
+		if (fp) {
+			dl_file = (InkPack_FileBlock **)realloc(dl_file, sizeof(InkPack_FileBlock *) * (++dl_file_count));
+			dl_file[dl_file_count - 1] = new InkPack_FileBlock(fp);
+			return dl_file[dl_file_count - 1];
+		} else {
+			InkError_Failed_Open_File(NULL, dl_file_path);
+		}
+
+		return NULL;
+	}
 	
 	void writeTo(FILE *fp)
 	{
 		fwrite(&magic_num, sizeof(Ink_MagicNumber), 1, fp);
 		pack_info->writeTo(fp);
-		dl_file->writeTo(fp);
+		fwrite(&dl_file_count, sizeof(InkPack_Size), 1, fp);
+
+		InkPack_Size i;
+		for (i = 0; i < dl_file_count; i++) {
+			dl_file[i]->writeTo(fp);
+		}
 		return;
 	}
 
@@ -222,7 +330,10 @@ public:
 	~Ink_Package()
 	{
 		delete pack_info;
-		delete dl_file;
+		InkPack_Size i;
+		for (i = 0; i < dl_file_count; i++)
+			delete dl_file[i];
+		free(dl_file);
 	}
 };
 

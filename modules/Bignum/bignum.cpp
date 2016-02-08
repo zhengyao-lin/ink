@@ -398,10 +398,10 @@ bool operator > (const Ink_Bignum_Integer &op1, const Ink_Bignum_Integer &op2) {
 Ink_Bignum_NumericValue::Ink_Bignum_NumericValue(double val)
 {
 	num = std_pow = 0;
-	if (!isnan(val)) {
+	if (!isnan((long double)val)) {
 		double tmp_val = val;
 		Ink_Bignum_Integer integer(floor(tmp_val), true);
-		Ink_Bignum_Integer decimal((tmp_val - floor(tmp_val)) * pow(10, DEFAULT_ACC), true);
+		Ink_Bignum_Integer decimal((tmp_val - floor(tmp_val)) * pow(10, (int)DEFAULT_ACC), true);
 		num = integer * Ink_Bignum_Integer(10).pow(DEFAULT_ACC) + decimal;
 		//std::cout << integer << decimal << endl;
 		std_pow = fabs(tmp_val) >= 1

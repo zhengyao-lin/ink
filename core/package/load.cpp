@@ -79,7 +79,8 @@ InkPack_Info *InkPack_Info::readFrom(FILE *fp)
 {
 	InkPack_String *pack_name = InkPack_String::readFrom(fp);
 	InkPack_String *author = InkPack_String::readFrom(fp);
-	return new InkPack_Info(pack_name, author);
+	InkPack_VersionTable *ver_table = InkPack_VersionTable::readFrom(fp);
+	return new InkPack_Info(pack_name, author, ver_table);
 }
 
 InkPack_FileBlock *InkPack_FileBlock::readFrom(FILE *fp)
@@ -102,8 +103,21 @@ Ink_Package *Ink_Package::readFrom(FILE *fp)
 	if (!fread(&tmp_magic_num, sizeof(Ink_MagicNumber), 1, fp))
 		return NULL;
 	InkPack_Info *tmp_pack_info = InkPack_Info::readFrom(fp);
-	InkPack_FileBlock *tmp_dl_file = InkPack_FileBlock::readFrom(fp);
-	return new Ink_Package(tmp_magic_num, tmp_pack_info, tmp_dl_file);
+	InkPack_Size i, dl_file_count = 0;
+	Ink_Package *ret = new Ink_Package(tmp_magic_num, tmp_pack_info);
+	InkPack_FileBlock *tmp = NULL;
+
+	fread(&dl_file_count, sizeof(InkPack_Size), 1, fp);
+
+	for (i = 0; i < dl_file_count; i++) {
+		ret->addDLFile(tmp = InkPack_FileBlock::readFrom(fp));
+		if (!tmp) {
+			delete ret;
+			return NULL;
+		}
+	}
+
+	return ret;
 }
 
 string *InkPack_FileBlock::bufferToTmp(const char *file_suffix) // return: tmp file path
@@ -165,7 +179,13 @@ void Ink_Package::preload(const char *path)
 		return;
 	}
 
-	tmp = pack->dl_file->bufferToTmp();
+	if (!pack->dl_file) {
+		InkWarn_No_File_In_Mod(NULL, path);
+		delete pack;
+		return;
+	}
+
+	tmp = pack->dl_file[0]->bufferToTmp();
 	handler = INK_DL_OPEN(tmp->c_str(), RTLD_NOW);
 	delete tmp;
 	InkMod_Loader_t loader = (InkMod_Loader_t)INK_DL_SYMBOL(handler, "InkMod_Loader");

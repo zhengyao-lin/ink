@@ -354,6 +354,13 @@ InkWarn_Load_Mod_On_Wrong_OS(Ink_InterpreteEngine *engine, const char *path)
 }
 
 inline void
+InkWarn_No_File_In_Mod(Ink_InterpreteEngine *engine, const char *path)
+{
+	InkErro_doPrintWarning(engine, "No file contained in the module $(path)", path);
+	return;
+}
+
+inline void
 InkWarn_If_End_With_Else(Ink_InterpreteEngine *engine)
 {
 	InkErro_doPrintWarning(engine, "if function ended with else");
