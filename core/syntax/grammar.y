@@ -20,6 +20,7 @@
 		fprintf(stderr, "%s: %sline %ld: %s\n", tmp ? tmp : "<unknown input>",
 				InkParser_getErrPrefix(), InkParser_getCurrentLineno(), msg);
 	}
+
 %}
 
 %union {
@@ -32,6 +33,7 @@
 	ink::Ink_HashTableMappingSingle		*hash_table_mapping_single;
 	std::string							*string;
 	ink::Ink_InterruptSignal			signal;
+	int									split;
 	int									token;
 }
 
@@ -69,6 +71,7 @@
 					  argument_list_without_paren insert_list
 %type <hash_table_mapping> hash_table_mapping hash_table_mapping_opt
 %type <hash_table_mapping_single> hash_table_mapping_single
+%type <split> split split_opt
 %type <signal> interrupt_signal
 
 %start compile_unit
@@ -95,11 +98,24 @@ nllo
 
 split
 	: nll
-	| TSEMICOLON nllo
+	{
+		$$ = -1;
+	}
+	| TSEMICOLON nll
+	{
+		$$ = 0;
+	}
+	| TSEMICOLON
+	{
+		$$ = 0;
+	}
 	;
 
 split_opt
 	: /* empty */
+	{
+		$$ = 0;
+	}
 	| split
 	;
 
@@ -116,6 +132,7 @@ top_level_expression_list
 	}
 	| top_level_expression_list split expression
 	{
+		(*$1)[$1->size() - 1]->line_number += $2;
 		$1->push_back($3);
 		$$ = $1;
 		$3->file_name = $$->front()->file_name;
@@ -146,6 +163,7 @@ expression_list
 	}
 	| expression_list split expression
 	{
+		(*$1)[$1->size() - 1]->line_number += $2;
 		$1->push_back($3);
 		$$ = $1;
 		$3->file_name = $$->front()->file_name;
@@ -708,7 +726,6 @@ postfix_expression
 		delete $3;
 		delete $5;
 		SET_LINE_NO($$);
-		$$->line_number--;
 	}
 	| direct_argument_attachment_expression direct_argument_attachment_expression_prefix argument_attachment_opt
 	{
@@ -718,7 +735,6 @@ postfix_expression
 		$$ = new Ink_CallExpression($1, arg_list);
 		delete $3;
 		SET_LINE_NO($$);
-		$$->line_number--;
 	}
 	| postfix_expression TLBRAKT nllo argument_list nllo TRBRAKT
 	{

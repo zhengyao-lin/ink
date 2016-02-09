@@ -115,6 +115,11 @@ apps: main_prog FORCE
 modules: main_prog FORCE
 	cd modules; $(MAKE)
 
+syntax: FORCE
+	cd core/syntax; $(MAKE) clean
+	$(RM) $(LIBS)
+	$(MAKE)
+
 output: FORCE
 	mkdir -p $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
 	cp -af modules/*.dll $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)

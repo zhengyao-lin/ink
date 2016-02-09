@@ -1021,9 +1021,9 @@ b = {}
 a = {}
 a.prototype = b
 b.prototype = c
-c.prototype = a
+c.prototype = a;
 
-p(a.what?);
+p(a.what?)
 
 actor1 = actor () {
 	import multink
@@ -1246,7 +1246,7 @@ nobody = "origin"
 fn () {
 	let a = 10;
 	a
-} () = "no!!"
+} () = "no!!";
 
 p(nobody);
 
@@ -1254,6 +1254,7 @@ a = 20;
 fn () {
 	let c = 20;
 	let b = 10;
+
 	a -> c
 	10
 } ()
