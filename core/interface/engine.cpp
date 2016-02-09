@@ -3,26 +3,13 @@
 #include "core/object.h"
 #include "core/expression.h"
 #include "core/general.h"
+#include "core/syntax/syntax.h"
 #include "core/native/native.h"
 #include "core/thread/thread.h"
 #include "core/gc/collect.h"
 
 namespace ink {
-
-static Ink_InterpreteEngine *ink_parse_engine = NULL;
-pthread_mutex_t ink_parse_lock = PTHREAD_MUTEX_INITIALIZER;
-
-Ink_InterpreteEngine *Ink_getParseEngine()
-{
-	return ink_parse_engine;
-}
-
-void Ink_setParseEngine(Ink_InterpreteEngine *engine)
-{
-	ink_parse_engine = engine;
-	return;
-}
-
+	
 pthread_mutex_t ink_native_exp_list_lock = PTHREAD_MUTEX_INITIALIZER;
 Ink_ExpressionList ink_native_exp_list;
 
@@ -192,9 +179,9 @@ inline void setArgv(Ink_InterpreteEngine *engine, vector<char *> argv)
 
 void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 {
-	pthread_mutex_lock(&ink_parse_lock);
-	Ink_InterpreteEngine *backup = Ink_getParseEngine();
-	Ink_setParseEngine(this);
+	InkParser_lockParseLock();
+	Ink_InterpreteEngine *backup = InkParser_getParseEngine();
+	InkParser_setParseEngine(this);
 	
 	setFilePath(setting.getFilePath());
 
@@ -208,8 +195,8 @@ void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 
 	setting.clean();
 
-	Ink_setParseEngine(backup);
-	pthread_mutex_unlock(&ink_parse_lock);
+	InkParser_setParseEngine(backup);
+	InkParser_unlockParseLock();
 	setArgv(this, setting.getArgument());
 
 	return;
@@ -217,9 +204,9 @@ void Ink_InterpreteEngine::startParse(Ink_InputSetting setting)
 
 void Ink_InterpreteEngine::startParse(FILE *input, bool close_fp)
 {
-	pthread_mutex_lock(&ink_parse_lock);
-	Ink_InterpreteEngine *backup = Ink_getParseEngine();
-	Ink_setParseEngine(this);
+	InkParser_lockParseLock();
+	Ink_InterpreteEngine *backup = InkParser_getParseEngine();
+	InkParser_setParseEngine(this);
 	
 	input_mode = INK_FILE_INPUT;
 	// cleanTopLevel();
@@ -230,17 +217,17 @@ void Ink_InterpreteEngine::startParse(FILE *input, bool close_fp)
 
 	if (close_fp) fclose(input);
 
-	Ink_setParseEngine(backup);
-	pthread_mutex_unlock(&ink_parse_lock);
+	InkParser_setParseEngine(backup);
+	InkParser_unlockParseLock();
 
 	return;
 }
 
 void Ink_InterpreteEngine::startParse(string code)
 {
-	pthread_mutex_lock(&ink_parse_lock);
-	Ink_InterpreteEngine *backup = Ink_getParseEngine();
-	Ink_setParseEngine(this);
+	InkParser_lockParseLock();
+	Ink_InterpreteEngine *backup = InkParser_getParseEngine();
+	InkParser_setParseEngine(this);
 
 	const char **input = (const char **)malloc(2 * sizeof(char *));
 
@@ -256,8 +243,8 @@ void Ink_InterpreteEngine::startParse(string code)
 
 	free(input);
 
-	Ink_setParseEngine(backup);
-	pthread_mutex_unlock(&ink_parse_lock);
+	InkParser_setParseEngine(backup);
+	InkParser_unlockParseLock();
 
 	return;
 }

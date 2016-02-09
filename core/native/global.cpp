@@ -7,6 +7,7 @@
 #include "../error.h"
 #include "../debug.h"
 #include "../general.h"
+#include "../syntax/syntax.h"
 #include "../gc/collect.h"
 #include "../interface/engine.h"
 #include "../interface/setting.h"
@@ -185,32 +186,10 @@ Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return ret;
 }
 
-extern Ink_LineNoType current_line_number;
-extern const char *yyerror_prefix;
-extern pthread_mutex_t ink_parse_lock;
-
-void setParserCurrentLineno(Ink_LineNoType lineno)
-{
-	pthread_mutex_lock(&ink_parse_lock);
-	current_line_number = lineno;
-	pthread_mutex_unlock(&ink_parse_lock);
-	return;
-}
-
-Ink_LineNoType getParserCurrentLineno()
-{
-	Ink_LineNoType ret;
-	pthread_mutex_lock(&ink_parse_lock);
-	ret = current_line_number;
-	pthread_mutex_unlock(&ink_parse_lock);
-	return ret;
-}
-
 Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret = NULL_OBJ;
 	Ink_ExpressionList top_level_backup;
-	Ink_LineNoType line_num_backup = getParserCurrentLineno();
 	const char *file_name_backup = engine->getFilePath();
 	string *new_file_name;
 	stringstream strm;
@@ -219,12 +198,11 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, In
 		return ret;
 	}
 
-	setParserCurrentLineno(0);
+	InkParser_setParserInfo(1, "from eval: ");
 
 	top_level_backup = engine->top_level;
-	yyerror_prefix = "from eval: ";
 
-	strm << file_name_backup << ": eval in line " << line_num_backup;
+	strm << file_name_backup << ": eval in line " << engine->current_line_number;
 	new_file_name = new string(strm.str());
 	engine->setFilePath(new_file_name->c_str());
 
@@ -241,7 +219,6 @@ Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, In
 
 	delete new_file_name;
 	engine->setFilePath(file_name_backup);
-	setParserCurrentLineno(line_num_backup);
 
 	return ret;
 }
@@ -280,7 +257,6 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	FILE *fp;
 	Ink_Object *load, **tmp_argv;
 	Ink_ExpressionList top_level_backup;
-	Ink_LineNoType line_num_backup = getParserCurrentLineno();
 
 	char *current_dir = NULL, *redirect = NULL;
 	const char *file_name_backup;
@@ -311,8 +287,7 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 			/* backup file name, yacc prefix & lineno and set new */
 			file_name_backup = engine->getFilePath();
 			engine->setFilePath(full_file_name->c_str());
-			setParserCurrentLineno(0);
-			yyerror_prefix = "from import: ";
+			InkParser_setParserInfo(1, "from import: ");
 
 			/* remove the last context created for import itself */
 			context->removeLast();
@@ -360,7 +335,6 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 			}
 		}
 	}
-	setParserCurrentLineno(line_num_backup);
 
 	return NULL_OBJ;
 }

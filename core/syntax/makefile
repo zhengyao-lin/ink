@@ -1,7 +1,8 @@
 TARGET=syntax.o
 REQUIRE=\
 	lex.o \
-	grammar.o
+	grammar.o \
+	parser.o
 
 CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=

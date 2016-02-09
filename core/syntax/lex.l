@@ -15,9 +15,10 @@ SPS				({SP})+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
-#include "includes/universal.h"
+#include "syntax.h"
 #include "core/expression.h"
 #include "core/interface/engine.h"
+#include "includes/universal.h"
 #include "grammar.hpp"
 
 #undef YY_INPUT
@@ -29,8 +30,31 @@ SPS				({SP})+
 
 using namespace ink;
 
+static Ink_LineNoType current_line_number = 1;
+static const char *yyerror_prefix = "";
+
 namespace ink {
-Ink_LineNoType current_line_number = 1;
+
+void InkParser_setParserInfo(Ink_LineNoType lineno, const char *yyprefix)
+{
+	InkParser_lockParseLock();
+	current_line_number = lineno;
+	if (yyerror_prefix)
+		yyerror_prefix = yyprefix;
+	InkParser_unlockParseLock();
+	return;
+}
+
+Ink_LineNoType InkParser_getCurrentLineno()
+{
+	return current_line_number;
+}
+
+const char *InkParser_getErrPrefix()
+{
+	return yyerror_prefix;
+}
+
 }
 
 static string *id_literal = NULL;
@@ -96,7 +120,7 @@ int ink_yyinput(char *buf, int max_size)
 {
 	int result;
 
-	switch (Ink_getParseEngine()->input_mode) {
+	switch (InkParser_getParseEngine()->input_mode) {
 		case INK_STRING_INPUT:
 			result = string_input(buf, max_size);
 			break;
@@ -195,7 +219,7 @@ void yyerror(const char *msg);
  /* Constants */
 <INITIAL>{FIRST_LETTER}({LETTER}|{DEC})* {
 	SAVE_TOKEN();
-	if (Ink_getParseEngine()->findProtocol(yylval.string->c_str())) {
+	if (InkParser_getParseEngine()->findProtocol(yylval.string->c_str())) {
 		return TPROTOCOL;
 	}
 	return TIDENTIFIER;

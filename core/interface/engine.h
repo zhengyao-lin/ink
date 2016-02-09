@@ -62,9 +62,6 @@ void Ink_insertNativeExpression(Ink_ExpressionList::iterator begin,
 								Ink_ExpressionList::iterator end);
 void Ink_addNativeExpression(Ink_Expression *expr);
 
-Ink_InterpreteEngine *Ink_getParseEngine();
-void Ink_setParseEngine(Ink_InterpreteEngine *engine);
-
 enum Ink_InputMode {
 	INK_FILE_INPUT,
 	INK_STRING_INPUT

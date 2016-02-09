@@ -2,27 +2,23 @@
     #include <stdio.h>
     #include <stdlib.h>
 	#include <string.h>
+	#include "syntax.h"
 	#include "core/expression.h"
 	#include "core/error.h"
 	#include "core/general.h"
 	#include "core/interface/engine.h"
 	#include "core/interface/setting.h"
-	#define SET_LINE_NO(exp) (exp->line_number = current_line_number)
-	#define YYERROR_VERBOSE 1s
+	#define SET_LINE_NO(exp) (exp->line_number = InkParser_getCurrentLineno())
+	#define YYERROR_VERBOSE 1
 	#define YYDEBUG 1
 
 	using namespace ink;
 
-namespace ink {
-	extern Ink_LineNoType current_line_number;
-	const char *yyerror_prefix = "";
-}
-
 	extern int yylex();
 	void yyerror(const char *msg) {
-		const char *tmp = Ink_getParseEngine()->getFilePath();
+		const char *tmp = InkParser_getParseEngine()->getFilePath();
 		fprintf(stderr, "%s: %sline %ld: %s\n", tmp ? tmp : "<unknown input>",
-				yyerror_prefix, current_line_number, msg);
+				InkParser_getErrPrefix(), InkParser_getCurrentLineno(), msg);
 	}
 %}
 
@@ -82,7 +78,7 @@ namespace ink {
 compile_unit
 	: top_level_expression_list_opt
 	{
-		Ink_getParseEngine()->top_level = *$1;
+		InkParser_getParseEngine()->top_level = *$1;
 		delete $1;
 	}
 	;
@@ -112,10 +108,10 @@ top_level_expression_list
 	{
 		$$ = new Ink_ExpressionList();
 		$$->push_back($1);
-		if (Ink_getParseEngine()->getFilePath()) {
+		if (InkParser_getParseEngine()->getFilePath()) {
 			$1->file_name
 			= ($1->file_name_p
-			   = new string(Ink_getParseEngine()->getFilePath()))->c_str();
+			   = new string(InkParser_getParseEngine()->getFilePath()))->c_str();
 		}
 	}
 	| top_level_expression_list split expression
@@ -142,10 +138,10 @@ expression_list
 	{
 		$$ = new Ink_ExpressionList();
 		$$->push_back($1);
-		if (Ink_getParseEngine()->getFilePath()) {
+		if (InkParser_getParseEngine()->getFilePath()) {
 			$1->file_name
 			= ($1->file_name_p
-			   = new string(Ink_getParseEngine()->getFilePath()))->c_str();
+			   = new string(InkParser_getParseEngine()->getFilePath()))->c_str();
 		}
 	}
 	| expression_list split expression
@@ -712,6 +708,7 @@ postfix_expression
 		delete $3;
 		delete $5;
 		SET_LINE_NO($$);
+		$$->line_number--;
 	}
 	| direct_argument_attachment_expression direct_argument_attachment_expression_prefix argument_attachment_opt
 	{
@@ -721,6 +718,7 @@ postfix_expression
 		$$ = new Ink_CallExpression($1, arg_list);
 		delete $3;
 		SET_LINE_NO($$);
+		$$->line_number--;
 	}
 	| postfix_expression TLBRAKT nllo argument_list nllo TRBRAKT
 	{
