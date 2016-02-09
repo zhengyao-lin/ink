@@ -150,6 +150,12 @@ Ink_MagicNumber getVersionByName(char *name)
 	return INK_MAGIC_NUM_INVALID;
 }
 
+void printUsage(char *path)
+{
+	fprintf(stderr, "Usage: %s [--package-name=<name>] [--author=<name>] <dynamic lib path> [[--version=<0_linux|0_win32>] <dynamic lib path>...] <dest file>\n",
+			path);
+}
+
 int main(int argc, char **argv)
 {
 	int i, argi = 0;
@@ -161,6 +167,11 @@ int main(int argc, char **argv)
 	vector<Ink_MagicNumber> file_version = vector<Ink_MagicNumber>();
 	vector<char *> files = vector<char *>();
 	vector<char *>::size_type fi;
+
+	if (argc <= 1) {
+		printUsage(argv[0]);
+		return 0;
+	}
 
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] != '-') {
@@ -188,11 +199,13 @@ int main(int argc, char **argv)
 	}
 
 	if (!files.size()) {
+		printUsage(argv[0]);
 		InkError_No_Lib_Given(NULL);
 		// unreachable
 	}
 
 	if (files.size() <= 1) {
+		printUsage(argv[0]);
 		InkError_No_Dest_Given(NULL);
 		// unreachable
 	}
@@ -203,6 +216,7 @@ int main(int argc, char **argv)
 	fp = fopen(dest, "wb");
 
 	if (!fp) {
+		printUsage(argv[0]);
 		InkError_Could_Not_Create_File(NULL, dest);
 		// unreachable
 	}
@@ -214,6 +228,7 @@ int main(int argc, char **argv)
 				  ? getVersionBySuffix(files[fi])
 				  : file_version[fi];
 		if (tmp_num == INK_MAGIC_NUM_INVALID) {
+			printUsage(argv[0]);
 			InkError_Unknown_Version(NULL, files[fi]);
 			// unreachable
 		}
