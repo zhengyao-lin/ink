@@ -32,11 +32,21 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 	if (obj && obj->mark != CURRENT_MARK_PERIOD) obj->mark = CURRENT_MARK_PERIOD;
 	else return;
 
-	doMark(engine, obj->getProto());
+	if (obj->proto_hash) {
+		doMark(engine, obj->proto_hash->getValue());
+		if (obj->proto_hash->setter) {
+			doMark(engine, obj->proto_hash->setter);
+		}
+		if (obj->proto_hash->getter) {
+			doMark(engine, obj->proto_hash->getter);
+		}
+		if (obj->proto_hash->bonding) {
+			engine->addGCBonding(obj->proto_hash, obj->proto_hash->bonding);
+		}
+	}
 
 	for (i = obj->hash_table; i; i = i->next) {
-		if (i->getValue())
-			doMark(engine, i->getValue());
+		doMark(engine, i->getValue());
 		if (i->setter)
 			doMark(engine, i->setter);
 		if (i->getter)
