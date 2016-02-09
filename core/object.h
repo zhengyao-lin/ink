@@ -53,6 +53,19 @@ public:
 		// initMethod();
 	}
 
+	static inline Ink_HashTable *traceHashBond(Ink_HashTable *begin, bool set_bondee = true)
+	{
+		Ink_HashTable *ret = NULL;
+
+		if (!begin) return NULL;
+
+		for (ret = begin; ret->bonding; ret = ret->bonding) ;
+		if (set_bondee)
+			ret->bondee = begin;
+
+		return ret;
+	}
+
 	void initProto(Ink_InterpreteEngine *engine);
 
 	inline void setProto(Ink_Object *proto)
@@ -66,17 +79,12 @@ public:
 		return;
 	}
 
-	inline Ink_Object *getProto()
+	inline Ink_HashTable *getProtoHash(bool set_bondee = true)
 	{
-		/*
-		Ink_HashTable *proto_hash = getSlotMapping(engine, "prototype");
-		*/
-		if (proto_hash && proto_hash->getValue()
-			&& proto_hash->getValue()->type != INK_UNKNOWN) {
-			return proto_hash->getValue();
-		}
-		return NULL;
+		return traceHashBond(proto_hash, set_bondee);
 	}
+
+	Ink_Object *getProto();
 
 	inline void setDebugName(const char *name)
 	{

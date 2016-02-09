@@ -40,6 +40,13 @@ Ink_Object *Ink_Object::getSlot(Ink_InterpreteEngine *engine, const char *key)
 	return ret ? ret->getValue() : UNDEFINED;
 }
 
+Ink_Object *Ink_Object::getProto()
+{
+	Ink_HashTable *ret = getProtoHash(false);
+
+	return ret ? ret->getValue() : NULL;
+}
+
 Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto)
 {
 	Ink_HashTable *i;
@@ -48,18 +55,15 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 
 #if 1
 	if (!strcmp(key, "prototype")) {
-		if (!proto_hash) return NULL;
-		for (ret = proto_hash; ret->bonding; ret = ret->bonding) ;
-		ret->bondee = proto_hash;
+		ret = getProtoHash();
 		if (is_from_proto) *is_from_proto = false;
-		return ret;
+		return ret && ret->getValue() ? ret : NULL;
 	}
 #endif
 
 	for (i = hash_table; i; i = i->next) {
 		if (!strcmp(i->key, key) && (i->getValue() || i->bonding)) {
-			for (ret = i; ret->bonding; ret = ret->bonding) ;
-			ret->bondee = i;
+			ret = traceHashBond(i);
 			if (is_from_proto) *is_from_proto = false;
 			return ret;
 		}
