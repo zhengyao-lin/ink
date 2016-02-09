@@ -13,7 +13,7 @@ inline size_t
 Ink_mbstowcs_len(const char *src)
 {
 	size_t src_idx, dest_idx;
-	size_t status;
+	int status;
 	mbstate_t ps;
 
 	memset(&ps, 0, sizeof(mbstate_t));
@@ -33,7 +33,7 @@ inline size_t
 Ink_wcstombs_len(const wchar_t *src)
 {
 	size_t src_idx, dest_idx;
-	size_t status;
+	int status;
 	char buf[MB_LEN_MAX];
 	mbstate_t ps;
 
@@ -51,7 +51,7 @@ inline void
 Ink_wcstombs(const wchar_t *src, char *dest)
 {
 	size_t src_idx, dest_idx;
-	size_t status;
+	int status;
 	mbstate_t ps;
 
 	memset(&ps, 0, sizeof(mbstate_t));
@@ -69,7 +69,7 @@ inline void
 Ink_mbstowcs(const char *src, wchar_t *dest)
 {
 	size_t src_idx, dest_idx;
-	size_t status;
+	int status;
 	mbstate_t ps;
 
 	memset(&ps, 0, sizeof(mbstate_t));
@@ -100,7 +100,7 @@ Ink_wcstombs_alloc(const wchar_t *src)
 inline wchar_t *
 Ink_mbstowcs_alloc(const char *src)
 {
-	int len;
+	size_t len;
 	wchar_t *ret;
 
 	len = Ink_mbstowcs_len(src);

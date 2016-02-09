@@ -215,7 +215,7 @@ public:
 	inline string *getCustomInterruptSignalName(Ink_InterruptSignal sig)
 	{
 		sig -= INTER_LAST + 1;
-		if (sig >= 0 && sig < custom_interrupt_signal.size()) {
+		if (sig < custom_interrupt_signal.size()) {
 			return custom_interrupt_signal[sig];
 		}
 		return NULL;

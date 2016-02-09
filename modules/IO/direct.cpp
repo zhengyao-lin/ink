@@ -99,7 +99,6 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 	Ink_Object **args = NULL;
 	Ink_Object *ret_tmp;
 	Ink_Array *ret = NULL;
-	Ink_ArrayValue::size_type i;
 	Ink_Object *block = NULL;
 	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
 
