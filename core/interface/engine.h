@@ -338,39 +338,6 @@ public:
 		return;
 	}
 
-	inline Ink_HashTable *searchNativeMethod(Ink_TypeTag type, const char *name)
-	{
-		Ink_Object *tmp = NULL;
-		Ink_HashTable *ret = NULL;
-		Ink_HashTable *proto_hash = NULL;
-		string proto_name = string("$") + getTypeName(type);
-
-		switch (type) {
-			case INK_NULL:
-			case INK_UNDEFINED:
-			case INK_CONTEXT:
-				proto_name = string("$") + getTypeName(INK_OBJECT);
-				break;
-			default: ;
-		}
-
-		while (1) {
-			proto_hash = global_context->context->getSlotMapping(NULL, proto_name.c_str());
-			if (!(proto_hash && (tmp = proto_hash->getValue()))) return NULL;
-
-			ret = tmp->getSlotMapping(NULL, name);
-
-			if (!ret && type != INK_OBJECT) {
-				type = INK_OBJECT;
-				proto_name = string("$") + getTypeName(INK_OBJECT);
-				continue;
-			}
-			break;
-		}
-
-		return ret;
-	}
-
 	inline int addEngineCom(InkMod_ModuleID id, Ink_CustomEngineCom com)
 	{
 		if (custom_engine_com_map.find(id) != custom_engine_com_map.end()) {

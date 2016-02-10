@@ -8,19 +8,6 @@ namespace ink {
 
 using namespace std;
 
-extern int numeric_native_method_table_count;
-extern InkNative_MethodTable numeric_native_method_table[];
-extern int string_native_method_table_count;
-extern InkNative_MethodTable string_native_method_table[];
-extern int object_native_method_table_count;
-extern InkNative_MethodTable object_native_method_table[];
-extern int array_native_method_table_count;
-extern InkNative_MethodTable array_native_method_table[];
-extern int function_native_method_table_count;
-extern InkNative_MethodTable function_native_method_table[];
-extern int big_num_native_method_table_count;
-extern InkNative_MethodTable big_num_native_method_table[];
-
 Ink_Object *getMethod(Ink_InterpreteEngine *engine,
 					  Ink_Object *obj, const char *name, InkNative_MethodTable *table, int count)
 {
@@ -90,26 +77,6 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 			return ret;
 		}
 	}
-
-#if 0
-	if (!engine) return ret;
-
-	ret = engine->searchNativeMethod(type, key);
-	if (ret) {
-		ret = setSlot(ret->key, ret->getValue()->clone(engine));
-	}
-#endif
-
-#if 0
-	Ink_Object *p = NULL;
-
-	if ((p = getProto()) != NULL) {
-		ret = p->getSlotMapping(engine, key);
-		if (ret) {
-			ret = setSlot(ret->key, ret->getValue());
-		}
-	}
-#endif
 
 	engine->initPrototypeSearch();
 	return ret;
