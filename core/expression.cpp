@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 #include <string.h>
 #include <math.h>
 #include "error.h"
@@ -455,8 +456,15 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 #endif
 	} else {
 		/* found slot correctly */
+		ret = hash->getValue();
+
+		if (!ret) { /* just a placeholder */
+			ret = UNDEFINED;
+			assert(!is_from_proto);
+		}
+
 		if (is_from_proto) {
-			ret = hash->getValue()->clone(engine);
+			ret = ret->clone(engine);
 			if (id_p)
 				address = obj->setSlot(id, NULL, id_p);
 			else {
@@ -464,7 +472,6 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 				address = obj->setSlot(id_p->c_str(), NULL, id_p);
 			}
 		} else {
-			ret = hash->getValue();
 			address = hash;
 			delete id_p;
 		}
@@ -710,6 +717,9 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 		}
 	} else {
 		ret = hash->getValue(); /* get value */
+		if (!ret) { // just a place holder
+			ret = UNDEFINED;
+		}
 		if (name_p)
 			delete name_p;
 	}

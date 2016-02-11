@@ -49,10 +49,15 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 #endif
 
 	for (i = hash_table; i; i = i->next) {
-		if (!strcmp(i->key, key) && (i->getValue() || i->bonding)) {
-			ret = traceHashBond(i);
-			if (is_from_proto) *is_from_proto = false;
-			return ret;
+		if (!strcmp(i->key, key)) {
+			if (i->setter || i->getter) {
+				if (is_from_proto) *is_from_proto = false;
+				return i;
+			} else if(i->getValue() || i->bonding) {
+				ret = traceHashBond(i);
+				if (is_from_proto) *is_from_proto = false;
+				return ret;
+			}
 		}
 	}
 
