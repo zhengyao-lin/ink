@@ -15,23 +15,24 @@ Ink_Object *InkNative_Function_Insert(Ink_InterpreteEngine *engine, Ink_ContextC
 
 	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 
-	if (!checkArgument(false, argc, argv, 1, INK_FUNCTION)) {
-		InkWarn_Insert_Non_Function_Object(engine);
-		return NULL_OBJ;
-	}
-
 	Ink_FunctionObject *func = as<Ink_FunctionObject>(base);
-	Ink_FunctionObject *insert;
+	Ink_FunctionObject *tmp_func;
+	Ink_ExpListObject *tmp_exp_obj;
 
 	for (i = 0; i < argc; i++) {
-		if (argv[i]->type != INK_FUNCTION) {
+		if (argv[i]->type == INK_FUNCTION) {
+			tmp_func = as<Ink_FunctionObject>(argv[i]);
+			func->exp_list.insert(func->exp_list.end(),
+								  tmp_func->exp_list.begin(),
+								  tmp_func->exp_list.end());
+		} else if (argv[i]->type == INK_EXPLIST) {
+			tmp_exp_obj = as<Ink_ExpListObject>(argv[i]);
+			func->exp_list.insert(func->exp_list.end(),
+								  tmp_exp_obj->exp_list.begin(),
+								  tmp_exp_obj->exp_list.end());
+		} else {
 			InkWarn_Insert_Non_Function_Object(engine);
-			return func;
 		}
-		insert = as<Ink_FunctionObject>(argv[i]);
-		func->exp_list.insert(func->exp_list.end(),
-							  insert->exp_list.begin(),
-							  insert->exp_list.end());
 	}
 
 	return func;
@@ -117,8 +118,7 @@ Ink_Object *InkNative_Function_GetExp(Ink_InterpreteEngine *engine, Ink_ContextC
 	for (i = 0; i < tmp->exp_list.size(); i++) {
 		tmp_exp = Ink_ExpressionList();
 		tmp_exp.push_back(tmp->exp_list[i]);
-		ret_val.push_back(new Ink_HashTable("", new Ink_FunctionObject(engine, tmp->param, tmp_exp,
-																	   tmp->closure_context->copyContextChain(), true)));
+		ret_val.push_back(new Ink_HashTable("", new Ink_ExpListObject(engine, tmp_exp)));
 	}
 
 	return new Ink_Array(engine, ret_val);

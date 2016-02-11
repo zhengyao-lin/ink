@@ -72,7 +72,7 @@ InkWarn_Get_Slot_Of_Undefined(Ink_InterpreteEngine *engine, const char *name)
 inline void
 InkWarn_Insert_Non_Function_Object(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintWarning(engine, "Inserting non-function object or with a non-lazy-expression argument");
+	InkErro_doPrintWarning(engine, "Inserting non-function or non-expression-list object");
 	return;
 }
 

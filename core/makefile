@@ -16,6 +16,7 @@ REQUIRE=\
 	clone.o\
 	array.o\
 	function.o \
+	explist.o \
 	coroutine.o \
 	expression.o \
 	context.o \

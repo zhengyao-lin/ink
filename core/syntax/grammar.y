@@ -184,7 +184,6 @@ expression_list_opt
 expression
 	: nestable_expression
 	| comma_expression
-	| interrupt_expression
 	| import_expression
 	;
 
@@ -270,6 +269,7 @@ comma_expression
 
 nestable_expression
 	: field_expression
+	| interrupt_expression
 	;
 
 field_expression

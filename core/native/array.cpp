@@ -179,7 +179,10 @@ Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextCha
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_Array *tmp;
+	Ink_Object *tmp_obj;
 	Ink_FunctionObject *tmp_func;
+	Ink_ExpListObject *tmp_exp_obj;
+
 	Ink_ExpressionList ret_val;
 	Ink_ArrayValue::size_type i;
 
@@ -188,9 +191,17 @@ Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextCha
 	tmp = as<Ink_Array>(base);
 	ret_val = Ink_ExpressionList();
 	for (i = 0; i < tmp->value.size(); i++) {
-		if (tmp->value[i] && (tmp_func = as<Ink_FunctionObject>(tmp->value[i]->getValue()))) {
-			if (tmp_func->type == INK_FUNCTION) {
-				ret_val.push_back(tmp_func->exp_list[0]);
+		if (tmp->value[i] && (tmp_obj = tmp->value[i]->getValue())) {
+			if (tmp_obj->type == INK_FUNCTION) {
+				tmp_func = as<Ink_FunctionObject>(tmp_obj);
+				ret_val.insert(ret_val.end(),
+							   tmp_func->exp_list.begin(),
+							   tmp_func->exp_list.end());
+			} else if (tmp_obj->type == INK_EXPLIST) {
+				tmp_exp_obj = as<Ink_ExpListObject>(tmp_obj);
+				ret_val.insert(ret_val.end(),
+							   tmp_exp_obj->exp_list.begin(),
+							   tmp_exp_obj->exp_list.end());
 			} else {
 				InkWarn_Invalid_Element_For_Rebuild(engine);
 			}

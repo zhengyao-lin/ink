@@ -33,6 +33,7 @@ struct DBG_FixedTypeMapping dbg_fixed_type_mapping[] =
 	{ INK_STRING,		"string" },
 	{ INK_CONTEXT,		"context" },
 	{ INK_FUNCTION,		"function" },
+	{ INK_EXPLIST,		"expression list" },
 	{ INK_ARRAY,		"array" },
 	{ INK_UNKNOWN,		"unknown" }
 };

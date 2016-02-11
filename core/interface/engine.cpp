@@ -94,7 +94,6 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	global_context = new Ink_ContextChain(new Ink_ContextObject(this));
 	// gc_engine->initContext(global_context);
 
-	// make sure the slot name is $<type name>
 	global_context->context->setSlot("$object", obj_proto = new Ink_Object(this));
 	setTypePrototype(INK_OBJECT, obj_proto);
 	obj_proto->derivedMethodInit(this);
@@ -103,6 +102,11 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 
 	global_context->context->setSlot("$function", tmp = new Ink_FunctionObject(this));
 	setTypePrototype(INK_FUNCTION, tmp);
+	tmp->setProto(obj_proto);
+	tmp->derivedMethodInit(this);
+
+	global_context->context->setSlot("$exp_list", tmp = new Ink_ExpListObject(this));
+	setTypePrototype(INK_EXPLIST, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 

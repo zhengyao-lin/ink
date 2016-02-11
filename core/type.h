@@ -14,6 +14,7 @@ typedef Ink_UInt64 Ink_TypeTag;
 #define INK_STRING INK_STRING_tag
 #define INK_CONTEXT INK_CONTEXT_tag
 #define INK_FUNCTION INK_FUNCTION_tag
+#define INK_EXPLIST INK_EXPLIST_tag
 #define INK_ARRAY INK_ARRAY_tag
 #define INK_UNKNOWN INK_UNKNOWN_tag
 #define INK_LAST INK_LAST_tag
@@ -27,6 +28,7 @@ enum Ink_TypeTag_tag {
 	INK_STRING_tag,
 	INK_CONTEXT_tag,
 	INK_FUNCTION_tag,
+	INK_EXPLIST_tag,
 	INK_ARRAY_tag,
 	INK_UNKNOWN_tag,
 	INK_LAST_tag

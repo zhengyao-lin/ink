@@ -175,8 +175,13 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	Ink_Object *ret_val = NULL, *pa_ret = NULL;
 	Ink_Array *var_arg = NULL;
 	IGC_CollectEngine *gc_engine_backup = engine->getCurrentGC();
+
 	bool force_return = false;
 	bool if_delete_argv = false;
+
+	/* if not inline function, set local context */
+	bool if_set_sp_ptr = !is_inline;
+
 	const char *debug_name_back = getDebugName();
 	const char *base_debug_name_back = getSlot(engine, "base")->getDebugName();
 
@@ -192,18 +197,21 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine(engine);
 	engine->setCurrentGC(gc_engine);
 
-	/* create new local context */
-	local = new Ink_ContextObject(engine);
 	if (closure_context) {
 		context = closure_context->copyContextChain(); /* copy closure context chain */
 	} else {
 		context = context->copyContextChain();
 	}
 
-	if (!is_inline) { /* if not inline function, set local context */
+	/* create new local context */
+	local = new Ink_ContextObject(engine);
+	context->addContext(local);
+
+	if (if_set_sp_ptr) {
 		local->setSlot("base", getSlot(engine, "base"));
 		local->setSlot("this", this);
 	}
+
 	local->setSlot("let", local);
 
 	/* set "this" pointer if exists */
@@ -213,8 +221,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	// reset debug name
 	getSlot(engine, "base")->setDebugName(base_debug_name_back);
 	setDebugName(debug_name_back);
-
-	context->addContext(local);
 
 	/* set trace(unsed for mark&sweep GC) and set debug info */
 	engine->addTrace(local)->setDebug(engine->current_file_name, engine->current_line_number, this);

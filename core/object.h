@@ -367,6 +367,35 @@ public:
 	virtual ~Ink_FunctionObject();
 };
 
+class Ink_ExpListObject: public Ink_Object {
+public:
+	Ink_ExpressionList exp_list;
+
+	Ink_ExpListObject(Ink_InterpreteEngine *engine)
+	: Ink_Object(engine), exp_list(Ink_ExpressionList())
+	{
+		type = INK_EXPLIST;
+		initProto(engine);
+	}
+
+	Ink_ExpListObject(Ink_InterpreteEngine *engine, Ink_ExpressionList exp_list)
+	: Ink_Object(engine), exp_list(exp_list)
+	{
+		type = INK_EXPLIST;
+		initProto(engine);
+	}
+
+	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
+	{ }
+
+	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
+							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
+							 Ink_Object *this_p = NULL, bool if_return_this = true);
+
+	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
+	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
+};
+
 class Ink_Numeric: public Ink_Object {
 public:
 	Ink_NumericValue value;

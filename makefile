@@ -120,6 +120,11 @@ syntax: FORCE
 	$(RM) $(LIBS)
 	$(MAKE)
 
+native: FORCE
+	cd core/native; $(MAKE) clean
+	$(RM) $(LIBS)
+	$(MAKE)
+
 output: FORCE
 	mkdir -p $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
 	cp -af modules/*.dll $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)

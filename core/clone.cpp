@@ -72,6 +72,24 @@ Ink_Object *Ink_ContextObject::cloneDeep(Ink_InterpreteEngine *engine)
 	return new_obj;
 }
 
+Ink_Object *Ink_ExpListObject::clone(Ink_InterpreteEngine *engine)
+{
+	Ink_Object *new_obj = new Ink_ExpListObject(engine, exp_list);
+
+	cloneHashTable(this, new_obj);
+
+	return new_obj;
+}
+
+Ink_Object *Ink_ExpListObject::cloneDeep(Ink_InterpreteEngine *engine)
+{
+	Ink_Object *new_obj = new Ink_ExpListObject(engine, exp_list);
+
+	cloneDeepHashTable(engine, this, new_obj);
+
+	return new_obj;
+}
+
 Ink_Object *Ink_Numeric::clone(Ink_InterpreteEngine *engine)
 {
 	Ink_Object *new_obj = new Ink_Numeric(engine, value);
