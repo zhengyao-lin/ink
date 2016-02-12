@@ -89,7 +89,6 @@ public:
 
 	Ink_ContextChain *trace;
 
-	// MutexLock gc_lock;
 	IGC_ObjectCountType igc_object_count;
 	IGC_ObjectCountType igc_collect_treshold;
 	IGC_CollectEngine *current_gc_engine;
@@ -97,7 +96,6 @@ public:
 	IGC_BondingList igc_bonding_list;
 	Ink_Object *igc_global_ret_val;
 	Ink_PardonList igc_pardon_list;
-	// std::map<int, IGC_CollectEngine *> gc_engine_map;
 
 	Ink_InterruptSignal interrupt_signal;
 	Ink_Object *interrupt_value;
