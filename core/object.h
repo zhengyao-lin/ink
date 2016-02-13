@@ -386,7 +386,10 @@ public:
 	}
 
 	virtual void derivedMethodInit(Ink_InterpreteEngine *engine)
-	{ }
+	{
+		Ink_ExpListMethodInit(engine);
+	}
+	void Ink_ExpListMethodInit(Ink_InterpreteEngine *engine);
 
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,

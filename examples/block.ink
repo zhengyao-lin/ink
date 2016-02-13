@@ -149,7 +149,7 @@ func = fn () {
 	//this();
 };
 
-a = func.exp();
+a = func.exp().to_array();
 p("size: " + a.size());
 
 (fn (){} << a[-3] << a[-2] << a[-1])();
@@ -1421,8 +1421,8 @@ f.`[]` = fn (x) {
 	tmp
 }
 
-$function.reconstruct = fn (context) {
-	context::(fn (exps) { exps.rebuild() })(base.exp())
+$function.reconstruct = fn (context) {(
+	context::(fn (exps) { exps.rebuild() })(base.exp().to_array()))
 	// rebuild in the dest context
 }
 

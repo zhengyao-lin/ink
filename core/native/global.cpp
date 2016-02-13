@@ -654,4 +654,10 @@ InkNative_MethodTable function_native_method_table[] = {
 	{"::", new Ink_FunctionObject(NULL, InkNative_Function_GetScope, InkNative_Function_GetScope_ParamGenerator())}
 };
 
+int explist_native_method_table_count = 2;
+InkNative_MethodTable explist_native_method_table[] = {
+	{"to_array", new Ink_FunctionObject(NULL, InkNative_ExpList_ToArray)},
+	{"<<", new Ink_FunctionObject(NULL, InkNative_ExpList_Insert)}
+};
+
 }

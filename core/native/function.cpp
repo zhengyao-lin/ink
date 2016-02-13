@@ -107,21 +107,10 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 Ink_Object *InkNative_Function_GetExp(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
-	Ink_FunctionObject *tmp;
-	Ink_ExpressionList tmp_exp;
-	Ink_ArrayValue ret_val;
-	Ink_ExpressionList::size_type i;
 
 	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 
-	tmp = as<Ink_FunctionObject>(base);
-	for (i = 0; i < tmp->exp_list.size(); i++) {
-		tmp_exp = Ink_ExpressionList();
-		tmp_exp.push_back(tmp->exp_list[i]);
-		ret_val.push_back(new Ink_HashTable("", new Ink_ExpListObject(engine, tmp_exp)));
-	}
-
-	return new Ink_Array(engine, ret_val);
+	return new Ink_ExpListObject(engine, as<Ink_FunctionObject>(base)->exp_list);
 }
 
 Ink_Object *InkNative_Function_GetScope(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -148,13 +137,77 @@ Ink_Object *InkNative_Function_GetScope(Ink_InterpreteEngine *engine, Ink_Contex
 	return ret;
 }
 
+/* exp list */
+
+Ink_Object *InkNative_ExpList_ToArray(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+	Ink_ExpListObject *tmp;
+	Ink_ExpressionList tmp_exp;
+	Ink_ArrayValue ret_val;
+	Ink_ExpressionList::size_type i;
+
+	ASSUME_BASE_TYPE(engine, INK_EXPLIST);
+
+	tmp = as<Ink_ExpListObject>(base);
+	for (i = 0; i < tmp->exp_list.size(); i++) {
+		tmp_exp = Ink_ExpressionList();
+		tmp_exp.push_back(tmp->exp_list[i]);
+		ret_val.push_back(new Ink_HashTable("", new Ink_ExpListObject(engine, tmp_exp)));
+	}
+
+	return new Ink_Array(engine, ret_val);
+}
+
+Ink_Object *InkNative_ExpList_Insert(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+	Ink_ArgcType i;
+
+	ASSUME_BASE_TYPE(engine, INK_EXPLIST);
+
+	Ink_ExpListObject *exp_list = as<Ink_ExpListObject>(base);
+	Ink_FunctionObject *tmp_func;
+	Ink_ExpListObject *tmp_exp_obj;
+
+	for (i = 0; i < argc; i++) {
+		if (argv[i]->type == INK_FUNCTION) {
+			tmp_func = as<Ink_FunctionObject>(argv[i]);
+			exp_list->exp_list.insert(exp_list->exp_list.end(),
+									  tmp_func->exp_list.begin(),
+									  tmp_func->exp_list.end());
+		} else if (argv[i]->type == INK_EXPLIST) {
+			tmp_exp_obj = as<Ink_ExpListObject>(argv[i]);
+			exp_list->exp_list.insert(exp_list->exp_list.end(),
+									  tmp_exp_obj->exp_list.begin(),
+									  tmp_exp_obj->exp_list.end());
+		} else {
+			InkWarn_Insert_Non_Function_Object(engine);
+		}
+	}
+
+	return exp_list;
+}
+
 extern int function_native_method_table_count;
 extern InkNative_MethodTable function_native_method_table[];
+extern int explist_native_method_table_count;
+extern InkNative_MethodTable explist_native_method_table[];
 
 void Ink_FunctionObject::Ink_FunctionMethodInit(Ink_InterpreteEngine *engine)
 {
 	InkNative_MethodTable *table = function_native_method_table;
 	int i, count = function_native_method_table_count;
+
+	for (i = 0; i < count; i++) {
+		setSlot(table[i].name, table[i].func->cloneDeep(engine));
+	}
+}
+
+void Ink_ExpListObject::Ink_ExpListMethodInit(Ink_InterpreteEngine *engine)
+{
+	InkNative_MethodTable *table = explist_native_method_table;
+	int i, count = explist_native_method_table_count;
 
 	for (i = 0; i < count; i++) {
 		setSlot(table[i].name, table[i].func->cloneDeep(engine));
