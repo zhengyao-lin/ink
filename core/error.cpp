@@ -31,7 +31,7 @@ InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, co
 
 	if (engine) {
 		engine->printTrace(stderr, engine->getTrace(), "***INK EXCEPTION*** ");
-		engine->setInterrupt(INTER_THROW, new Ink_ExceptionMessage(engine, ex_code, line_number, *(err_msg.message)));
+		engine->setInterrupt(INTER_THROW, new Ink_ExceptionMessage(engine, ex_code, file_name, line_number, *(err_msg.message)));
 	}
 
 	return;
@@ -52,7 +52,7 @@ InkErro_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, ...)
 
 	if (engine && engine->getErrorMode() == INK_ERRMODE_STRICT) {
 		engine->printTrace(stderr, engine->getTrace(), "***INK EXCEPTION(strict mode)*** ");
-		engine->setInterrupt(INTER_THROW, new Ink_ExceptionMessage(engine, 0, line_number, *(err_msg.message)));
+		engine->setInterrupt(INTER_THROW, new Ink_ExceptionMessage(engine, 0, file_name, line_number, *(err_msg.message)));
 	}
 
 	return;

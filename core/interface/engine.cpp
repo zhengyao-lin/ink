@@ -324,6 +324,20 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_Expression *exp)
 	return ret;
 }
 
+void Ink_InterpreteEngine::breakUnreachableBonding(Ink_HashTable *to)
+{
+	IGC_BondingList::iterator bond_iter;
+	for (bond_iter = igc_bonding_list.begin();
+		 bond_iter != igc_bonding_list.end(); bond_iter++) {
+		if ((*bond_iter).second == to) {
+			InkWarn_Unreachable_Bonding(this);
+			(*bond_iter).first->bonding = NULL;
+			getCurrentGC()->doMark(getInterruptValue());
+		}
+	}
+	return;
+}
+
 void Ink_InterpreteEngine::cleanExpressionList(Ink_ExpressionList exp_list)
 {
 	unsigned int i;

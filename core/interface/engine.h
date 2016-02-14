@@ -323,18 +323,7 @@ public:
 		return IGC_Bonding(NULL, NULL);
 	}
 
-	inline void breakUnreachableBonding(Ink_HashTable *to)
-	{
-		IGC_BondingList::iterator bond_iter;
-		for (bond_iter = igc_bonding_list.begin();
-			 bond_iter != igc_bonding_list.end(); bond_iter++) {
-			if ((*bond_iter).second == to) {
-				InkWarn_Unreachable_Bonding(this);
-				(*bond_iter).first->bonding = NULL;
-			}
-		}
-		return;
-	}
+	void breakUnreachableBonding(Ink_HashTable *to);
 
 	inline int addEngineCom(InkMod_ModuleID id, Ink_CustomEngineCom com)
 	{

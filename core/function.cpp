@@ -276,7 +276,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 				if (attr.hasTrap(engine->getSignal())) {
 					ret_val = engine->trapSignal();
 				} else {
-					ret_val = NULL;
+					ret_val = engine->getInterruptValue();
 				}
 
 				force_return = true;
