@@ -57,6 +57,7 @@ class Ink_ContextChain;
 
 typedef std::vector<INK_DL_HANDLER> DLHandlerPool;
 
+void Ink_addModPath(const char *path);
 void Ink_addModule(INK_DL_HANDLER handler);
 void Ink_disposeModules();
 void Ink_preloadModule(const char *name);

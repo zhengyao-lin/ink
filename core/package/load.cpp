@@ -1,4 +1,5 @@
 #include <string>
+#include <string.h>
 #include "load.h"
 #include "../error.h"
 #include "../thread/thread.h"
@@ -14,6 +15,22 @@ static DLHandlerPool dl_handler_pool;
 static char *tmp_prog_path = NULL;
 static InkMod_ModuleID current_module_id = 0;
 
+static const char *dl_fixed_mod_load_dir[] = {
+	INK_MODULE_DIR,
+	NULL
+};
+
+static Ink_SizeType dl_mod_load_dir_len = 0;
+static char **dl_mod_load_dir = NULL;
+
+void Ink_addModPath(const char *path)
+{
+	dl_mod_load_dir = (char **)realloc(dl_mod_load_dir,
+									   sizeof(char *) * (++dl_mod_load_dir_len));
+	dl_mod_load_dir[dl_mod_load_dir_len - 1] = strdup(path);
+	return;
+}
+
 void Ink_addModule(INK_DL_HANDLER handler)
 {
 	pthread_mutex_lock(&dl_handler_pool_lock);
@@ -25,10 +42,17 @@ void Ink_addModule(INK_DL_HANDLER handler)
 void Ink_disposeModules()
 {
 	DLHandlerPool::size_type i;
+	Ink_SizeType j;
 	pthread_mutex_lock(&dl_handler_pool_lock);
 	for (i = 0; i < dl_handler_pool.size(); i++) {
 		INK_DL_CLOSE(dl_handler_pool[i]);
 	}
+	
+	for (j = 0; j < dl_mod_load_dir_len; j++) {
+		free(dl_mod_load_dir[j]);
+	}
+	free(dl_mod_load_dir);
+
 	if (tmp_prog_path) {
 		free(tmp_prog_path);
 	}
@@ -148,14 +172,14 @@ void Ink_Package::preload(const char *path)
 	return;
 }
 
-void Ink_preloadModule(const char *name)
+void Ink_preloadModule(const char *path)
 {
-	INK_DL_HANDLER handler = INK_DL_OPEN((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(name)).c_str(), RTLD_NOW);
+	INK_DL_HANDLER handler = INK_DL_OPEN(path, RTLD_NOW);
 	int errnum;
 	const char *errmsg;
 
 	if (!handler) {
-		InkWarn_Failed_Load_Mod(NULL, name);
+		InkWarn_Failed_Load_Mod(NULL, path);
 		if ((errmsg = INK_DL_ERROR()) != NULL)
 			printf("%s\n", errmsg);
 		return;
@@ -164,7 +188,7 @@ void Ink_preloadModule(const char *name)
 	InkMod_Loader_t loader = (InkMod_Loader_t)INK_DL_SYMBOL(handler, "InkMod_Loader");
 	InkMod_Init_t init = (InkMod_Init_t)INK_DL_SYMBOL(handler, "InkMod_Init");
 	if (!loader) {
-		InkWarn_Failed_Find_Loader(NULL, name);
+		InkWarn_Failed_Find_Loader(NULL, path);
 		INK_DL_CLOSE(handler);
 		if ((errmsg = INK_DL_ERROR()) != NULL)
 			printf("%s\n", errmsg);
@@ -172,7 +196,7 @@ void Ink_preloadModule(const char *name)
 	}
 
 	if (!init) {
-		InkWarn_Failed_Find_Init(NULL, name);
+		InkWarn_Failed_Find_Init(NULL, path);
 		INK_DL_CLOSE(handler);
 		if ((errmsg = INK_DL_ERROR()) != NULL)
 			printf("%s\n", errmsg);
@@ -190,21 +214,21 @@ void Ink_preloadModule(const char *name)
 }
 
 #if defined(INK_PLATFORM_LINUX)
-	void Ink_loadAllModules()
+	void Ink_loadAllModules_sub(const char *mod_path)
 	{
-		DIR *mod_dir = opendir(INK_MODULE_DIR);
+		DIR *mod_dir = opendir(mod_path);
 		struct dirent *child;
 
 		if (!mod_dir) {
-			InkWarn_Failed_Find_Mod(NULL, INK_MODULE_DIR);
+			InkWarn_Failed_Find_Mod(NULL, mod_path);
 			return;
 		}
 
 		while ((child = readdir(mod_dir)) != NULL) {
 			if (hasSuffix(child->d_name, "mod")) {
-				Ink_Package::preload((string(INK_MODULE_DIR) + INK_PATH_SPLIT + child->d_name).c_str());
+				Ink_Package::preload((string(mod_path) + INK_PATH_SPLIT + child->d_name).c_str());
 			} else if (hasSuffix(child->d_name, INK_DL_SUFFIX)) {
-				Ink_preloadModule(child->d_name);
+				Ink_preloadModule((string(mod_path) + INK_PATH_SPLIT + child->d_name).c_str());
 			}
 		}
 
@@ -213,28 +237,43 @@ void Ink_preloadModule(const char *name)
 		return;
 	}
 #elif defined(INK_PLATFORM_WIN32)
-	void Ink_loadAllModules()
+	void Ink_loadAllModules_sub(const char *mod_path)
 	{
 		WIN32_FIND_DATA data;
 		HANDLE dir_handle = NULL;
 
-		dir_handle = FindFirstFile((string(INK_MODULE_DIR) + "/*").c_str(), &data);  // find for all files
+		dir_handle = FindFirstFile((string(mod_path) + "/*").c_str(), &data);  // find for all files
 		if (dir_handle == INVALID_HANDLE_VALUE) {
-			InkWarn_Failed_Find_Mod(NULL, INK_MODULE_DIR);
+			InkWarn_Failed_Find_Mod(NULL, mod_path);
 			return;
 		}
 
 		do {
 			if (hasSuffix(data.cFileName, "mod")) {
-				Ink_Package::preload((string(INK_MODULE_DIR) + INK_PATH_SPLIT + string(data.cFileName)).c_str());
+				Ink_Package::preload((string(mod_path) + INK_PATH_SPLIT + string(data.cFileName)).c_str());
 			} else if (hasSuffix(data.cFileName, INK_DL_SUFFIX)) {
-				Ink_preloadModule(data.cFileName);
+				Ink_preloadModule((string(mod_path) + INK_PATH_SPLIT + string(data.cFileName)).c_str());
 			}
 		} while (FindNextFile(dir_handle, &data));
 
 		FindClose(dir_handle);
 	}
 #endif
+
+void Ink_loadAllModules()
+{
+	Ink_SizeType i;
+
+	for (i = 0; dl_fixed_mod_load_dir[i]; i++) {
+		Ink_loadAllModules_sub(dl_fixed_mod_load_dir[i]);
+	}
+
+	for (i = 0; i < dl_mod_load_dir_len; i++) {
+		Ink_loadAllModules_sub(dl_mod_load_dir[i]);
+	}
+
+	return;
+}
 
 #if defined(INK_PLATFORM_WIN32)
 	string getProgPath()

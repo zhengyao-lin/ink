@@ -1,6 +1,7 @@
 #include <string.h>
 #include "setting.h"
 #include "core/error.h"
+#include "../package/load.h"
 
 namespace ink {
 
@@ -14,9 +15,56 @@ inline bool isArg(const char *arg)
 	return false;
 }
 
+#define IS_SINGLE_DASH_ARG(a) (arg == (a) && dash_count == 1)
+#define IS_DOUBLE_DASH_ARG(a) (arg == (a) && dash_count == 2)
+#define REPRINT_DASH (string(dash_count == 1 ? "-" : "--"))
+#define REPRINT_ARG (REPRINT_DASH + arg)
+
+inline void printUsage(const char *prog_path)
+{
+	fprintf(stderr, "Usage: %s [options] source_file [arguments]\n", prog_path);
+	fprintf(stderr,
+"Options:\n"
+"  %-25s %s\n"
+"  %-25s %s\n",
+	"--help or -H: ", "Display this usage page",
+	"--mod-path=<path> or -M=<path>", "Add module searching path");
+}
+
+/* return: if print usage */
+inline bool processArg(Ink_InputSetting &setting, Ink_SizeType dash_count,
+					   string arg, bool has_val = false, string val = "")
+{
+	if (dash_count > 2) {
+		fprintf(stderr, "Too many dashes before argument\n");
+		setting.if_run = false;
+		return true;
+	}
+
+	if (IS_SINGLE_DASH_ARG("M") || IS_DOUBLE_DASH_ARG("mod-path")) {
+		if (has_val) {
+			Ink_addModPath(val.c_str());
+		} else {
+			fprintf(stderr, "Argument %s requires a value\n", REPRINT_ARG.c_str());
+			setting.if_run = false;
+			return true;
+		}
+	} else if (IS_SINGLE_DASH_ARG("H") || IS_DOUBLE_DASH_ARG("help")) {
+		setting.if_run = false;
+		return true;
+	} else {
+		fprintf(stderr, "Unknown argument %s\n", REPRINT_ARG.c_str());
+		setting.if_run = false;
+		return true;
+	}
+
+	return false;
+}
+
 Ink_InputSetting Ink_InputSetting::parseArg(int argc, char **argv)
 {
 	int i;
+	Ink_SizeType c_i;
 	Ink_InputSetting ret = Ink_InputSetting();
 	FILE *fp = NULL;
 	vector<char *> tmp_argv = vector<char *>();
@@ -25,7 +73,20 @@ Ink_InputSetting Ink_InputSetting::parseArg(int argc, char **argv)
 		if (!fp) {
 			if (isArg(argv[i])) {
 				// arguments dealing
-			} else { // file input
+				for (c_i = 0; c_i < strlen(argv[i]) && argv[i][c_i] == '-'; c_i++) ;
+
+				string tmp = string(&argv[i][c_i], strlen(argv[i]) - c_i);
+				string::size_type epos = tmp.find_first_of('=');
+				bool tmp_ret;
+				if (epos != string::npos) {
+					tmp_ret = processArg(ret, c_i, tmp.substr(0, epos), true, tmp.substr(epos + 1));
+				} else {
+					tmp_ret = processArg(ret, c_i, tmp);
+				}
+				if (tmp_ret) {
+					printUsage(argv[0]);
+				}
+			} else if (ret.if_run) { // file input
 				if (!(fp = fopen(argv[i], "r"))) {
 					InkError_Failed_Open_File(NULL, argv[i]);
 					break;

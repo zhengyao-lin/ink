@@ -51,9 +51,10 @@ public:
 	Ink_CodeMode code_mode;
 	const char *input_file_path;
 	std::vector<char *> argv;
+	bool if_run;
 
 	Ink_InputSetting(const char *input_file_path = NULL, FILE *fp = stdin, bool close_fp = false)
-	: close_fp(close_fp), input_file_pointer(fp), code_mode(SOURCE_CODE), input_file_path(input_file_path)
+	: close_fp(close_fp), input_file_pointer(fp), code_mode(SOURCE_CODE), input_file_path(input_file_path), if_run(true)
 	{ }
 
 	inline void setArgument(std::vector<char *> arg)

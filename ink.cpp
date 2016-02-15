@@ -14,6 +14,10 @@ int main(int argc, char **argv)
 	Ink_InputSetting setting = Ink_InputSetting::parseArg(argc, argv);
 	Ink_InterpreteEngine *engine = NULL;
 
+	if (!setting.if_run) {
+		return 0;
+	}
+
 	Ink_initEnv();
 
 	engine = new Ink_InterpreteEngine();

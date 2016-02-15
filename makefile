@@ -120,6 +120,16 @@ syntax: FORCE
 	$(RM) $(LIBS)
 	$(MAKE)
 
+package: FORCE
+	cd core/package; $(MAKE) clean
+	$(RM) $(LIBS)
+	$(MAKE)
+
+interface: FORCE
+	cd core/interface; $(MAKE) clean
+	$(RM) $(LIBS)
+	$(MAKE)
+
 native: FORCE
 	cd core/native; $(MAKE) clean
 	$(RM) $(LIBS)
