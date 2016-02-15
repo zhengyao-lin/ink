@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../general.h"
 #include "../../includes/switches.h"
 
 #if defined(INK_PLATFORM_LINUX)
@@ -53,9 +54,10 @@ public:
 	std::vector<char *> argv;
 	bool if_run;
 
-	Ink_InputSetting(const char *input_file_path = NULL, FILE *fp = stdin, bool close_fp = false)
-	: close_fp(close_fp), input_file_pointer(fp), code_mode(SOURCE_CODE), input_file_path(input_file_path), if_run(true)
-	{ }
+	/* settings */
+	IGC_ObjectCountType igc_collect_treshold;
+
+	Ink_InputSetting(const char *input_file_path = NULL, FILE *fp = stdin, bool close_fp = false);
 
 	inline void setArgument(std::vector<char *> arg)
 	{

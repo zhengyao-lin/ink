@@ -129,6 +129,12 @@ public:
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
 
+	inline void applySetting(Ink_InputSetting setting)
+	{
+		igc_collect_treshold = setting.igc_collect_treshold;
+		return;
+	}
+
 	inline Ink_Object *getTypePrototype(Ink_TypeTag type)
 	{
 		if (type < dbg_type_mapping.size()) {

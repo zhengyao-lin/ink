@@ -1,11 +1,19 @@
 #include <string.h>
+#include <stdlib.h>
 #include "setting.h"
 #include "core/error.h"
-#include "../package/load.h"
+#include "core/package/load.h"
+#include "core/gc/collect.h"
 
 namespace ink {
 
 using namespace std;
+
+Ink_InputSetting::Ink_InputSetting(const char *input_file_path, FILE *fp, bool close_fp)
+: close_fp(close_fp), input_file_pointer(fp), code_mode(SOURCE_CODE), input_file_path(input_file_path), if_run(true)
+{
+	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
+}
 
 inline bool isArg(const char *arg)
 {
@@ -26,9 +34,11 @@ inline void printUsage(const char *prog_path)
 	fprintf(stderr,
 "Options:\n"
 "  %-25s %s\n"
+"  %-25s %s\n"
 "  %-25s %s\n",
-	"--help or -H: ", "Display this usage page",
-	"--mod-path=<path> or -M=<path>", "Add module searching path");
+	"--help or -H: ",					"Display this usage page",
+	"--mod-path=<path> or -M=<path>",	"Add module searching path",
+	"--gc-treshold=<treshold>",			"Set collect treshold for garbage collector");
 }
 
 /* return: if print usage */
@@ -36,16 +46,31 @@ inline bool processArg(Ink_InputSetting &setting, Ink_SizeType dash_count,
 					   string arg, bool has_val = false, string val = "")
 {
 	if (dash_count > 2) {
-		fprintf(stderr, "Too many dashes before argument\n");
+		fprintf(stderr, "Too many dashes before option\n");
 		setting.if_run = false;
 		return true;
 	}
 
-	if (IS_SINGLE_DASH_ARG("M") || IS_DOUBLE_DASH_ARG("mod-path")) {
+	if (IS_DOUBLE_DASH_ARG("gc-treshold")) {
+		if (has_val) {
+			int tmp = atoi(val.c_str());
+			if (tmp <= 0) {
+				fprintf(stderr, "Failed to parsing value of option %s or it's not valid\n", REPRINT_ARG.c_str());
+				setting.if_run = false;
+				return true;
+			} else {
+				setting.igc_collect_treshold = tmp;
+			}
+		} else {
+			fprintf(stderr, "Option %s requires a value\n", REPRINT_ARG.c_str());
+			setting.if_run = false;
+			return true;
+		}
+	} else if (IS_SINGLE_DASH_ARG("M") || IS_DOUBLE_DASH_ARG("mod-path")) {
 		if (has_val) {
 			Ink_addModPath(val.c_str());
 		} else {
-			fprintf(stderr, "Argument %s requires a value\n", REPRINT_ARG.c_str());
+			fprintf(stderr, "Option %s requires a value\n", REPRINT_ARG.c_str());
 			setting.if_run = false;
 			return true;
 		}
@@ -53,7 +78,7 @@ inline bool processArg(Ink_InputSetting &setting, Ink_SizeType dash_count,
 		setting.if_run = false;
 		return true;
 	} else {
-		fprintf(stderr, "Unknown argument %s\n", REPRINT_ARG.c_str());
+		fprintf(stderr, "Unknown option %s\n", REPRINT_ARG.c_str());
 		setting.if_run = false;
 		return true;
 	}

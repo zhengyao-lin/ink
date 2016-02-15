@@ -23,6 +23,7 @@ int main(int argc, char **argv)
 	engine = new Ink_InterpreteEngine();
 	InkActor_setRootEngine(engine);
 
+	engine->applySetting(setting);
 	engine->startParse(setting);
 	engine->execute();
 
