@@ -41,8 +41,10 @@ using namespace std;
 Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success)
 {
 	Ink_NumericValue ret = 0.0;
+	Ink_NumericValue ret_back = 0.0;
+	bool use_e = false;
 	string::size_type i;
-	int flag = 1, decimal = 0;
+	int flag = 1, flag_back = 1, decimal = 0;
 	enum {
 		DEC = 10,
 		HEX = 16,
@@ -52,9 +54,14 @@ Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success
 	if (is_success)
 		*is_success = true;
 
-	if (code.length() && code[0] == '-') {
-		flag = -1;
-		code = code.substr(1);
+	if (code.length()) {
+		if (code[0] == '-') {
+			flag = -1;
+			code = code.substr(1);
+		} else if (code[0] == '+') {
+			flag = 1;
+			code = code.substr(1);
+		}
 	}
 
 	if (code.length() && code[0] == '0') {
@@ -74,7 +81,30 @@ Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success
 		if (code[i] == '.') {
 			decimal++;
 			continue;
+		} else if (code[i] == 'e'
+				   || code[i] == 'E') {
+			ret_back = ret;
+			flag_back = flag;
+			ret = 0.0;
+			flag = 1;
+			decimal = 0;
+			use_e = true;
+			i++;
+			if (i < code.length()) {
+				if (code[i] == '-') {
+					flag = -1;
+				} else if (code[i] == '+') {
+					flag = 1;
+				} else {
+					i--;
+				}
+				continue;
+			}
+
+			fprintf(stderr, "No exponent given\n");
+			break;
 		}
+
 		if (IS_LEGAL(mode, code[i])) {
 			if (decimal > 0) {
 				ret += TO_NUM(mode, code[i]) / pow((int)mode, decimal);
@@ -90,7 +120,7 @@ Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success
 		}
 	}
 
-	return ret * flag;
+	return use_e ? ret_back * flag_back * pow(10, ret * flag) : ret * flag;
 }
 
 Ink_Expression *Ink_NumericConstant::parse(string code)

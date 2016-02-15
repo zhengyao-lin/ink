@@ -97,7 +97,10 @@ Ink_Bignum_Integer Ink_Bignum_Integer::pow(int a)
 	Ink_Bignum_Integer ret(1);
 	int i;
 
-	for(i = 0; i < a; i++) ret *= (*this);
+	if (a >= 0)
+		for(i = 0; i < a; i++) ret *= (*this);
+	else
+		for(i = 0; i > a; i--) ret /= (*this);
 
 	return ret;
 }
@@ -107,7 +110,10 @@ Ink_Bignum_Integer Ink_Bignum_Integer::pow(Ink_Bignum_Integer a)
 	Ink_Bignum_Integer ret(1);
 	Ink_Bignum_Integer i;
 
-	for(i = 0; i < a; i++) ret *= (*this);
+	if (a >= 0)
+		for(i = 0; i < a; i++) ret *= (*this);
+	else
+		for(i = 0; i > a; i--) ret /= (*this);
 
 	return ret;
 }
@@ -412,28 +418,48 @@ Ink_Bignum_NumericValue::Ink_Bignum_NumericValue(double val)
 
 Ink_Bignum_NumericValue::Ink_Bignum_NumericValue(string str)
 {
-	string::size_type pos;
+	string::size_type pos, epos;
 	num = std_pow = 0;
 	int sign = 1;
 	Ink_Bignum_Integer integer = 0;
+	Ink_Bignum_Integer expn = 0;
+	bool use_e = false;
 	string decimal;
 
 	if (str.length()) {
 		if (str[0] == '-') {
-    		str = str.substr(1);
-    		sign = -1;
-    	} else if (str[0] == '+') str = str.substr(1);
+			str = str.substr(1);
+			sign = -1;
+		} else if (str[0] == '+') str = str.substr(1);
+
+		if (((epos = str.find_first_of('e')) != string::npos)
+			|| ((epos = str.find_first_of('E')) != string::npos)) {
+			use_e = true;
+			if (str.substr(epos + 1).find_first_of('.') != string::npos) {
+				fprintf(stderr, "Exponent must be integer\n");
+				return;
+			}
+			expn = str.substr(epos + 1);
+			str = str.substr(0, epos);
+		}
 
 		pos = str.find_first_of('.');
-		if (pos != (unsigned int)-1) {
+		if (pos != string::npos) {
 			integer = Ink_Bignum_Integer(str.substr(0, pos));
 			decimal = str.substr(pos + 1);
-    		num = sign * (integer.abs() * Ink_Bignum_Integer(10).pow(decimal.length()) + Ink_Bignum_Integer(decimal).abs());
+			num = sign * (integer.abs() * Ink_Bignum_Integer(10).pow(decimal.length()) + Ink_Bignum_Integer(decimal).abs());
 			std_pow = integer > 0 ? integer.digits.size() : num.digits.size() - decimal.length();
 		} else {
 			num = sign * Ink_Bignum_Integer(str);
 			std_pow = num.digits.size();
 		}
+	}
+
+	if (use_e) {
+		if (expn >= 0)
+			*this *= Ink_Bignum_Integer(10).pow(expn);
+		else
+			*this /= Ink_Bignum_Integer(10).pow(-expn);
 	}
 }
 

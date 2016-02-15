@@ -5,6 +5,7 @@ PM				[+-]
 DEC				[0-9]
 HEX				[a-fA-F0-9]
 OCT				[0-7]
+POWER_MARK		[eE]
 LETTER			[a-zA-Z_?$]
 FIRST_LETTER	({LETTER}|[@])
 
@@ -240,15 +241,15 @@ void yyerror(const char *msg);
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>{DEC}*\.{DEC}+ { // dec
+<INITIAL>{DEC}*\.{DEC}+({POWER_MARK}[-+]?{DEC}+)? { // dec
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>0 { // dec
+<INITIAL>0({POWER_MARK}[-+]?{DEC}+)? { // dec
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>[1-9]{DEC}* { // dec
+<INITIAL>[1-9]{DEC}*({POWER_MARK}[-+]?{DEC}+)? { // dec
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
