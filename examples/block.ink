@@ -1542,3 +1542,13 @@ act = actor () {
 
 //act("ha")
 //join_all();
+
+a = fn (argv...) {
+	p("true body")
+	10
+}
+a@call = inl (argv...) {
+	p("a is called with " + argv.size() + " argument(s)");
+	drop base
+}
+p(a(1))

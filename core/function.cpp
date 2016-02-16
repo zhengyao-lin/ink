@@ -34,6 +34,20 @@ inline Ink_Object *callWithAttr(Ink_Object *obj, Ink_FunctionAttribution attr,
 	return ret;
 }
 
+Ink_Object *Ink_Object::triggerCallEvent(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
+										 Ink_ArgcType argc, Ink_Object **argv)
+{
+	Ink_Object *at_call;
+	Ink_Object *ret = NULL;
+
+	if ((at_call = getSlot(engine, "@call"))->type == INK_FUNCTION) {
+		at_call->setSlot("base", this);
+		ret = at_call->call(engine, context, argc, argv);
+	}
+
+	return ret;
+}
+
 Ink_Object **Ink_FunctionObject::copyDeepArgv(Ink_InterpreteEngine *engine,
 											  Ink_ArgcType argc, Ink_Object **argv)
 {
@@ -70,6 +84,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 			->type == INK_FUNCTION) {
 			tmp_argv[0] = value_backup;
 			event_found = true;
+			tmp->setSlot("base", receiver);
 			callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
 		}
 	} else if (signal_backup > INTER_LAST) {
@@ -80,6 +95,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 				->type == INK_FUNCTION) {
 				tmp_argv[0] = value_backup;
 				event_found = true;
+				tmp->setSlot("base", receiver);
 				callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
 			}
 		} else {
@@ -181,6 +197,23 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 
 	/* if not inline function, set local context */
 	bool if_set_sp_ptr = !is_inline;
+
+	ret_val = triggerCallEvent(engine, context, argc, argv);
+	if (engine->getSignal() != INTER_NONE) {
+		/* interrupt event triggered */
+		triggerInterruptEvent(engine, context, local, this);
+
+		if (engine->getSignal() != INTER_NONE) {
+			/* whether trap the signal */
+			if (attr.hasTrap(engine->getSignal())) {
+				ret_val = engine->trapSignal();
+			} else {
+				ret_val = engine->getInterruptValue();
+			}
+			return ret_val ? ret_val : NULL_OBJ;
+		}
+	}
+	ret_val = NULL;
 
 	if ((pa_ret = checkUnkownArgument(argc, argv, this_p,
 									  if_return_this, if_delete_argv))
@@ -398,8 +431,14 @@ Ink_Object *Ink_Object::call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
 							 Ink_Object *this_p, bool if_return_this)
 {
-	InkError_Calling_Non_Function_Object(engine, type, getDebugName());
-	return NULL_OBJ;
+	Ink_Object *ret;
+
+	if ((ret = triggerCallEvent(engine, context, argc, argv)) == NULL) {
+		ret = NULL_OBJ;
+		InkError_Calling_Non_Function_Object(engine, type, getDebugName());
+	}
+
+	return ret;
 }
 
 Ink_Object *Ink_Undefined::call(Ink_InterpreteEngine *engine,

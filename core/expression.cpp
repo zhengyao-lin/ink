@@ -18,6 +18,13 @@
 					  engine->current_line_number = (line_number >= 0 ? line_number : engine->current_line_number))
 #define RESTORE_LINE_NUM (engine->current_file_name = file_name_back, engine->current_line_number = line_num_back)
 #define INTER_SIGNAL_RECEIVED (engine->getSignal() != INTER_NONE)
+#define CATCH_SIGNAL_RET do { \
+	if (INTER_SIGNAL_RECEIVED) { \
+		RESTORE_LINE_NUM; \
+		return engine->getInterruptValue(); \
+	} \
+} while (0)
+
 #define IS_DEC(c) ((c) <= '9' && (c) >= '0')
 #define IS_HEX(c) (IS_DEC(c) || ((c) <= 'f' && (c) >= 'a') || ((c) <= 'F' && (c) >= 'A'))
 #define IS_OCT(c) ((c) <= '7' && (c) >= '0')
@@ -146,10 +153,7 @@ Ink_Object *Ink_CommaExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 
 	for (i = 0; i < exp_list.size(); i++) {
 		ret = exp_list[i]->eval(engine, context_chain);
-		if (INTER_SIGNAL_RECEIVED) {
-			RESTORE_LINE_NUM;
-			return engine->getInterruptValue();
-		}
+		CATCH_SIGNAL_RET;
 	}
 
 	RESTORE_LINE_NUM;
@@ -170,10 +174,8 @@ Ink_Object *Ink_YieldExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	}
 
 	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : NULL_OBJ;
-	if (INTER_SIGNAL_RECEIVED) {
-		RESTORE_LINE_NUM;
-		return engine->getInterruptValue();
-	}
+	CATCH_SIGNAL_RET;
+
 	engine->setInterruptValue(ret);
 
 	IGC_CollectEngine *gc_engine_backup = engine->getCurrentGC();
@@ -194,10 +196,7 @@ Ink_Object *Ink_InterruptExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 	SET_LINE_NUM;
 
 	Ink_Object *ret = ret_val ? ret_val->eval(engine, context_chain) : NULL_OBJ;
-	if (INTER_SIGNAL_RECEIVED) {
-		RESTORE_LINE_NUM;
-		return engine->getInterruptValue();
-	}
+	CATCH_SIGNAL_RET;
 
 	RESTORE_LINE_NUM;
 
@@ -228,10 +227,7 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	Ink_Object *rhs;
 
 	/* interrupt signal received */
-	if (INTER_SIGNAL_RECEIVED) {
-		RESTORE_LINE_NUM;
-		return engine->getInterruptValue();
-	}
+	CATCH_SIGNAL_RET;
 
 	if (isTrue(lhs)) {
 		/* left hand side true */
@@ -241,10 +237,8 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 		else {
 			/* if operator is and, make sure the right hand side is true, too */
 			rhs = rval->eval(engine, context_chain);
-			if (INTER_SIGNAL_RECEIVED) {
-				RESTORE_LINE_NUM;
-				return engine->getInterruptValue();
-			}
+			CATCH_SIGNAL_RET;
+
 			if (isTrue(rhs)) {
 				ret_val = true;
 			}
@@ -252,10 +246,7 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	} else {
 		/* if operator is or, judge right hand side */
 		if (type == LOGIC_OR && isTrue(rval->eval(engine, context_chain))) {
-			if (INTER_SIGNAL_RECEIVED) {
-				RESTORE_LINE_NUM;
-				return engine->getInterruptValue();
-			}
+			CATCH_SIGNAL_RET;
 			ret_val = true;
 		}
 	}
@@ -275,22 +266,27 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	Ink_Object *lval_ret;
 	Ink_Object **tmp;
 	Ink_Object *ret;
+	Ink_Object *assign_method;
 
 	rval_ret = rval->eval(engine, context_chain);
 	/* eval right hand side first */
-	if (INTER_SIGNAL_RECEIVED) {
-		RESTORE_LINE_NUM;
-		return engine->getInterruptValue();
-	}
+	CATCH_SIGNAL_RET;
 
 	lval_ret = lval->eval(engine, context_chain, Ink_EvalFlag(true));
 	/* left hand side next */
-	if (INTER_SIGNAL_RECEIVED) {
-		RESTORE_LINE_NUM;
-		return engine->getInterruptValue();
-	}
+	CATCH_SIGNAL_RET;
 
-	if (lval_ret->address) {
+	if ((assign_method = lval_ret->getSlot(engine, "="))->type == INK_FUNCTION) {
+		tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
+		tmp[0] = rval_ret;
+		assign_method->setSlot("base", lval_ret);
+		ret = assign_method->call(engine, context_chain, 1, tmp);
+		// engine->setSignal(INTER_NONE);
+		free(tmp);
+		CATCH_SIGNAL_RET;
+
+		return ret;
+	} else if (lval_ret->address) {
 		if (lval_ret->address->setter) { /* if has setter, call it */
 			tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			tmp[0] = rval_ret;
@@ -298,10 +294,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 			ret = lval_ret->address->setter->call(engine, context_chain, 1, tmp);
 			// engine->setSignal(INTER_NONE);
 			free(tmp);
-			if (INTER_SIGNAL_RECEIVED) {
-				RESTORE_LINE_NUM;
-				return engine->getInterruptValue();
-			}
+			CATCH_SIGNAL_RET;
 			return ret;
 		} else {
 			/* no setter, directly assign */
@@ -330,16 +323,12 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 		/* two possibility: 1. identifier key; 2. expression key with brackets */
 		if (mapping[i]->name) {
 			ret->setSlot(mapping[i]->name->c_str(), mapping[i]->value->eval(engine, context_chain));
-			if (INTER_SIGNAL_RECEIVED) {
-				RESTORE_LINE_NUM;
-				return engine->getInterruptValue();
-			}
+			CATCH_SIGNAL_RET;
+
 		} else {
 			key = mapping[i]->key->eval(engine, context_chain);
-			if (INTER_SIGNAL_RECEIVED) {
-				RESTORE_LINE_NUM;
-				return engine->getInterruptValue();
-			}
+			CATCH_SIGNAL_RET;
+
 			if (key->type != INK_STRING) {
 				InkWarn_Hash_Table_Mapping_Expect_String(engine);
 				return NULL_OBJ;
@@ -347,10 +336,7 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 			string *tmp = new string(as<Ink_String>(key)->getValue());
 			ret->setSlot(tmp->c_str(),
 						 mapping[i]->value->eval(engine, context_chain), true, tmp);
-			if (INTER_SIGNAL_RECEIVED) {
-				RESTORE_LINE_NUM;
-				return engine->getInterruptValue();
-			}
+			CATCH_SIGNAL_RET;
 		}
 	}
 
@@ -387,44 +373,10 @@ Ink_Object *Ink_HashExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	SET_LINE_NUM;
 
 	Ink_Object *base_obj = base->eval(engine, context_chain);
-	if (INTER_SIGNAL_RECEIVED) {
-		RESTORE_LINE_NUM;
-		return engine->getInterruptValue();
-	}
+	CATCH_SIGNAL_RET;
 
 	RESTORE_LINE_NUM;
 	return getSlot(engine, context_chain, base_obj, slot_id->c_str(), flags);
-}
-
-Ink_HashExpression::ProtoSearchRet Ink_HashExpression::searchPrototype(Ink_InterpreteEngine *engine, Ink_Object *obj, const char *id)
-{
-	if (engine->prototypeHasTraced(obj)) {
-		InkWarn_Circular_Prototype_Reference(engine);
-		return Ink_HashExpression::ProtoSearchRet(NULL, obj);
-	}
-	engine->addPrototypeTrace(obj);
-
-	Ink_HashTable *hash = obj->getSlotMapping(engine, id);
-	Ink_HashTable *proto;
-	Ink_Object *proto_obj = NULL;
-	Ink_HashExpression::ProtoSearchRet search_res;
-
-	if (!hash) { /* cannot find slot in object itself */
-		/* get prototype */
-		proto = obj->getSlotMapping(engine, "prototype");
-
-		/* prototype exists and it's not undefined */
-		if (proto && proto->getValue()->type != INK_UNDEFINED) {
-			/* search the slot in prototype, and get the result */
-			hash = (search_res = searchPrototype(engine, proto->getValue(), id)).hash;
-			proto_obj = search_res.base;
-		}
-	}
-
-	/* return result with base pointed to the prototype(if has)
-	 * in which found the slot
-	 */
-	return Ink_HashExpression::ProtoSearchRet(hash, proto_obj ? proto_obj : obj);
 }
 
 Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
@@ -433,7 +385,6 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 	Ink_HashTable *hash, *address;
 	Ink_Object *base = obj, *ret = NULL, *tmp;
 	Ink_Object **argv;
-	ProtoSearchRet search_res;
 	bool is_from_proto = false;
 	bool if_delete_id_p = false;
 
@@ -459,31 +410,6 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 			/* return undefined */
 			ret = UNDEFINED;
 		}
-#if 0
-		/* search prototype */
-		engine->initPrototypeSearch();
-		hash = (search_res = searchPrototype(engine, obj, id)).hash;
-
-		/* create barrier to prevent changes on prototype */
-		address = obj->setSlot(id, NULL, id_p);
-		if (hash) { /* if found the slot in prototype */
-			// base = search_res.base; /* set base as the prototype(to make some native method run correctly) */
-			ret = hash->getValue();
-		} else {
-			if ((tmp = obj->getSlot(engine, "missing"))->type == INK_FUNCTION) {
-				/* has missing method, call it */
-				tmp->setSlot("base", obj);
-				argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
-				argv[0] = new Ink_String(engine, string(id));
-				ret = tmp->call(engine, context_chain, 1, argv);
-				free(argv);
-				goto END;
-			} else {
-				/* return undefined */
-				ret = UNDEFINED;
-			}
-		}
-#endif
 	} else {
 		/* found slot correctly */
 		ret = hash->getValue();
@@ -579,10 +505,8 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	Ink_Object *ret_val, *expandee;
 	/* eval callee to get parameter declaration */
 	Ink_Object *func = callee->eval(engine, context_chain);
-	if (INTER_SIGNAL_RECEIVED) {
-		RESTORE_LINE_NUM;
-		return engine->getInterruptValue();
-	}
+	CATCH_SIGNAL_RET;
+
 	Ink_ParamList param_list = Ink_ParamList();
 	Ink_ArgumentList dispose_list, tmp_arg_list, another_tmp_arg_list;
 	Ink_ArgcType argc;

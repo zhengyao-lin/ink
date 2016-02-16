@@ -128,6 +128,9 @@ public:
 	{
 		return true;
 	}
+
+	Ink_Object *triggerCallEvent(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
+								 Ink_ArgcType argc, Ink_Object **argv);
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
 							 Ink_Object *this_p = NULL, bool if_return_this = true);

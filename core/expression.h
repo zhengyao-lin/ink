@@ -236,18 +236,6 @@ public:
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
-	class ProtoSearchRet {
-	public:
-		Ink_HashTable *hash;
-		Ink_Object *base;
-
-		ProtoSearchRet(Ink_HashTable *hash = NULL, Ink_Object *base = NULL)
-		: hash(hash), base(base)
-		{ }
-	};
-
-	static ProtoSearchRet searchPrototype(Ink_InterpreteEngine *engine, Ink_Object *obj, const char *id);
-
 	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_Object *obj,
 							   const char *id, std::string *id_p = NULL)
 	{
