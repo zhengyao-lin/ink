@@ -108,13 +108,6 @@ InkWarn_Get_Non_Array_Index(Ink_InterpreteEngine *engine)
 }
 
 inline void
-InkWarn_If_Argument_Fault(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "If function need at least 1 argument");
-	return;
-}
-
-inline void
 InkWarn_Function_Range_Call_Argument_Error(Ink_InterpreteEngine *engine)
 {
 	InkErro_doPrintWarning(engine, "Function range call requires at least 1 argument");
@@ -339,34 +332,6 @@ inline void
 InkWarn_No_File_In_Mod(Ink_InterpreteEngine *engine, const char *path)
 {
 	InkErro_doPrintWarning(engine, "No file contained in the module $(path)", path);
-	return;
-}
-
-inline void
-InkWarn_If_End_With_Else(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "if function ended with else");
-	return;
-}
-
-inline void
-InkWarn_If_End_With_Else_If(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "if function ended with else if(requires condition and block)");
-	return;
-}
-
-inline void
-InkWarn_If_End_With_Else_If_Has_Condition(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "if function ended with else if(requires block)");
-	return;
-}
-
-inline void
-InkWarn_Else_If_Has_No_Condition(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "Condition for else if missing");
 	return;
 }
 

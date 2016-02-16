@@ -13,9 +13,12 @@ InkPack_String *InkPack_String::readFrom(FILE *fp)
 		return NULL;
 	}
 	tmp_str = (char *)malloc(sizeof(char) * (tmp_len + 1));
-	if (!fread(tmp_str, sizeof(char), tmp_len + 1, fp)) {
+	if (!fread(tmp_str, sizeof(const char), tmp_len, fp)) {
 		return NULL;
 	}
+	if (tmp_len)
+		tmp_str[tmp_len] = '\0';
+	printf("len: %ld, str: %s\n", tmp_len, tmp_str);
 
 	return new InkPack_String(tmp_str, false);
 }

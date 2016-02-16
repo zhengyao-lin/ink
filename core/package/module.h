@@ -58,7 +58,7 @@ public:
 	inline void writeTo(FILE *fp)
 	{
 		fwrite(&len, sizeof(InkPack_Size), 1, fp);
-		fwrite(str, len + 1, 1, fp);
+		fwrite(str, sizeof(const char), len, fp);
 	}
 
 	static InkPack_String *readFrom(FILE *fp);

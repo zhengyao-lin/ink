@@ -21,83 +21,6 @@ bool isTrue(Ink_Object *cond)
 	return cond && cond->isTrue();
 }
 
-Ink_Object *Ink_IfExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
-{
-	Ink_Object *cond;
-	Ink_Object *ret;
-	Ink_ArgcType i;
-
-	if (!argc) {
-		InkWarn_If_Argument_Fault(engine);
-		return NULL_OBJ;
-	}
-
-	i = 0;
-	ret = cond = argv[0];
-	if (isTrue(cond)) {
-		i++;
-		if (i < argc && argv[i]->type == INK_FUNCTION) {
-			ret = argv[i]->call(engine, context);
-		}
-	} else {
-		if (i + 1 < argc && argv[i + 1]->type == INK_FUNCTION) {
-			i += 2;
-		} else {
-			i++;
-		}
-		for (; i < argc; i++) {
-			if (argv[i]->type == INK_STRING) {
-				if (as<Ink_String>(argv[i])->getValue() == "else") {
-					if (++i < argc) {
-						if (argv[i]->type == INK_STRING) {
-							if (as<Ink_String>(argv[i])->getValue() == "if") {
-								if (++i < argc) {
-									if (argv[i]->type == INK_ARRAY) {
-										if (as<Ink_Array>(argv[i])->value.size() && as<Ink_Array>(argv[i])->value[0]) {
-											if (isTrue(as<Ink_Array>(argv[i])->value[0]->getValue())) {
-												if (++i < argc) {
-													if (argv[i]->type == INK_FUNCTION) {
-														ret = argv[i]->call(engine, context);
-														break;
-													}
-												} else {
-													InkWarn_If_End_With_Else_If_Has_Condition(engine);
-												}
-											} else {
-												i++;
-												continue;
-											}
-										} else {
-											InkWarn_Else_If_Has_No_Condition(engine);
-											return ret;
-										}
-									} else {
-										InkWarn_Else_If_Has_No_Condition(engine);
-										return ret;
-									}
-								} else {
-									InkWarn_If_End_With_Else_If(engine);
-									return ret;
-								}
-							}
-						} else if (argv[i]->type == INK_FUNCTION) {
-							ret = argv[i]->call(engine, context);
-						}
-					} else {
-						InkWarn_If_End_With_Else(engine);
-						return ret;
-					}
-				}
-			} else if (argv[i]->type == INK_FUNCTION) {
-				ret = argv[i]->call(engine, context);
-				break;
-			}
-		}
-	}
-
-	return ret;
-}
-
 Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val)
 {
 	Ink_ArrayValue ret;
@@ -403,8 +326,6 @@ Ink_Object *Ink_DeleteSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 
 void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 {
-	context->context->setSlot("if", new Ink_FunctionObject(engine, Ink_IfExpression, true));
-
 	context->context->setSlot("p", new Ink_FunctionObject(engine, Ink_Print));
 	context->context->setSlot("eval", new Ink_FunctionObject(engine, Ink_Eval));
 	context->context->setSlot("import", new Ink_FunctionObject(engine, Ink_Import));
