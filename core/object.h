@@ -34,6 +34,7 @@ public:
 	Ink_InterpreteEngine *engine;
 
 	Ink_HashTable *proto_hash;
+	Ink_Object *base_p;
 
 	Ink_Object(Ink_InterpreteEngine *engine)
 	: engine(engine)
@@ -45,12 +46,24 @@ public:
 		alloc_engine = NULL;
 		debug_name = NULL;
 		proto_hash = NULL;
+		base_p = NULL;
 		
 		initProto(engine);
 
 		if (engine)
 			IGC_addObject(engine, this);
 		// initMethod();
+	}
+
+	inline void setBase(Ink_Object *obj)
+	{
+		base_p = obj;
+		return;
+	}
+
+	inline Ink_Object *getBase()
+	{
+		return base_p;
 	}
 
 	static inline Ink_HashTable *traceHashBond(Ink_HashTable *begin, bool set_bondee = true)
@@ -113,9 +126,18 @@ public:
 	Ink_Object *getSlot(Ink_InterpreteEngine *engine, const char *key);
 	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto = NULL);
 	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true, std::string *key_p = NULL);
-	inline Ink_HashTable *setSlot(const char *key, Ink_Object *value, std::string *key_p) {
+	
+	inline Ink_HashTable *setSlot(const char *key, Ink_Object *value, std::string *key_p)
+	{
 		return setSlot(key, value, true, key_p);
 	}
+
+	inline Ink_HashTable *setSlot_s(const char *key, Ink_Object *value)
+	{
+		std::string *tmp = new std::string(key);
+		return setSlot(tmp->c_str(), value, true, tmp);
+	}
+
 	void deleteSlot(const char *key);
 	void cleanHashTable();
 	void cleanHashTable(Ink_HashTable *table);
@@ -254,6 +276,7 @@ public:
 
 	Ink_ArgcType pa_argc;
 	Ink_Object **pa_argv;
+	Ink_Object *pa_info_base_p;
 	Ink_Object *pa_info_this_p;
 	bool pa_info_if_return_this;
 
@@ -261,7 +284,7 @@ public:
 	: Ink_Object(engine),
 	  is_native(false), is_inline(false), is_generator(false), native(NULL),
 	  param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL),
-	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_this_p(NULL),
+	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_base_p(NULL), pa_info_this_p(NULL),
 	  pa_info_if_return_this(false)
 	{
 		type = INK_FUNCTION;
@@ -272,7 +295,7 @@ public:
 	: Ink_Object(engine),
 	  is_native(true), is_inline(is_inline), is_generator(false), native(native),
 	  param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL),
-	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_this_p(NULL),
+	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_base_p(NULL), pa_info_this_p(NULL),
 	  pa_info_if_return_this(false)
 	{
 		type = INK_FUNCTION;
@@ -286,7 +309,7 @@ public:
 	: Ink_Object(engine),
 	  is_native(true), is_inline(false), is_generator(false), native(native),
 	  param(param), exp_list(Ink_ExpressionList()), closure_context(NULL),
-	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_this_p(NULL),
+	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_base_p(NULL), pa_info_this_p(NULL),
 	  pa_info_if_return_this(false)
 	{
 		type = INK_FUNCTION;
@@ -302,7 +325,7 @@ public:
 	: Ink_Object(engine),
 	  is_native(false), is_inline(is_inline), is_generator(is_generator), native(NULL),
 	  param(param), exp_list(exp_list), closure_context(closure_context), attr(Ink_FunctionAttribution()),
-	  pa_argc(0), pa_argv(NULL), pa_info_this_p(NULL), pa_info_if_return_this(false)
+	  pa_argc(0), pa_argv(NULL), pa_info_base_p(NULL), pa_info_this_p(NULL), pa_info_if_return_this(false)
 	{
 		type = INK_FUNCTION;
 		initProto(engine);
@@ -326,7 +349,7 @@ public:
 	static void triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
 									  Ink_ContextObject *local, Ink_Object *receiver);
 	Ink_Object *checkUnkownArgument(Ink_ArgcType &argc, Ink_Object **&argv,
-									Ink_Object *this_p, bool if_return_this, bool &if_delete_argv);
+									Ink_Object *&this_p, bool &if_return_this, bool &if_delete_argv);
 
 	virtual Ink_Object *call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, Ink_ArgcType argc = 0, Ink_Object **argv = NULL,
@@ -344,12 +367,14 @@ public:
 	{
 		Ink_ArgcType back_argc = pa_argc;
 		Ink_Object **back_argv = pa_argv;
+		Ink_Object *base_p_back = pa_info_base_p;
 		Ink_Object *this_p_back = pa_info_this_p;
 		bool if_return_this_back = pa_info_if_return_this;
 		Ink_Object *tmp;
 
 		pa_argc = argc;
 		pa_argv = argv;
+		pa_info_base_p = getBase();
 		pa_info_this_p = this_p;
 		pa_info_if_return_this = if_return_this;
 
@@ -357,6 +382,7 @@ public:
 
 		pa_argc = back_argc;
 		pa_argv = back_argv;
+		pa_info_base_p = base_p_back;
 		pa_info_this_p = this_p_back;
 		pa_info_if_return_this = if_return_this_back;
 

@@ -244,7 +244,7 @@ RETRY:
 			tmp_argv[0] = engine->getInterruptValue();
 
 			engine->setInterrupt(INTER_NONE, NULL);
-			catch_block->call(engine, context, 1, tmp_argv);
+			ret = catch_block->call(engine, context, 1, tmp_argv);
 
 			free(tmp_argv);
 			if (engine->getSignal() == INTER_RETRY) {
@@ -258,6 +258,9 @@ RETRY:
 				goto FINAL;
 			}
 		}
+	} else {
+		signal_back = engine->getSignal();
+		engine->setSignal(INTER_NONE);
 	}
 
 FINAL:

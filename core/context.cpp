@@ -64,8 +64,9 @@ Ink_HashTable *Ink_ContextChain::searchSlotMapping(Ink_InterpreteEngine *engine,
 		i = i->outer;
 	}
 
-	if (ret && found_in)
+	if (ret && found_in) {
 		*found_in = i;
+	}
 
 	return ret;
 }

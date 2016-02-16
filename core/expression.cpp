@@ -279,7 +279,8 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	if ((assign_method = lval_ret->getSlot(engine, "="))->type == INK_FUNCTION) {
 		tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 		tmp[0] = rval_ret;
-		assign_method->setSlot("base", lval_ret);
+		// assign_method->setSlot("base", lval_ret);
+		assign_method->setBase(lval_ret);
 		ret = assign_method->call(engine, context_chain, 1, tmp);
 		// engine->setSignal(INTER_NONE);
 		free(tmp);
@@ -290,7 +291,8 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 		if (lval_ret->address->setter) { /* if has setter, call it */
 			tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			tmp[0] = rval_ret;
-			lval_ret->address->setter->setSlot("base", lval_ret);
+			// lval_ret->address->setter->setSlot("base", lval_ret);
+			lval_ret->address->setter->setBase(lval_ret);
 			ret = lval_ret->address->setter->call(engine, context_chain, 1, tmp);
 			// engine->setSignal(INTER_NONE);
 			free(tmp);
@@ -400,7 +402,8 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 		}
 		if ((tmp = obj->getSlot(engine, "missing"))->type == INK_FUNCTION) {
 			/* has missing method, call it */
-			tmp->setSlot("base", obj);
+			// tmp->setSlot("base", obj);
+			tmp->setBase(obj);
 			argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			argv[0] = new Ink_String(engine, string(id));
 			ret = tmp->call(engine, context_chain, 1, argv);
@@ -436,12 +439,14 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 	/* set address for possible assignment */
 	ret->address = address;
 	/* set base */
-	ret->setSlot("base", base);
+	// ret->setSlot("base", base);
+	ret->setBase(base);
 	ret->setDebugName(id);
 
 	/* call getter if has one */
 	if (!flags.is_left_value && hash && hash->getter) {
-		hash->getter->setSlot("base", hash->getValue());
+		// hash->getter->setSlot("base", hash->getValue());
+		hash->getter->setBase(hash->getValue());
 		ret = hash->getter->call(engine, context_chain, 0, NULL);
 		// /* trap all interrupt signal */
 		// engine->setSignal(INTER_NONE);
@@ -517,7 +522,6 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	if (is_new) {
 		func = Ink_HashExpression::getSlot(engine, context_chain, func, "new");
 	}
-
 
 	tmp_arg_list = Ink_ArgumentList();
 	for (Ink_ArgumentList::iterator arg_list_iter = arg_list.begin();
@@ -624,7 +628,8 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	Ink_HashTable *hash, *missing;
 	Ink_ContextChain *local = context_chain->getLocal();
 	Ink_ContextChain *global = context_chain->getGlobal();
-	Ink_ContextChain *dest_context = local, *base_context = NULL;
+	Ink_ContextChain *dest_context = local,
+					 *base_context = NULL, *missing_base_context = NULL;
 	Ink_Object *ret;
 	Ink_Object **argv;
 	bool if_delete_name_p = false;
@@ -637,21 +642,22 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	 * 3. default
 	 *		search all contexts to find slot
 	 */
+
 	switch (context_type) {
 		case ID_LOCAL:
 			hash = local->context->getSlotMapping(engine, name);
 			missing = local->context->getSlotMapping(engine, "missing");
-			base_context = local;
+			base_context = missing_base_context = local;
 			break;
 		case ID_GLOBAL:
 			hash = global->context->getSlotMapping(engine, name);
 			missing = global->context->getSlotMapping(engine, "missing");
 			dest_context = global;
-			base_context = global;
+			base_context = missing_base_context = global;
 			break;
 		default:
-			hash = context_chain->searchSlotMapping(engine, name);
-			missing = context_chain->searchSlotMapping(engine, "missing", &base_context);
+			hash = context_chain->searchSlotMapping(engine, name, &base_context);
+			missing = context_chain->searchSlotMapping(engine, "missing", &missing_base_context);
 			break;
 	}
 
@@ -664,6 +670,8 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 			if (missing && missing->getValue()->type == INK_FUNCTION) {
 				argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 				argv[0] = new Ink_String(engine, name);
+				if (missing_base_context)
+					missing->getValue()->setBase(missing_base_context->context);
 				ret = missing->getValue()->call(engine, context_chain, 1, argv);
 				free(argv);
 				goto END;
@@ -681,13 +689,15 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	}
 	ret->address = hash; /* set its address for assigning */
 	if (base_context)
-		ret->setSlot("base", base_context->context);
+		// ret->setSlot("base", base_context->context);
+		ret->setBase(base_context->context);
 	ret->setDebugName(name);
 
 	/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
 	if (!flags.is_left_value && hash->getter) {
 		if (base_context)
-			hash->getter->setSlot("base", base_context->context);
+			// hash->getter->setSlot("base", base_context->context);
+			hash->getter->setBase(base_context->context);
 		ret = hash->getter->call(engine, context_chain, 0, NULL);
 
 		// /* trap all interrupt signal */

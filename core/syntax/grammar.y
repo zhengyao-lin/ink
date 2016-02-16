@@ -37,7 +37,7 @@
 	int									token;
 }
 
-%token <string> TIDENTIFIER TNUMERIC TSTRING TPROTOCOL TUNKNOWN
+%token <string> TIDENTIFIER TNUMERIC TSTRING TPROTOCOL
 
 %token <token> TRETURN TNEW TDELETE TCLONE
 			   TFUNC TINLINE TMACRO TDO TEND
@@ -1016,12 +1016,8 @@ single_element_expression
 	| TIDENTIFIER
 	{
 		$$ = new Ink_IdentifierExpression($1);
-		SET_LINE_NO($$);
-	}
-	| TUNKNOWN
-	{
-		$$ = new Ink_IdentifierExpression($1);
-		$$->is_unknown = true;
+		if (*$1 == "_")
+			$$->is_unknown = true;
 		SET_LINE_NO($$);
 	}
 	;

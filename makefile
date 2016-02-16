@@ -115,6 +115,11 @@ apps: main_prog FORCE
 modules: main_prog FORCE
 	cd modules; $(MAKE)
 
+core: FORCE
+	cd core; $(MAKE) clean
+	$(RM) $(LIBS)
+	$(MAKE)
+
 syntax: FORCE
 	cd core/syntax; $(MAKE) clean
 	$(RM) $(LIBS)

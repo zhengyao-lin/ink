@@ -17,6 +17,7 @@ Ink_Object *InkMod_Blueprint_Loader(Ink_InterpreteEngine *engine, Ink_ContextCha
 	Ink_Object *apply_to = argv[1];
 	Ink_Object **tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 2);
 
+	/* blueprint.base */
 	Ink_Object *base_pkg = self->getSlot(engine, "base");
 	Ink_Object *base_loader = base_pkg->getSlot(engine, "load");
 
@@ -28,6 +29,9 @@ Ink_Object *InkMod_Blueprint_Loader(Ink_InterpreteEngine *engine, Ink_ContextCha
 	} else {
 		InkWarn_Package_Broken(engine, "blueprint.base");
 	}
+
+	/* blueprint.sys */
+	apply_to->setSlot("sys", self->getSlot(engine, "sys"));
 
 	free(tmp_argv);
 
@@ -41,8 +45,12 @@ extern "C" {
 											   new Ink_FunctionObject(engine, InkMod_Blueprint_Loader));
 		Ink_Object *base_pkg = addPackage(engine, blueprint_pkg, "base",
 										  new Ink_FunctionObject(engine, InkMod_Blueprint_Base_Loader));
+		Ink_Object *sys_pkg = addPackage(engine, blueprint_pkg, "sys",
+										 new Ink_FunctionObject(engine, InkMod_Blueprint_System_Loader));
 
 		InkMod_Blueprint_Base_bondTo(engine, base_pkg);
+		InkMod_Blueprint_System_bondTo(engine, sys_pkg);
+
 		return;
 	}
 

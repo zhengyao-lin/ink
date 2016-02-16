@@ -41,7 +41,8 @@ Ink_Object *Ink_Object::triggerCallEvent(Ink_InterpreteEngine *engine, Ink_Conte
 	Ink_Object *ret = NULL;
 
 	if ((at_call = getSlot(engine, "@call"))->type == INK_FUNCTION) {
-		at_call->setSlot("base", this);
+		// at_call->setSlot("base", this);
+		at_call->setBase(this);
 		ret = at_call->call(engine, context, argc, argv);
 	}
 
@@ -84,7 +85,8 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 			->type == INK_FUNCTION) {
 			tmp_argv[0] = value_backup;
 			event_found = true;
-			tmp->setSlot("base", receiver);
+			// tmp->setSlot("base", receiver);
+			tmp->setBase(receiver);
 			callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
 		}
 	} else if (signal_backup > INTER_LAST) {
@@ -95,7 +97,8 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 				->type == INK_FUNCTION) {
 				tmp_argv[0] = value_backup;
 				event_found = true;
-				tmp->setSlot("base", receiver);
+				// tmp->setSlot("base", receiver);
+				tmp->setBase(receiver);
 				callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
 			}
 		} else {
@@ -115,7 +118,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 }
 
 Ink_Object *Ink_FunctionObject::checkUnkownArgument(Ink_ArgcType &argc, Ink_Object **&argv,
-													Ink_Object *this_p, bool if_return_this,
+													Ink_Object *&this_p, bool &if_return_this,
 													bool &if_delete_argv)
 {
 	Ink_ArgcType tmp_argc, j, argi;
@@ -177,6 +180,11 @@ Ink_Object *Ink_FunctionObject::checkUnkownArgument(Ink_ArgcType &argc, Ink_Obje
 
 RETURN:
 
+	if (!ret_val && pa_argv) {
+		this_p = pa_info_this_p;
+		if_return_this = pa_info_if_return_this;
+	}
+
 	return ret_val;
 }
 
@@ -191,6 +199,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	Ink_Object *ret_val = NULL, *pa_ret = NULL;
 	Ink_Array *var_arg = NULL;
 	IGC_CollectEngine *gc_engine_backup = engine->getCurrentGC();
+	char *this_debug_name_back = getDebugName() ? strdup(getDebugName()) : NULL;
 
 	bool force_return = false;
 	bool if_delete_argv = false;
@@ -201,7 +210,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	ret_val = triggerCallEvent(engine, context, argc, argv);
 	if (engine->getSignal() != INTER_NONE) {
 		/* interrupt event triggered */
-		triggerInterruptEvent(engine, context, local, this);
+		triggerInterruptEvent(engine, context, context->getLocal()->context, this);
 
 		if (engine->getSignal() != INTER_NONE) {
 			/* whether trap the signal */
@@ -210,6 +219,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 			} else {
 				ret_val = engine->getInterruptValue();
 			}
+			free(this_debug_name_back);
 			return ret_val ? ret_val : NULL_OBJ;
 		}
 	}
@@ -220,6 +230,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 		!= NULL) {
 		if (if_delete_argv)
 			free(argv);
+		free(this_debug_name_back);
 		return pa_ret;
 	}
 
@@ -238,7 +249,8 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	context->addContext(local);
 
 	if (if_set_sp_ptr) {
-		local->setSlot("base", getSlot(engine, "base"));
+		// local->setSlot("base", getSlot(engine, "base"));
+		local->setSlot("base", pa_info_base_p ? pa_info_base_p : getBase());
 		local->setSlot("this", this);
 	}
 
@@ -247,6 +259,9 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	/* set "this" pointer if exists */
 	if (this_p)
 		local->setSlot("this", this_p);
+
+	setDebugName(this_debug_name_back);
+	free(this_debug_name_back);
 
 	/* set trace(unsed for mark&sweep GC) and set debug info */
 	engine->addTrace(local)->setDebug(engine->current_file_name, engine->current_line_number, this);
@@ -316,6 +331,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	 * 2. bool if_return_this is true(in default)
 	 * 3. no force return
 	 */
+
 	if (this_p && if_return_this && !force_return) {
 		ret_val = local->getSlot(engine, "this");
 	}
@@ -330,6 +346,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	/* mark return value before sweeping */
 	if (ret_val) {
 		engine->setGlobalReturnValue(ret_val);
+		// ret_val->setBase(NULL);
 		gc_engine->doMark(ret_val);
 	}
 
@@ -368,6 +385,7 @@ Ink_Object *Ink_FunctionObject::clone(Ink_InterpreteEngine *engine)
 	new_obj->attr = attr;
 	new_obj->pa_argc = pa_argc;
 	new_obj->pa_argv = copyArgv(pa_argc, pa_argv);
+	new_obj->pa_info_base_p = pa_info_base_p;
 	new_obj->pa_info_this_p = pa_info_this_p;
 	new_obj->pa_info_if_return_this = pa_info_if_return_this;
 
@@ -394,6 +412,7 @@ Ink_Object *Ink_FunctionObject::cloneDeep(Ink_InterpreteEngine *engine)
 	new_obj->attr = attr;
 	new_obj->pa_argc = pa_argc;
 	new_obj->pa_argv = copyDeepArgv(engine, pa_argc, pa_argv);
+	new_obj->pa_info_base_p = pa_info_base_p ? pa_info_base_p->cloneDeep(engine) : NULL;
 	new_obj->pa_info_this_p = pa_info_this_p ? pa_info_this_p->cloneDeep(engine) : NULL;
 	new_obj->pa_info_if_return_this = pa_info_if_return_this;
 
@@ -420,9 +439,11 @@ void Ink_FunctionObject::doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker mar
 		}
 	}
 
-	if (pa_info_this_p) {
+	if (pa_info_base_p)
+		marker(engine, pa_info_base_p);
+
+	if (pa_info_this_p)
 		marker(engine, pa_info_this_p);
-	}
 
 	return;
 }

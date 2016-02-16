@@ -152,11 +152,13 @@ void Ink_InterpreteEngine::printDebugInfo(FILE *fp, Ink_Object *obj, string pref
 {
 	const char *slot_name = NULL;
 
-	if (find(dbg_traced_stack.begin(), dbg_traced_stack.end(), obj) != dbg_traced_stack.end()) {
-		fprintf(fp, "traced\n");
-		return;
+	if (obj) {
+		if (find(dbg_traced_stack.begin(), dbg_traced_stack.end(), obj) != dbg_traced_stack.end()) {
+			fprintf(fp, "traced\n");
+			return;
+		}
+		dbg_traced_stack.push_back(obj);
 	}
-	dbg_traced_stack.push_back(obj);
 
 	if (obj) {
 		slot_name = obj->getDebugName();

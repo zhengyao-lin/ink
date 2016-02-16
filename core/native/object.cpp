@@ -185,7 +185,9 @@ Ink_Object *InkNative_Object_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 	engine->addPardonObject(ret);
 
 	args = (Ink_Object **)malloc(2 * sizeof(Ink_Object *));
-	for (hash = base->hash_table; hash && hash->getValue(); hash = hash->next) {
+	for (hash = base->hash_table; hash; hash = hash->next) {
+		if (!hash->getValue())
+			continue;
 		gc_engine->checkGC();
 
 		args[0] = new Ink_String(engine, string(hash->key));

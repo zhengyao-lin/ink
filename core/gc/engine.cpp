@@ -32,6 +32,8 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 	if (obj && obj->mark != CURRENT_MARK_PERIOD) obj->mark = CURRENT_MARK_PERIOD;
 	else return;
 
+	doMark(engine, obj->getBase());
+
 	if (obj->proto_hash) {
 		doMark(engine, obj->proto_hash->getValue());
 		if (obj->proto_hash->setter) {

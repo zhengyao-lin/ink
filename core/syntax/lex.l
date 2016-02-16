@@ -161,10 +161,6 @@ void yyerror(const char *msg);
 <INITIAL>"exit"						return TOKEN(TEXIT);
 <INITIAL>"yield"					return TOKEN(TYIELD);
 <INITIAL>"with"						return TOKEN(TWITH);
-<INITIAL>"_" {
-	SAVE_TOKEN();
-	return TUNKNOWN;
-}
 
 <INITIAL>"&&"						return TOKEN(TCAND);
 <INITIAL>"||"						return TOKEN(TCOR);
