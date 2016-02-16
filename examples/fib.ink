@@ -1,3 +1,5 @@
+import blueprint
+
 // dp = new Array(100)
 
 /* import "test.ik"

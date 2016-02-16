@@ -1,3 +1,5 @@
+import blueprint
+
 p(10 + 20);
 
 a = 10;

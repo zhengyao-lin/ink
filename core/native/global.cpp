@@ -98,54 +98,6 @@ Ink_Object *Ink_IfExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 	return ret;
 }
 
-Ink_Object *Ink_WhileExpression(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
-{
-	Ink_Object *cond;
-	Ink_Object *block;
-	Ink_Object *ret;
-	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
-
-	if (argc < 1) {
-		InkWarn_While_Argument_Require(engine);
-		return NULL_OBJ;
-	}
-
-	cond = argv[0];
-	block = argc > 1 ? argv[1] : NULL;
-	if (cond->type != INK_FUNCTION) {
-		InkWarn_Require_Lazy_Expression(engine);
-		return NULL_OBJ;
-	} else if (block && block->type != INK_FUNCTION) {
-		InkWarn_While_Block_Require(engine);
-		return NULL_OBJ;
-	}
-
-	ret = NULL_OBJ;
-	while (isTrue(cond->call(engine, context))) {
-		gc_engine->doMark(ret);
-		gc_engine->checkGC();
-		if (block) {
-			ret = block->call(engine, context);
-			if (engine->getSignal() != INTER_NONE) {
-				switch (engine->getSignal()) {
-					case INTER_RETURN:
-						return engine->getInterruptValue(); // fallthrough the signal
-					case INTER_DROP:
-					case INTER_BREAK:
-						return engine->trapSignal(); // trap the signal
-					case INTER_CONTINUE:
-						engine->trapSignal(); // trap the signal, but do not return
-						continue;
-					default:
-						return NULL_OBJ;
-				}
-			}
-		}
-	}
-
-	return ret;
-}
-
 Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val)
 {
 	Ink_ArrayValue ret;
@@ -408,91 +360,6 @@ Ink_Object *Ink_CoroutineCall(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 	return ret_val;
 }
 
-Ink_Object *Ink_Try(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
-{
-	Ink_Object *test_block = NULL;
-	Ink_Object *catch_block = NULL;
-	Ink_Object *final_block = NULL;
-	Ink_Object *ret = NULL_OBJ;
-	Ink_ArgcType i;
-	Ink_Object **tmp_argv = NULL;
-	Ink_InterruptSignal signal_back = INTER_NONE;
-	Ink_ErrorMode err_mode_back = engine->getErrorMode();
-	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
-
-	if (!checkArgument(engine, argc, argv, 1, INK_FUNCTION)) {
-		return NULL_OBJ;
-	}
-	test_block = argv[0];
-
-	for (i = 1; i < argc; i++) {
-		if (argv[i]->type == INK_STRING) {
-			if (as<Ink_String>(argv[i])->getWValue() == L"catch") {
-				if (i + 1 < argc) {
-					if (argv[i + 1]->type == INK_FUNCTION) {
-						catch_block = argv[i + 1];
-					} else {
-						InkWarn_Expect_Block_After_Catch(engine);
-					}
-				} else {
-					InkWarn_No_Argument_Follwing_Catch(engine);
-				}
-				i++;
-			} else if (as<Ink_String>(argv[i])->getWValue() == L"final") {
-				if (i + 1 < argc) {
-					if (argv[i + 1]->type == INK_FUNCTION) {
-						final_block = argv[i + 1];
-					} else {
-						InkWarn_Expect_Block_After_Final(engine);
-					}
-				} else {
-					InkWarn_No_Argument_Follwing_Final(engine);
-				}
-				i++;
-			} else {
-				string tmp_str = as<Ink_String>(argv[i])->getValue();
-				InkWarn_Try_Unknown_Instr(engine, tmp_str.c_str());
-			}
-		} else {
-			InkWarn_Try_Unknown_Instr_Type(engine, argv[i]->type);
-		}
-	}
-
-RETRY:
-	engine->setErrorMode(INK_ERRMODE_STRICT);
-	ret = test_block->call(engine, context);
-	engine->setErrorMode(err_mode_back);
-	if (engine->getSignal() == INTER_THROW) {
-		if (catch_block) {
-			tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
-			tmp_argv[0] = engine->getInterruptValue();
-
-			engine->setInterrupt(INTER_NONE, NULL);
-			catch_block->call(engine, context, 1, tmp_argv);
-
-			free(tmp_argv);
-			if (engine->getSignal() == INTER_RETRY) {
-				engine->trapSignal();
-				gc_engine->checkGC();
-				goto RETRY;
-			}
-			if (engine->getSignal() != INTER_NONE) {
-				signal_back = engine->getSignal();
-				engine->setSignal(INTER_NONE);
-				goto FINAL;
-			}
-		}
-	}
-
-FINAL:
-	if (final_block) {
-		final_block->call(engine, context);
-	}
-	engine->setSignal(signal_back);
-
-	return ret;
-}
-
 Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	string *tmp_str;
@@ -538,11 +405,6 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 {
 	context->context->setSlot("if", new Ink_FunctionObject(engine, Ink_IfExpression, true));
 
-	Ink_ParamList param_list = Ink_ParamList();
-	param_list.push_back(Ink_Parameter(NULL, true));
-	Ink_Object *while_func = new Ink_FunctionObject(engine, Ink_WhileExpression, true);
-	as<Ink_FunctionObject>(while_func)->param = param_list;
-	context->context->setSlot("while", while_func);
 	context->context->setSlot("p", new Ink_FunctionObject(engine, Ink_Print));
 	context->context->setSlot("eval", new Ink_FunctionObject(engine, Ink_Eval));
 	context->context->setSlot("import", new Ink_FunctionObject(engine, Ink_Import));
@@ -556,7 +418,6 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 
 	context->context->setSlot("debug", new Ink_FunctionObject(engine, Ink_Debug));
 	context->context->setSlot("where", new Ink_FunctionObject(engine, Ink_Where));
-	context->context->setSlot("try", new Ink_FunctionObject(engine, Ink_Try));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(engine, Ink_ArrayConstructor);
 	context->context->setSlot("Array", array_cons);

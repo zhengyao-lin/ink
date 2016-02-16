@@ -1,5 +1,7 @@
 #! /usr/bin/ink
 
+import blueprint
+
 func = { | a, b, block, block2 |
 	p(a + b);
 	block(a + b);

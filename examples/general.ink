@@ -1,3 +1,4 @@
+import blueprint
 import "../tests/general.ink",
 	   "../tests/container.ink"
 

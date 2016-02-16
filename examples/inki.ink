@@ -1,5 +1,6 @@
 #! /usr/bin/ink
 
+import blueprint
 import io
 
 $array.find = fn (obj) {

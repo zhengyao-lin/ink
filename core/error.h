@@ -105,13 +105,6 @@ InkWarn_Get_Non_Array_Index(Ink_InterpreteEngine *engine)
 }
 
 inline void
-InkWarn_Require_Lazy_Expression(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "Loop condition expression requires lazy expression(or equivalent inline function)");
-	return;
-}
-
-inline void
 InkWarn_If_Argument_Fault(Ink_InterpreteEngine *engine)
 {
 	InkErro_doPrintWarning(engine, "If function need at least 1 argument");
@@ -136,20 +129,6 @@ inline void
 InkWarn_Incorrect_Range_Type(Ink_InterpreteEngine *engine)
 {
 	InkErro_doPrintWarning(engine, "Incorrect range type");
-	return;
-}
-
-inline void
-InkWarn_While_Argument_Require(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "While function requires at least 1 argument");
-	return;
-}
-
-inline void
-InkWarn_While_Block_Require(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "While function requires the second argument as a block");
 	return;
 }
 
@@ -436,49 +415,6 @@ inline void
 InkWarn_Divided_By_Zero(Ink_InterpreteEngine *engine)
 {
 	InkErro_doPrintWarning(engine, "Divided by zero");
-	return;
-}
-
-inline void
-InkWarn_Try_Unknown_Instr(Ink_InterpreteEngine *engine, const char *instr)
-{
-	InkErro_doPrintWarning(engine, "Unknown instruction of try: \'$(instr)\'", instr);
-	return;
-}
-
-inline void
-InkWarn_No_Argument_Follwing_Catch(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "No argument following catch");
-	return;
-}
-
-inline void
-InkWarn_Expect_Block_After_Catch(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "Expect block after catch");
-	return;
-}
-
-inline void
-InkWarn_No_Argument_Follwing_Final(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "No argument following final");
-	return;
-}
-
-inline void
-InkWarn_Expect_Block_After_Final(Ink_InterpreteEngine *engine)
-{
-	InkErro_doPrintWarning(engine, "Expect block after final");
-	return;
-}
-
-inline void
-InkWarn_Try_Unknown_Instr_Type(Ink_InterpreteEngine *engine, Ink_TypeTag type)
-{
-	InkErro_doPrintWarning(engine, "Unknown instruction type of try: <$(type)>",
-						   getTypeName(engine, type));
 	return;
 }
 

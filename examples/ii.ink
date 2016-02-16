@@ -1,3 +1,5 @@
+import blueprint
+
 io.load(io, top)
 
 /*p("contents\n");

@@ -1,3 +1,4 @@
+import blueprint
 
 namespace = {
 	missing: fn (name) {
