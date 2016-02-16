@@ -182,9 +182,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	/* if not inline function, set local context */
 	bool if_set_sp_ptr = !is_inline;
 
-	const char *debug_name_back = getDebugName();
-	const char *base_debug_name_back = getSlot(engine, "base")->getDebugName();
-
 	if ((pa_ret = checkUnkownArgument(argc, argv, this_p,
 									  if_return_this, if_delete_argv))
 		!= NULL) {
@@ -217,10 +214,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	/* set "this" pointer if exists */
 	if (this_p)
 		local->setSlot("this", this_p);
-
-	// reset debug name
-	getSlot(engine, "base")->setDebugName(base_debug_name_back);
-	setDebugName(debug_name_back);
 
 	/* set trace(unsed for mark&sweep GC) and set debug info */
 	engine->addTrace(local)->setDebug(engine->current_file_name, engine->current_line_number, this);
@@ -405,7 +398,7 @@ Ink_Object *Ink_Object::call(Ink_InterpreteEngine *engine,
 							 Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
 							 Ink_Object *this_p, bool if_return_this)
 {
-	InkError_Calling_Non_Function_Object(engine);
+	InkError_Calling_Non_Function_Object(engine, type, getDebugName());
 	return NULL_OBJ;
 }
 
@@ -413,7 +406,7 @@ Ink_Object *Ink_Undefined::call(Ink_InterpreteEngine *engine,
 								Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
 								Ink_Object *this_p, bool if_return_this)
 {
-	InkError_Calling_Undefined_Object(engine);
+	InkError_Calling_Undefined_Object(engine, getDebugName());
 	return NULL_OBJ;
 }
 

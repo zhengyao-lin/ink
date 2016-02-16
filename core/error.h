@@ -21,16 +21,19 @@ void InkErro_doPrintNote(Ink_InterpreteEngine *engine, const char *msg, ...);
 const char *getTypeName(Ink_InterpreteEngine *engine, Ink_TypeTag type);
 
 inline void
-InkError_Calling_Non_Function_Object(Ink_InterpreteEngine *engine)
+InkError_Calling_Non_Function_Object(Ink_InterpreteEngine *engine, Ink_TypeTag type, const char *slot)
 {
-	InkErro_doPrintError(engine, -1, "Calling non-function object");
+	InkErro_doPrintError(engine, -1, "Calling non-function object of type <$(type)> in $(slot)",
+						 getTypeName(engine, type),
+						 (slot ? std::string("slot '") + slot + "'" : "anonymous slot").c_str());
 	return;
 }
 
 inline void
-InkError_Calling_Undefined_Object(Ink_InterpreteEngine *engine)
+InkError_Calling_Undefined_Object(Ink_InterpreteEngine *engine, const char *slot)
 {
-	InkErro_doPrintError(engine, -2, "Calling undefined object");
+	InkErro_doPrintError(engine, -2, "Calling undefined object in $(slot)",
+						 (slot ? std::string("slot '") + slot + "'" : "anonymous slot").c_str());
 	return;
 }
 

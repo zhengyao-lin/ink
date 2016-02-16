@@ -29,7 +29,7 @@ public:
 	Ink_HashTable *address;
 
 	IGC_CollectEngine *alloc_engine;
-	const char *debug_name;
+	char *debug_name;
 
 	Ink_InterpreteEngine *engine;
 
@@ -88,7 +88,8 @@ public:
 
 	inline void setDebugName(const char *name)
 	{
-		debug_name = name;
+		free(debug_name);
+		debug_name = name ? strdup(name) : NULL;
 		return;
 	}
 
@@ -138,6 +139,7 @@ public:
 	virtual ~Ink_Object()
 	{
 		cleanHashTable();
+		free(debug_name);
 	}
 };
 

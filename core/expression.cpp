@@ -430,12 +430,12 @@ Ink_HashExpression::ProtoSearchRet Ink_HashExpression::searchPrototype(Ink_Inter
 Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
 										Ink_Object *obj, const char *id, Ink_EvalFlag flags, string *id_p)
 {
-	const char *debug_name_back;
 	Ink_HashTable *hash, *address;
 	Ink_Object *base = obj, *ret = NULL, *tmp;
 	Ink_Object **argv;
 	ProtoSearchRet search_res;
 	bool is_from_proto = false;
+	bool if_delete_id_p = false;
 
 	if (!(hash = obj->getSlotMapping(engine, id, &is_from_proto)) /* cannot find slot in the origin object */) {
 		if (obj->type == INK_UNDEFINED) {
@@ -503,16 +503,15 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 			}
 		} else {
 			address = hash;
-			delete id_p;
+			if_delete_id_p = true;
 		}
 	}
 
 	/* set address for possible assignment */
 	ret->address = address;
 	/* set base */
-	debug_name_back = base->getDebugName();
 	ret->setSlot("base", base);
-	base->setDebugName(debug_name_back);
+	ret->setDebugName(id);
 
 	/* call getter if has one */
 	if (!flags.is_left_value && hash && hash->getter) {
@@ -521,11 +520,14 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 		// /* trap all interrupt signal */
 		// engine->setSignal(INTER_NONE);
 		if (INTER_SIGNAL_RECEIVED) {
-			return engine->getInterruptValue();
+			ret = engine->getInterruptValue();
 		}
 	}
 
 END:
+	if (if_delete_id_p)
+		delete id_p;
+
 	return ret;
 }
 
@@ -699,8 +701,9 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	Ink_ContextChain *local = context_chain->getLocal();
 	Ink_ContextChain *global = context_chain->getGlobal();
 	Ink_ContextChain *dest_context = local, *base_context = NULL;
-	Ink_Object *tmp, *ret;
+	Ink_Object *ret;
 	Ink_Object **argv;
+	bool if_delete_name_p = false;
 
 	/* Determine the type of reference:
 	 * 1. local
@@ -750,29 +753,32 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 		if (!ret) { // just a place holder
 			ret = UNDEFINED;
 		}
-		if (name_p)
-			delete name_p;
+		if_delete_name_p = true;
 	}
 	ret->address = hash; /* set its address for assigning */
 	if (base_context)
 		ret->setSlot("base", base_context->context);
+	ret->setDebugName(name);
 
 	/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
 	if (!flags.is_left_value && hash->getter) {
 		if (base_context)
 			hash->getter->setSlot("base", base_context->context);
-		tmp = hash->getter->call(engine, context_chain, 0, NULL);
+		ret = hash->getter->call(engine, context_chain, 0, NULL);
 
 		// /* trap all interrupt signal */
 		// engine->setSignal(INTER_NONE);
 		if (INTER_SIGNAL_RECEIVED) {
-			return engine->getInterruptValue();
+			ret = engine->getInterruptValue();
 		}
-		return tmp;
+		goto END;
 	}
 	// hash->value->setSlot("this", hash->value);
 
 END:
+	if (if_delete_name_p)
+		delete name_p;
+
 	return ret;
 }
 
