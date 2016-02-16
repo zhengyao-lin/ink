@@ -98,7 +98,7 @@ Ink_Object *InkMod_Blueprint_Base_While(Ink_InterpreteEngine *engine, Ink_Contex
 	cond = argv[0];
 	block = argc > 1 ? argv[1] : NULL;
 	if (cond->type != INK_FUNCTION) {
-		InkWarn_Blueprint_While_Require_Reference(engine);
+		InkWarn_Blueprint_While_Require_Reference_Cond(engine);
 		return NULL_OBJ;
 	} else if (block && block->type != INK_FUNCTION) {
 		InkWarn_Blueprint_While_Require_Block(engine);
@@ -107,6 +107,59 @@ Ink_Object *InkMod_Blueprint_Base_While(Ink_InterpreteEngine *engine, Ink_Contex
 
 	ret = NULL_OBJ;
 	while (isTrue(cond->call(engine, context))) {
+		gc_engine->doMark(ret);
+		gc_engine->checkGC();
+		if (block) {
+			ret = block->call(engine, context);
+			if (engine->getSignal() != INTER_NONE) {
+				switch (engine->getSignal()) {
+					case INTER_RETURN:
+						return engine->getInterruptValue(); // fallthrough the signal
+					case INTER_DROP:
+					case INTER_BREAK:
+						return engine->trapSignal(); // trap the signal
+					case INTER_CONTINUE:
+						engine->trapSignal(); // trap the signal, but do not return
+						continue;
+					default:
+						return NULL_OBJ;
+				}
+			}
+		}
+	}
+
+	return ret;
+}
+
+Ink_Object *InkMod_Blueprint_Base_For(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *cond;
+	Ink_Object *incr;
+	Ink_Object *block;
+	Ink_Object *ret;
+	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
+
+	if (argc < 3) {
+		InkWarn_Blueprint_For_Argument_Require(engine);
+		return NULL_OBJ;
+	}
+
+	cond = argv[1];
+	incr = argv[2];
+	block = argc > 3 ? argv[3] : NULL;
+	if (cond->type != INK_FUNCTION) {
+		InkWarn_Blueprint_For_Require_Reference_Cond(engine);
+		return NULL_OBJ;
+	} else if (incr->type != INK_FUNCTION) {
+		InkWarn_Blueprint_For_Require_Reference_Incr(engine);
+		return NULL_OBJ;
+	} else if (block && block->type != INK_FUNCTION) {
+		InkWarn_Blueprint_For_Require_Block(engine);
+		return NULL_OBJ;
+	}
+
+	ret = NULL_OBJ;
+	for (; isTrue(cond->call(engine, context)); incr->call(engine, context)) {
 		gc_engine->doMark(ret);
 		gc_engine->checkGC();
 		if (block) {
@@ -218,15 +271,26 @@ FINAL:
 
 void InkMod_Blueprint_Base_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
+	Ink_ParamList tmp_param_list;
+	
 	/* if */
 	bondee->setSlot("if", new Ink_FunctionObject(engine, InkMod_Blueprint_Base_If, true));
 
 	/* while */
-	Ink_ParamList param_list = Ink_ParamList();
-	param_list.push_back(Ink_Parameter(NULL, true));
-	Ink_Object *while_func = new Ink_FunctionObject(engine, InkMod_Blueprint_Base_While, true);
-	as<Ink_FunctionObject>(while_func)->param = param_list;
+	tmp_param_list = Ink_ParamList();
+	tmp_param_list.push_back(Ink_Parameter(NULL, true));
+	Ink_FunctionObject *while_func = new Ink_FunctionObject(engine, InkMod_Blueprint_Base_While, true);
+	while_func->param = tmp_param_list;
 	bondee->setSlot("while", while_func);
+
+	/* for */
+	tmp_param_list = Ink_ParamList();
+	tmp_param_list.push_back(Ink_Parameter(NULL));
+	tmp_param_list.push_back(Ink_Parameter(NULL, true));
+	tmp_param_list.push_back(Ink_Parameter(NULL, true));
+	Ink_FunctionObject *for_func = new Ink_FunctionObject(engine, InkMod_Blueprint_Base_For, true);
+	for_func->param = tmp_param_list;
+	bondee->setSlot("for", for_func);
 
 	/* try */
 	bondee->setSlot("try", new Ink_FunctionObject(engine, InkMod_Blueprint_Base_Try, true));

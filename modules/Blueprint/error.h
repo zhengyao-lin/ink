@@ -48,7 +48,7 @@ InkWarn_Blueprint_While_Argument_Require(Ink_InterpreteEngine *engine)
 }
 
 inline void
-InkWarn_Blueprint_While_Require_Reference(Ink_InterpreteEngine *engine)
+InkWarn_Blueprint_While_Require_Reference_Cond(Ink_InterpreteEngine *engine)
 {
 	InkErro_doPrintWarning(engine, "while function requires reference as condition expression");
 	return;
@@ -58,6 +58,35 @@ inline void
 InkWarn_Blueprint_While_Require_Block(Ink_InterpreteEngine *engine)
 {
 	InkErro_doPrintWarning(engine, "while function requires a block as the second argument");
+	return;
+}
+
+/* for errors */
+inline void
+InkWarn_Blueprint_For_Argument_Require(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, "for function requires at least 3 argument");
+	return;
+}
+
+inline void
+InkWarn_Blueprint_For_Require_Reference_Cond(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, "for function requires reference as condition expression");
+	return;
+}
+
+inline void
+InkWarn_Blueprint_For_Require_Reference_Incr(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, "for function requires reference as increment expression");
+	return;
+}
+
+inline void
+InkWarn_Blueprint_For_Require_Block(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, "for function requires a block as the second argument");
 	return;
 }
 

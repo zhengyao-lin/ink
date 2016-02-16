@@ -3,13 +3,7 @@ if (_GENERAL_H_) {
 }
 _GENERAL_H_ = 1
 
-for = inl (init, &cond, &iterate, block) {
-	block@continue = iterate;
-	while (cond()) {
-		block();
-		iterate();
-	}
-}
+import blueprint
 
 max = fn (args...) {
 	for (let i = 1 && let max = args[0],
