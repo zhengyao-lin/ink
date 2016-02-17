@@ -23,7 +23,7 @@ inline Ink_Object *getSlotWithProto(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 inline Ink_Object *searchContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *name)
 {
-	return Ink_IdentifierExpression::getContextSlot(engine, context, name, ID_COMMON, Ink_EvalFlag(), false);
+	return Ink_IdentifierExpression::getContextSlot(engine, context, name, Ink_EvalFlag(), false);
 }
 
 inline Ink_Object *callMethod(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, const char *method_name,

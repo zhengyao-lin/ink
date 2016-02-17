@@ -294,7 +294,7 @@ Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 	tmp_str = new string(as<Ink_String>(argv[0])->getValue());
 
 	return Ink_IdentifierExpression::getContextSlot(engine, context, tmp_str->c_str(),
-													ID_COMMON, Ink_EvalFlag(), false, tmp_str);
+													Ink_EvalFlag(), false, tmp_str);
 }
 
 Ink_Object *Ink_Abort(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)

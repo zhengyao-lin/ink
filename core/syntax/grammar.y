@@ -37,48 +37,165 @@
 	int									token;
 }
 
-%token <string> TIDENTIFIER TNUMERIC TSTRING TPROTOCOL
+/* constants & identifiers */
+%token <string>
+	TIDENTIFIER
+	TNUMERIC
+	TSTRING
+	TPROTOCOL
 
-%token <token> TRETURN TNEW TDELETE TCLONE
-			   TFUNC TINLINE TMACRO TDO TEND
-			   TIMPORT TBREAK TCONTINUE TDROP TTHROW TRETRY TEXIT
-			   TYIELD TWITH
-%token <token> TECLI TDNOT TNOT TCOMMA TSEMICOLON TDCOLON TCOLON TASSIGN
-%token <token> TDADD TDSUB TOR TADD TSUB TMUL TDIV TMOD TDOT TNL TLAND
-%token <token> TLPAREN TRPAREN TLBRAKT TRBRAKT TLBRACE TRBRACE
-%token <token> TARR TINS TOUT
-%token <token> TCLE TCLT TCGE TCGT TCEQ TCNE TCAND TCOR
+/* keywords */
+%token <token>
+	TNEW				// new
+	TDELETE				// delete
+	TCLONE				// clone
 
-%type <expression> expression assignment_expression
-				   primary_expression postfix_expression
-				   function_expression additive_expression
-				   interrupt_expression multiplicative_expression
-				   unary_expression nestable_expression
-				   insert_expression field_expression
-				   functional_block import_expression
-				   block equality_expression
-				   relational_expression logical_and_expression
-				   logical_or_expression comma_expression
-				   single_element_expression space_hash_expression
-				   dot_hash_expression direct_argument_attachment_expression
-%type <parameter> param_list param_opt param_list_sub
-%type <expression_list> top_level_expression_list top_level_expression_list_opt
-						expression_list expression_list_opt
-						element_list element_list_opt
-%type <argument> direct_argument_attachment_expression_prefix
-%type <argument_list> argument_list argument_list_opt
-					  argument_attachment argument_attachment_opt
-					  argument_list_without_paren insert_list
-%type <hash_table_mapping> hash_table_mapping hash_table_mapping_opt
+	TFUNC				// fn
+	TINLINE				// inline
+	TMACRO				// macro
+	
+	TDO					// do
+	TEND				// end
+	
+	TIMPORT				// import
+
+	TRETURN				// retn
+	TBREAK				// break
+	TCONTINUE			// continue
+	TDROP				// drop
+	TTHROW				// throw
+	TRETRY				// retry
+	TEXIT				// exit
+
+	TYIELD				// yield
+	
+	TWITH				// with
+
+/* tokens */
+%token <token>
+	TLPAREN				// (
+	TRPAREN				// )
+	TLBRAKT				// [
+	TRBRAKT				// ]
+	TLBRACE				// {
+	TRBRACE				// }
+
+	TECLI				// ...
+
+	TCOMMA				// ,
+	TOR					// |
+
+/* splits */
+%token <token>
+	TNL					// [\n\r]
+	TSEMICOLON			// ;
+
+/* binary operators */
+%token <token>
+	TADD				// +
+	TSUB				// -
+	TMUL				// *
+	TDIV				// /
+	TMOD				// %
+	TLAND				// & // not yet an operator
+	TASSIGN				// =
+	TCOLON				// :
+	TDCOLON				// ::
+	TARR				// ->
+
+/* unary operators */
+%token <token>
+	TDADD				// ++
+	TDSUB				// --
+	TDOT				// .
+	TDNOT				// !!
+	TNOT				// !
+
+/* stream operators */
+%token <token>
+	TINS				// <<
+	TOUT				// >>
+
+/* condition operators */
+%token <token>
+	TCLE				// <=
+	TCLT				// <
+	TCGE				// >=
+	TCGT				// >
+	TCEQ				// ==
+	TCNE				// !=
+	TCAND				// &&
+	TCOR				// ||
+
+/* expressions */
+/* some names are quoted from ANSI C grammar */
+%type <expression>
+	expression																/* priority */
+		primary_expression single_element_expression						/* highest	*/
+		function_expression space_hash_expression dot_hash_expression		/* ^		*/
+		postfix_expression													/* |		*/
+		unary_expression													/* |		*/
+		multiplicative_expression											/* |		*/
+		additive_expression													/* |		*/
+		relational_expression												/* |		*/
+		equality_expression													/* |		*/
+		assignment_expression												/* |		*/
+		logical_and_expression												/* |		*/
+		logical_or_expression												/* |		*/
+		insert_expression interrupt_expression								/* |		*/
+		nestable_expression import_expression comma_expression				/* lowest	*/
+
+	/* trivial */
+	/* not exactly an expression, but returns expression */
+	direct_argument_attachment_expression
+	block
+		functional_block
+
+/* expression list */
+%type <expression_list>
+	top_level_expression_list
+	top_level_expression_list_opt
+	expression_list
+	expression_list_opt
+	element_list
+	element_list_opt
+
+/* parameter */
+%type <parameter>
+	param_list
+	param_opt
+	param_list_sub
+
+/* argument */
+%type <argument>
+	direct_argument_attachment_expression_prefix
+
+%type <argument_list>
+	argument_list
+	argument_list_opt
+	argument_attachment
+	argument_attachment_opt
+	argument_list_without_paren
+	insert_list
+
+/* hash table */
+%type <hash_table_mapping>
+	hash_table_mapping
+	hash_table_mapping_opt
+
 %type <hash_table_mapping_single> hash_table_mapping_single
+
+/* line number offset */
 %type <split> split split_opt
+
+/* interrupt signal */
 %type <signal> interrupt_signal
 
-%start compile_unit
+%start parse_unit
 
 %%
 
-compile_unit
+parse_unit
 	: top_level_expression_list_opt
 	{
 		InkParser_getParseEngine()->top_level = *$1;
@@ -268,21 +385,8 @@ comma_expression
 	;
 
 nestable_expression
-	: field_expression
-	| interrupt_expression
-	;
-
-field_expression
 	: insert_expression
-	| TIDENTIFIER TCOLON nllo field_expression
-	{
-		$$ = new Ink_AssignmentExpression(
-				 new Ink_HashExpression(
-				 	 new Ink_IdentifierExpression(new string("this")),
-				 	 $1),
-				 $4);
-		SET_LINE_NO($$);
-	}
+	| interrupt_expression
 	;
 
 insert_list

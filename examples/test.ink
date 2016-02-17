@@ -204,8 +204,8 @@ Car = fn () {
 
 Ferarri = fn () {
 	this.prototype = new Car();
-	max_speed : 300;
-	drive : fn () {
+	this.max_speed = 300;
+	this.drive = fn () {
 		p("su---");
 	};
 };
@@ -228,15 +228,15 @@ p("6? : " + a);
 Builder = fn () {
 	TypeC = fn () { };
 	TypeC << fn () {
-		a : "hello";
-		b : 20;
+		this.a = "hello";
+		this.b = 20;
 	};
 	TypeC;
 };
 
 a = new fn () {
-	a : "hello";
-	b : 20;
+	this.a = "hello";
+	this.b = 20;
 } ();
 p("hello? : " + a.a);
 
@@ -250,7 +250,7 @@ func = fn (b) {
 p("true? : " + func("hi"));
 
 func = fn () {
-	a : 100;
+	this.a = 100;
 	lazy_exp = lazy(this);
 	p("100? : " + lazy_exp().a);
 };
@@ -381,12 +381,12 @@ func = fn () {
 };
 
 TypeZ = fn () {
-	str : "From Type Z";
+	this.str = "From Type Z";
 };
 
 TypeA = fn () {
 	this.prototype = new TypeZ();
-	a : "I'm A ";
+	this.a = "I'm A ";
 };
 
 TypeB = fn () {

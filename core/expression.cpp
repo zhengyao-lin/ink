@@ -621,14 +621,14 @@ Ink_Object *Ink_IdentifierExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	SET_LINE_NUM;
 
 	Ink_Object *ret;
-	ret = getContextSlot(engine, context_chain, id->c_str(), context_type, flags, if_create_slot);
+	ret = getContextSlot(engine, context_chain, id->c_str(), flags, if_create_slot);
 
 	RESTORE_LINE_NUM;
 	return ret;
 }
 
 Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, const char *name,
-													 Ink_IDContextType context_type, Ink_EvalFlag flags, bool if_create_slot, string *name_p)
+													 Ink_EvalFlag flags, bool if_create_slot, string *name_p)
 {
 	/* Variables */
 	Ink_HashTable *hash, *missing;
@@ -640,32 +640,8 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	Ink_Object **argv;
 	bool if_delete_name_p = false;
 
-	/* Determine the type of reference:
-	 * 1. local
-	 *		find slot in the local context
-	 * 2. global
-	 *		find slot in the global context
-	 * 3. default
-	 *		search all contexts to find slot
-	 */
-
-	/* switch (context_type) {
-		case ID_LOCAL:
-			hash = local->context->getSlotMapping(engine, name);
-			missing = local->context->getSlotMapping(engine, "missing");
-			base_context = missing_base_context = local;
-			break;
-		case ID_GLOBAL:
-			hash = global->context->getSlotMapping(engine, name);
-			missing = global->context->getSlotMapping(engine, "missing");
-			dest_context = global;
-			base_context = missing_base_context = global;
-			break;
-		default: */
 	hash = context_chain->searchSlotMapping(engine, name, &base_context);
 	missing = context_chain->searchSlotMapping(engine, "missing", &missing_base_context);
-		// break;
-	// }
 
 	/* if the slot cannot be found */
 	if (!hash) {
@@ -676,8 +652,11 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 			if (missing && missing->getValue()->type == INK_FUNCTION) {
 				argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 				argv[0] = new Ink_String(engine, name);
+				
 				if (missing_base_context)
 					missing->getValue()->setBase(missing_base_context->context);
+				else missing->getValue()->setBase(NULL);
+
 				ret = missing->getValue()->call(engine, context_chain, 1, argv);
 				free(argv);
 				goto END;
@@ -694,9 +673,11 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 		if_delete_name_p = true;
 	}
 	ret->address = hash; /* set its address for assigning */
+
 	if (base_context)
-		// ret->setSlot("base", base_context->context);
 		ret->setBase(base_context->context);
+	else ret->setBase(NULL);
+	
 	ret->setDebugName(name);
 
 	/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
