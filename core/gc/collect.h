@@ -34,34 +34,23 @@ public:
 
 class IGC_CollectEngine {
 public:
-	// long object_count;
-	// long collect_treshold;
 	IGC_MarkType mark;
 	Ink_TypeTag type;
-	// IGC_CollectUnit *pardon_chain;
+
 	IGC_CollectUnit *object_chain;
 	IGC_CollectUnit *object_chain_last;
 	Ink_InterpreteEngine *engine;
-	// Ink_ContextChain *local_context;
 
-	// IGC_CollectEngine *outer_engine;
 
 	IGC_CollectEngine(Ink_InterpreteEngine *engine)
 	: engine(engine)
 	{
 		mark = 0;
 		type = INK_NULL;
-		// pardon_chain = NULL;
 		object_chain = NULL;
 		object_chain_last = NULL;
-		// local_context = NULL;
-		// outer_engine = NULL;
 	}
 
-	/* void initContext(Ink_ContextChain *context)
-	{
-		local_context = context;
-	} */
 	void addUnit(IGC_CollectUnit *unit);
 	// void addPardon(Ink_Object *obj);
 	inline void doMark(Ink_Object *obj)
@@ -78,10 +67,6 @@ public:
 	void checkGC();
 	inline void link(IGC_CollectEngine *engine)
 	{
-		IGC_CollectUnit *i;
-		for (i = engine->object_chain; i; i = i->next) {
-			if (i->obj) i->obj->alloc_engine = this;
-		}
 		if (object_chain_last) {
 			object_chain_last->next = engine->object_chain;
 			if (engine->object_chain)

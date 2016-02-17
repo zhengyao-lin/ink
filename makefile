@@ -120,6 +120,11 @@ core: FORCE
 	$(RM) $(LIBS)
 	$(MAKE)
 
+gc: FORCE
+	cd core/gc; $(MAKE) clean
+	$(RM) $(LIBS)
+	$(MAKE)
+
 syntax: FORCE
 	cd core/syntax; $(MAKE) clean
 	$(RM) $(LIBS)

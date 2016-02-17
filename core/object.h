@@ -28,7 +28,6 @@ public:
 	Ink_HashTable *hash_table;
 	Ink_HashTable *address;
 
-	IGC_CollectEngine *alloc_engine;
 	char *debug_name;
 
 	Ink_InterpreteEngine *engine;
@@ -43,7 +42,6 @@ public:
 		type = INK_OBJECT;
 		hash_table = NULL;
 		address = NULL;
-		alloc_engine = NULL;
 		debug_name = NULL;
 		proto_hash = NULL;
 		base_p = NULL;
@@ -101,7 +99,8 @@ public:
 
 	inline void setDebugName(const char *name)
 	{
-		free(debug_name);
+		if (debug_name)
+			free(debug_name);
 		debug_name = name ? strdup(name) : NULL;
 		return;
 	}

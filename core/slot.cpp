@@ -62,9 +62,11 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 	}
 
 	/* base pointer has to be local -- it cannot be achieved from prototype */
+#if 0
 	if (!strcmp(key, "base")) {
 		return ret;
 	}
+#endif
 
 	if (engine && proto && proto->type != INK_UNDEFINED) {
 		if (engine->prototypeHasTraced(this)) {

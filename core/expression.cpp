@@ -276,6 +276,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	/* left hand side next */
 	CATCH_SIGNAL_RET;
 
+#if 1
 	if ((assign_method = lval_ret->getSlot(engine, "="))->type == INK_FUNCTION) {
 		tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 		tmp[0] = rval_ret;
@@ -287,7 +288,9 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 		CATCH_SIGNAL_RET;
 
 		return ret;
-	} else if (lval_ret->address) {
+	} else
+#endif
+	if (lval_ret->address) {
 		if (lval_ret->address->setter) { /* if has setter, call it */
 			tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			tmp[0] = rval_ret;
@@ -523,6 +526,8 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 		func = Ink_HashExpression::getSlot(engine, context_chain, func, "new");
 	}
 
+	Ink_Object *base_back = func->getBase();
+
 	tmp_arg_list = Ink_ArgumentList();
 	for (Ink_ArgumentList::iterator arg_list_iter = arg_list.begin();
 		 arg_list_iter != arg_list.end(); arg_list_iter++) {
@@ -592,6 +597,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	}
 
 	argc = tmp_arg_list.size();
+	func->setBase(base_back);
 
 	ret_val = func->call(engine, context_chain, argc, argv);
 
@@ -627,7 +633,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	/* Variables */
 	Ink_HashTable *hash, *missing;
 	Ink_ContextChain *local = context_chain->getLocal();
-	Ink_ContextChain *global = context_chain->getGlobal();
+	// Ink_ContextChain *global = context_chain->getGlobal();
 	Ink_ContextChain *dest_context = local,
 					 *base_context = NULL, *missing_base_context = NULL;
 	Ink_Object *ret;
@@ -643,7 +649,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	 *		search all contexts to find slot
 	 */
 
-	switch (context_type) {
+	/* switch (context_type) {
 		case ID_LOCAL:
 			hash = local->context->getSlotMapping(engine, name);
 			missing = local->context->getSlotMapping(engine, "missing");
@@ -655,11 +661,11 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 			dest_context = global;
 			base_context = missing_base_context = global;
 			break;
-		default:
-			hash = context_chain->searchSlotMapping(engine, name, &base_context);
-			missing = context_chain->searchSlotMapping(engine, "missing", &missing_base_context);
-			break;
-	}
+		default: */
+	hash = context_chain->searchSlotMapping(engine, name, &base_context);
+	missing = context_chain->searchSlotMapping(engine, "missing", &missing_base_context);
+		// break;
+	// }
 
 	/* if the slot cannot be found */
 	if (!hash) {
