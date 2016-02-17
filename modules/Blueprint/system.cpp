@@ -21,8 +21,8 @@ Ink_Object *parseEnv(Ink_InterpreteEngine *engine)
 	for (i = 0; environ[i]; i++) {
 		tmp_str = string(environ[i]);
 		j = tmp_str.find_first_of('=');
-		ret->setSlot_s(tmp_str.substr(0, j).c_str(),
-					   new Ink_String(engine, tmp_str.substr(j + 1)));
+		ret->setSlot(tmp_str.substr(0, j).c_str(),
+					 new Ink_String(engine, tmp_str.substr(j + 1)));
 	}
 
 	return ret;

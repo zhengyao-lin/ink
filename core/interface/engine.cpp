@@ -54,8 +54,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	// gc_lock.init();
 	Ink_Object *tmp, *obj_proto;
 
-	igc_object_count = 0;
-	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
+	igc_collect_treshold = igc_collect_treshold_unit = IGC_COLLECT_TRESHOLD_UNIT;
 	igc_mark_period = 1;
 	igc_global_ret_val = NULL;
 	igc_pardon_list = Ink_PardonList();

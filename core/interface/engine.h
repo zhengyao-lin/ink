@@ -89,8 +89,9 @@ public:
 
 	Ink_ContextChain *trace;
 
-	IGC_ObjectCountType igc_object_count;
 	IGC_ObjectCountType igc_collect_treshold;
+	IGC_ObjectCountType igc_collect_treshold_unit;
+
 	IGC_CollectEngine *current_gc_engine;
 	IGC_MarkType igc_mark_period;
 	IGC_BondingList igc_bonding_list;

@@ -16,9 +16,9 @@
 namespace ink {
 
 inline Ink_Object *getSlotWithProto(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
-									Ink_Object *base, const char *name, std::string *id_p = NULL)
+									Ink_Object *base, const char *name)
 {
-	return Ink_HashExpression::getSlot(engine, context, base, name, id_p);
+	return Ink_HashExpression::getSlot(engine, context, base, name);
 }
 
 inline Ink_Object *searchContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *name)

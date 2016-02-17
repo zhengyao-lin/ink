@@ -5,11 +5,22 @@
 #include "core/interface/engine.h"
 #include "includes/switches.h"
 
-#define CURRENT_OBJECT_COUNT (engine->igc_object_count)
-#define CURRENT_COLLECT_TRESHOLD (engine->igc_collect_treshold)
+#define CURRENT_OBJECT_COUNT (object_count)
+#define CURRENT_COLLECT_TRESHOLD (collect_treshold)
+#define CURRENT_COLLECT_TRESHOLD_UNIT (engine->igc_collect_treshold_unit)
 #define CURRENT_MARK_PERIOD (engine->igc_mark_period)
 
 namespace ink {
+
+IGC_CollectEngine::IGC_CollectEngine(Ink_InterpreteEngine *engine)
+: engine(engine)
+{
+	type = INK_NULL;
+	object_chain = NULL;
+	object_chain_last = NULL;
+	object_count = 0;
+	collect_treshold = engine->igc_collect_treshold;
+}
 
 void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
 {
@@ -131,7 +142,8 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 
 	}
 	doCollect();
-	//printf("GC time duration: %lf\n", (double)(clock() - st) / CLOCKS_PER_SEC);
+	// printf("\nreduced: %ld in %ld\n", origin - CURRENT_OBJECT_COUNT, origin);
+	// printf("GC time duration: %lf\n", (double)(clock() - st) / CLOCKS_PER_SEC);
 	CURRENT_MARK_PERIOD++;
 
 	engine->initGCCollect();
@@ -139,19 +151,32 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 	return;
 }
 
+#define upper(i) ((i) > (IGC_ObjectCountType)(i) ? (IGC_ObjectCountType)(i) + 1 : (IGC_ObjectCountType)(i))
+#define lower(i) ((IGC_ObjectCountType)(i))
+#define oc (CURRENT_OBJECT_COUNT)
+#define t (CURRENT_COLLECT_TRESHOLD)
+#define tu (CURRENT_COLLECT_TRESHOLD_UNIT)
+
 void IGC_CollectEngine::checkGC()
 {
-#ifdef INK_DEBUG_FLAG
+#ifndef INK_DEBUG_FLAG
+	if (oc >= t) {
+#endif
+
+	// printf("before: oc: %ld; ", oc);
+
 	collectGarbage();
-	if (CURRENT_OBJECT_COUNT >= CURRENT_COLLECT_TRESHOLD) {
-		CURRENT_COLLECT_TRESHOLD += CURRENT_OBJECT_COUNT;
+
+	// printf("after collect: oc: %ld, t: %ld; ", oc, t);
+	if (oc >= t) { /* increase */
+		t += upper((oc - t) / (double)tu) * tu;
+		// printf("t increase to: %ld\n", t);
+	} else { /* reduce */
+		t -= lower((t - oc) / (double)tu) * tu;
+		// printf("t recuce to: %ld\n", t);
 	}
-#else
-	if (CURRENT_OBJECT_COUNT >= CURRENT_COLLECT_TRESHOLD) {
-		collectGarbage();
-		if (CURRENT_OBJECT_COUNT >= CURRENT_COLLECT_TRESHOLD) {
-			CURRENT_COLLECT_TRESHOLD += CURRENT_OBJECT_COUNT;
-		}
+
+#ifndef INK_DEBUG_FLAG
 	}
 #endif
 	return;

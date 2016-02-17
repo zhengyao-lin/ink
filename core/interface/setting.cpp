@@ -12,7 +12,7 @@ using namespace std;
 Ink_InputSetting::Ink_InputSetting(const char *input_file_path, FILE *fp, bool close_fp)
 : close_fp(close_fp), input_file_pointer(fp), code_mode(SOURCE_CODE), input_file_path(input_file_path), if_run(true)
 {
-	igc_collect_treshold = IGC_COLLECT_TRESHOLD;
+	igc_collect_treshold = IGC_COLLECT_TRESHOLD_UNIT;
 }
 
 inline bool isArg(const char *arg)

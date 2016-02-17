@@ -285,16 +285,16 @@ Ink_Object *Ink_CoroutineCall(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 
 Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	string *tmp_str;
+	string tmp_str;
 
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return UNDEFINED;
 	}
 
-	tmp_str = new string(as<Ink_String>(argv[0])->getValue());
+	tmp_str = as<Ink_String>(argv[0])->getValue();
 
-	return Ink_IdentifierExpression::getContextSlot(engine, context, tmp_str->c_str(),
-													Ink_EvalFlag(), false, tmp_str);
+	return Ink_IdentifierExpression::getContextSlot(engine, context, tmp_str.c_str(),
+													Ink_EvalFlag(), false);
 }
 
 Ink_Object *Ink_Abort(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)

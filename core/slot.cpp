@@ -89,13 +89,12 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 	return ret;
 }
 
-Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_check_exist, string *key_p)
+Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_check_exist)
 {
 	Ink_HashTable *i, *slot = NULL, *bond_tracer, *last = NULL;
 
 	if (!strcmp(key, "prototype")) {
 		setProto(value);
-		if (key_p) delete key_p;
 		return proto_hash;
 	}
 	
@@ -112,9 +111,9 @@ Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_c
 
 	if (slot) {
 		slot->setValue(value);
-		if (key_p) delete key_p;
 	} else {
-		slot = new Ink_HashTable(key, value, key_p);
+		string *key_p = new string(key);
+		slot = new Ink_HashTable(key_p->c_str(), value, key_p);
 		if (hash_table)
 			last->next = slot;
 		else

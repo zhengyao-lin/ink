@@ -237,12 +237,12 @@ public:
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_Object *obj,
-							   const char *id, std::string *id_p = NULL)
+							   const char *id)
 	{
-		return getSlot(engine, context_chain, obj, id, Ink_EvalFlag(), id_p);
+		return getSlot(engine, context_chain, obj, id, Ink_EvalFlag());
 	}
 	static Ink_Object *getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
-							   Ink_Object *obj, const char *id, Ink_EvalFlag flags, std::string *id_p = NULL);
+							   Ink_Object *obj, const char *id, Ink_EvalFlag flags);
 
 	virtual ~Ink_HashExpression()
 	{
@@ -318,8 +318,7 @@ public:
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 	static Ink_Object *getContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
-									  const char *name, Ink_EvalFlag flags, bool if_create_slot,
-									  std::string *name_p = NULL);
+									  const char *name, Ink_EvalFlag flags, bool if_create_slot);
 
 	virtual ~Ink_IdentifierExpression()
 	{

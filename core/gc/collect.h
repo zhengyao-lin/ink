@@ -4,7 +4,7 @@
 #include "../object.h"
 #include "../general.h"
 
-#define IGC_COLLECT_TRESHOLD (512)
+#define IGC_COLLECT_TRESHOLD_UNIT (512)
 
 namespace ink {
 
@@ -34,22 +34,16 @@ public:
 
 class IGC_CollectEngine {
 public:
-	IGC_MarkType mark;
 	Ink_TypeTag type;
 
 	IGC_CollectUnit *object_chain;
 	IGC_CollectUnit *object_chain_last;
 	Ink_InterpreteEngine *engine;
 
+	IGC_ObjectCountType object_count;
+	IGC_ObjectCountType collect_treshold;
 
-	IGC_CollectEngine(Ink_InterpreteEngine *engine)
-	: engine(engine)
-	{
-		mark = 0;
-		type = INK_NULL;
-		object_chain = NULL;
-		object_chain_last = NULL;
-	}
+	IGC_CollectEngine(Ink_InterpreteEngine *engine);
 
 	void addUnit(IGC_CollectUnit *unit);
 	// void addPardon(Ink_Object *obj);

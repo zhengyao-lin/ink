@@ -79,10 +79,6 @@ Ink_Object *InkNative_Object_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 	}
 
 	tmp = as<Ink_String>(argv[0])->getValue();
-	if (!base->getSlotMapping(engine, tmp.c_str())) {
-		string *tmp_p = new string(tmp);
-		return getSlotWithProto(engine, context, base, tmp_p->c_str(), tmp_p);
-	}
 
 	return getSlotWithProto(engine, context, base, tmp.c_str());
 }
@@ -136,8 +132,7 @@ Ink_Object *InkNative_Object_SetGetter(Ink_InterpreteEngine *engine, Ink_Context
 
 	tmp = as<Ink_String>(argv[0])->getValue();
 	if (!(hash = base->getSlotMapping(engine, tmp.c_str()))) {
-		string *tmp_p = new string(tmp);
-		hash = base->setSlot(tmp_p->c_str(), NULL, tmp_p);
+		hash = base->setSlot(tmp.c_str(), NULL);
 	}
 
 	hash->getter = argc > 1 ? argv[1] : NULL;
@@ -157,8 +152,7 @@ Ink_Object *InkNative_Object_SetSetter(Ink_InterpreteEngine *engine, Ink_Context
 
 	tmp = as<Ink_String>(argv[0])->getValue();
 	if (!(hash = base->getSlotMapping(engine, tmp.c_str()))) {
-		string *tmp_p = new string(tmp);
-		hash = base->setSlot(tmp_p->c_str(), NULL, tmp_p);
+		hash = base->setSlot(tmp.c_str(), NULL);
 	}
 
 	hash->setter = argc > 1 ? argv[1] : NULL;

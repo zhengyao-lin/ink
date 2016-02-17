@@ -338,9 +338,8 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 				InkWarn_Hash_Table_Mapping_Expect_String(engine);
 				return NULL_OBJ;
 			}
-			string *tmp = new string(as<Ink_String>(key)->getValue());
-			ret->setSlot(tmp->c_str(),
-						 mapping[i]->value->eval(engine, context_chain), true, tmp);
+			string tmp = as<Ink_String>(key)->getValue();
+			ret->setSlot(tmp.c_str(), mapping[i]->value->eval(engine, context_chain));
 			CATCH_SIGNAL_RET;
 		}
 	}
@@ -385,24 +384,19 @@ Ink_Object *Ink_HashExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 }
 
 Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain,
-										Ink_Object *obj, const char *id, Ink_EvalFlag flags, string *id_p)
+										Ink_Object *obj, const char *id, Ink_EvalFlag flags)
 {
 	Ink_HashTable *hash, *address;
 	Ink_Object *base = obj, *ret = NULL, *tmp;
 	Ink_Object **argv;
 	bool is_from_proto = false;
-	bool if_delete_id_p = false;
 
 	if (!(hash = obj->getSlotMapping(engine, id, &is_from_proto)) /* cannot find slot in the origin object */) {
 		if (obj->type == INK_UNDEFINED) {
 			InkWarn_Get_Slot_Of_Undefined(engine, id);
 		}
-		if (id_p) {
-			address = obj->setSlot(id, NULL, id_p);
-		} else {
-			id_p = new string(id);
-			address = obj->setSlot(id_p->c_str(), NULL, id_p);
-		}
+		address = obj->setSlot(id, NULL);
+
 		if ((tmp = obj->getSlot(engine, "missing"))->type == INK_FUNCTION) {
 			/* has missing method, call it */
 			// tmp->setSlot("base", obj);
@@ -427,15 +421,9 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 
 		if (is_from_proto) {
 			ret = ret->clone(engine);
-			if (id_p)
-				address = obj->setSlot(id, NULL, id_p);
-			else {
-				id_p = new string(id);
-				address = obj->setSlot(id_p->c_str(), NULL, id_p);
-			}
+			address = obj->setSlot(id, NULL);
 		} else {
 			address = hash;
-			if_delete_id_p = true;
 		}
 	}
 
@@ -459,8 +447,6 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 	}
 
 END:
-	if (if_delete_id_p)
-		delete id_p;
 
 	return ret;
 }
@@ -628,7 +614,7 @@ Ink_Object *Ink_IdentifierExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 }
 
 Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, const char *name,
-													 Ink_EvalFlag flags, bool if_create_slot, string *name_p)
+													 Ink_EvalFlag flags, bool if_create_slot)
 {
 	/* Variables */
 	Ink_HashTable *hash, *missing;
@@ -638,7 +624,6 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 					 *base_context = NULL, *missing_base_context = NULL;
 	Ink_Object *ret;
 	Ink_Object **argv;
-	bool if_delete_name_p = false;
 
 	hash = context_chain->searchSlotMapping(engine, name, &base_context);
 	missing = context_chain->searchSlotMapping(engine, "missing", &missing_base_context);
@@ -647,7 +632,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	if (!hash) {
 		if (if_create_slot) { /* if has the "var" keyword */
 			ret = new Ink_Object(engine);
-			hash = dest_context->context->setSlot(name, ret, name_p);
+			hash = dest_context->context->setSlot(name, ret);
 		} else { /* generate a undefined value */
 			if (missing && missing->getValue()->type == INK_FUNCTION) {
 				argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
@@ -663,14 +648,13 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 			} else {
 				ret = UNDEFINED;
 			}
-			hash = dest_context->context->setSlot(name, NULL, name_p);
+			hash = dest_context->context->setSlot(name, NULL);
 		}
 	} else {
 		ret = hash->getValue(); /* get value */
 		if (!ret) { // just a place holder
 			ret = UNDEFINED;
 		}
-		if_delete_name_p = true;
 	}
 	ret->address = hash; /* set its address for assigning */
 
@@ -697,8 +681,6 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	// hash->value->setSlot("this", hash->value);
 
 END:
-	if (if_delete_name_p)
-		delete name_p;
 
 	return ret;
 }

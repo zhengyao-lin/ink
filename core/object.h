@@ -124,18 +124,7 @@ public:
 	*/
 	Ink_Object *getSlot(Ink_InterpreteEngine *engine, const char *key);
 	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto = NULL);
-	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true, std::string *key_p = NULL);
-	
-	inline Ink_HashTable *setSlot(const char *key, Ink_Object *value, std::string *key_p)
-	{
-		return setSlot(key, value, true, key_p);
-	}
-
-	inline Ink_HashTable *setSlot_s(const char *key, Ink_Object *value)
-	{
-		std::string *tmp = new std::string(key);
-		return setSlot(tmp->c_str(), value, true, tmp);
-	}
+	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true);
 
 	void deleteSlot(const char *key);
 	void cleanHashTable();

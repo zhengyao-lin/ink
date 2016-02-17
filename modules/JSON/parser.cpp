@@ -245,7 +245,7 @@ JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
 					j = tmp_ret.end_index;
 
 					if (tmp_ret.ret) {
-						ret->setSlot(tmp_str->c_str(), tmp_ret.ret, tmp_str);
+						ret->setSlot(tmp_str->c_str(), tmp_ret.ret);
 						if (token_stack[tmp_ret.end_index + 1].token == JT_RBRACE) {
 							return JSON_ParserReturnVal(ret, j + 1);
 						} else if (token_stack[tmp_ret.end_index + 1].token == JT_COMMA) {
@@ -298,7 +298,7 @@ JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
 			return JSON_ParserReturnVal(NULL, i);
 		}
 		case JT_STRING:
-			return JSON_ParserReturnVal(new Ink_String(engine, token_stack[i].value.str), i);
+			return JSON_ParserReturnVal(new Ink_String(engine, *token_stack[i].value.str), i);
 		case JT_NUMERIC:
 			return JSON_ParserReturnVal(new Ink_Numeric(engine, token_stack[i].value.num), i);
 		case JT_NULL:
@@ -310,10 +310,23 @@ JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
 	return JSON_ParserReturnVal(NULL, i);
 }
 
+void disposeTokenStack(InkJSON_TokenStack stack)
+{
+	InkJSON_TokenStack::iterator iter;
+
+	for (iter = stack.begin(); iter != stack.end(); iter++) {
+		if (iter->token == JT_STRING) {
+			delete iter->value.str;
+		}
+	}
+}
+
 Ink_Object *JSON_parse(Ink_InterpreteEngine *engine, string str)
 {
 	InkJSON_TokenStack token_stack = JSON_lexer(str);
 	JSON_ParserReturnVal ret_val = JSON_parser(engine, token_stack);
+
+	disposeTokenStack(token_stack);
 
 	if (ret_val.end_index + 1 < token_stack.size()) {
 		fprintf(stderr, "Unexpected %s, expecting ending\n",
