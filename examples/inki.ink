@@ -32,11 +32,6 @@ let println = fn (str) {
 
 let object_traced_stack = new Array()
 let object_to_str = fn (obj) {
-	if (object_traced_stack.find(obj) >= 0) {
-		retn "<traced>"
-	}
-	object_traced_stack.push(obj)
-
 	let type = typename(obj)
 	if (type == "numeric") {
 		retn obj.to_str()
@@ -57,6 +52,11 @@ let object_to_str = fn (obj) {
 	} else if (type == "function") {
 		retn "fn () { ... }"
 	} else {
+		if (object_traced_stack.find(obj) >= 0) {
+			retn "<traced>"
+		}
+		object_traced_stack.push(obj)
+
 		let ret = "{ "
 		obj.each { | k, v |
 			if (ret != "{ ") {
@@ -70,12 +70,22 @@ let object_to_str = fn (obj) {
 }
 
 let init = fn () {
-	scope = fn () { fn () {} } ()
+	let no_print = {}
+	let scope = fn () { fn () {} } ()
 	while (1) {
-		let ret = scope::(eval(readln(get_prompt())))
+		let ret = scope::(
+			let code = readln(get_prompt()),
+			if (code) { try {
+				eval(delete code)
+			}} else {
+				no_print
+			}
+		)
 
-		object_traced_stack = new Array()
-		println("==> " + object_to_str(ret))
+		if (ret != no_print) {
+			object_traced_stack = new Array()
+			println("==> " + object_to_str(ret))
+		}
 	}
 }
 

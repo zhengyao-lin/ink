@@ -134,4 +134,27 @@ InkWarn_Blueprint_Try_Unknown_Instr_Type(Ink_InterpreteEngine *engine, Ink_TypeT
 	return;
 }
 
+/* sys.env */
+inline void
+InkWarn_Blueprint_Env_Need_String_Argument(Ink_InterpreteEngine *engine, Ink_TypeTag type)
+{
+	InkErro_doPrintWarning(engine, "Setting environment variables needs string argument instead of that of type <$(type)>",
+						   getTypeName(engine, type));
+	return;
+}
+
+inline void
+InkWarn_Blueprint_Env_Not_A_Part_Of_Env(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, "Failed to set environment variable, please set sys.env object");
+	return;
+}
+
+inline void
+InkWarn_Blueprint_Env_Failed_Set_Env(Ink_InterpreteEngine *engine, const char *key)
+{
+	InkErro_doPrintWarning(engine, "Failed to set environment variable $(key)", key);
+	return;
+}
+
 #endif

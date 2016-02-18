@@ -72,6 +72,8 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 
 	coro_tmp_engine = NULL;
 	coro_scheduler_stack = Ink_SchedulerStack();
+
+	dbg_print_detail = false;
 	
 	protocol_map = Ink_ProtocolMap();
 	pthread_mutex_init(&message_mutex, NULL);

@@ -167,7 +167,7 @@ void Ink_InterpreteEngine::printDebugInfo(FILE *fp, Ink_Object *obj, string pref
 	fprintf(fp, "%sobject@%p of type \'%s\' in %s", prefix.c_str(), (void *)obj,
 			obj ? getTypeName(obj->type) : "unpointed",
 			(!slot_name || !strlen(slot_name) ? "anonymous slot" : ("slot \'" + string(slot_name) + "\'").c_str()));
-	if (obj && obj->type == INK_FUNCTION) {
+	if (obj && obj->type == INK_FUNCTION && dbg_print_detail) {
 		printFunctionInfo(fp, as<Ink_FunctionObject>(obj), slot_prefix);
 	}
 	if (if_scan_slot)

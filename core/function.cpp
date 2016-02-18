@@ -207,7 +207,6 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	/* if not inline function, set local context */
 	bool if_set_sp_ptr = !is_inline;
 
-
 	ret_val = triggerCallEvent(engine, context, argc, argv);
 	if (engine->getSignal() != INTER_NONE) {
 		/* interrupt event triggered */

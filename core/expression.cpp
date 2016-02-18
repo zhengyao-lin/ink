@@ -266,7 +266,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	Ink_Object *lval_ret;
 	Ink_Object **tmp;
 	Ink_Object *ret;
-	Ink_Object *assign_method;
+	Ink_Object *assign_method, *assign_event;
 
 	rval_ret = rval->eval(engine, context_chain);
 	/* eval right hand side first */
@@ -276,7 +276,16 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	/* left hand side next */
 	CATCH_SIGNAL_RET;
 
-#if 1
+	if ((assign_event = lval_ret->getSlot(engine, "@assign"))->type == INK_FUNCTION) {
+		tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
+		tmp[0] = rval_ret;
+		// assign_method->setSlot("base", lval_ret);
+		assign_event->setBase(lval_ret);
+		ret = assign_event->call(engine, context_chain, 1, tmp);
+		free(tmp);
+		CATCH_SIGNAL_RET;
+	}
+
 	if ((assign_method = lval_ret->getSlot(engine, "="))->type == INK_FUNCTION) {
 		tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 		tmp[0] = rval_ret;
@@ -288,9 +297,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 		CATCH_SIGNAL_RET;
 
 		return ret;
-	} else
-#endif
-	if (lval_ret->address) {
+	} else if (lval_ret->address) {
 		if (lval_ret->address->setter) { /* if has setter, call it */
 			tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			tmp[0] = rval_ret;

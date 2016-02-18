@@ -108,6 +108,7 @@ public:
 	ThreadIDMapStack thread_id_map_stack;
 	ThreadPool thread_pool;
 
+	bool dbg_print_detail;
 	vector<DBG_TypeMapping *> dbg_type_mapping;
 	vector<Ink_Object *> dbg_traced_stack;
 
@@ -133,6 +134,7 @@ public:
 	inline void applySetting(Ink_InputSetting setting)
 	{
 		igc_collect_treshold = setting.igc_collect_treshold;
+		dbg_print_detail = setting.dbg_print_detail;
 		return;
 	}
 

@@ -13,6 +13,7 @@ Ink_InputSetting::Ink_InputSetting(const char *input_file_path, FILE *fp, bool c
 : close_fp(close_fp), input_file_pointer(fp), code_mode(SOURCE_CODE), input_file_path(input_file_path), if_run(true)
 {
 	igc_collect_treshold = IGC_COLLECT_TRESHOLD_UNIT;
+	dbg_print_detail = false;
 }
 
 inline bool isArg(const char *arg)
@@ -35,10 +36,12 @@ inline void printUsage(const char *prog_path)
 "Options:\n"
 "  %-25s %s\n"
 "  %-25s %s\n"
+"  %-25s %s\n"
 "  %-25s %s\n",
-	"--help or -H: ",					"Display this usage page",
-	"--mod-path=<path> or -M=<path>",	"Add module searching path",
-	"--gc-treshold=<treshold>",			"Set collect treshold for garbage collector");
+	"--help or -h",						"Display this usage page",
+	"--mod-path=<path> or -m=<path>",	"Add module searching path",
+	"--gc-treshold=<treshold>",			"Set collect treshold for garbage collector",
+	"--debug or -d",					"Open debug mode(print more debug info when error occurs, optional value(true or false))");
 }
 
 /* return: if print usage */
@@ -51,7 +54,18 @@ inline bool processArg(Ink_InputSetting &setting, Ink_SizeType dash_count,
 		return true;
 	}
 
-	if (IS_DOUBLE_DASH_ARG("gc-treshold")) {
+	if (IS_SINGLE_DASH_ARG("h") || IS_DOUBLE_DASH_ARG("help")) {
+		setting.if_run = false;
+		return true;
+	} else if (IS_SINGLE_DASH_ARG("m") || IS_DOUBLE_DASH_ARG("mod-path")) {
+		if (has_val) {
+			Ink_addModPath(val.c_str());
+		} else {
+			fprintf(stderr, "Option %s requires a value\n", REPRINT_ARG.c_str());
+			setting.if_run = false;
+			return true;
+		}
+	} else if (IS_DOUBLE_DASH_ARG("gc-treshold")) {
 		if (has_val) {
 			int tmp = atoi(val.c_str());
 			if (tmp <= 0) {
@@ -66,17 +80,20 @@ inline bool processArg(Ink_InputSetting &setting, Ink_SizeType dash_count,
 			setting.if_run = false;
 			return true;
 		}
-	} else if (IS_SINGLE_DASH_ARG("M") || IS_DOUBLE_DASH_ARG("mod-path")) {
+	} else if (IS_SINGLE_DASH_ARG("d") || IS_DOUBLE_DASH_ARG("debug")) {
 		if (has_val) {
-			Ink_addModPath(val.c_str());
+			if (val == "true") {
+				setting.dbg_print_detail = true;
+			} else if (val == "false") {
+				setting.dbg_print_detail = false;
+			} else {
+				fprintf(stderr, "Unknown value given for option %s, requires boolean\n", REPRINT_ARG.c_str());
+				setting.if_run = false;
+				return true;
+			}
 		} else {
-			fprintf(stderr, "Option %s requires a value\n", REPRINT_ARG.c_str());
-			setting.if_run = false;
-			return true;
+			setting.dbg_print_detail = true;
 		}
-	} else if (IS_SINGLE_DASH_ARG("H") || IS_DOUBLE_DASH_ARG("help")) {
-		setting.if_run = false;
-		return true;
 	} else {
 		fprintf(stderr, "Unknown option %s\n", REPRINT_ARG.c_str());
 		setting.if_run = false;

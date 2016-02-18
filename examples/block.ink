@@ -1564,3 +1564,12 @@ a@call = inl (argv...) {
 	drop base
 }
 p(a(1))
+
+a = {}
+a@assign = fn (val) {
+	p("assign event!")
+	retn
+}
+a = 10
+
+p(a);

@@ -110,7 +110,7 @@ Ink_Object *InkNative_Object_Delete(Ink_InterpreteEngine *engine, Ink_ContextCha
 	}
 	base->address->setValue(NULL);
 
-	return NULL_OBJ;
+	return base;
 }
 
 Ink_Object *InkNative_Object_Clone(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
