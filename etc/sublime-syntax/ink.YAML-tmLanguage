@@ -17,7 +17,7 @@ patterns:
 
 - comment: Not keywords but slot names with special functions
   name: keyword.other.ink
-  match: \b(this|base|ARGV|prototype|let|top|auto)\b
+  match: \b(this|base|self|ARGV|prototype|let|top|auto)\b
 
 - comment: Interrupt signal events
   name: constant.language.ink

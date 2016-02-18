@@ -256,6 +256,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 		local->setSlot("base", pa_info_base_p ? pa_info_base_p : getBase());
 		local->setSlot("this", this);
 	}
+	local->setSlot("self", this);
 
 	local->setSlot("let", local);
 

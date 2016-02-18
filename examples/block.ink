@@ -167,6 +167,7 @@ p(0.2 + 0.4);
 
 p(a[123]);
 
+/*
 eval("eval(\"abc = \\\"hellowww\\\";\");");
 p(abc);
 
@@ -188,6 +189,8 @@ func2 = fn () {
 
 func2();
 p(abcd);
+*/
+
 
 func = fn () {
 	let a;
@@ -446,6 +449,8 @@ func = fn (arg...) {
 	p(ret)
 }
 
+/////////////////////////////no leak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 p("######################");
 
 PAF = func() with [1, _, 2, _, 8, _, 0];
@@ -461,25 +466,28 @@ import io
 
 fp = {}
 
+/////////////////////////////no leak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 p("+++++++++++++++++++++++++++++++++++");
 
-if (file_exist("test_file.ik")) {
+if (file_exist("test_file.ink")) {
 	p("freak!!! abnormal ending");
-	fp = new File("test_file.ik", "r");
+	fp = new File("test_file.ink", "r");
 } else {
 	p("that's right!");
-	fp = new File("test_file.ik", "w+");
+	fp = new File("test_file.ink", "w+");
 	fp.puts("p(\"I'm new file\")");
 	fp.flush();
 }
 
-import "test_file.ik"
+import "test_file.ink"
+
 p(typename(fp));
 fp.close();
-fp = new File("test_file.ik", "rw");
+fp = new File("test_file.ink", "rw");
 p("from fp: " + fp.gets());
 fp.close();
-file_remove("test_file.ik");
+file_remove("test_file.ink");
 p(typename(fp));
 
 stdout.puts("from file interface\n");
@@ -490,6 +498,8 @@ p({
 	name: "hello",
 	id: 110
 }.name);
+
+///////////////////////////////leak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 a = fn () {};
 p.a
@@ -514,6 +524,8 @@ a = fn () {
 
 a();
 p(glob);
+
+//////////////////////leak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 p("################ drop signal test ################");
 
@@ -1035,17 +1047,17 @@ actor1 = actor () {
 	// 1 = 2;
 }
 
-actor1(_)("he");
+//actor1(_)("he");
 
 let msg
-msg = receive() for(800)
+// msg = receive() for(800)
 if (!msg) {
 	p("no message received in 0.8 sec")
 }
 p(msg.msg);
 p(msg.sender);
 
-join_all();
+// join_all();
 
 actor1 = actor () {
 	
