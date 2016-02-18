@@ -38,7 +38,7 @@ Ink_Object *InkNative_Function_Insert(Ink_InterpreteEngine *engine, Ink_ContextC
 	return func;
 }
 
-Ink_Object **arrayValueToObject(Ink_ArrayValue val)
+Ink_Object **arrayValueToObjects(Ink_ArrayValue val)
 {
 	Ink_Object **ret = (Ink_Object **)malloc(sizeof(Ink_Object *) * val.size());
 	Ink_ArrayValue::size_type i;
@@ -90,7 +90,7 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 		if (range_val[i]
 			&& range_val[i]->getValue()->type == INK_ARRAY) {
 			tmp_arr_val = as<Ink_Array>(range_val[i]->getValue())->value;
-			tmp = arrayValueToObject(tmp_arr_val);
+			tmp = arrayValueToObjects(tmp_arr_val);
 			ret->value.push_back(new Ink_HashTable(base->call(engine, context, tmp_arr_val.size(), tmp)));
 			free(tmp);
 		} else {
@@ -128,10 +128,10 @@ Ink_Object *InkNative_Function_GetScope(Ink_InterpreteEngine *engine, Ink_Contex
 	func = as<Ink_FunctionObject>(base);
 	expr = as<Ink_FunctionObject>(argv[0]);
 
-	if (func->closure_context && expr->exp_list.size()) {
-		ret = expr->exp_list[0]->eval(engine, func->closure_context);
-	} else {
-		ret = expr->exp_list[0]->eval(engine, context);
+	if (expr->exp_list.size()) {
+		ret = expr->exp_list[0]->eval(engine, func->closure_context
+											  ? func->closure_context
+											  : context);
 	}
 
 	return ret;

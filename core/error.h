@@ -186,6 +186,14 @@ InkWarn_Wrong_Type(Ink_InterpreteEngine *engine, Ink_TypeTag expect, Ink_TypeTag
 }
 
 inline void
+InkWarn_Wrong_Base_Type(Ink_InterpreteEngine *engine, Ink_TypeTag expect, Ink_TypeTag type)
+{
+	InkErro_doPrintWarning(engine, "Expecting base of type <$(expect)>, that of type <$(type)> is given",
+						   getTypeName(engine, expect), getTypeName(engine, type));
+	return;
+}
+
+inline void
 InkWarn_Too_Less_Argument(Ink_InterpreteEngine *engine, Ink_ArgcType min, Ink_ArgcType argc)
 {
 	std::stringstream strm;
@@ -425,6 +433,13 @@ InkWarn_Failed_Create_Coroutine(Ink_InterpreteEngine *engine, int err_code)
 	std::stringstream strm;
 	strm << "Failed to create coroutine, error code: " << err_code;
 	InkErro_doPrintWarning(engine, strm.str().c_str());
+	return;
+}
+
+inline void
+InkWarn_Cocall_Argument_Require(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, "cocall function need argument in form of (function, array, function, array, ...)");
 	return;
 }
 

@@ -139,6 +139,7 @@
 		additive_expression													/* |		*/
 		relational_expression												/* |		*/
 		equality_expression													/* |		*/
+		yield_expression													/* |		*/
 		assignment_expression												/* |		*/
 		logical_and_expression												/* |		*/
 		logical_or_expression												/* |		*/
@@ -441,13 +442,13 @@ logical_and_expression
 	;
 
 assignment_expression
-	: equality_expression
-	| equality_expression TASSIGN nllo assignment_expression
+	: yield_expression
+	| yield_expression TASSIGN nllo assignment_expression
 	{
 		$$ = new Ink_AssignmentExpression($1, $4);
 		SET_LINE_NO($$);
 	}
-	| equality_expression TARR nllo assignment_expression
+	| yield_expression TARR nllo assignment_expression
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();
 		arg.push_back(new Ink_Argument($4));
@@ -455,6 +456,20 @@ assignment_expression
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("->")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
+	;
+
+yield_expression
+	: equality_expression
+	| TYIELD
+	{
+		$$ = new Ink_YieldExpression(NULL);
+		SET_LINE_NO($$);
+	}
+	| TYIELD yield_expression
+	{
+		$$ = new Ink_YieldExpression($2);
+		SET_LINE_NO($$);
 	}
 	;
 
@@ -714,11 +729,6 @@ unary_expression
 		$$ = new Ink_AssignmentExpression($3, new Ink_CallExpression(
 												  new Ink_HashExpression($3, new string("-")),
 												  arg), false, false);
-		SET_LINE_NO($$);
-	}
-	| TYIELD unary_expression
-	{
-		$$ = new Ink_YieldExpression($2);
 		SET_LINE_NO($$);
 	}
 	;

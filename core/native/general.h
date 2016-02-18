@@ -8,7 +8,7 @@
 #include "../general.h"
 
 #define ASSUME_BASE_TYPE(eng, t) do { \
-	if (!assumeType(eng, base, t)) { \
+	if (!assumeBaseType(eng, base, t)) { \
 		return NULL_OBJ; \
 	} \
 } while (0)
@@ -34,6 +34,16 @@ inline Ink_Object *callMethod(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 		return NULL;
 	}
 	return base->call(engine, context, argc, argv, this_p);
+}
+
+inline bool assumeBaseType(Ink_InterpreteEngine *engine, Ink_Object *base, Ink_TypeTag type_tag)
+{
+	if (!base || base->type != type_tag) {
+		InkWarn_Wrong_Base_Type(engine, type_tag, base ? base->type : INK_UNDEFINED);
+		return false;
+	}
+
+	return true;
 }
 
 inline bool assumeType(Ink_InterpreteEngine *engine, Ink_Object *obj, Ink_TypeTag type_tag)

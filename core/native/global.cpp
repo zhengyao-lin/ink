@@ -268,7 +268,12 @@ Ink_Object *Ink_CoroutineCall(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 	Ink_Object *ret_val;
 
 	for (i = 0; i < argc; i += 2) {
-		tmp_argv = arrayValueToObject(as<Ink_Array>(argv[i + 1])->value);
+		if (argv[i]->type != INK_FUNCTION || argv[i + 1]->type != INK_ARRAY) {
+			InkWarn_Cocall_Argument_Require(engine);
+			ret_val = NULL_OBJ;
+			goto END;
+		}
+		tmp_argv = arrayValueToObjects(as<Ink_Array>(argv[i + 1])->value);
 		co_call_list.push_back(Ink_CoCall(as<Ink_FunctionObject>(argv[i]),
 										  as<Ink_Array>(argv[i + 1])->value.size(),
 										  tmp_argv));
@@ -276,6 +281,7 @@ Ink_Object *Ink_CoroutineCall(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 
 	ret_val = InkCoCall_call(engine, context, co_call_list);
 
+END:
 	for (j = 0; j < co_call_list.size(); j++) {
 		free(co_call_list[j].argv);
 	}
@@ -408,7 +414,7 @@ InkNative_MethodTable object_native_method_table[] = {
 	{"clone", new Ink_FunctionObject(NULL, InkNative_Object_Clone)},
 	{"getter", new Ink_FunctionObject(NULL, InkNative_Object_SetGetter)},
 	{"setter", new Ink_FunctionObject(NULL, InkNative_Object_SetSetter)},
-	{"each", new Ink_FunctionObject(NULL, InkNative_Object_Each)}
+	{"each", new Ink_FunctionObject(NULL, InkNative_Object_Each, true)}
 };
 
 int array_native_method_table_count = 6;
@@ -416,7 +422,7 @@ InkNative_MethodTable array_native_method_table[] = {
 	{"[]", new Ink_FunctionObject(NULL, InkNative_Array_Index)},
 	{"push", new Ink_FunctionObject(NULL, InkNative_Array_Push)},
 	{"size", new Ink_FunctionObject(NULL, InkNative_Array_Size)},
-	{"each", new Ink_FunctionObject(NULL, InkNative_Array_Each)},
+	{"each", new Ink_FunctionObject(NULL, InkNative_Array_Each, true)},
 	{"remove", new Ink_FunctionObject(NULL, InkNative_Array_Remove)},
 	{"rebuild", new Ink_FunctionObject(NULL, InkNative_Array_Rebuild)}
 };

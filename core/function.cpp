@@ -254,7 +254,10 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 		// local->setSlot("base", getSlot(engine, "base"));
 		local->setSlot("base", pa_info_base_p ? pa_info_base_p : getBase());
 		local->setSlot("this", this);
+	} else if (is_native) {
+		local->setSlot("base", pa_info_base_p ? pa_info_base_p : getBase());
 	}
+
 	local->setSlot("self", this);
 
 	local->setSlot("let", local);
@@ -275,6 +278,14 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	if (is_native) {
 		/* if it's a native function, call the function pointer */
 		ret_val = native(engine, context, argc, argv, this_p);
+		/* interrupt signal received */
+		if (engine->getSignal() != INTER_NONE) {
+			/* interrupt event triggered */
+			triggerInterruptEvent(engine, context, local, this);
+
+			if (engine->getSignal() != INTER_NONE)
+				goto SIGINT_START;
+		}
 	} else {
 		/* create local variable according to the parameter list */
 		for (j = 0, argi = 0; j < param.size(); j++, argi++) {
@@ -315,19 +326,23 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 
 				if (engine->getSignal() == INTER_NONE)
 					continue;
-
-				/* whether trap the signal */
-				if (attr.hasTrap(engine->getSignal())) {
-					ret_val = engine->trapSignal();
-				} else {
-					ret_val = engine->getInterruptValue();
-				}
-
-				force_return = true;
-				break;
+				goto SIGINT_START;
 			}
 		}
 	}
+
+goto SIGINT_END;
+SIGINT_START:
+
+/* whether trap the signal */
+if (attr.hasTrap(engine->getSignal())) {
+	ret_val = engine->trapSignal();
+} else {
+	ret_val = engine->getInterruptValue();
+}
+force_return = true;
+
+SIGINT_END:
 
 	/* conditions of returning "this" pointer:
 	 * 1. has "this" pointer as argument

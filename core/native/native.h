@@ -73,7 +73,7 @@ Ink_Object *InkNative_String_ToString(Ink_InterpreteEngine *engine, Ink_ContextC
 
 Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
 
-Ink_Object **arrayValueToObject(Ink_ArrayValue val);
+Ink_Object **arrayValueToObjects(Ink_ArrayValue val);
 
 void Ink_GlobalConstantInit();
 
