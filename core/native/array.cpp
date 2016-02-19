@@ -218,10 +218,12 @@ extern InkNative_MethodTable array_native_method_table[];
 void Ink_Array::Ink_ArrayMethodInit(Ink_InterpreteEngine *engine)
 {
 	InkNative_MethodTable *table = array_native_method_table;
+	Ink_Object *tmp;
 	int i, count = array_native_method_table_count;
 
 	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, table[i].func->cloneDeep(engine));
+		setSlot(table[i].name, tmp = table[i].func->cloneDeep(engine));
+		tmp->initProto(engine);
 	}
 }
 

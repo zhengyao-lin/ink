@@ -10,9 +10,11 @@
 #if defined(INK_PLATFORM_WIN32)
 	#define INK_PATH_SPLIT "\\"
 	#define INK_PATH_SPLIT_C '\\'
+	#define INK_LINE_SEP "\r\n"
 #else
 	#define INK_PATH_SPLIT "/"
 	#define INK_PATH_SPLIT_C '/'
+	#define INK_LINE_SEP "\n"
 #endif
 
 #define INK_IS_BOTH_SPLIT(c) ((c) == '/' || (c) == '\\')

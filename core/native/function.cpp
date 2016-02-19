@@ -207,10 +207,12 @@ void Ink_FunctionObject::Ink_FunctionMethodInit(Ink_InterpreteEngine *engine)
 void Ink_ExpListObject::Ink_ExpListMethodInit(Ink_InterpreteEngine *engine)
 {
 	InkNative_MethodTable *table = explist_native_method_table;
+	Ink_Object *tmp;
 	int i, count = explist_native_method_table_count;
 
 	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, table[i].func->cloneDeep(engine));
+		setSlot(table[i].name, tmp = table[i].func->cloneDeep(engine));
+		tmp->initProto(engine);
 	}
 }
 

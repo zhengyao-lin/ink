@@ -147,6 +147,7 @@ void InkMod_Blueprint_System_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bo
 	bondee->setSlot("setenv", new Ink_FunctionObject(engine, InkMod_Blueprint_System_SetEnv));
 	bondee->setSlot("getenv", new Ink_FunctionObject(engine, InkMod_Blueprint_System_GetEnv));
 	bondee->setSlot("cmd", new Ink_FunctionObject(engine, InkMod_Blueprint_System_Command));
+	bondee->setSlot("linesep", new Ink_String(engine, INK_LINE_SEP));
 
 	Ink_Object *path_pkg = addPackage(engine, bondee, "path",
 									  new Ink_FunctionObject(engine, InkMod_Blueprint_System_Path_Loader));

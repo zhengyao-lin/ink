@@ -69,6 +69,9 @@ let object_to_str = fn (obj) {
 	}
 }
 
+_.`!=` = $object.`!=`
+
+
 let init = fn () {
 	let no_print = {}
 	let scope = fn () { fn () {} } ()
@@ -83,7 +86,7 @@ let init = fn () {
 			)
 		}
 
-		if (ret != no_print) {
+		if ((no_print != ret) == 1) {
 			object_traced_stack = new Array()
 			println("==> " + object_to_str(ret))
 		}
