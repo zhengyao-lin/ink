@@ -117,7 +117,7 @@ Ink_Object *InkNative_Function_GetScope(Ink_InterpreteEngine *engine, Ink_Contex
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_FunctionObject *func, *expr;
-	Ink_Object *ret;
+	Ink_Object *ret = NULL_OBJ;
 
 	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 

@@ -297,7 +297,9 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 		CATCH_SIGNAL_RET;
 
 		return ret;
-	} else if (lval_ret->address) {
+	} else
+
+	if (lval_ret->address) {
 		if (lval_ret->address->setter) { /* if has setter, call it */
 			tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			tmp[0] = rval_ret;
