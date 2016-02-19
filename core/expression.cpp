@@ -425,7 +425,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 
 		if (!ret) { /* just a placeholder */
 			ret = UNDEFINED;
-			assert(!is_from_proto);
+			// assert(!is_from_proto);
 		}
 
 		if (is_from_proto) {
