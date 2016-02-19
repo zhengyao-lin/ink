@@ -4,6 +4,7 @@
 #include "error.h"
 #include "core/object.h"
 #include "core/native/general.h"
+#include "includes/switches.h"
 
 using namespace std;
 
@@ -120,12 +121,37 @@ Ink_Object *InkMod_Blueprint_System_Command(Ink_InterpreteEngine *engine, Ink_Co
 	return new Ink_Numeric(engine, system(cmd.c_str()));
 }
 
+void InkMod_Blueprint_System_Path_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
+{
+	bondee->setSlot("sep", new Ink_String(engine, INK_PATH_SPLIT));
+
+	return;
+}
+
+Ink_Object *InkMod_Blueprint_System_Path_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, 2)) {
+		return NULL_OBJ;
+	}
+
+	Ink_Object *apply_to = argv[1];
+
+	InkMod_Blueprint_System_Path_bondTo(engine, apply_to);
+
+	return NULL_OBJ;
+}
+
 void InkMod_Blueprint_System_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
 	bondee->setSlot("env", parseEnv(engine));
 	bondee->setSlot("setenv", new Ink_FunctionObject(engine, InkMod_Blueprint_System_SetEnv));
 	bondee->setSlot("getenv", new Ink_FunctionObject(engine, InkMod_Blueprint_System_GetEnv));
 	bondee->setSlot("cmd", new Ink_FunctionObject(engine, InkMod_Blueprint_System_Command));
+
+	Ink_Object *path_pkg = addPackage(engine, bondee, "path",
+									  new Ink_FunctionObject(engine, InkMod_Blueprint_System_Path_Loader));
+
+	InkMod_Blueprint_System_Path_bondTo(engine, path_pkg);
 	
 	return;
 }

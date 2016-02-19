@@ -73,14 +73,15 @@ let init = fn () {
 	let no_print = {}
 	let scope = fn () { fn () {} } ()
 	while (1) {
-		let ret = scope::(
-			let code = readln(get_prompt()),
-			if (code) { try {
+		let ret = try {
+			scope::(
+				let code = readln(get_prompt()),
+				if (code) else {
+					retn no_print
+				},
 				eval(delete code)
-			}} else {
-				no_print
-			}
-		)
+			)
+		}
 
 		if (ret != no_print) {
 			object_traced_stack = new Array()
