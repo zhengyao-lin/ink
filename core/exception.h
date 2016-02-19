@@ -15,10 +15,10 @@ public:
 						 Ink_LineNoType lineno, string msg)
 	: Ink_Object(engine)
 	{
-		setSlot("ex_code", new Ink_Numeric(engine, ex_code));
-		setSlot("file_name", new Ink_String(engine, string(file_name)));
-		setSlot("lineno", new Ink_Numeric(engine, lineno));
-		setSlot("msg", new Ink_String(engine, msg));
+		setSlot_c("ex_code", new Ink_Numeric(engine, ex_code));
+		setSlot_c("file_name", new Ink_String(engine, string(file_name)));
+		setSlot_c("lineno", new Ink_Numeric(engine, lineno));
+		setSlot_c("msg", new Ink_String(engine, msg));
 	} 
 };
 

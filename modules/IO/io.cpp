@@ -29,9 +29,9 @@ void InkNative_IO_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
 
 void InkMod_IO_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	bondee->setSlot("stdin", new Ink_FilePointer(engine, stdin));
-	bondee->setSlot("stdout", new Ink_FilePointer(engine, stdout));
-	bondee->setSlot("stderr", new Ink_FilePointer(engine, stderr));
+	bondee->setSlot_c("stdin", new Ink_FilePointer(engine, stdin));
+	bondee->setSlot_c("stdout", new Ink_FilePointer(engine, stdout));
+	bondee->setSlot_c("stderr", new Ink_FilePointer(engine, stderr));
 
 	return;
 }
@@ -92,11 +92,11 @@ extern "C" {
 			engine->addEngineCom(ink_native_file_mod_id, type_p);
 			engine->addDestructor(Ink_EngineDestructor(InkNative_IO_EngineComCleaner, new com_cleaner_arg(ink_native_file_mod_id)));
 
-			context->getGlobal()->context->setSlot("$io.file.File", tmp = new Ink_FilePointer(engine));
+			context->getGlobal()->context->setSlot_c("$io.file.File", tmp = new Ink_FilePointer(engine));
 			engine->setTypePrototype(FILE_POINTER_TYPE, tmp);
 			tmp->setProto(obj_proto);
 			tmp->derivedMethodInit(engine);
-			context->getGlobal()->context->setSlot("$io.direct.Directory", tmp = new Ink_DirectPointer(engine));
+			context->getGlobal()->context->setSlot_c("$io.direct.Directory", tmp = new Ink_DirectPointer(engine));
 			engine->setTypePrototype(DIRECT_TYPE, tmp);
 			tmp->setProto(obj_proto);
 			tmp->derivedMethodInit(engine);

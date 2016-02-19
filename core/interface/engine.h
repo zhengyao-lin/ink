@@ -414,8 +414,8 @@ public:
 		if (!message_queue.empty()) {
 			Ink_ActorMessage msg = message_queue.front();
 			ret = new Ink_Object(this);
-			ret->setSlot("msg", new Ink_String(this, msg.msg));
-			ret->setSlot("sender", new Ink_String(this, msg.sender));
+			ret->setSlot_c("msg", new Ink_String(this, msg.msg));
+			ret->setSlot_c("sender", new Ink_String(this, msg.sender));
 			message_queue.pop();
 		}
 		pthread_mutex_unlock(&message_mutex);

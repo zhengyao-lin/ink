@@ -95,41 +95,41 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	global_context = new Ink_ContextChain(new Ink_ContextObject(this));
 	// gc_engine->initContext(global_context);
 
-	global_context->context->setSlot("$object", obj_proto = new Ink_Object(this));
+	global_context->context->setSlot_c("$object", obj_proto = new Ink_Object(this));
 	setTypePrototype(INK_OBJECT, obj_proto);
 	global_context->context->setProto(obj_proto);
 
-	global_context->context->setSlot("$function", tmp = new Ink_FunctionObject(this));
+	global_context->context->setSlot_c("$function", tmp = new Ink_FunctionObject(this));
 	setTypePrototype(INK_FUNCTION, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 	obj_proto->derivedMethodInit(this);
 
-	global_context->context->setSlot("$exp_list", tmp = new Ink_ExpListObject(this));
+	global_context->context->setSlot_c("$exp_list", tmp = new Ink_ExpListObject(this));
 	setTypePrototype(INK_EXPLIST, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 
-	global_context->context->setSlot("$numeric", tmp = new Ink_Numeric(this));
+	global_context->context->setSlot_c("$numeric", tmp = new Ink_Numeric(this));
 	setTypePrototype(INK_NUMERIC, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 
-	global_context->context->setSlot("$string", tmp = new Ink_String(this, ""));
+	global_context->context->setSlot_c("$string", tmp = new Ink_String(this, ""));
 	setTypePrototype(INK_STRING, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 
-	global_context->context->setSlot("$array", tmp = new Ink_Array(this));
+	global_context->context->setSlot_c("$array", tmp = new Ink_Array(this));
 	setTypePrototype(INK_ARRAY, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 
-	// global_context->context->setSlot("this", global_context->context);
-	global_context->context->setSlot("top", global_context->context);
-	global_context->context->setSlot("let", global_context->context);
-	global_context->context->setSlot("auto", tmp = new Ink_Object(this));
-	tmp->setSlot("missing", new Ink_FunctionObject(this, Ink_Auto_Missing));
+	// global_context->context->setSlot_c("this", global_context->context);
+	global_context->context->setSlot_c("top", global_context->context);
+	global_context->context->setSlot_c("let", global_context->context);
+	global_context->context->setSlot_c("auto", tmp = new Ink_Object(this));
+	tmp->setSlot_c("missing", new Ink_FunctionObject(this, Ink_Auto_Missing));
 	Ink_GlobalMethodInit(this, global_context);
 
 	global_context->context->setDebugName("__global_context__");

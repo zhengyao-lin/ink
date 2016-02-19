@@ -70,7 +70,7 @@ Ink_Object *InkNative_File_Constructor(Ink_InterpreteEngine *engine, Ink_Context
 		fp = as<Ink_FilePointer>(argv[0])->fp;
 	}
 
-	context->getLocal()->context->setSlot("this", ret = new Ink_FilePointer(engine, fp));
+	context->getLocal()->context->setSlot_c("this", ret = new Ink_FilePointer(engine, fp));
 	
 	return ret;
 }
@@ -267,25 +267,25 @@ Ink_Object *InkNative_File_Reopen(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 void Ink_FilePointer::Ink_FilePointerMethodInit(Ink_InterpreteEngine *engine)
 {
-	setSlot("close", new Ink_FunctionObject(engine, InkNative_File_Close));
-	setSlot("puts", new Ink_FunctionObject(engine, InkNative_File_PutString));
-	setSlot("putc", new Ink_FunctionObject(engine, InkNative_File_PutC));
-	setSlot("gets", new Ink_FunctionObject(engine, InkNative_File_GetString));
-	setSlot("getc", new Ink_FunctionObject(engine, InkNative_File_GetC));
-	setSlot("read", new Ink_FunctionObject(engine, InkNative_File_ReadAll));
-	setSlot("flush", new Ink_FunctionObject(engine, InkNative_File_Flush));
-	setSlot("reopen", new Ink_FunctionObject(engine, InkNative_File_Reopen));
+	setSlot_c("close", new Ink_FunctionObject(engine, InkNative_File_Close));
+	setSlot_c("puts", new Ink_FunctionObject(engine, InkNative_File_PutString));
+	setSlot_c("putc", new Ink_FunctionObject(engine, InkNative_File_PutC));
+	setSlot_c("gets", new Ink_FunctionObject(engine, InkNative_File_GetString));
+	setSlot_c("getc", new Ink_FunctionObject(engine, InkNative_File_GetC));
+	setSlot_c("read", new Ink_FunctionObject(engine, InkNative_File_ReadAll));
+	setSlot_c("flush", new Ink_FunctionObject(engine, InkNative_File_Flush));
+	setSlot_c("reopen", new Ink_FunctionObject(engine, InkNative_File_Reopen));
 
 	return;
 }
 
 void InkMod_File_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	bondee->setSlot("File", new Ink_FunctionObject(engine, InkNative_File_Constructor));
-	bondee->setSlot("file_exist", new Ink_FunctionObject(engine, InkNative_File_Exist));
-	bondee->setSlot("file_remove", new Ink_FunctionObject(engine, InkNative_File_Remove));
+	bondee->setSlot_c("File", new Ink_FunctionObject(engine, InkNative_File_Constructor));
+	bondee->setSlot_c("file_exist", new Ink_FunctionObject(engine, InkNative_File_Exist));
+	bondee->setSlot_c("file_remove", new Ink_FunctionObject(engine, InkNative_File_Remove));
 #if defined(INK_PLATFORM_LINUX)
-	bondee->setSlot("getch", new Ink_FunctionObject(engine, InkNative_File_GetCh)); // no buffering getc
+	bondee->setSlot_c("getch", new Ink_FunctionObject(engine, InkNative_File_GetCh)); // no buffering getc
 #endif
 
 	return;

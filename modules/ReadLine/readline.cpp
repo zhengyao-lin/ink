@@ -35,7 +35,7 @@ CLEAN:
 
 void InkMod_ReadLine_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	bondee->setSlot("rl_read", new Ink_FunctionObject(engine, InkNative_ReadLine_Read));
+	bondee->setSlot_c("rl_read", new Ink_FunctionObject(engine, InkNative_ReadLine_Read));
 
 	return;
 }

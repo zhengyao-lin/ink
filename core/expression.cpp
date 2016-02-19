@@ -279,7 +279,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	if ((assign_event = lval_ret->getSlot(engine, "@assign"))->type == INK_FUNCTION) {
 		tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 		tmp[0] = rval_ret;
-		// assign_method->setSlot("base", lval_ret);
+		// assign_method->setSlot_c("base", lval_ret);
 		assign_event->setBase(lval_ret);
 		ret = assign_event->call(engine, context_chain, 1, tmp);
 		free(tmp);
@@ -289,7 +289,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	if ((assign_method = lval_ret->getSlot(engine, "="))->type == INK_FUNCTION) {
 		tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 		tmp[0] = rval_ret;
-		// assign_method->setSlot("base", lval_ret);
+		// assign_method->setSlot_c("base", lval_ret);
 		assign_method->setBase(lval_ret);
 		ret = assign_method->call(engine, context_chain, 1, tmp);
 		// engine->setSignal(INTER_NONE);
@@ -303,7 +303,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 		if (lval_ret->address->setter) { /* if has setter, call it */
 			tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			tmp[0] = rval_ret;
-			// lval_ret->address->setter->setSlot("base", lval_ret);
+			// lval_ret->address->setter->setSlot_c("base", lval_ret);
 			lval_ret->address->setter->setBase(lval_ret);
 			ret = lval_ret->address->setter->call(engine, context_chain, 1, tmp);
 			// engine->setSignal(INTER_NONE);
@@ -408,7 +408,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 
 		if ((tmp = obj->getSlot(engine, "missing"))->type == INK_FUNCTION) {
 			/* has missing method, call it */
-			// tmp->setSlot("base", obj);
+			// tmp->setSlot_c("base", obj);
 			tmp->setBase(obj);
 			argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			argv[0] = new Ink_String(engine, string(id));
@@ -439,13 +439,13 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 	/* set address for possible assignment */
 	ret->address = address;
 	/* set base */
-	// ret->setSlot("base", base);
+	// ret->setSlot_c("base", base);
 	ret->setBase(base);
 	ret->setDebugName(id);
 
 	/* call getter if has one */
 	if (!flags.is_left_value && hash && hash->getter) {
-		// hash->getter->setSlot("base", hash->getValue());
+		// hash->getter->setSlot_c("base", hash->getValue());
 		hash->getter->setBase(hash->getValue());
 		ret = hash->getter->call(engine, context_chain, 0, NULL);
 		// /* trap all interrupt signal */
@@ -676,7 +676,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
 	if (!flags.is_left_value && hash->getter) {
 		if (base_context)
-			// hash->getter->setSlot("base", base_context->context);
+			// hash->getter->setSlot_c("base", base_context->context);
 			hash->getter->setBase(base_context->context);
 		ret = hash->getter->call(engine, context_chain, 0, NULL);
 
@@ -687,7 +687,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 		}
 		goto END;
 	}
-	// hash->value->setSlot("this", hash->value);
+	// hash->value->setSlot_c("this", hash->value);
 
 END:
 

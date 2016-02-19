@@ -56,7 +56,7 @@ Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain 
 		ret = new Ink_Array(engine);
 	}
 
-	local->context->setSlot("this", ret);
+	local->context->setSlot_c("this", ret);
 
 	return ret;
 }
@@ -332,26 +332,26 @@ Ink_Object *Ink_DeleteSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 
 void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 {
-	context->context->setSlot("p", new Ink_FunctionObject(engine, Ink_Print));
-	context->context->setSlot("eval", new Ink_FunctionObject(engine, Ink_Eval));
-	context->context->setSlot("import", new Ink_FunctionObject(engine, Ink_Import));
-	context->context->setSlot("typename", new Ink_FunctionObject(engine, Ink_TypeName));
-	context->context->setSlot("numval", new Ink_FunctionObject(engine, Ink_NumVal));
-	context->context->setSlot("cocall", new Ink_FunctionObject(engine, Ink_CoroutineCall));
+	context->context->setSlot_c("p", new Ink_FunctionObject(engine, Ink_Print));
+	context->context->setSlot_c("eval", new Ink_FunctionObject(engine, Ink_Eval));
+	context->context->setSlot_c("import", new Ink_FunctionObject(engine, Ink_Import));
+	context->context->setSlot_c("typename", new Ink_FunctionObject(engine, Ink_TypeName));
+	context->context->setSlot_c("numval", new Ink_FunctionObject(engine, Ink_NumVal));
+	context->context->setSlot_c("cocall", new Ink_FunctionObject(engine, Ink_CoroutineCall));
 
-	context->context->setSlot("abort", new Ink_FunctionObject(engine, Ink_Abort));
-	context->context->setSlot("regsig", new Ink_FunctionObject(engine, Ink_RegisterSignal));
-	context->context->setSlot("delsig", new Ink_FunctionObject(engine, Ink_DeleteSignal));
+	context->context->setSlot_c("abort", new Ink_FunctionObject(engine, Ink_Abort));
+	context->context->setSlot_c("regsig", new Ink_FunctionObject(engine, Ink_RegisterSignal));
+	context->context->setSlot_c("delsig", new Ink_FunctionObject(engine, Ink_DeleteSignal));
 
-	context->context->setSlot("debug", new Ink_FunctionObject(engine, Ink_Debug));
-	context->context->setSlot("where", new Ink_FunctionObject(engine, Ink_Where));
+	context->context->setSlot_c("debug", new Ink_FunctionObject(engine, Ink_Debug));
+	context->context->setSlot_c("where", new Ink_FunctionObject(engine, Ink_Where));
 
 	Ink_Object *array_cons = new Ink_FunctionObject(engine, Ink_ArrayConstructor);
-	context->context->setSlot("Array", array_cons);
+	context->context->setSlot_c("Array", array_cons);
 
-	context->context->setSlot("undefined", UNDEFINED);
-	context->context->setSlot("null", NULL_OBJ);
-	context->context->setSlot("_", new Ink_Unknown(engine));
+	context->context->setSlot_c("undefined", UNDEFINED);
+	context->context->setSlot_c("null", NULL_OBJ);
+	context->context->setSlot_c("_", new Ink_Unknown(engine));
 
 	Ink_applyAllModules(engine, context);
 }

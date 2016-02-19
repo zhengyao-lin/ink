@@ -277,14 +277,14 @@ void InkMod_Blueprint_Base_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bond
 	Ink_ParamList tmp_param_list;
 	
 	/* if */
-	bondee->setSlot("if", new Ink_FunctionObject(engine, InkMod_Blueprint_Base_If, true));
+	bondee->setSlot_c("if", new Ink_FunctionObject(engine, InkMod_Blueprint_Base_If, true));
 
 	/* while */
 	tmp_param_list = Ink_ParamList();
 	tmp_param_list.push_back(Ink_Parameter(NULL, true));
 	Ink_FunctionObject *while_func = new Ink_FunctionObject(engine, InkMod_Blueprint_Base_While, true);
 	while_func->param = tmp_param_list;
-	bondee->setSlot("while", while_func);
+	bondee->setSlot_c("while", while_func);
 
 	/* for */
 	tmp_param_list = Ink_ParamList();
@@ -293,10 +293,10 @@ void InkMod_Blueprint_Base_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bond
 	tmp_param_list.push_back(Ink_Parameter(NULL, true));
 	Ink_FunctionObject *for_func = new Ink_FunctionObject(engine, InkMod_Blueprint_Base_For, true);
 	for_func->param = tmp_param_list;
-	bondee->setSlot("for", for_func);
+	bondee->setSlot_c("for", for_func);
 
 	/* try */
-	bondee->setSlot("try", new Ink_FunctionObject(engine, InkMod_Blueprint_Base_Try, true));
+	bondee->setSlot_c("try", new Ink_FunctionObject(engine, InkMod_Blueprint_Base_Try, true));
 
 	return;
 }

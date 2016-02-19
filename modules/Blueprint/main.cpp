@@ -31,7 +31,7 @@ Ink_Object *InkMod_Blueprint_Loader(Ink_InterpreteEngine *engine, Ink_ContextCha
 	}
 
 	/* blueprint.sys */
-	apply_to->setSlot("sys", self->getSlot(engine, "sys"));
+	apply_to->setSlot_c("sys", self->getSlot(engine, "sys"));
 
 	free(tmp_argv);
 

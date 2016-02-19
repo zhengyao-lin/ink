@@ -261,21 +261,21 @@ Ink_Object *InkNative_BigNumeric_ToString(Ink_InterpreteEngine *engine, Ink_Cont
 
 void Ink_BigNumeric::Ink_BigNumericMethodInit(Ink_InterpreteEngine *engine)
 {
-	setSlot("+", new Ink_FunctionObject(engine, InkNative_BigNumeric_Add));
-	setSlot("-", new Ink_FunctionObject(engine, InkNative_BigNumeric_Sub));
-	setSlot("*", new Ink_FunctionObject(engine, InkNative_BigNumeric_Mul));
-	setSlot("/", new Ink_FunctionObject(engine, InkNative_BigNumeric_Div));
-	setSlot("%", new Ink_FunctionObject(engine, InkNative_BigNumeric_Mod));
-	setSlot("div", new Ink_FunctionObject(engine, InkNative_BigNumeric_Div));
-	setSlot("==", new Ink_FunctionObject(engine, InkNative_BigNumeric_Equal));
-	setSlot("!=", new Ink_FunctionObject(engine, InkNative_BigNumeric_NotEqual));
-	setSlot(">", new Ink_FunctionObject(engine, InkNative_BigNumeric_Greater));
-	setSlot("<", new Ink_FunctionObject(engine, InkNative_BigNumeric_Less));
-	setSlot(">=", new Ink_FunctionObject(engine, InkNative_BigNumeric_GreaterOrEqual));
-	setSlot("<=", new Ink_FunctionObject(engine, InkNative_BigNumeric_LessOrEqual));
-	setSlot("+u", new Ink_FunctionObject(engine, InkNative_BigNumeric_Add_Unary));
-	setSlot("-u", new Ink_FunctionObject(engine, InkNative_BigNumeric_Sub_Unary));
-	setSlot("to_str", new Ink_FunctionObject(engine, InkNative_BigNumeric_ToString));
+	setSlot_c("+", new Ink_FunctionObject(engine, InkNative_BigNumeric_Add));
+	setSlot_c("-", new Ink_FunctionObject(engine, InkNative_BigNumeric_Sub));
+	setSlot_c("*", new Ink_FunctionObject(engine, InkNative_BigNumeric_Mul));
+	setSlot_c("/", new Ink_FunctionObject(engine, InkNative_BigNumeric_Div));
+	setSlot_c("%", new Ink_FunctionObject(engine, InkNative_BigNumeric_Mod));
+	setSlot_c("div", new Ink_FunctionObject(engine, InkNative_BigNumeric_Div));
+	setSlot_c("==", new Ink_FunctionObject(engine, InkNative_BigNumeric_Equal));
+	setSlot_c("!=", new Ink_FunctionObject(engine, InkNative_BigNumeric_NotEqual));
+	setSlot_c(">", new Ink_FunctionObject(engine, InkNative_BigNumeric_Greater));
+	setSlot_c("<", new Ink_FunctionObject(engine, InkNative_BigNumeric_Less));
+	setSlot_c(">=", new Ink_FunctionObject(engine, InkNative_BigNumeric_GreaterOrEqual));
+	setSlot_c("<=", new Ink_FunctionObject(engine, InkNative_BigNumeric_LessOrEqual));
+	setSlot_c("+u", new Ink_FunctionObject(engine, InkNative_BigNumeric_Add_Unary));
+	setSlot_c("-u", new Ink_FunctionObject(engine, InkNative_BigNumeric_Sub_Unary));
+	setSlot_c("to_str", new Ink_FunctionObject(engine, InkNative_BigNumeric_ToString));
 
 	return;
 }
@@ -289,7 +289,7 @@ Ink_Object *InkNative_Bignum_Constructor(Ink_InterpreteEngine *engine, Ink_Conte
 	} else if (checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		ret = new Ink_BigNumeric(engine, as<Ink_Numeric>(argv[0])->value);
 	}
-	context->getLocal()->context->setSlot("this", ret);
+	context->getLocal()->context->setSlot_c("this", ret);
 
 	return ret;
 }
@@ -311,7 +311,7 @@ void InkNative_Bignum_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
 
 void InkMod_Bignum_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	bondee->setSlot("bignum", new Ink_FunctionObject(engine, InkNative_Bignum_Constructor));
+	bondee->setSlot_c("bignum", new Ink_FunctionObject(engine, InkNative_Bignum_Constructor));
 	return;
 }
 
@@ -344,7 +344,7 @@ extern "C" {
 			engine->addDestructor(Ink_EngineDestructor(InkNative_Bignum_EngineComCleaner,
 													   new com_cleaner_arg(ink_native_bignum_mod_id)));
 
-			context->getGlobal()->context->setSlot("$bignum", tmp = new Ink_BigNumeric(engine, "0"));
+			context->getGlobal()->context->setSlot_c("$bignum", tmp = new Ink_BigNumeric(engine, "0"));
 			engine->setTypePrototype(BIGNUMERIC_TYPE, tmp);
 			tmp->setProto(obj_proto);
 			tmp->derivedMethodInit(engine);

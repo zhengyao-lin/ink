@@ -113,8 +113,8 @@ Ink_Object *InkNative_JSON_Encode(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 void InkMod_JSON_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	bondee->setSlot("encode", new Ink_FunctionObject(engine, InkNative_JSON_Encode));
-	bondee->setSlot("decode", new Ink_FunctionObject(engine, InkNative_JSON_Decode));
+	bondee->setSlot_c("encode", new Ink_FunctionObject(engine, InkNative_JSON_Encode));
+	bondee->setSlot_c("decode", new Ink_FunctionObject(engine, InkNative_JSON_Decode));
 
 	return;
 }

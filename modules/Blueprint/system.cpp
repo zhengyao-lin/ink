@@ -51,7 +51,7 @@ Ink_Object *InkMod_Blueprint_System_Env_Missing(Ink_InterpreteEngine *engine, In
 	Ink_HashTable *addr = base->setSlot(name.c_str(), NULL);
 
 	Ink_Object *ret = new Ink_Undefined(engine);
-	ret->setSlot("@assign", new Ink_FunctionObject(engine, InkMod_Blueprint_System_Env_AtAssign));
+	ret->setSlot_c("@assign", new Ink_FunctionObject(engine, InkMod_Blueprint_System_Env_AtAssign));
 	ret->address = addr;
 
 	return ret;
@@ -69,13 +69,13 @@ Ink_Object *parseEnv(Ink_InterpreteEngine *engine)
 
 	Ink_Object *at_assign = new Ink_FunctionObject(engine, InkMod_Blueprint_System_Env_AtAssign);
 
-	ret->setSlot("missing", new Ink_FunctionObject(engine, InkMod_Blueprint_System_Env_Missing));
+	ret->setSlot_c("missing", new Ink_FunctionObject(engine, InkMod_Blueprint_System_Env_Missing));
 	for (i = 0; environ[i]; i++) {
 		tmp_str = string(environ[i]);
 		j = tmp_str.find_first_of('=');
 		ret->setSlot(tmp_str.substr(0, j).c_str(),
 					 tmp = new Ink_String(engine, tmp_str.substr(j + 1)));
-		tmp->setSlot("@assign", at_assign);
+		tmp->setSlot_c("@assign", at_assign);
 	}
 
 	return ret;
@@ -123,7 +123,7 @@ Ink_Object *InkMod_Blueprint_System_Command(Ink_InterpreteEngine *engine, Ink_Co
 
 void InkMod_Blueprint_System_Path_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	bondee->setSlot("sep", new Ink_String(engine, INK_PATH_SPLIT));
+	bondee->setSlot_c("sep", new Ink_String(engine, INK_PATH_SPLIT));
 
 	return;
 }
@@ -143,11 +143,11 @@ Ink_Object *InkMod_Blueprint_System_Path_Loader(Ink_InterpreteEngine *engine, In
 
 void InkMod_Blueprint_System_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	bondee->setSlot("env", parseEnv(engine));
-	bondee->setSlot("setenv", new Ink_FunctionObject(engine, InkMod_Blueprint_System_SetEnv));
-	bondee->setSlot("getenv", new Ink_FunctionObject(engine, InkMod_Blueprint_System_GetEnv));
-	bondee->setSlot("cmd", new Ink_FunctionObject(engine, InkMod_Blueprint_System_Command));
-	bondee->setSlot("linesep", new Ink_String(engine, INK_LINE_SEP));
+	bondee->setSlot_c("env", parseEnv(engine));
+	bondee->setSlot_c("setenv", new Ink_FunctionObject(engine, InkMod_Blueprint_System_SetEnv));
+	bondee->setSlot_c("getenv", new Ink_FunctionObject(engine, InkMod_Blueprint_System_GetEnv));
+	bondee->setSlot_c("cmd", new Ink_FunctionObject(engine, InkMod_Blueprint_System_Command));
+	bondee->setSlot_c("linesep", new Ink_String(engine, INK_LINE_SEP));
 
 	Ink_Object *path_pkg = addPackage(engine, bondee, "path",
 									  new Ink_FunctionObject(engine, InkMod_Blueprint_System_Path_Loader));

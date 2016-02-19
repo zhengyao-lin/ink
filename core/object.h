@@ -81,7 +81,7 @@ public:
 
 	inline void setProto(Ink_Object *proto)
 	{
-		// setSlot("prototype", proto);
+		// setSlot_c("prototype", proto);
 		if (proto_hash) {
 			proto_hash->setValue(proto);
 		} else {
@@ -124,7 +124,12 @@ public:
 	*/
 	Ink_Object *getSlot(Ink_InterpreteEngine *engine, const char *key);
 	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto = NULL);
-	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true);
+	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true, bool if_alloc_key = true);
+
+	inline Ink_HashTable *setSlot_c(const char *key, Ink_Object *value, bool if_check_exist = true)
+	{
+		return setSlot(key, value, if_check_exist, false);
+	}
 
 	void deleteSlot(const char *key);
 	void cleanHashTable();

@@ -34,7 +34,7 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 		hash = Ink_Object::traceHashBond(obj->value[index]);
 		ret = hash->getValue();
 		ret->address = hash;
-		// ret->setSlot("base", base);
+		// ret->setSlot_c("base", base);
 		ret->setBase(base);
 	} else {
 		InkWarn_Index_Exceed(engine);

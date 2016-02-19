@@ -135,7 +135,7 @@ inline Ink_Object *addPackage(Ink_InterpreteEngine *engine, Ink_Object *obj, con
 {
 	Ink_Object *pkg;
 	obj->setSlot(name, pkg = new Ink_Object(engine));
-	pkg->setSlot("load", loader);
+	pkg->setSlot_c("load", loader);
 
 	return pkg;
 }

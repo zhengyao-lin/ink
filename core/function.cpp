@@ -41,7 +41,7 @@ Ink_Object *Ink_Object::triggerCallEvent(Ink_InterpreteEngine *engine, Ink_Conte
 	Ink_Object *ret = NULL;
 
 	if ((at_call = getSlot(engine, "@call"))->type == INK_FUNCTION) {
-		// at_call->setSlot("base", this);
+		// at_call->setSlot_c("base", this);
 		at_call->setBase(this);
 		ret = at_call->call(engine, context, argc, argv);
 	}
@@ -85,7 +85,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 			->type == INK_FUNCTION) {
 			tmp_argv[0] = value_backup;
 			event_found = true;
-			// tmp->setSlot("base", receiver);
+			// tmp->setSlot_c("base", receiver);
 			tmp->setBase(receiver);
 			callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
 		}
@@ -97,7 +97,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 				->type == INK_FUNCTION) {
 				tmp_argv[0] = value_backup;
 				event_found = true;
-				// tmp->setSlot("base", receiver);
+				// tmp->setSlot_c("base", receiver);
 				tmp->setBase(receiver);
 				callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
 			}
@@ -251,20 +251,20 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	context->addContext(local);
 
 	if (if_set_sp_ptr) {
-		// local->setSlot("base", getSlot(engine, "base"));
-		local->setSlot("base", pa_info_base_p ? pa_info_base_p : getBase());
-		local->setSlot("this", this);
+		// local->setSlot_c("base", getSlot(engine, "base"));
+		local->setSlot_c("base", pa_info_base_p ? pa_info_base_p : getBase());
+		local->setSlot_c("this", this);
 	} else if (is_native) {
-		local->setSlot("base", pa_info_base_p ? pa_info_base_p : getBase());
+		local->setSlot_c("base", pa_info_base_p ? pa_info_base_p : getBase());
 	}
 
-	local->setSlot("self", this);
+	local->setSlot_c("self", this);
 
-	local->setSlot("let", local);
+	local->setSlot_c("let", local);
 
 	/* set "this" pointer if exists */
 	if (this_p)
-		local->setSlot("this", this_p);
+		local->setSlot_c("this", this_p);
 
 	setDebugName(this_debug_name_back);
 	free(this_debug_name_back);

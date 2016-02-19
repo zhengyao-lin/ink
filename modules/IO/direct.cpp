@@ -27,7 +27,7 @@ Ink_Object *InkNative_Direct_Constructor(Ink_InterpreteEngine *engine, Ink_Conte
 	}
 
 	context->getLocal()
-	->context->setSlot("this", ret = new Ink_DirectPointer(engine, as<Ink_String>(argv[0])->getValue()));
+	->context->setSlot_c("this", ret = new Ink_DirectPointer(engine, as<Ink_String>(argv[0])->getValue()));
 
 	return ret;
 }
@@ -228,13 +228,13 @@ Ink_Object *InkNative_Direct_Remove_Static(Ink_InterpreteEngine *engine, Ink_Con
 
 void Ink_DirectPointer::Ink_DirectMethodInit(Ink_InterpreteEngine *engine)
 {
-	setSlot("exist", new Ink_FunctionObject(engine, InkNative_Direct_Exist));
-	setSlot("create", new Ink_FunctionObject(engine, InkNative_Direct_Create));
-	setSlot("remove", new Ink_FunctionObject(engine, InkNative_Direct_Remove));
-	setSlot("path", new Ink_FunctionObject(engine, InkNative_Direct_Path));
+	setSlot_c("exist", new Ink_FunctionObject(engine, InkNative_Direct_Exist));
+	setSlot_c("create", new Ink_FunctionObject(engine, InkNative_Direct_Create));
+	setSlot_c("remove", new Ink_FunctionObject(engine, InkNative_Direct_Remove));
+	setSlot_c("path", new Ink_FunctionObject(engine, InkNative_Direct_Path));
 
 #if defined(INK_PLATFORM_LINUX) || defined(INK_PLATFORM_WIN32)
-	setSlot("each", new Ink_FunctionObject(engine, InkNative_Direct_Each));
+	setSlot_c("each", new Ink_FunctionObject(engine, InkNative_Direct_Each));
 #endif
 
 	return;
@@ -242,10 +242,10 @@ void Ink_DirectPointer::Ink_DirectMethodInit(Ink_InterpreteEngine *engine)
 
 void InkMod_Direct_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	bondee->setSlot("Directory", new Ink_FunctionObject(engine, InkNative_Direct_Constructor));
-	bondee->setSlot("dir_exist", new Ink_FunctionObject(engine, InkNative_Direct_Exist_Static));
-	bondee->setSlot("rmdir", new Ink_FunctionObject(engine, InkNative_Direct_Remove_Static));
-	bondee->setSlot("mkdir", new Ink_FunctionObject(engine, InkNative_Direct_Create_Static));
+	bondee->setSlot_c("Directory", new Ink_FunctionObject(engine, InkNative_Direct_Constructor));
+	bondee->setSlot_c("dir_exist", new Ink_FunctionObject(engine, InkNative_Direct_Exist_Static));
+	bondee->setSlot_c("rmdir", new Ink_FunctionObject(engine, InkNative_Direct_Remove_Static));
+	bondee->setSlot_c("mkdir", new Ink_FunctionObject(engine, InkNative_Direct_Create_Static));
 
 	return;
 }

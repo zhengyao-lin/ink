@@ -49,8 +49,8 @@ Ink_Object *InkNative_Actor_Send(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	}
 	
 	Ink_Object *sender = new Ink_Object(engine);
-	sender->setSlot("->", new Ink_FunctionObject(engine, InkNative_Actor_Send_Sub));
-	sender->setSlot("msg", argv[0]);
+	sender->setSlot_c("->", new Ink_FunctionObject(engine, InkNative_Actor_Send_Sub));
+	sender->setSlot_c("msg", argv[0]);
 
 	return sender;
 }
@@ -372,13 +372,13 @@ Ink_FunctionObject *InkMod_Actor_ActorProtocol(Ink_InterpreteEngine *engine, Ink
 
 void InkMod_Actor_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	bondee->setSlot("send", new Ink_FunctionObject(engine, InkNative_Actor_Send));
-	bondee->setSlot("receive", new Ink_FunctionObject(engine, InkNative_Actor_Receive));
-	bondee->setSlot("join_all", new Ink_FunctionObject(engine, InkNative_Actor_JoinAll));
-	bondee->setSlot("join_all_but", new Ink_FunctionObject(engine, InkNative_Actor_JoinAllBut));
-	bondee->setSlot("actor_count", new Ink_FunctionObject(engine, InkNative_Actor_ActorCount));
-	bondee->setSlot("actor_self", new Ink_FunctionObject(engine, InkNative_Actor_ActorSelf));
-	bondee->setSlot("actor_exist", new Ink_FunctionObject(engine, InkNative_Actor_ActorExist));
+	bondee->setSlot_c("send", new Ink_FunctionObject(engine, InkNative_Actor_Send));
+	bondee->setSlot_c("receive", new Ink_FunctionObject(engine, InkNative_Actor_Receive));
+	bondee->setSlot_c("join_all", new Ink_FunctionObject(engine, InkNative_Actor_JoinAll));
+	bondee->setSlot_c("join_all_but", new Ink_FunctionObject(engine, InkNative_Actor_JoinAllBut));
+	bondee->setSlot_c("actor_count", new Ink_FunctionObject(engine, InkNative_Actor_ActorCount));
+	bondee->setSlot_c("actor_self", new Ink_FunctionObject(engine, InkNative_Actor_ActorSelf));
+	bondee->setSlot_c("actor_exist", new Ink_FunctionObject(engine, InkNative_Actor_ActorExist));
 
 	return;
 }
