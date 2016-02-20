@@ -34,7 +34,7 @@ Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val)
 	return ret;
 }
 
-Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_ContextChain *local = context->getLocal();
 	Ink_Object *ret;
@@ -61,7 +61,7 @@ Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return ret;
 }
 
-Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret = NULL_OBJ;
 	Ink_ExpressionList top_level_backup;
@@ -103,7 +103,7 @@ bool defined(Ink_Object *obj)
 	return obj->type != INK_UNDEFINED;
 }
 
-Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 1)) {
 		return NULL_OBJ;
@@ -126,9 +126,20 @@ Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *context, I
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_SizeType import_path_count = 0;
+static char **import_path = NULL;
+
+void Ink_addImportPath(const char *path)
+{
+	import_path = (char **)realloc(import_path, sizeof(char *) * ++import_path_count);
+	import_path[import_path_count - 1] = strdup(path);
+	return;
+}
+
+static Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_ArgcType i;
+	Ink_SizeType j;
 	FILE *fp;
 	Ink_Object *load, **tmp_argv;
 	Ink_ExpressionList top_level_backup;
@@ -137,23 +148,43 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	const char *file_name_backup;
 	string *tmp;
 	string *full_file_name;
+	string tmp_path;
 
 	for (i = 0; i < argc; i++) {
 		if (argv[i]->type == INK_STRING) {
 			/* run a source file */
 
 			tmp = new string(as<Ink_String>(argv[i])->getValue());
+			current_dir = getCurrentDir();
+
 			if (!(fp = fopen(tmp->c_str(), "r"))) {
-				InkError_Failed_Open_File(engine, tmp->c_str());
-				continue;
+				tmp_path = string(INK_MODULE_DIR) + INK_PATH_SPLIT + tmp->c_str();
+
+				/* cannot found in current dir, search module dir */
+				if (!(fp = fopen(tmp_path.c_str(), "r"))) {
+
+					/* cannot found in module dir, search in other import paths */
+					for (j = 0; j < import_path_count; j++) {
+						tmp_path = string(import_path[j]) + INK_PATH_SPLIT + tmp->c_str();
+						if ((fp = fopen(tmp_path.c_str(), "r")) != NULL) {
+							break;
+						}
+					}
+
+					if (!fp) {
+						InkError_Failed_Open_File(engine, tmp->c_str());
+						free(current_dir);
+						delete tmp;
+						continue;
+					}
+				}
+				full_file_name = new string(tmp_path);
+			} else {
+				full_file_name = new string(string(current_dir) + INK_PATH_SPLIT + string(tmp->c_str()));
 			}
 
-			/* get full path */
-			current_dir = getCurrentDir();
-			full_file_name = new string(string(current_dir) + INK_PATH_SPLIT + string(tmp->c_str()));
-
 			/* change dir to the dest dir */
-			redirect = getBasePath(tmp->c_str());
+			redirect = getBasePath(full_file_name->c_str());
 			if (redirect) {
 				changeDir(redirect);
 				free(redirect);
@@ -214,7 +245,12 @@ Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_TypeName(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Import_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	return Ink_Import(engine, context, argc, argv, this_p);
+}
+
+static Ink_Object *Ink_TypeName(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (argc < 1) {
 		InkWarn_Type_Name_Argument_Require(engine);
@@ -224,7 +260,7 @@ Ink_Object *Ink_TypeName(Ink_InterpreteEngine *engine, Ink_ContextChain *context
 	return new Ink_String(engine, engine->getTypeName(argv[0]->type));
 }
 
-Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Expression *tmp;
 
@@ -239,7 +275,7 @@ Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, 
 	return tmp->eval(engine, context);
 }
 
-Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_ArgcType i;
 	if (!checkArgument(engine, argc, 1))
@@ -253,13 +289,13 @@ Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, I
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_Where(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Where(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	engine->printTrace(stderr, engine->getTrace());
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_CoroutineCall(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_CoroutineCall(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_CoCallList co_call_list = Ink_CoCallList();
 	Ink_ArgcType i;
@@ -289,7 +325,7 @@ END:
 	return ret_val;
 }
 
-Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	string tmp_str;
 
@@ -303,14 +339,19 @@ Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 													Ink_EvalFlag(), false);
 }
 
-Ink_Object *Ink_Abort(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Auto_Missing_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	return Ink_Auto_Missing(engine, context, argc, argv, this_p);
+}
+
+static Ink_Object *Ink_Abort(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_disposeEnv();
 	abort();
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_RegisterSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_RegisterSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -321,7 +362,7 @@ Ink_Object *Ink_RegisterSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *c
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_DeleteSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_DeleteSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;

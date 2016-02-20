@@ -147,7 +147,7 @@ native: FORCE
 
 output: FORCE
 	mkdir -p $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
-	cp -af modules/*.dll $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)
+	-cp -af modules/build/* $(WIN_OUTPUT)/$(INSTALL_MODULE_PATH)/
 	# cp -af $(GLOBAL_ROOT_PATH)/third_parties/winpthread/$(GLOBAL_PLATFORM_ARCH)/* $(WIN_OUTPUT)
 
 install:
@@ -158,7 +158,7 @@ install:
 	ln -sf $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(LIB_NAME) $(INSTALL_LIB_PATH)/$(LIB_NAME)
 
 	mkdir -p $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(INSTALL_MODULE_PATH)
-	-cp -af $(MOD_OUTPUT)/*.so $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(INSTALL_MODULE_PATH)
+	-cp -af $(MOD_OUTPUT)/build/* $(INSTALL_LIB_PATH)/$(INSTALL_LIB_NAME)/$(INSTALL_MODULE_PATH)/
 
 clean:
 	cd core; $(MAKE) clean

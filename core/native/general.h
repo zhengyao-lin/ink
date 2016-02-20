@@ -1,6 +1,7 @@
 #ifndef _NATIVE_GENERAL_H_
 #define _NATIVE_GENERAL_H_
 
+#include <stdarg.h>
 #include "../object.h"
 #include "../expression.h"
 #include "../context.h"
@@ -14,6 +15,34 @@
 } while (0)
 
 namespace ink {
+
+Ink_Object *InkNative_Import_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+
+inline Ink_Object *importFile(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *path)
+{
+	Ink_Object **argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 1);
+	Ink_Object *ret;
+
+	argv[0] = new Ink_String(engine, path);
+	ret = InkNative_Import_i(engine, context, 1, argv, NULL);
+	free(argv);
+
+	return ret;
+}
+
+inline Ink_Object *importFile(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *path1, const char *path2)
+{
+	Ink_Object **argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 2);
+	Ink_Object *ret;
+
+	argv[0] = new Ink_String(engine, path1);
+	argv[1] = new Ink_String(engine, path2);
+
+	ret = InkNative_Import_i(engine, context, 2, argv, NULL);
+	free(argv);
+
+	return ret;
+}
 
 inline Ink_Object *getSlotWithProto(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
 									Ink_Object *base, const char *name)

@@ -4,6 +4,7 @@
 #include "core/error.h"
 #include "core/package/load.h"
 #include "core/gc/collect.h"
+#include "core/native/native.h"
 
 namespace ink {
 
@@ -37,11 +38,13 @@ inline void printUsage(const char *prog_path)
 "  %-25s %s\n"
 "  %-25s %s\n"
 "  %-25s %s\n"
+"  %-25s %s\n"
 "  %-25s %s\n",
-	"--help or -h",						"Display this usage page",
-	"--mod-path=<path> or -m=<path>",	"Add module searching path",
-	"--gc-treshold=<treshold>",			"Set collect treshold for garbage collector",
-	"--debug or -d",					"Open debug mode(print more debug info when error occurs, optional value(true or false))");
+	"--help or -h",							"Display this usage page",
+	"--mod-path=<path> or -m=<path>",		"Add module searching path",
+	"--gc-treshold=<treshold>",				"Set collect treshold for garbage collector",
+	"--debug or -d",						"Open debug mode(print more debug info when error occurs, optional value(true or false))",
+	"--import-path=<path> or -i=<path>",	"Add import search path(can be used several times)");
 }
 
 /* return: if print usage */
@@ -93,6 +96,14 @@ inline bool processArg(Ink_InputSetting &setting, Ink_SizeType dash_count,
 			}
 		} else {
 			setting.dbg_print_detail = true;
+		}
+	} else if (IS_SINGLE_DASH_ARG("i") || IS_DOUBLE_DASH_ARG("import-path")) {
+		if (has_val) {
+			Ink_addImportPath(val.c_str());
+		} else {
+			fprintf(stderr, "Option %s requires a value\n", REPRINT_ARG.c_str());
+			setting.if_run = false;
+			return true;
 		}
 	} else {
 		fprintf(stderr, "Unknown option %s\n", REPRINT_ARG.c_str());

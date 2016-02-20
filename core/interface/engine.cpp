@@ -129,7 +129,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	global_context->context->setSlot_c("top", global_context->context);
 	global_context->context->setSlot_c("let", global_context->context);
 	global_context->context->setSlot_c("auto", tmp = new Ink_Object(this));
-	tmp->setSlot_c("missing", new Ink_FunctionObject(this, Ink_Auto_Missing));
+	tmp->setSlot_c("missing", new Ink_FunctionObject(this, InkNative_Auto_Missing_i));
 	Ink_GlobalMethodInit(this, global_context);
 
 	global_context->context->setDebugName("__global_context__");
