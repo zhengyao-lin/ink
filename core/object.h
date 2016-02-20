@@ -123,7 +123,11 @@ public:
 	}
 	*/
 	Ink_Object *getSlot(Ink_InterpreteEngine *engine, const char *key);
-	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto = NULL);
+	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto = NULL, bool search_prototype = true);
+	inline Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool search_prototype) {
+		return getSlotMapping(engine, key, NULL, search_prototype);
+	}
+
 	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true, bool if_alloc_key = true);
 
 	inline Ink_HashTable *setSlot_c(const char *key, Ink_Object *value, bool if_check_exist = true)

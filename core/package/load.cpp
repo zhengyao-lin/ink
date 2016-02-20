@@ -225,7 +225,7 @@ void Ink_preloadModule(const char *path)
 		}
 
 		while ((child = readdir(mod_dir)) != NULL) {
-			if (hasSuffix(child->d_name, "mod")) {
+			if (hasSuffix(child->d_name, INK_MOD_SUFFIX)) {
 				Ink_Package::preload((string(mod_path) + INK_PATH_SPLIT + child->d_name).c_str());
 			} else if (hasSuffix(child->d_name, INK_DL_SUFFIX)) {
 				Ink_preloadModule((string(mod_path) + INK_PATH_SPLIT + child->d_name).c_str());
@@ -249,7 +249,7 @@ void Ink_preloadModule(const char *path)
 		}
 
 		do {
-			if (hasSuffix(data.cFileName, "mod")) {
+			if (hasSuffix(data.cFileName, INK_MOD_SUFFIX)) {
 				Ink_Package::preload((string(mod_path) + INK_PATH_SPLIT + string(data.cFileName)).c_str());
 			} else if (hasSuffix(data.cFileName, INK_DL_SUFFIX)) {
 				Ink_preloadModule((string(mod_path) + INK_PATH_SPLIT + string(data.cFileName)).c_str());

@@ -8,36 +8,6 @@
 #include "../general.h"
 #include "../../includes/switches.h"
 
-#if defined(INK_PLATFORM_LINUX)
-	#include <unistd.h>
-
-namespace ink {
-	inline char *getCurrentDir()
-	{
-		return getcwd(NULL, 0);
-	}
-
-	inline int changeDir(const char *path)
-	{
-		return chdir(path);
-	}
-}
-#elif defined(INK_PLATFORM_WIN32)
-	#include <direct.h>
-
-namespace ink {
-	inline char *getCurrentDir()
-	{
-		return _getcwd(NULL, 0);
-	}
-
-	inline int changeDir(const char *path)
-	{
-		return _chdir(path);
-	}
-}
-#endif
-
 namespace ink {
 
 enum Ink_CodeMode {

@@ -34,7 +34,7 @@ Ink_Object *Ink_Object::getProto()
 	return ret ? ret->getValue() : NULL;
 }
 
-Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto)
+Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto, bool search_prototype)
 {
 	Ink_HashTable *i;
 	Ink_HashTable *ret = NULL;
@@ -65,6 +65,10 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 		return ret;
 	}
 #endif
+	if (!search_prototype) {
+		if (is_from_proto) *is_from_proto = false;
+		return ret;
+	}
 
 	if (engine && proto && proto->type != INK_UNDEFINED) {
 		if (engine->prototypeHasTraced(this)) {

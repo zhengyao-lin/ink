@@ -667,9 +667,12 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	}
 	ret->address = hash; /* set its address for assigning */
 
+#if 0
 	if (base_context)
 		ret->setBase(base_context->context);
-	else ret->setBase(NULL);
+	else
+#endif
+	ret->setBase(NULL);
 	
 	ret->setDebugName(name);
 

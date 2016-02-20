@@ -458,12 +458,13 @@ InkNative_MethodTable object_native_method_table[] = {
 	{"each", new Ink_FunctionObject(NULL, InkNative_Object_Each, true)}
 };
 
-int array_native_method_table_count = 6;
+int array_native_method_table_count = 7;
 InkNative_MethodTable array_native_method_table[] = {
 	{"[]", new Ink_FunctionObject(NULL, InkNative_Array_Index)},
 	{"push", new Ink_FunctionObject(NULL, InkNative_Array_Push)},
 	{"size", new Ink_FunctionObject(NULL, InkNative_Array_Size)},
 	{"each", new Ink_FunctionObject(NULL, InkNative_Array_Each, true)},
+	{"last", new Ink_FunctionObject(NULL, InkNative_Array_Last)},
 	{"remove", new Ink_FunctionObject(NULL, InkNative_Array_Remove)},
 	{"rebuild", new Ink_FunctionObject(NULL, InkNative_Array_Rebuild)}
 };

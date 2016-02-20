@@ -5,6 +5,8 @@
 #include "../../includes/switches.h"
 #include "../../includes/universal.h"
 
+#define INK_MOD_SUFFIX "mod"
+
 #if defined(INK_PLATFORM_LINUX)
 
 	#define INK_DL_SUFFIX "so"

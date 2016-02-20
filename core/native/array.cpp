@@ -129,6 +129,27 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return ret;
 }
 
+Ink_Object *InkNative_Array_Last(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_ARRAY);
+
+	Ink_ArrayValue tmp = as<Ink_Array>(base)->value;
+	Ink_Object *ret = NULL;
+	Ink_HashTable *ret_hash = tmp[tmp.size() - 1];
+
+	if (!ret_hash) {
+		ret_hash = tmp[tmp.size() - 1] = new Ink_HashTable(ret = UNDEFINED);
+	} else {
+		ret = ret_hash->getValue();
+	}
+
+	ret->address = ret_hash;
+
+	return ret;
+}
+
 Ink_Object *InkNative_Array_Remove(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
