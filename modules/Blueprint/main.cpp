@@ -32,6 +32,7 @@ Ink_Object *InkMod_Blueprint_Loader(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 	/* blueprint.sys */
 	apply_to->setSlot_c("sys", self->getSlot(engine, "sys"));
+	apply_to->setSlot_c("math", self->getSlot(engine, "math"));
 
 	free(tmp_argv);
 
@@ -47,9 +48,12 @@ extern "C" {
 										  new Ink_FunctionObject(engine, InkMod_Blueprint_Base_Loader));
 		Ink_Object *sys_pkg = addPackage(engine, blueprint_pkg, "sys",
 										 new Ink_FunctionObject(engine, InkMod_Blueprint_System_Loader));
+		Ink_Object *math_pkg = addPackage(engine, blueprint_pkg, "math",
+										  new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Loader));
 
 		InkMod_Blueprint_Base_bondTo(engine, base_pkg);
 		InkMod_Blueprint_System_bondTo(engine, sys_pkg);
+		InkMod_Blueprint_Math_bondTo(engine, math_pkg);
 
 		return;
 	}

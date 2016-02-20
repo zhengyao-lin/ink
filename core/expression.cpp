@@ -446,7 +446,7 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 	/* call getter if has one */
 	if (!flags.is_left_value && hash && hash->getter) {
 		// hash->getter->setSlot_c("base", hash->getValue());
-		hash->getter->setBase(hash->getValue());
+		hash->getter->setBase(base);
 		ret = hash->getter->call(engine, context_chain, 0, NULL);
 		// /* trap all interrupt signal */
 		// engine->setSignal(INTER_NONE);
