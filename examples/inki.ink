@@ -3,11 +3,6 @@
 import blueprint
 import io
 
-if (!readline) {
-	p("Cannot find GNU readline lib")
-	exit
-}
-
 $array.find = fn (obj) {
 	let i = 0
 	base.each { | v |
@@ -24,6 +19,10 @@ let get_prompt = fn () {
 }
 
 let readln = fn (prompt) {
+	if (!readline) {
+		p("Cannot find GNU readline lib")
+		exit
+	}
 	readline.rl_read(prompt)
 }
 
