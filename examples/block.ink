@@ -2,7 +2,7 @@
 
 import blueprint
 
-func = { | a, b, block, block2 |
+func = inl (a, b, block, block2) {
 	p(a + b);
 	block(a + b);
 	block2();
@@ -541,7 +541,7 @@ inline.@drop = inl (ret_val) {
 	drop 100; // change return value
 }
 
-inline.@drop.@drop = { |ret_val|
+inline.@drop.@drop = inl (ret_val) {
 	ret_val.p = 10;
 	p("previous return value: " + ret_val);
 	p("I'm NOT overriding to 1000");

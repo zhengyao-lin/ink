@@ -1045,7 +1045,6 @@ function_expression
 		delete $8;
 		SET_LINE_NO($$);
 	}
-	| functional_block
 	;
 
 element_list
