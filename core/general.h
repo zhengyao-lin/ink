@@ -16,6 +16,11 @@
 #define CONTINUE_FLAG (engine->CGC_interrupt_signal == INTER_CONTINUE)
 #define DROP_FLAG (engine->CGC_interrupt_signal == INTER_DROP)
 
+#define DEFAULT_SIGNAL (INTER_RETURN | INTER_BREAK | INTER_CONTINUE | INTER_DROP)
+#define ALL_SIGNAL (INTER_RETURN | INTER_BREAK | \
+					INTER_CONTINUE | INTER_DROP | \
+					INTER_THROW | INTER_RETRY | INTER_EXIT)
+
 namespace ink {
 
 inline int removeDir(const std::string path, bool if_delete_sub = true);
@@ -241,6 +246,24 @@ inline Ink_InterruptSignalTrap addSignal(Ink_InterruptSignalTrap set, Ink_Interr
 {
 	return set | sign;
 }
+
+class Ink_FunctionAttribution {
+public:
+	Ink_InterruptSignalTrap interrupt_signal_trap;
+	
+	Ink_FunctionAttribution()
+	: interrupt_signal_trap(DEFAULT_SIGNAL)
+	{ }
+
+	Ink_FunctionAttribution(Ink_InterruptSignalTrap trap)
+	: interrupt_signal_trap(trap)
+	{ }
+
+	inline bool hasTrap(Ink_InterruptSignal sig)
+	{
+		return hasSignal(interrupt_signal_trap, sig);
+	}
+};
 
 void Ink_initEnv();
 void Ink_removeTmpDir();

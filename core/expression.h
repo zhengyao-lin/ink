@@ -258,13 +258,28 @@ public:
 	bool is_inline;
 	bool is_macro;
 	std::string *protocol_name;
+	Ink_FunctionAttribution *func_attr;
 
 	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, bool is_inline = false, bool is_macro = false)
-	: param(param), exp_list(exp_list), is_inline(is_inline), is_macro(is_macro), protocol_name(NULL)
+	: param(param), exp_list(exp_list), is_inline(is_inline), is_macro(is_macro), protocol_name(NULL),
+	  func_attr(NULL)
+	{ }
+
+	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list,
+						   Ink_FunctionAttribution *func_attr, bool is_inline = false, bool is_macro = false)
+	: param(param), exp_list(exp_list), is_inline(is_inline), is_macro(is_macro), protocol_name(NULL),
+	  func_attr(func_attr)
 	{ }
 
 	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list, std::string *protocol_name)
-	: param(param), exp_list(exp_list), is_inline(false), is_macro(false), protocol_name(protocol_name)
+	: param(param), exp_list(exp_list), is_inline(false), is_macro(false), protocol_name(protocol_name),
+	  func_attr(NULL)
+	{ }
+
+	Ink_FunctionExpression(Ink_ParamList param, Ink_ExpressionList exp_list,
+						   Ink_FunctionAttribution *func_attr, std::string *protocol_name)
+	: param(param), exp_list(exp_list), is_inline(false), is_macro(false), protocol_name(protocol_name),
+	  func_attr(func_attr)
 	{ }
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
@@ -279,8 +294,9 @@ public:
 			 exp_list_iter != exp_list.end(); exp_list_iter++) {
 			delete *exp_list_iter;
 		}
-		if (protocol_name)
-			delete protocol_name;
+
+		delete protocol_name;
+		delete func_attr;
 	}
 };
 

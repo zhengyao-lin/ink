@@ -242,20 +242,6 @@ public:
 typedef Ink_Object *(*Ink_NativeFunction)(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc,
 										  Ink_Object **argv, Ink_Object *this_p);
 
-class Ink_FunctionAttribution {
-public:
-	Ink_InterruptSignalTrap interrupt_signal_trap;
-
-	Ink_FunctionAttribution(Ink_InterruptSignalTrap trap = INTER_RETURN | INTER_BREAK | INTER_CONTINUE | INTER_DROP)
-	: interrupt_signal_trap(trap)
-	{ }
-
-	inline bool hasTrap(Ink_InterruptSignal sig)
-	{
-		return hasSignal(interrupt_signal_trap, sig);
-	}
-};
-
 class Ink_FunctionObject: public Ink_Object {
 public:
 	bool is_native;

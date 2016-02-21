@@ -166,6 +166,8 @@ void yyerror(const char *msg);
 <INITIAL>"||"						return TOKEN(TCOR);
 
 <INITIAL>"&"						return TOKEN(TLAND);
+<INITIAL>"~"						return TOKEN(TLINV);
+<INITIAL>"^"						return TOKEN(TLNOT);
 
 <INITIAL>"..."						return TOKEN(TECLI);
 <INITIAL>"!!"						return TOKEN(TDNOT);

@@ -466,15 +466,22 @@ Ink_Object *Ink_FunctionExpression::eval(Ink_InterpreteEngine *engine, Ink_Conte
 	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 	Ink_Protocol protocol;
+	Ink_FunctionObject *ret;
 
 	if (protocol_name && (protocol = engine->findProtocol(protocol_name->c_str()))) {
-		RESTORE_LINE_NUM;
-		return protocol(engine, param, exp_list, is_macro ? NULL : context_chain->copyContextChain());
+		ret = protocol(engine, param, exp_list, is_macro ? NULL : context_chain->copyContextChain());
+	} else {
+		ret = new Ink_FunctionObject(engine, param, exp_list,
+									 is_macro ? NULL : context_chain->copyContextChain(),
+									 is_inline || is_macro);
+	}
+
+	if (func_attr) {
+		ret->setAttr(*func_attr);
 	}
 
 	RESTORE_LINE_NUM;
-	return new Ink_FunctionObject(engine, param, exp_list, is_macro ? NULL : context_chain->copyContextChain(),
-								  is_inline || is_macro);
+	return ret;
 }
 
 /* expand argument -- expand array object to parameter */

@@ -1,9 +1,11 @@
 %{
+	#include <sstream>
     #include <stdio.h>
     #include <stdlib.h>
 	#include <string.h>
 	#include "syntax.h"
 	#include "core/expression.h"
+	#include "core/object.h"
 	#include "core/error.h"
 	#include "core/general.h"
 	#include "core/interface/engine.h"
@@ -33,6 +35,7 @@
 	ink::Ink_HashTableMappingSingle		*hash_table_mapping_single;
 	std::string							*string;
 	ink::Ink_InterruptSignal			signal;
+	ink::Ink_FunctionAttribution		*function_attr;
 	int									split;
 	int									token;
 }
@@ -98,6 +101,8 @@
 	TDIV				// /
 	TMOD				// %
 	TLAND				// & // not yet an operator
+	TLINV				// ~ // not yet an operator
+	TLNOT				// ^ // not yet an operator
 	TASSIGN				// =
 	TCOLON				// :
 	TDCOLON				// ::
@@ -159,6 +164,7 @@
 	expression_list_opt
 	element_list
 	element_list_opt
+	function_body
 
 /* parameter */
 %type <parameter>
@@ -189,7 +195,14 @@
 %type <split> split split_opt
 
 /* interrupt signal */
-%type <signal> interrupt_signal
+%type <signal>
+	interrupt_signal
+	interrupt_signal_ext
+	interrupt_signal_list
+	function_attr_sub
+
+/* function attribution */
+%type <function_attr> function_attr
 
 %start parse_unit
 
@@ -332,6 +345,34 @@ interrupt_signal
 	| TEXIT
 	{
 		$$ = INTER_EXIT;
+	}
+	;
+
+interrupt_signal_ext
+	: interrupt_signal
+	| TIDENTIFIER
+	{
+		if (*$1 == "default")
+			$$ = DEFAULT_SIGNAL;
+		else if (*$1 == "all")
+			$$ = ALL_SIGNAL;
+		else {
+			stringstream strm;
+			strm << "Unknown interrupt signal '" << $1->c_str() << "'";
+			yyerror(strm.str().c_str());
+			delete $1;
+			return 0;
+		}
+
+		delete $1;
+	}
+	;
+
+interrupt_signal_list
+	: interrupt_signal_ext
+	| interrupt_signal_ext TCOMMA nllo interrupt_signal_list
+	{
+		$$ = $$ | $4;
 	}
 	;
 
@@ -982,62 +1023,107 @@ param_opt
 	}
 	;
 
+function_attr_sub
+	: TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
+	{
+		$$ = $3;
+	}
+	| TLNOT nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
+	{
+		$$ = DEFAULT_SIGNAL ^ (DEFAULT_SIGNAL & $5);
+	}
+	| TLAND nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
+	{
+		$$ = DEFAULT_SIGNAL | $5;
+	}
+	| function_attr_sub nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
+	{
+		$$ = $5;
+	}
+	| function_attr_sub nllo TLNOT nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
+	{
+		$$ = $1 ^ ($1 & $7);
+	}
+	| function_attr_sub nllo TLAND nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
+	{
+		$$ = $1 | $7;
+	}
+	;
+
+function_attr
+	: function_attr_sub
+	{
+		$$ = new Ink_FunctionAttribution($1);
+	}
+	;
+
+function_body
+	: TLBRACE expression_list_opt TRBRACE
+	{
+		$$ = $2;
+	}
+	| TDO expression_list_opt TEND
+	{
+		$$ = $2;
+	}
+	;
+
 function_expression
 	: primary_expression
-	| TFUNC nllo TLPAREN param_opt TRPAREN nllo TLBRACE expression_list_opt TRBRACE
+	| TFUNC nllo TLPAREN param_opt TRPAREN nllo function_body
 	{
-		$$ = new Ink_FunctionExpression(*$4, *$8);
+		$$ = new Ink_FunctionExpression(*$4, *$7);
 		delete $4;
-		delete $8;
+		delete $7;
 		SET_LINE_NO($$);
 	}
-	| TFUNC nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
+	| TFUNC nllo TCOLON nllo function_attr TLPAREN param_opt TRPAREN nllo function_body
 	{
-		$$ = new Ink_FunctionExpression(*$4, *$8);
-		delete $4;
-		delete $8;
+		$$ = new Ink_FunctionExpression(*$7, *$10, $5);
+		delete $7;
+		delete $10;
 		SET_LINE_NO($$);
 	}
-	| TINLINE nllo TLPAREN param_opt TRPAREN nllo TLBRACE expression_list_opt TRBRACE
+	| TINLINE nllo TLPAREN param_opt TRPAREN nllo function_body
 	{
-		$$ = new Ink_FunctionExpression(*$4, *$8, true);
+		$$ = new Ink_FunctionExpression(*$4, *$7, true);
 		delete $4;
-		delete $8;
+		delete $7;
 		SET_LINE_NO($$);
 	}
-	| TINLINE nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
+	| TINLINE nllo TCOLON nllo function_attr TLPAREN param_opt TRPAREN nllo function_body
 	{
-		$$ = new Ink_FunctionExpression(*$4, *$8, true);
-		delete $4;
-		delete $8;
+		$$ = new Ink_FunctionExpression(*$7, *$10, $5, true);
+		delete $7;
+		delete $10;
 		SET_LINE_NO($$);
 	}
-	| TMACRO nllo TLPAREN param_opt TRPAREN nllo TLBRACE expression_list_opt TRBRACE
+	| TMACRO nllo TLPAREN param_opt TRPAREN nllo function_body
 	{
-		$$ = new Ink_FunctionExpression(*$4, *$8, false, true);
+		$$ = new Ink_FunctionExpression(*$4, *$7, false, true);
 		delete $4;
-		delete $8;
+		delete $7;
 		SET_LINE_NO($$);
 	}
-	| TMACRO nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
+	| TMACRO nllo TCOLON nllo function_attr TLPAREN param_opt TRPAREN nllo function_body
 	{
-		$$ = new Ink_FunctionExpression(*$4, *$8, false, true);
-		delete $4;
-		delete $8;
+		$$ = new Ink_FunctionExpression(*$7, *$10, $5, false, true);
+		delete $7;
+		delete $10;
 		SET_LINE_NO($$);
 	}
-	| TPROTOCOL nllo TLPAREN param_opt TRPAREN nllo TLBRACE expression_list_opt TRBRACE
+	| TPROTOCOL nllo TLPAREN param_opt TRPAREN nllo function_body
 	{
-		$$ = new Ink_FunctionExpression(*$4, *$8, $1);
+		$$ = new Ink_FunctionExpression(*$4, *$7, $1);
 		delete $4;
-		delete $8;
+		delete $7;
 		SET_LINE_NO($$);
 	}
-	| TPROTOCOL nllo TLPAREN param_opt TRPAREN nllo TDO expression_list_opt TEND
+	| TPROTOCOL nllo TCOLON nllo function_attr TLPAREN param_opt TRPAREN nllo function_body
 	{
-		$$ = new Ink_FunctionExpression(*$4, *$8, $1);
-		delete $4;
-		delete $8;
+		$$ = new Ink_FunctionExpression(*$7, *$10, $5, $1);
+		delete $7;
+		delete $10;
 		SET_LINE_NO($$);
 	}
 	;

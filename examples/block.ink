@@ -1573,3 +1573,16 @@ a@assign = fn (val) {
 a = 10
 
 p(a);
+
+f = inl
+	:
+	^[all]
+	&[default]
+	&[throw]
+	^[default, drop] () {
+	throw "hahaha"
+}
+
+f()
+
+p("wow")
