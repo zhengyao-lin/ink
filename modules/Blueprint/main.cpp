@@ -7,6 +7,17 @@ using namespace ink;
 
 InkMod_ModuleID ink_native_blueprint_mod_id;
 
+void setMathCalMode(Ink_InterpreteEngine *engine, InkMod_Blueprint_Math_CalMode mode)
+{
+	engine->getEngineComAs<InkMod_Blueprint_EngineCom>(ink_native_blueprint_mod_id)->math_cal_mode = mode;
+	return;
+}
+
+InkMod_Blueprint_Math_CalMode getMathCalMode(Ink_InterpreteEngine *engine)
+{
+	return engine->getEngineComAs<InkMod_Blueprint_EngineCom>(ink_native_blueprint_mod_id)->math_cal_mode;
+}
+
 Ink_Object *InkMod_Blueprint_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
@@ -39,9 +50,34 @@ Ink_Object *InkMod_Blueprint_Loader(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return NULL_OBJ;
 }
 
+struct com_cleaner_arg {
+	InkMod_ModuleID id;
+	com_cleaner_arg(InkMod_ModuleID id)
+	: id(id)
+	{ }
+};
+
+void InkMod_Blueprint_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
+{
+	com_cleaner_arg *tmp = (com_cleaner_arg *)arg;
+	delete engine->getEngineComAs<InkMod_Blueprint_EngineCom>(tmp->id);
+	delete tmp;
+	return;
+}
+
 extern "C" {
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
+		InkMod_Blueprint_EngineCom *engine_com = NULL;
+
+		if (!engine->getEngineComAs<InkMod_Blueprint_EngineCom>(ink_native_blueprint_mod_id)) {
+			/* haven't added yet */
+			engine_com = new InkMod_Blueprint_EngineCom();
+			engine->addEngineCom(ink_native_blueprint_mod_id, engine_com);
+			engine->addDestructor(Ink_EngineDestructor(InkMod_Blueprint_EngineComCleaner,
+													   new com_cleaner_arg(ink_native_blueprint_mod_id)));
+		}
+
 		Ink_Object *blueprint_pkg = addPackage(engine, context, "blueprint",
 											   new Ink_FunctionObject(engine, InkMod_Blueprint_Loader));
 		Ink_Object *base_pkg = addPackage(engine, blueprint_pkg, "base",

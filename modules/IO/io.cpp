@@ -19,7 +19,7 @@ struct com_cleaner_arg {
 	{ }
 };
 
-void InkNative_IO_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
+void InkMod_IO_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
 {
 	com_cleaner_arg *tmp = (com_cleaner_arg *)arg;
 	free(engine->getEngineComAs<Ink_TypeTag>(tmp->id));
@@ -90,7 +90,7 @@ extern "C" {
 			type_p[1] = (Ink_TypeTag)engine->registerType("io.direct.Directory");
 
 			engine->addEngineCom(ink_native_file_mod_id, type_p);
-			engine->addDestructor(Ink_EngineDestructor(InkNative_IO_EngineComCleaner, new com_cleaner_arg(ink_native_file_mod_id)));
+			engine->addDestructor(Ink_EngineDestructor(InkMod_IO_EngineComCleaner, new com_cleaner_arg(ink_native_file_mod_id)));
 
 			context->getGlobal()->context->setSlot_c("$io.file.File", tmp = new Ink_FilePointer(engine));
 			engine->setTypePrototype(FILE_POINTER_TYPE, tmp);

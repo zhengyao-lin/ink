@@ -157,4 +157,23 @@ InkWarn_Blueprint_Env_Failed_Set_Env(Ink_InterpreteEngine *engine, const char *k
 	return;
 }
 
+/* math */
+inline void
+InkWarn_Blueprint_Math_Set_Unknown_Mode(Ink_InterpreteEngine *engine, const char *mode_str)
+{
+	InkErro_doPrintWarning(engine, "Failed to set unknown mode $(mode)", mode_str);
+	return;
+}
+
+inline void
+InkWarn_Blueprint_Math_Get_Unknown_Mode(Ink_InterpreteEngine *engine, InkMod_Blueprint_Math_CalMode mode_e)
+{
+	stringstream strm;
+
+	strm << "Failed to get unknown mode with code " << mode_e;
+	InkErro_doPrintWarning(engine, strm.str().c_str());
+
+	return;
+}
+
 #endif

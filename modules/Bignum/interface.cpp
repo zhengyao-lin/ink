@@ -280,7 +280,7 @@ void Ink_BigNumeric::Ink_BigNumericMethodInit(Ink_InterpreteEngine *engine)
 	return;
 }
 
-Ink_Object *InkNative_Bignum_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Bignum_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret = NULL_OBJ;
 
@@ -301,7 +301,7 @@ struct com_cleaner_arg {
 	{ }
 };
 
-void InkNative_Bignum_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
+void InkMod_Bignum_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
 {
 	com_cleaner_arg *tmp = (com_cleaner_arg *)arg;
 	free(engine->getEngineComAs<Ink_TypeTag>(tmp->id));
@@ -311,7 +311,7 @@ void InkNative_Bignum_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
 
 void InkMod_Bignum_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	bondee->setSlot_c("bignum", new Ink_FunctionObject(engine, InkNative_Bignum_Constructor));
+	bondee->setSlot_c("bignum", new Ink_FunctionObject(engine, InkMod_Bignum_Constructor));
 	return;
 }
 
@@ -341,7 +341,7 @@ extern "C" {
 			type_p[0] = (Ink_TypeTag)engine->registerType("bignum");
 
 			engine->addEngineCom(ink_native_bignum_mod_id, type_p);
-			engine->addDestructor(Ink_EngineDestructor(InkNative_Bignum_EngineComCleaner,
+			engine->addDestructor(Ink_EngineDestructor(InkMod_Bignum_EngineComCleaner,
 													   new com_cleaner_arg(ink_native_bignum_mod_id)));
 
 			context->getGlobal()->context->setSlot_c("$bignum", tmp = new Ink_BigNumeric(engine, "0"));
