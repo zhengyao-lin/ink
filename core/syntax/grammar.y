@@ -86,7 +86,6 @@
 	TECLI				// ...
 
 	TCOMMA				// ,
-	TOR					// |
 
 /* splits */
 %token <token>
@@ -100,9 +99,11 @@
 	TMUL				// *
 	TDIV				// /
 	TMOD				// %
-	TLAND				// & // not yet an operator
-	TLINV				// ~ // not yet an operator
-	TLNOT				// ^ // not yet an operator
+	TBAND				// &
+	TBXOR				// ^
+	TBOR				// |
+	TINS				// <<
+	TOUT				// >>
 	TASSIGN				// =
 	TCOLON				// :
 	TDCOLON				// ::
@@ -114,12 +115,8 @@
 	TDSUB				// --
 	TDOT				// .
 	TDNOT				// !!
-	TNOT				// !
-
-/* stream operators */
-%token <token>
-	TINS				// <<
-	TOUT				// >>
+	TLNOT				// !
+	TBINV				// ~
 
 /* condition operators */
 %token <token>
@@ -129,8 +126,8 @@
 	TCGT				// >
 	TCEQ				// ==
 	TCNE				// !=
-	TCAND				// &&
-	TCOR				// ||
+	TLAND				// &&
+	TLOR				// ||
 
 /* expressions */
 /* some names are quoted from ANSI C grammar */
@@ -142,13 +139,17 @@
 		unary_expression													/* |		*/
 		multiplicative_expression											/* |		*/
 		additive_expression													/* |		*/
+		shift_expression													/* |		*/
 		relational_expression												/* |		*/
 		equality_expression													/* |		*/
+		and_expression														/* |		*/
+		exclusive_or_expression												/* |		*/
+		inclusive_or_expression												/* |		*/
 		yield_expression													/* |		*/
-		assignment_expression												/* |		*/
 		logical_and_expression												/* |		*/
 		logical_or_expression												/* |		*/
-		insert_expression interrupt_expression								/* |		*/
+		assignment_expression												/* |		*/
+		interrupt_expression												/* |		*/
 		nestable_expression import_expression comma_expression				/* lowest	*/
 
 	/* trivial */
@@ -182,7 +183,6 @@
 	argument_attachment
 	argument_attachment_opt
 	argument_list_without_paren
-	insert_list
 
 /* hash table */
 %type <hash_table_mapping>
@@ -426,69 +426,18 @@ comma_expression
 	;
 
 nestable_expression
-	: insert_expression
+	: assignment_expression
 	| interrupt_expression
 	;
 
-insert_list
-	: TINS nllo logical_or_expression
-	{
-		$$ = new Ink_ArgumentList();
-		$$->push_back(new Ink_Argument($3));
-	}
-	| insert_list TINS nllo logical_or_expression
-	{
-		$1->push_back(new Ink_Argument($4));
-		$$ = $1;
-	}
-	;
-
-insert_expression
-	: logical_or_expression
-	| logical_or_expression insert_list
-	{
-		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<<")), *$2);
-		delete $2;
-		SET_LINE_NO($$);
-		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
-	}
-	| insert_expression TOUT nllo logical_or_expression
-	{
-		Ink_ArgumentList arg = Ink_ArgumentList();
-		arg.push_back(new Ink_Argument($4));
-
-		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">>")), arg);
-		SET_LINE_NO($$);
-		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
-	}
-	;
-
-logical_or_expression
-	: logical_and_expression
-	| logical_or_expression TCOR nllo logical_and_expression
-	{
-		$$ = new Ink_LogicExpression($1, $4, LOGIC_OR);
-		SET_LINE_NO($$);
-	}
-	;
-
-logical_and_expression
-	: assignment_expression
-	| logical_and_expression TCAND nllo assignment_expression
-	{
-		$$ = new Ink_LogicExpression($1, $4, LOGIC_AND);
-		SET_LINE_NO($$);
-	}
-	;
-
 assignment_expression
-	: yield_expression
-	| yield_expression TASSIGN nllo assignment_expression
+	: logical_or_expression
+	| logical_or_expression TASSIGN nllo assignment_expression
 	{
 		$$ = new Ink_AssignmentExpression($1, $4);
 		SET_LINE_NO($$);
 	}
-	| yield_expression TARR nllo assignment_expression
+	| logical_or_expression TARR nllo assignment_expression
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();
 		arg.push_back(new Ink_Argument($4));
@@ -499,8 +448,26 @@ assignment_expression
 	}
 	;
 
+logical_or_expression
+	: logical_and_expression
+	| logical_or_expression TLOR nllo logical_and_expression
+	{
+		$$ = new Ink_LogicExpression($1, $4, LOGIC_OR);
+		SET_LINE_NO($$);
+	}
+	;
+
+logical_and_expression
+	: yield_expression
+	| logical_and_expression TLAND nllo yield_expression
+	{
+		$$ = new Ink_LogicExpression($1, $4, LOGIC_AND);
+		SET_LINE_NO($$);
+	}
+	;
+
 yield_expression
-	: equality_expression
+	: inclusive_or_expression
 	| TYIELD
 	{
 		$$ = new Ink_YieldExpression(NULL);
@@ -510,6 +477,45 @@ yield_expression
 	{
 		$$ = new Ink_YieldExpression($2);
 		SET_LINE_NO($$);
+	}
+	;
+
+inclusive_or_expression
+	: exclusive_or_expression
+	| inclusive_or_expression TBOR nllo exclusive_or_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("|")), arg);
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
+	;
+
+exclusive_or_expression
+	: and_expression
+	| exclusive_or_expression TBXOR nllo and_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("^")), arg);
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
+	;
+
+and_expression
+	: equality_expression
+	| and_expression TBAND nllo equality_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("&")), arg);
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
 	;
 
@@ -536,8 +542,8 @@ equality_expression
 	;
 
 relational_expression
-	: additive_expression
-	| relational_expression TCLT nllo additive_expression
+	: shift_expression
+	| relational_expression TCLT nllo shift_expression
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();
 		arg.push_back(new Ink_Argument($4));
@@ -546,7 +552,7 @@ relational_expression
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
-	| relational_expression TCGT nllo additive_expression
+	| relational_expression TCGT nllo shift_expression
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();
 		arg.push_back(new Ink_Argument($4));
@@ -555,7 +561,7 @@ relational_expression
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
-	| relational_expression TCLE nllo additive_expression
+	| relational_expression TCLE nllo shift_expression
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();
 		arg.push_back(new Ink_Argument($4));
@@ -564,12 +570,34 @@ relational_expression
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
-	| relational_expression TCGE nllo additive_expression
+	| relational_expression TCGE nllo shift_expression
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();
 		arg.push_back(new Ink_Argument($4));
 
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">=")), arg);
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
+	;
+
+shift_expression
+	: additive_expression
+	| shift_expression TINS nllo additive_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<<")), arg);
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
+	| shift_expression TOUT nllo additive_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string(">>")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
@@ -673,14 +701,14 @@ block
 		delete $2;
 		SET_LINE_NO($$);
 	}
-	| TLBRACE nllo TOR param_opt TOR expression_list_opt TRBRACE
+	| TLBRACE nllo TBOR param_opt TBOR expression_list_opt TRBRACE
 	{
 		$$ = new Ink_FunctionExpression(*$4, *$6, true);
 		delete $4;
 		delete $6;
 		SET_LINE_NO($$);
 	}
-	| TDO nllo TOR param_opt TOR expression_list_opt TEND
+	| TDO nllo TBOR param_opt TBOR expression_list_opt TEND
 	{
 		$$ = new Ink_FunctionExpression(*$4, *$6, true);
 		delete $4;
@@ -742,9 +770,16 @@ unary_expression
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}
-	| TNOT nllo unary_expression
+	| TLNOT nllo unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("!")),
+									Ink_ArgumentList());
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
+	| TBINV nllo unary_expression
+	{
+		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("~")),
 									Ink_ArgumentList());
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
@@ -922,8 +957,8 @@ postfix_expression
 	;
 
 param_multi_decl
-	: TMUL nllo TLAND nllo
-	| TLAND nllo TMUL nllo
+	: TMUL nllo TBAND nllo
+	| TBAND nllo TMUL nllo
 
 param_list_sub
 	: TIDENTIFIER
@@ -936,7 +971,7 @@ param_list_sub
 		$$ = new Ink_ParamList();
 		$$->push_back(Ink_Parameter($3, false, false, true));
 	}
-	| TLAND nllo TIDENTIFIER
+	| TBAND nllo TIDENTIFIER
 	{
 		$$ = new Ink_ParamList();
 		$$->push_back(Ink_Parameter($3, true, false));
@@ -956,7 +991,7 @@ param_list_sub
 		$1->push_back(Ink_Parameter($6, false, false, true));
 		$$ = $1;
 	}
-	| param_list TCOMMA nllo TLAND nllo TIDENTIFIER
+	| param_list TCOMMA nllo TBAND nllo TIDENTIFIER
 	{
 		$1->push_back(Ink_Parameter($6, true, false));
 		$$ = $1;
@@ -971,7 +1006,7 @@ param_list_sub
 		$1->push_back(Ink_Parameter($4, false, true));
 		$$ = $1;
 	}
-	| param_list TCOMMA nllo TLAND nllo TIDENTIFIER TECLI
+	| param_list TCOMMA nllo TBAND nllo TIDENTIFIER TECLI
 	{
 		$1->push_back(Ink_Parameter($6, true, true));
 		$$ = $1;
@@ -981,7 +1016,7 @@ param_list_sub
 		$1->push_back(Ink_Parameter(new string("args"), false, true));
 		$$ = $1;
 	}
-	| param_list TCOMMA nllo TLAND nllo TECLI
+	| param_list TCOMMA nllo TBAND nllo TECLI
 	{
 		$1->push_back(Ink_Parameter(new string("args"), true, true));
 		$$ = $1;
@@ -995,7 +1030,7 @@ param_list
 		$$ = new Ink_ParamList();
 		$$->push_back(Ink_Parameter($1, false, true));
 	}
-	| TLAND nllo TIDENTIFIER TECLI
+	| TBAND nllo TIDENTIFIER TECLI
 	{
 		$$ = new Ink_ParamList();
 		$$->push_back(Ink_Parameter($3, true, true));
@@ -1005,7 +1040,7 @@ param_list
 		$$ = new Ink_ParamList();
 		$$->push_back(Ink_Parameter(new string("args"), false, true));
 	}
-	| TLAND nllo TECLI
+	| TBAND nllo TECLI
 	{
 		$$ = new Ink_ParamList();
 		$$->push_back(Ink_Parameter(new string("args"), true, true));
@@ -1028,11 +1063,11 @@ function_attr_sub
 	{
 		$$ = $3;
 	}
-	| TLNOT nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
+	| TBXOR nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
 	{
 		$$ = DEFAULT_SIGNAL ^ (DEFAULT_SIGNAL & $5);
 	}
-	| TLAND nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
+	| TBAND nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
 	{
 		$$ = DEFAULT_SIGNAL | $5;
 	}
@@ -1040,11 +1075,11 @@ function_attr_sub
 	{
 		$$ = $5;
 	}
-	| function_attr_sub nllo TLNOT nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
+	| function_attr_sub nllo TBXOR nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
 	{
 		$$ = $1 ^ ($1 & $7);
 	}
-	| function_attr_sub nllo TLAND nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
+	| function_attr_sub nllo TBAND nllo TLBRAKT nllo interrupt_signal_list nllo TRBRAKT
 	{
 		$$ = $1 | $7;
 	}

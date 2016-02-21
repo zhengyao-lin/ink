@@ -407,13 +407,19 @@ void Ink_GlobalConstantInit()
 	return;
 }
 
-int numeric_native_method_table_count = 17;
+int numeric_native_method_table_count = 23;
 InkNative_MethodTable numeric_native_method_table[] = {
 	{"+", new Ink_FunctionObject(NULL, InkNative_Numeric_Add)},
 	{"-", new Ink_FunctionObject(NULL, InkNative_Numeric_Sub)},
 	{"*", new Ink_FunctionObject(NULL, InkNative_Numeric_Mul)},
 	{"/", new Ink_FunctionObject(NULL, InkNative_Numeric_Div)},
 	{"%", new Ink_FunctionObject(NULL, InkNative_Numeric_Mod)},
+	{"&", new Ink_FunctionObject(NULL, InkNative_Numeric_And)},
+	{"|", new Ink_FunctionObject(NULL, InkNative_Numeric_Or)},
+	{"^", new Ink_FunctionObject(NULL, InkNative_Numeric_Xor)},
+	{"<<", new Ink_FunctionObject(NULL, InkNative_Numeric_ShiftLeft)},
+	{">>", new Ink_FunctionObject(NULL, InkNative_Numeric_ShiftRight)},
+	{"~", new Ink_FunctionObject(NULL, InkNative_Numeric_Inverse)},
 	{"==", new Ink_FunctionObject(NULL, InkNative_Numeric_Equal)},
 	{"!=", new Ink_FunctionObject(NULL, InkNative_Numeric_NotEqual)},
 	{">", new Ink_FunctionObject(NULL, InkNative_Numeric_Greater)},

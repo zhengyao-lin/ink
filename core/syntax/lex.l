@@ -162,17 +162,20 @@ void yyerror(const char *msg);
 <INITIAL>"yield"					return TOKEN(TYIELD);
 <INITIAL>"with"						return TOKEN(TWITH);
 
-<INITIAL>"&&"						return TOKEN(TCAND);
-<INITIAL>"||"						return TOKEN(TCOR);
+<INITIAL>"&&"						return TOKEN(TLAND);
+<INITIAL>"||"						return TOKEN(TLOR);
 
-<INITIAL>"&"						return TOKEN(TLAND);
-<INITIAL>"~"						return TOKEN(TLINV);
-<INITIAL>"^"						return TOKEN(TLNOT);
+<INITIAL>"&"						return TOKEN(TBAND);
+<INITIAL>"~"						return TOKEN(TBINV);
+<INITIAL>"^"						return TOKEN(TBXOR);
+<INITIAL>"|"						return TOKEN(TBOR);
+<INITIAL>"<<"						return TOKEN(TINS);
+<INITIAL>">>"						return TOKEN(TOUT);
 
 <INITIAL>"..."						return TOKEN(TECLI);
 <INITIAL>"!!"						return TOKEN(TDNOT);
 <INITIAL>"!="						return TOKEN(TCNE);
-<INITIAL>"!"						return TOKEN(TNOT);
+<INITIAL>"!"						return TOKEN(TLNOT);
 <INITIAL>","						return TOKEN(TCOMMA);
 <INITIAL>";"						return TOKEN(TSEMICOLON);
 <INITIAL>"::"						return TOKEN(TDCOLON);
@@ -180,8 +183,6 @@ void yyerror(const char *msg);
 <INITIAL>"."						return TOKEN(TDOT);
 
 <INITIAL>"->"						return TOKEN(TARR);
-<INITIAL>"<<"						return TOKEN(TINS);
-<INITIAL>">>"						return TOKEN(TOUT);
 <INITIAL>"<="						return TOKEN(TCLE);
 <INITIAL>"<"						return TOKEN(TCLT);
 <INITIAL>">="						return TOKEN(TCGE);
@@ -198,7 +199,6 @@ void yyerror(const char *msg);
 
 <INITIAL>"++"						return TOKEN(TDADD);
 <INITIAL>"--"						return TOKEN(TDSUB);
-<INITIAL>"|"						return TOKEN(TOR);
 <INITIAL>"+"						return TOKEN(TADD);
 <INITIAL>"-"						return TOKEN(TSUB);
 <INITIAL>"*"						return TOKEN(TMUL);
