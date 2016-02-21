@@ -14,16 +14,22 @@ using namespace std;
 
 class Ink_Bignum_NumericValue;
 
+typedef vector<char> Ink_Bignum_Integer_Digit;
+
 class Ink_Bignum_Integer {
-	vector<char> digits;
+	Ink_Bignum_Integer_Digit digits;
 	bool sign;
 	void trim();
 
 public:
 	friend class Ink_Bignum_NumericValue;
-	Ink_Bignum_Integer(long);
-	Ink_Bignum_Integer(double, bool);
+	Ink_Bignum_Integer(double);
 	Ink_Bignum_Integer(string);
+
+	Ink_Bignum_Integer(Ink_Bignum_Integer_Digit digits, bool sign)
+	: digits(digits), sign(sign)
+	{ }
+	
 	Ink_Bignum_Integer();
 	Ink_Bignum_Integer(const Ink_Bignum_Integer &);
 	Ink_Bignum_Integer operator = (const Ink_Bignum_Integer &op2);
@@ -31,6 +37,26 @@ public:
 	Ink_Bignum_Integer abs() const;
 	Ink_Bignum_Integer pow(int a);
 	Ink_Bignum_Integer pow(Ink_Bignum_Integer a);
+	Ink_Bignum_Integer exp(long a);
+
+	inline long toLong()
+	{
+		Ink_Bignum_Integer_Digit::reverse_iterator iter;
+		long ret = 0;
+
+		for (iter = digits.rbegin();
+			 iter != digits.rend(); iter++) {
+			ret *= 10;
+			ret += *iter;
+		}
+
+		return ret;
+	}
+
+	inline bool isValid()
+	{
+		return digits.size() > 0;
+	}
 
 	friend Ink_Bignum_Integer operator += (Ink_Bignum_Integer &, const Ink_Bignum_Integer &);
 	friend Ink_Bignum_Integer operator -= (Ink_Bignum_Integer &, const Ink_Bignum_Integer &);
@@ -114,7 +140,7 @@ public:
         }
 
 		long pos = 0;
-		for (vector<char>::const_reverse_iterator iter = num.digits.rbegin();
+		for (Ink_Bignum_Integer_Digit::const_reverse_iterator iter = num.digits.rbegin();
 			 iter != num.digits.rend() ; iter++, pos++) {
 			if (pos == std_pow) {
 				ret += ".";
@@ -124,6 +150,11 @@ public:
 		}
 
 		return ret;
+	}
+
+	inline bool isValid()
+	{
+		return num.isValid();
 	}
 
 	inline long getDecimal()

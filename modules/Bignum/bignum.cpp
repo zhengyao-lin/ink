@@ -15,20 +15,7 @@ Ink_Bignum_Integer::Ink_Bignum_Integer()
 	sign = true; 
 }
 
-Ink_Bignum_Integer::Ink_Bignum_Integer(long val)
-{
-	if (val >= 0) sign = true;
-	else {
-		sign = false;
-		val *= -1;
-	}
-	do {
-		digits.push_back((char)(val % 10));
-		val /= 10;
-	} while (val != 0);
-}
-
-Ink_Bignum_Integer::Ink_Bignum_Integer(double val, bool flag)
+Ink_Bignum_Integer::Ink_Bignum_Integer(double val)
 {
 	if (val >= 0) sign = true;
 	else {
@@ -55,6 +42,10 @@ Ink_Bignum_Integer::Ink_Bignum_Integer(string def)
 				break;
 			}
 		}
+		if ((*iter) > '9' || (*iter) < '0') {
+			digits = Ink_Bignum_Integer_Digit();
+			return;
+		}
 		digits.push_back((char)((*iter) - '0'));
 	}
 	trim();
@@ -62,7 +53,7 @@ Ink_Bignum_Integer::Ink_Bignum_Integer(string def)
 
 void Ink_Bignum_Integer::trim()
 {
-	vector<char>::reverse_iterator iter = digits.rbegin();
+	Ink_Bignum_Integer_Digit::reverse_iterator iter = digits.rbegin();
 	while (!digits.empty() && *iter == 0) {
 		digits.pop_back();
 		iter = digits.rbegin();
@@ -118,10 +109,27 @@ Ink_Bignum_Integer Ink_Bignum_Integer::pow(Ink_Bignum_Integer a)
 	return ret;
 }
 
+Ink_Bignum_Integer Ink_Bignum_Integer::exp(long a)
+{
+	Ink_Bignum_Integer ret = *this;
+
+	if (!a) return ret;
+
+	if (a > 0) {
+		Ink_Bignum_Integer_Digit ins = Ink_Bignum_Integer_Digit(a, 0);
+		ret.digits.insert(ret.digits.begin(), ins.begin(), ins.end());
+	} else {
+		if (-a >= (long)ret.digits.size()) return 0;
+		ret.digits = Ink_Bignum_Integer_Digit(ret.digits.begin() - a, ret.digits.end());
+	}
+
+	return ret;
+}
+
 Ink_Bignum_Integer operator += (Ink_Bignum_Integer &op1, const Ink_Bignum_Integer &op2) {
 	if (op1.sign == op2.sign) {
-		vector<char>::iterator iter1;
-		vector<char>::const_iterator iter2;
+		Ink_Bignum_Integer_Digit::iterator iter1;
+		Ink_Bignum_Integer_Digit::const_iterator iter2;
 		char to_add;
 
 		for (to_add = 0,
@@ -169,8 +177,8 @@ Ink_Bignum_Integer operator -= (Ink_Bignum_Integer &op1, const Ink_Bignum_Intege
 			else return op1 = (-op2) - (-op1);
 		}
 
-		vector<char>::iterator iter1;
-		vector<char>::const_iterator iter2;
+		Ink_Bignum_Integer_Digit::iterator iter1;
+		Ink_Bignum_Integer_Digit::const_iterator iter2;
 		char to_substract;
 
 		for (to_substract = 0,
@@ -210,8 +218,16 @@ Ink_Bignum_Integer operator *= (Ink_Bignum_Integer &op1, const Ink_Bignum_Intege
 	Ink_Bignum_Integer result(0);
 
 	if (op1 == Ink_Bignum_Integer::Zero || op2 == Ink_Bignum_Integer::Zero) result = Ink_Bignum_Integer::Zero;
-	else {
-		vector<char>::const_iterator iter2 = op2.digits.begin();
+	else if (op1 == Ink_Bignum_Integer::One) {
+		result = op2;
+	} else if (op1 == -Ink_Bignum_Integer::One) {
+		result = -op2;
+	} else if (op2 == Ink_Bignum_Integer::One) {
+		result = op1;
+	} else if (op2 == -Ink_Bignum_Integer::One) {
+		result = -op1;
+	} else {
+		Ink_Bignum_Integer_Digit::const_iterator iter2 = op2.digits.begin();
 		while (iter2 != op2.digits.end()) {
 			if (*iter2 != 0) {
 				deque<char> temp(op1.digits.begin(), op1.digits.end());
@@ -228,7 +244,7 @@ Ink_Bignum_Integer operator *= (Ink_Bignum_Integer &op1, const Ink_Bignum_Intege
 
 				if (to_add != 0) temp.push_back(to_add);
 
-				vector<char>::size_type num_of_zeros = iter2 - op2.digits.begin();
+				Ink_Bignum_Integer_Digit::size_type num_of_zeros = iter2 - op2.digits.begin();
 
 				while (num_of_zeros--) temp.push_front(0);
 
@@ -250,6 +266,14 @@ Ink_Bignum_Integer operator *= (Ink_Bignum_Integer &op1, const Ink_Bignum_Intege
 Ink_Bignum_Integer operator /= (Ink_Bignum_Integer &op1 , const Ink_Bignum_Integer &op2) {
 	// if( op2 == Ink_Bignum_Integer::ZERO )
 	// throw DividedByZeroException();
+	
+	if (op2 == Ink_Bignum_Integer::One)
+		return op1;
+	else if (op2 == -Ink_Bignum_Integer::One) {
+		op1.sign = !op1.sign;
+		return op1;
+	}
+
 	Ink_Bignum_Integer t1 = op1.abs(), t2 = op2.abs();
 	if (t1 < t2) {
 		op1 = Ink_Bignum_Integer::Zero;
@@ -258,7 +282,7 @@ Ink_Bignum_Integer operator /= (Ink_Bignum_Integer &op1 , const Ink_Bignum_Integ
 
 	// t1 > t2 > 0
 	deque<char> temp;
-	vector<char>::reverse_iterator iter = t1.digits.rbegin();
+	Ink_Bignum_Integer_Digit::reverse_iterator iter = t1.digits.rbegin();
 
 	Ink_Bignum_Integer temp2(0);
 	while (iter != t1.digits.rend()) {
@@ -275,6 +299,7 @@ Ink_Bignum_Integer operator /= (Ink_Bignum_Integer &op1 , const Ink_Bignum_Integ
 	op1.digits.insert(op1.digits.end(), temp.begin(), temp.end());
 	op1.trim();
 	op1.sign = ((op1.sign && op2.sign) || (!op1.sign && !op2.sign));
+
 	return op1;
 }
 
@@ -348,7 +373,7 @@ bool operator < (const Ink_Bignum_Integer &op1, const Ink_Bignum_Integer &op2) {
 		return (op1.sign && op1.digits.size() < op2.digits.size())
 			   || (!op1.sign && op1.digits.size() > op2.digits.size());
 
-	vector<char>::const_reverse_iterator iter1, iter2;
+	Ink_Bignum_Integer_Digit::const_reverse_iterator iter1, iter2;
 
 	iter1 = op1.digits.rbegin();
 	iter2 = op2.digits.rbegin();
@@ -370,7 +395,7 @@ bool operator == (const Ink_Bignum_Integer &op1, const Ink_Bignum_Integer &op2) 
 	   || op1.digits.size() != op2.digits.size())
 		return false;
 
-	vector<char>::const_iterator iter1,iter2;
+	Ink_Bignum_Integer_Digit::const_iterator iter1,iter2;
 	iter1 = op1.digits.begin();
 	iter2 = op2.digits.begin();
 
@@ -406,8 +431,8 @@ Ink_Bignum_NumericValue::Ink_Bignum_NumericValue(double val)
 	num = std_pow = 0;
 	if (!isnan((long double)val)) {
 		double tmp_val = val;
-		Ink_Bignum_Integer integer(floor(tmp_val), true);
-		Ink_Bignum_Integer decimal((tmp_val - floor(tmp_val)) * pow(10, (int)DEFAULT_ACC), true);
+		Ink_Bignum_Integer integer(floor(tmp_val));
+		Ink_Bignum_Integer decimal((tmp_val - floor(tmp_val)) * pow(10, (int)DEFAULT_ACC));
 		num = integer * Ink_Bignum_Integer(10).pow(DEFAULT_ACC) + decimal;
 		//std::cout << integer << decimal << endl;
 		std_pow = fabs(tmp_val) >= 1
@@ -421,10 +446,9 @@ Ink_Bignum_NumericValue::Ink_Bignum_NumericValue(string str)
 	string::size_type pos, epos;
 	num = std_pow = 0;
 	int sign = 1;
-	Ink_Bignum_Integer integer = 0;
+	Ink_Bignum_Integer integer = 0, decimal;
 	Ink_Bignum_Integer expn = 0;
 	bool use_e = false;
-	string decimal;
 
 	if (str.length()) {
 		if (str[0] == '-') {
@@ -446,9 +470,15 @@ Ink_Bignum_NumericValue::Ink_Bignum_NumericValue(string str)
 		pos = str.find_first_of('.');
 		if (pos != string::npos) {
 			integer = Ink_Bignum_Integer(str.substr(0, pos));
-			decimal = str.substr(pos + 1);
-			num = sign * (integer.abs() * Ink_Bignum_Integer(10).pow(decimal.length()) + Ink_Bignum_Integer(decimal).abs());
-			std_pow = integer > 0 ? integer.digits.size() : num.digits.size() - decimal.length();
+			decimal = Ink_Bignum_Integer(str.substr(pos + 1)).abs();
+			// num = sign * (integer.abs() * Ink_Bignum_Integer(10).pow(decimal.length()) + Ink_Bignum_Integer(decimal).abs());
+			num = integer;
+			num.digits.insert(num.digits.begin(),
+							  decimal.digits.begin(),
+							  decimal.digits.end());
+			num.sign = sign > 1;
+
+			std_pow = integer > 0 ? integer.digits.size() : num.digits.size() - decimal.digits.size();
 		} else {
 			num = sign * Ink_Bignum_Integer(str);
 			std_pow = num.digits.size();
@@ -456,10 +486,9 @@ Ink_Bignum_NumericValue::Ink_Bignum_NumericValue(string str)
 	}
 
 	if (use_e) {
-		if (expn >= 0)
-			*this *= Ink_Bignum_Integer(10).pow(expn);
-		else
-			*this /= Ink_Bignum_Integer(10).pow(-expn);
+		long tmp = expn.toLong();
+		std_pow += tmp;
+		num = num.exp(tmp);
 	}
 }
 

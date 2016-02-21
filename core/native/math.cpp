@@ -74,10 +74,10 @@ Ink_Object *InkNative_Numeric_Mod(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return new Ink_Numeric(engine, fmod(as<Ink_Numeric>(base)->value, as<Ink_Numeric>(argv[0])->value));
 }
 
-inline Ink_SInt32
+inline Ink_SInt64
 getIntegerVal(Ink_Object *num /* assume numeric */)
 {
-	return (Ink_SInt32)(as<Ink_Numeric>(num)->value);
+	return (Ink_SInt64)(as<Ink_Numeric>(num)->value);
 }
 
 Ink_Object *InkNative_Numeric_And(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
