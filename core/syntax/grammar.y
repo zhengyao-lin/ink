@@ -150,7 +150,6 @@
 	/* not exactly an expression, but returns expression */
 	direct_argument_attachment_expression
 	block
-		functional_block
 
 /* expression list */
 %type <expression_list>
@@ -633,11 +632,7 @@ block
 		delete $2;
 		SET_LINE_NO($$);
 	}
-	| functional_block
-	;
-
-functional_block
-	: TLBRACE nllo TOR param_opt TOR expression_list_opt TRBRACE
+	| TLBRACE nllo TOR param_opt TOR expression_list_opt TRBRACE
 	{
 		$$ = new Ink_FunctionExpression(*$4, *$6, true);
 		delete $4;
