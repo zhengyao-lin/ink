@@ -43,4 +43,11 @@ public:
 	}
 };
 
+inline void
+InkWarn_Bignum_Failed_Parse_Bignum(Ink_InterpreteEngine *engine, const char *str)
+{
+	InkErro_doPrintWarning(engine, "Failed to parse big numeric by string '$(str)'", str);
+	return;
+}
+
 #endif

@@ -12,6 +12,9 @@
 
 using namespace std;
 
+#define INVALID_INT (Ink_Bignum_Integer(Ink_Bignum_Integer_Digit()))
+#define INVALID_NUM (Ink_Bignum_NumericValue(INVALID_INT))
+
 class Ink_Bignum_NumericValue;
 
 typedef vector<char> Ink_Bignum_Integer_Digit;
@@ -182,11 +185,11 @@ public:
 	inline Ink_Bignum_NumericValue dividedBy(const Ink_Bignum_NumericValue &rhs, long prec = DEFAULT_ACC)
 	{
 		prec += rhs.getDecimal();
-		Ink_Bignum_Integer acc = Ink_Bignum_Integer(10).pow(prec);
-		Ink_Bignum_Integer op1 = (num * acc);
+		Ink_Bignum_Integer op1 = num.exp(prec);
+		Ink_Bignum_Integer rnum = rhs.num;
 
 		Ink_Bignum_NumericValue ret = Ink_Bignum_NumericValue(op1 / rhs.num);
-		ret.std_pow = ret.num.digits.size() - prec - getDecimal() + rhs.getDecimal();
+		ret.std_pow = ret.num.digits.size() - prec - (getDecimal() - rhs.getDecimal());
 
 		return ret;
 	}

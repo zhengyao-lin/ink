@@ -283,12 +283,22 @@ void Ink_BigNumeric::Ink_BigNumericMethodInit(Ink_InterpreteEngine *engine)
 Ink_Object *InkMod_Bignum_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret = NULL_OBJ;
+	Ink_Bignum_NumericValue ret_val;
+	string tmp_str;
 
 	if (checkArgument(false, argc, argv, 1, INK_STRING)) {
-		ret = new Ink_BigNumeric(engine, as<Ink_String>(argv[0])->getValue());
+		ret_val = Ink_Bignum_NumericValue(tmp_str = as<Ink_String>(argv[0])->getValue());
+		if (!ret_val.isValid()) {
+			InkWarn_Bignum_Failed_Parse_Bignum(engine, tmp_str.c_str());
+			goto END;
+		}
 	} else if (checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
-		ret = new Ink_BigNumeric(engine, as<Ink_Numeric>(argv[0])->value);
+		ret_val = Ink_Bignum_NumericValue(as<Ink_Numeric>(argv[0])->value);
 	}
+
+	ret = new Ink_BigNumeric(engine, tmp_str);
+
+END:
 	context->getLocal()->context->setSlot_c("this", ret);
 
 	return ret;

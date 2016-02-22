@@ -122,6 +122,7 @@ Ink_Bignum_Integer Ink_Bignum_Integer::exp(long a)
 		if (-a >= (long)ret.digits.size()) return 0;
 		ret.digits = Ink_Bignum_Integer_Digit(ret.digits.begin() - a, ret.digits.end());
 	}
+	ret.trim();
 
 	return ret;
 }
@@ -227,39 +228,73 @@ Ink_Bignum_Integer operator *= (Ink_Bignum_Integer &op1, const Ink_Bignum_Intege
 	} else if (op2 == -Ink_Bignum_Integer::One) {
 		result = -op1;
 	} else {
-		if (op1.digits.size() <= 8 && op2.digits.size() <= 8) {
+		if (op1.digits.size() <= 7 && op2.digits.size() <= 7) {
 			Ink_Bignum_Integer op2_c = op2;
 			result = op1.toLong() * op2_c.toLong();
+		} else if (op1.digits.size() <= 140 || op2.digits.size() <= 140) {
+			Ink_Bignum_Integer_Digit::const_iterator iter2 = op2.digits.begin();
+			while (iter2 != op2.digits.end()) {
+				if (*iter2 != 0) {
+					Ink_Bignum_Integer_Digit temp = op1.digits;
+					char to_add;
+					Ink_Bignum_Integer_Digit::iterator iter1;
+
+					for (to_add = 0, iter1 = temp.begin();
+						 iter1 != temp.end(); iter1++) {
+						*iter1 *= *iter2;
+						*iter1 += to_add;
+						to_add = *iter1 / 10;
+						*iter1 %= 10;
+					}
+
+					if (to_add != 0) temp.push_back(to_add);
+
+					Ink_Bignum_Integer_Digit::size_type num_of_zeros = iter2 - op2.digits.begin();
+
+					// while (num_of_zeros--) temp.push_front(0);
+					Ink_Bignum_Integer_Digit add_front = Ink_Bignum_Integer_Digit(num_of_zeros, 0);
+
+					Ink_Bignum_Integer temp2;
+					temp2.digits.insert(temp2.digits.end(),
+										add_front.begin(), add_front.end());
+					temp2.digits.insert(temp2.digits.end(),
+										temp.begin(), temp.end());
+					temp2.trim();
+					result = result + temp2;
+				}
+				iter2++;
+			}
 		} else {
 			Ink_Bignum_Integer x = op1, y = op2;
 			Ink_Bignum_Integer a, b, c, d;
+			Ink_Bignum_Integer_Digit::size_type len;
+			long zero_c = 0;
 
-			if (x.digits.size() <= 8) {
-				a = 0;
-				b = x;
-			} else {
-				if (x.digits.size() % 2 != 0)
-					x.digits.push_back(0);
-				Ink_Bignum_Integer_Digit::size_type len = x.digits.size();
-				b = Ink_Bignum_Integer_Digit(x.digits.begin(), x.digits.begin() + (len / 2));
-				a = Ink_Bignum_Integer_Digit(x.digits.begin() + (len / 2), x.digits.end());
+			if (x.digits.size() < y.digits.size()) {
+				x = x.exp(zero_c = y.digits.size() - x.digits.size());
+			} else if (x.digits.size() > y.digits.size()) {
+				y = y.exp(zero_c = x.digits.size() - y.digits.size());
 			}
 
+			if (x.digits.size() % 2 != 0)
+				x.digits.push_back(0);
+			len = x.digits.size();
+			b = Ink_Bignum_Integer_Digit(x.digits.begin(), x.digits.begin() + (len / 2));
+			a = Ink_Bignum_Integer_Digit(x.digits.begin() + (len / 2), x.digits.end());
 
-			if (y.digits.size() <= 8) {
-				c = 0;
-				d = y;
-			} else {
-				if (y.digits.size() % 2 != 0)
-					y.digits.push_back(0);
-				Ink_Bignum_Integer_Digit::size_type len = y.digits.size();
-				d = Ink_Bignum_Integer_Digit(y.digits.begin(), y.digits.begin() + (len / 2));
-				c = Ink_Bignum_Integer_Digit(y.digits.begin() + (len / 2), y.digits.end());
-			}
+			if (y.digits.size() % 2 != 0)
+				y.digits.push_back(0);
+			len = y.digits.size();
+			d = Ink_Bignum_Integer_Digit(y.digits.begin(), y.digits.begin() + (len / 2));
+			c = Ink_Bignum_Integer_Digit(y.digits.begin() + (len / 2), y.digits.end());
 
 			Ink_Bignum_Integer_Digit::size_type n = x.digits.size() > y.digits.size()
 													? x.digits.size()
 													: y.digits.size();
+			a.trim();
+			b.trim();
+			c.trim();
+			d.trim();
 
 			Ink_Bignum_Integer ac = a * c;
 			Ink_Bignum_Integer bd = b * d;
@@ -267,6 +302,7 @@ Ink_Bignum_Integer operator *= (Ink_Bignum_Integer &op1, const Ink_Bignum_Intege
 			Ink_Bignum_Integer t2 = t1 + ac + bd;
 			result = ac.exp(n) + t2.exp(n / 2) + bd;
 			result.trim();
+			result = Ink_Bignum_Integer_Digit(result.digits.begin() + zero_c, result.digits.end());
 		}
 		result.sign = ((op1.sign && op2.sign) || (!op1.sign && !op2.sign));
 	}
@@ -444,8 +480,8 @@ Ink_Bignum_NumericValue::Ink_Bignum_NumericValue(double val)
 	if (!isnan((long double)val)) {
 		double tmp_val = val;
 		Ink_Bignum_Integer integer(floor(tmp_val));
-		Ink_Bignum_Integer decimal((tmp_val - floor(tmp_val)) * pow(10, (int)DEFAULT_ACC));
-		num = integer * Ink_Bignum_Integer(10).pow(DEFAULT_ACC) + decimal;
+		Ink_Bignum_Integer decimal((tmp_val - floor(tmp_val)) * pow(10, (long)DEFAULT_ACC));
+		num = integer.exp((long)DEFAULT_ACC) + decimal;
 		//std::cout << integer << decimal << endl;
 		std_pow = fabs(tmp_val) >= 1
 				  ? integer.digits.size()
@@ -483,18 +519,23 @@ Ink_Bignum_NumericValue::Ink_Bignum_NumericValue(string str)
 		if (pos != string::npos) {
 			integer = Ink_Bignum_Integer(str.substr(0, pos));
 			decimal = Ink_Bignum_Integer(str.substr(pos + 1)).abs();
-			// num = sign * (integer.abs() * Ink_Bignum_Integer(10).pow(decimal.length()) + Ink_Bignum_Integer(decimal).abs());
+			
 			num = integer;
 			num.digits.insert(num.digits.begin(),
 							  decimal.digits.begin(),
 							  decimal.digits.end());
-			num.sign = sign > 1;
+			num.sign = sign > 0;
 
 			std_pow = integer > 0 ? integer.digits.size() : num.digits.size() - decimal.digits.size();
 		} else {
 			num = sign * Ink_Bignum_Integer(str);
 			std_pow = num.digits.size();
 		}
+	}
+
+	if (!num.isValid()) {
+		*this = INVALID_NUM;
+		return;
 	}
 
 	if (use_e) {
