@@ -26,7 +26,7 @@ public:
 	Ink_Bignum_Integer(double);
 	Ink_Bignum_Integer(string);
 
-	Ink_Bignum_Integer(Ink_Bignum_Integer_Digit digits, bool sign)
+	Ink_Bignum_Integer(Ink_Bignum_Integer_Digit digits, bool sign = true)
 	: digits(digits), sign(sign)
 	{ }
 	
@@ -48,6 +48,18 @@ public:
 			 iter != digits.rend(); iter++) {
 			ret *= 10;
 			ret += *iter;
+		}
+
+		return ret;
+	}
+
+	inline string toString()
+	{
+		string ret = sign ? "" : "-";
+		Ink_Bignum_Integer_Digit::reverse_iterator riter;
+		for (riter = digits.rbegin();
+			 riter != digits.rend(); riter++) {
+			ret += *riter + '0';
 		}
 
 		return ret;

@@ -227,34 +227,46 @@ Ink_Bignum_Integer operator *= (Ink_Bignum_Integer &op1, const Ink_Bignum_Intege
 	} else if (op2 == -Ink_Bignum_Integer::One) {
 		result = -op1;
 	} else {
-		Ink_Bignum_Integer_Digit::const_iterator iter2 = op2.digits.begin();
-		while (iter2 != op2.digits.end()) {
-			if (*iter2 != 0) {
-				deque<char> temp(op1.digits.begin(), op1.digits.end());
-				char to_add;
-				deque<char>::iterator iter1;
+		if (op1.digits.size() <= 8 && op2.digits.size() <= 8) {
+			Ink_Bignum_Integer op2_c = op2;
+			result = op1.toLong() * op2_c.toLong();
+		} else {
+			Ink_Bignum_Integer x = op1, y = op2;
+			Ink_Bignum_Integer a, b, c, d;
 
-				for (to_add = 0, iter1 = temp.begin();
-					 iter1 != temp.end(); iter1++) {
-					*iter1 *= *iter2;
-					*iter1 += to_add;
-					to_add = *iter1 / 10;
-					*iter1 %= 10;
-				}
-
-				if (to_add != 0) temp.push_back(to_add);
-
-				Ink_Bignum_Integer_Digit::size_type num_of_zeros = iter2 - op2.digits.begin();
-
-				while (num_of_zeros--) temp.push_front(0);
-
-				Ink_Bignum_Integer temp2;
-				temp2.digits.insert(temp2.digits.end(),
-									temp.begin(), temp.end());
-				temp2.trim();
-				result = result + temp2;
+			if (x.digits.size() <= 8) {
+				a = 0;
+				b = x;
+			} else {
+				if (x.digits.size() % 2 != 0)
+					x.digits.push_back(0);
+				Ink_Bignum_Integer_Digit::size_type len = x.digits.size();
+				b = Ink_Bignum_Integer_Digit(x.digits.begin(), x.digits.begin() + (len / 2));
+				a = Ink_Bignum_Integer_Digit(x.digits.begin() + (len / 2), x.digits.end());
 			}
-			iter2++;
+
+
+			if (y.digits.size() <= 8) {
+				c = 0;
+				d = y;
+			} else {
+				if (y.digits.size() % 2 != 0)
+					y.digits.push_back(0);
+				Ink_Bignum_Integer_Digit::size_type len = y.digits.size();
+				d = Ink_Bignum_Integer_Digit(y.digits.begin(), y.digits.begin() + (len / 2));
+				c = Ink_Bignum_Integer_Digit(y.digits.begin() + (len / 2), y.digits.end());
+			}
+
+			Ink_Bignum_Integer_Digit::size_type n = x.digits.size() > y.digits.size()
+													? x.digits.size()
+													: y.digits.size();
+
+			Ink_Bignum_Integer ac = a * c;
+			Ink_Bignum_Integer bd = b * d;
+			Ink_Bignum_Integer t1 = (a - b) * (d - c);
+			Ink_Bignum_Integer t2 = t1 + ac + bd;
+			result = ac.exp(n) + t2.exp(n / 2) + bd;
+			result.trim();
 		}
 		result.sign = ((op1.sign && op2.sign) || (!op1.sign && !op2.sign));
 	}
