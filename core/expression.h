@@ -229,9 +229,10 @@ class Ink_HashExpression: public Ink_Expression {
 public:
 	Ink_Expression *base;
 	std::string *slot_id;
+	bool if_dispose_base;
 
-	Ink_HashExpression(Ink_Expression *base, std::string *slot_id)
-	: base(base), slot_id(slot_id)
+	Ink_HashExpression(Ink_Expression *base, std::string *slot_id, bool if_dispose_base = true)
+	: base(base), slot_id(slot_id), if_dispose_base(if_dispose_base)
 	{ }
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
@@ -246,7 +247,8 @@ public:
 
 	virtual ~Ink_HashExpression()
 	{
-		delete base;
+		if (if_dispose_base)
+			delete base;
 		delete slot_id;
 	}
 };

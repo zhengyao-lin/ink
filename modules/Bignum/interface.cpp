@@ -266,6 +266,14 @@ void Ink_BigNumeric::Ink_BigNumericMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("*", new Ink_FunctionObject(engine, InkNative_BigNumeric_Mul));
 	setSlot_c("/", new Ink_FunctionObject(engine, InkNative_BigNumeric_Div));
 	setSlot_c("%", new Ink_FunctionObject(engine, InkNative_BigNumeric_Mod));
+
+	// setSlot_c("&", new Ink_FunctionObject(NULL, InkNative_Numeric_And));
+	// setSlot_c("|", new Ink_FunctionObject(NULL, InkNative_Numeric_Or));
+	// setSlot_c("^", new Ink_FunctionObject(NULL, InkNative_Numeric_Xor));
+	// setSlot_c("<<", new Ink_FunctionObject(NULL, InkNative_Numeric_ShiftLeft));
+	// setSlot_c(">>", new Ink_FunctionObject(NULL, InkNative_Numeric_ShiftRight));
+	// setSlot_c("~", new Ink_FunctionObject(NULL, InkNative_Numeric_Inverse));
+
 	setSlot_c("div", new Ink_FunctionObject(engine, InkNative_BigNumeric_Div));
 	setSlot_c("==", new Ink_FunctionObject(engine, InkNative_BigNumeric_Equal));
 	setSlot_c("!=", new Ink_FunctionObject(engine, InkNative_BigNumeric_NotEqual));

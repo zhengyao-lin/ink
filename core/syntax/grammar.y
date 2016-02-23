@@ -84,13 +84,26 @@
 	TRBRACE				// }
 
 	TECLI				// ...
-
 	TCOMMA				// ,
 
 /* splits */
 %token <token>
 	TNL					// [\n\r]
 	TSEMICOLON			// ;
+
+/* assign operators */
+%token <token>
+	TASSIGN				// =
+	TAOUT				// >>=
+	TAINS				// <<=
+	TAADD				// +=
+	TASUB				// -=
+	TAMUL				// *=
+	TADIV				// /=
+	TAMOD				// %=
+	TAAND				// &=
+	TAXOR				// ^=
+	TAOR				// |=
 
 /* binary operators */
 %token <token>
@@ -104,7 +117,6 @@
 	TBOR				// |
 	TINS				// <<
 	TOUT				// >>
-	TASSIGN				// =
 	TCOLON				// :
 	TDCOLON				// ::
 	TARR				// ->
@@ -445,6 +457,126 @@ assignment_expression
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("->")), arg);
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
+	| logical_or_expression TAOUT nllo assignment_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+		Ink_HashExpression *tmp_hash = new Ink_HashExpression($1, new string(">>"), false);
+		Ink_CallExpression *tmp_call = new Ink_CallExpression(tmp_hash, arg);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_call);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_call);
+		SET_LINE_NO(tmp_hash);
+	}
+	| logical_or_expression TAINS nllo assignment_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+		Ink_HashExpression *tmp_hash = new Ink_HashExpression($1, new string("<<"), false);
+		Ink_CallExpression *tmp_call = new Ink_CallExpression(tmp_hash, arg);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_call);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_call);
+		SET_LINE_NO(tmp_hash);
+	}
+	| logical_or_expression TAADD nllo assignment_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+		Ink_HashExpression *tmp_hash = new Ink_HashExpression($1, new string("+"), false);
+		Ink_CallExpression *tmp_call = new Ink_CallExpression(tmp_hash, arg);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_call);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_call);
+		SET_LINE_NO(tmp_hash);
+	}
+	| logical_or_expression TASUB nllo assignment_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+		Ink_HashExpression *tmp_hash = new Ink_HashExpression($1, new string("-"), false);
+		Ink_CallExpression *tmp_call = new Ink_CallExpression(tmp_hash, arg);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_call);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_call);
+		SET_LINE_NO(tmp_hash);
+	}
+	| logical_or_expression TAMUL nllo assignment_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+		Ink_HashExpression *tmp_hash = new Ink_HashExpression($1, new string("*"), false);
+		Ink_CallExpression *tmp_call = new Ink_CallExpression(tmp_hash, arg);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_call);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_call);
+		SET_LINE_NO(tmp_hash);
+	}
+	| logical_or_expression TADIV nllo assignment_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+		Ink_HashExpression *tmp_hash = new Ink_HashExpression($1, new string("/"), false);
+		Ink_CallExpression *tmp_call = new Ink_CallExpression(tmp_hash, arg);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_call);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_call);
+		SET_LINE_NO(tmp_hash);
+	}
+	| logical_or_expression TAMOD nllo assignment_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+		Ink_HashExpression *tmp_hash = new Ink_HashExpression($1, new string("%"), false);
+		Ink_CallExpression *tmp_call = new Ink_CallExpression(tmp_hash, arg);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_call);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_call);
+		SET_LINE_NO(tmp_hash);
+	}
+	| logical_or_expression TAAND nllo assignment_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+		Ink_HashExpression *tmp_hash = new Ink_HashExpression($1, new string("&"), false);
+		Ink_CallExpression *tmp_call = new Ink_CallExpression(tmp_hash, arg);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_call);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_call);
+		SET_LINE_NO(tmp_hash);
+	}
+	| logical_or_expression TAXOR nllo assignment_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+		Ink_HashExpression *tmp_hash = new Ink_HashExpression($1, new string("^"), false);
+		Ink_CallExpression *tmp_call = new Ink_CallExpression(tmp_hash, arg);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_call);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_call);
+		SET_LINE_NO(tmp_hash);
+	}
+	| logical_or_expression TAOR nllo assignment_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+		Ink_HashExpression *tmp_hash = new Ink_HashExpression($1, new string("|"), false);
+		Ink_CallExpression *tmp_call = new Ink_CallExpression(tmp_hash, arg);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_call);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_call);
+		SET_LINE_NO(tmp_hash);
 	}
 	;
 

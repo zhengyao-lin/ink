@@ -165,6 +165,17 @@ void yyerror(const char *msg);
 <INITIAL>"&&"						return TOKEN(TLAND);
 <INITIAL>"||"						return TOKEN(TLOR);
 
+<INITIAL>">>="						return(TAOUT);
+<INITIAL>"<<="						return(TAINS);
+<INITIAL>"+="						return(TAADD);
+<INITIAL>"-="						return(TASUB);
+<INITIAL>"*="						return(TAMUL);
+<INITIAL>"/="						return(TADIV);
+<INITIAL>"%="						return(TAMOD);
+<INITIAL>"&="						return(TAAND);
+<INITIAL>"^="						return(TAXOR);
+<INITIAL>"|="						return(TAOR);
+
 <INITIAL>"&"						return TOKEN(TBAND);
 <INITIAL>"~"						return TOKEN(TBINV);
 <INITIAL>"^"						return TOKEN(TBXOR);
