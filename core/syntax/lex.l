@@ -143,7 +143,6 @@ void yyerror(const char *msg);
 
 %%
 
-<INITIAL>"retn"						return TOKEN(TRETURN);
 <INITIAL>"new"						return TOKEN(TNEW);
 <INITIAL>"delete"					return TOKEN(TDELETE);
 <INITIAL>"clone"					return TOKEN(TCLONE);
@@ -153,6 +152,8 @@ void yyerror(const char *msg);
 <INITIAL>"do"						return TOKEN(TDO);
 <INITIAL>"end"						return TOKEN(TEND);
 <INITIAL>"import"					return TOKEN(TIMPORT);
+<INITIAL>"retn"						return TOKEN(TRETURN);
+<INITIAL>"new"						return TOKEN(TNEW);
 <INITIAL>"break"					return TOKEN(TBREAK);
 <INITIAL>"continue"					return TOKEN(TCONTINUE);
 <INITIAL>"drop"						return TOKEN(TDROP);
