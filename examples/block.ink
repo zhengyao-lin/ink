@@ -1591,3 +1591,14 @@ a = 1
 p(a += 10)
 p(a -= 10)
 
+!!a
+
+b.prototype = $object
+
+delete a
+delete b
+
+a -> b
+a = 10
+p(b)
+
