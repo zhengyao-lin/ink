@@ -928,7 +928,9 @@ import bignums
 p(typename(receive.`->`));
 
 try_actor = fn () {
+
 	actor1 = actor () {
+		import blueprint
 		import multink
 		import bignums
 
@@ -948,13 +950,14 @@ try_actor = fn () {
 			}
 			p(msg.msg);
 			if (msg.msg == "stop") {
-				retn;
+				exit
 			}
 			// p("echo running");
 		}
 	}
 
 	fib_async = actor (total, mod) {
+		import blueprint
 		import multink
 		import io
 		import bignums
@@ -1003,7 +1006,7 @@ try_actor = fn () {
 }
 
 let i = 1;
-while (0) {
+while (i <= 1) {
 	p(i++)
 	try_actor();
 }

@@ -302,9 +302,11 @@ Ink_Object *InkMod_Bignum_Constructor(Ink_InterpreteEngine *engine, Ink_ContextC
 		}
 	} else if (checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		ret_val = Ink_Bignum_NumericValue(as<Ink_Numeric>(argv[0])->value);
+	} else {
+		return NULL_OBJ;
 	}
 
-	ret = new Ink_BigNumeric(engine, tmp_str);
+	ret = new Ink_BigNumeric(engine, ret_val);
 
 END:
 	context->getLocal()->context->setSlot_c("this", ret);
