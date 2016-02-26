@@ -4,8 +4,9 @@
 #include <string>
 #include <queue>
 #include <map>
-#include "../general.h"
 #include "thread.h"
+#include "../general.h"
+#include "../exception.h"
 
 namespace ink {
 
@@ -41,30 +42,37 @@ class Ink_ActorMessage {
 public:
 	std::string *msg;
 	std::string *sender;
+	Ink_ExceptionRaw *ex;
 
-	Ink_ActorMessage(std::string *msg, std::string *sender)
-	: msg(msg), sender(sender)
+	Ink_ActorMessage(std::string *msg, std::string *sender, Ink_ExceptionRaw *ex = NULL)
+	: msg(msg), sender(sender), ex(ex)
 	{ }
 	
 	~Ink_ActorMessage()
 	{
-		// if (msg) delete msg;
-		// if (sender) delete sender;
+		delete msg;
+		delete sender;
+		delete ex;
 	}
 };
 
-typedef std::queue<Ink_ActorMessage> Ink_ActorMessageQueue;
+typedef std::queue<Ink_ActorMessage *> Ink_ActorMessageQueue;
+typedef std::vector<std::string> Ink_ActorWatcherList;
 
 void InkActor_lockThreadCreateLock();
 void InkActor_unlockThreadCreateLock();
+void InkActor_lockActorLock();
+void InkActor_unlockActorLock();
 void InkActor_initActorMap();
 bool InkActor_addActor(std::string name, Ink_InterpreteEngine *engine, pthread_t handle, std::string *name_p, bool is_root = false);
 bool InkActor_setRootEngine(Ink_InterpreteEngine *engine);
 void InkActor_setDeadActor(Ink_InterpreteEngine *engine);
 Ink_InterpreteEngine *InkActor_getActor(std::string name);
+Ink_InterpreteEngine *InkActor_getActor_nolock(std::string name);
 void InkActor_joinAllActor(Ink_InterpreteEngine *self_engine, Ink_InterpreteEngine *except = NULL);
 Ink_ActorCountType InkActor_getActorCount();
 std::string *InkActor_getActorName(Ink_InterpreteEngine *engine);
+std::string *InkActor_getActorName_nolock(Ink_InterpreteEngine *engine);
 bool InkActor_isRootActor(Ink_InterpreteEngine *engine);
 
 }

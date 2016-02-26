@@ -24,7 +24,8 @@ REQUIRE=\
 	debug.o \
 	error.o \
 	protocol.o \
-	utf8.o
+	utf8.o \
+	exception.o
 
 CPPFLAGS=-I$(GLOBAL_ROOT_PATH) -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=-shared -static-libgcc -static-libstdc++ -lm

@@ -114,8 +114,11 @@ public:
 
 	Ink_ProtocolMap protocol_map;
 
-	pthread_mutex_t message_mutex;
+	pthread_mutex_t message_lock;
 	Ink_ActorMessageQueue message_queue;
+
+	pthread_mutex_t watcher_lock;
+	Ink_ActorWatcherList watcher_list;
 
 	vector<Ink_Object *> deep_clone_traced_stack;
 	vector<Ink_Object *> prototype_traced_stack;
@@ -410,37 +413,74 @@ public:
 	inline Ink_Object *receiveMessage()
 	{
 		Ink_Object *ret = NULL;
-		pthread_mutex_lock(&message_mutex);
+		Ink_ActorMessage *msg = NULL;
+		Ink_InterpreteEngine *engine = this;
+
+		pthread_mutex_lock(&message_lock);
 		if (!message_queue.empty()) {
-			Ink_ActorMessage msg = message_queue.front();
+			msg = message_queue.front();
 			ret = new Ink_Object(this);
-			ret->setSlot_c("msg", new Ink_String(this, msg.msg));
-			ret->setSlot_c("sender", new Ink_String(this, msg.sender));
+			ret->setSlot_c("msg", new Ink_String(this, *(msg->msg)));
+			ret->setSlot_c("sender", new Ink_String(this, *(msg->sender)));
+			ret->setSlot_c("ex", msg->ex
+								 ? (Ink_Object *)msg->ex->toObject(this)
+								 : (Ink_Object *)UNDEFINED);
+			delete msg;
 			message_queue.pop();
 		}
-		pthread_mutex_unlock(&message_mutex);
+		pthread_mutex_unlock(&message_lock);
 		return ret;
 	}
 
-	inline void sendInMessage(Ink_InterpreteEngine *sender, string msg)
+	inline void sendInMessage(Ink_InterpreteEngine *sender, string msg, Ink_ExceptionRaw *ex = NULL)
 	{
-		pthread_mutex_lock(&message_mutex);
-		message_queue.push(Ink_ActorMessage(new string(msg), InkActor_getActorName(sender)));
-		pthread_mutex_unlock(&message_mutex);
+		pthread_mutex_lock(&message_lock);
+		message_queue.push(new Ink_ActorMessage(new string(msg), InkActor_getActorName(sender), ex));
+		pthread_mutex_unlock(&message_lock);
+		return;
+	}
+
+	inline void sendInMessage_nolock(Ink_InterpreteEngine *sender, string msg, Ink_ExceptionRaw *ex = NULL)
+	{
+		pthread_mutex_lock(&message_lock);
+		message_queue.push(new Ink_ActorMessage(new string(msg), InkActor_getActorName_nolock(sender), ex));
+		pthread_mutex_unlock(&message_lock);
 		return;
 	}
 
 	inline void disposeAllMessage()
 	{
-		pthread_mutex_lock(&message_mutex);
+		pthread_mutex_lock(&message_lock);
 		while (!message_queue.empty()) {
-			if (message_queue.front().msg)
-				delete message_queue.front().msg;
-			if (message_queue.front().sender)
-				delete message_queue.front().sender;
+			delete message_queue.front();
 			message_queue.pop();
 		}
-		pthread_mutex_unlock(&message_mutex);
+		pthread_mutex_unlock(&message_lock);
+		return;
+	}
+
+	inline void addWatcher(string name)
+	{
+		pthread_mutex_lock(&watcher_lock);
+		watcher_list.push_back(name);
+		pthread_mutex_unlock(&watcher_lock);
+		return;
+	}
+
+	inline void broadcastWatcher(string msg, Ink_ExceptionRaw *ex = NULL)
+	{
+		Ink_InterpreteEngine *tmp_engine = NULL;
+		Ink_ActorWatcherList::iterator w_iter;
+
+		for (w_iter = watcher_list.begin();
+			 w_iter != watcher_list.end(); w_iter++) {
+			InkActor_lockActorLock();
+			if ((tmp_engine = InkActor_getActor_nolock(*w_iter)) != NULL) {
+				tmp_engine->sendInMessage_nolock(this, msg, ex);
+			}
+			InkActor_unlockActorLock();
+		}
+
 		return;
 	}
 

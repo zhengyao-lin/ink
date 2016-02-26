@@ -31,13 +31,17 @@ Ink_Object *InkNative_Actor_Send_Sub(Ink_InterpreteEngine *engine, Ink_ContextCh
 	}
 
 	string tmp = as<Ink_String>(argv[0])->getValue();
-	Ink_InterpreteEngine *dest = InkActor_getActor(tmp);
+
+	InkActor_lockActorLock();
+	Ink_InterpreteEngine *dest = InkActor_getActor_nolock(tmp);
 	if (!dest) {
+		InkActor_unlockActorLock();
 		InkWarn_Multink_Actor_Not_Found(engine, tmp.c_str());
 		return NULL_OBJ;
 	}
 
-	dest->sendInMessage(engine, as<Ink_String>(msg)->getValue());
+	dest->sendInMessage_nolock(engine, as<Ink_String>(msg)->getValue());
+	InkActor_unlockActorLock();
 
 	return TRUE_OBJ;
 }
@@ -159,8 +163,10 @@ Ink_Object *InkNative_Actor_ActorCount(Ink_InterpreteEngine *engine, Ink_Context
 Ink_Object *InkNative_Actor_ActorSelf(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	string *tmp = InkActor_getActorName(engine);
-	if (!tmp)
+	if (!tmp) {
+		InkWarn_Multink_Require_Registered_Actor(engine);
 		return NULL_OBJ;
+	}
 	return new Ink_String(engine, tmp);
 }
 
@@ -174,11 +180,41 @@ Ink_Object *InkNative_Actor_ActorExist(Ink_InterpreteEngine *engine, Ink_Context
 	return new Ink_Numeric(engine, dest != NULL);
 }
 
+Ink_Object *InkNative_Actor_ActorWatch(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	string tmp = as<Ink_String>(argv[0])->getValue();
+
+	InkActor_lockActorLock();
+	Ink_InterpreteEngine *dest = InkActor_getActor_nolock(tmp);
+
+	if (!dest) {
+		InkActor_unlockActorLock();
+		InkWarn_Multink_Actor_Not_Found(engine, tmp.c_str());
+		return NULL_OBJ;
+	}
+
+	string *self = InkActor_getActorName_nolock(engine);
+
+	if (!self) {
+		InkActor_unlockActorLock();
+		InkWarn_Multink_Require_Registered_Actor(engine);
+		return NULL_OBJ;
+	}
+
+	dest->addWatcher(*self);
+	InkActor_unlockActorLock();
+
+	delete self;
+
+	return TRUE_OBJ;
+}
+
 void Ink_ActorFunction_signal_handler(int errno)
 {
-	// printf("ha, I received a signal? %ld\n", pthread_self());
-	// pthread_exit(NULL);
-	// sleep(5);
 	return;
 }
 
@@ -255,7 +291,6 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 {
 	Ink_InterpreteEngine *new_engine;
 	pthread_t new_thread;
-	Ink_InterpreteEngine *check;
 	Ink_ActorFunction_sub_Argument *tmp_arg;
 	Ink_ArgcType tmp_argc, i;
 	Ink_Object **tmp_argv, *pa_ret;
@@ -275,7 +310,7 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 	string tmp_str = as<Ink_String>(argv[0])->getValue();
 
-	if ((check = InkActor_getActor(tmp_str)) != NULL) {
+	if (InkActor_getActor(tmp_str)) {
 		InkWarn_Actor_Conflict(engine, tmp_str.c_str());
 		return NULL_OBJ;
 	}
@@ -379,6 +414,7 @@ void InkMod_Actor_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 	bondee->setSlot_c("actor_count", new Ink_FunctionObject(engine, InkNative_Actor_ActorCount));
 	bondee->setSlot_c("actor_self", new Ink_FunctionObject(engine, InkNative_Actor_ActorSelf));
 	bondee->setSlot_c("actor_exist", new Ink_FunctionObject(engine, InkNative_Actor_ActorExist));
+	bondee->setSlot_c("actor_watch", new Ink_FunctionObject(engine, InkNative_Actor_ActorWatch));
 
 	return;
 }

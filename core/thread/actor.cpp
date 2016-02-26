@@ -24,6 +24,18 @@ void InkActor_unlockThreadCreateLock()
 	return;
 }
 
+void InkActor_lockActorLock()
+{
+	pthread_mutex_lock(&ink_global_actor_map_lock);
+	return;
+}
+
+void InkActor_unlockActorLock()
+{
+	pthread_mutex_unlock(&ink_global_actor_map_lock);
+	return;
+}
+
 void InkActor_initActorMap()
 {
 	pthread_mutex_init(&ink_global_actor_map_lock, NULL);
@@ -36,14 +48,14 @@ void InkActor_initActorMap()
 bool InkActor_addActor(string name, Ink_InterpreteEngine *engine, pthread_t handle, string *name_p, bool is_root)
 {
 	bool ret = true;
-	pthread_mutex_lock(&ink_global_actor_map_lock);
+	InkActor_lockActorLock();
 	if (ink_global_actor_map.find(name) != ink_global_actor_map.end()) {
 		InkWarn_Actor_Conflict(engine, name.c_str());
 		ret = false;
 	} else {
 		ink_global_actor_map[name] = new Ink_ActorHandler(engine, handle, name_p, is_root);
 	}
-	pthread_mutex_unlock(&ink_global_actor_map_lock);
+	InkActor_unlockActorLock();
 	return ret;
 }
 
@@ -56,7 +68,7 @@ bool InkActor_setRootEngine(Ink_InterpreteEngine *engine)
 void InkActor_setDeadActor(Ink_InterpreteEngine *engine)
 {
 	Ink_ActorMap::iterator actor_it;
-	pthread_mutex_lock(&ink_global_actor_map_lock);
+	InkActor_lockActorLock();
 	for (actor_it = ink_global_actor_map.begin();
 		 actor_it != ink_global_actor_map.end(); actor_it++) {
 		if (actor_it->second->engine == engine) {
@@ -67,7 +79,7 @@ void InkActor_setDeadActor(Ink_InterpreteEngine *engine)
 			break;
 		}
 	}
-	pthread_mutex_unlock(&ink_global_actor_map_lock);
+	InkActor_unlockActorLock();
 	return;
 }
 
@@ -77,7 +89,7 @@ void InkActor_joinAllActor(Ink_InterpreteEngine *self_engine, Ink_InterpreteEngi
 	bool finished;
 
 AGAIN:
-	pthread_mutex_lock(&ink_global_actor_map_lock);
+	InkActor_lockActorLock();
 	for (actor_it = ink_global_actor_map.begin(), finished = true;
 		 actor_it != ink_global_actor_map.end();) {
 		// printf("waiting %s\n", actor_it->first.c_str());
@@ -94,7 +106,7 @@ AGAIN:
 		}
 		actor_it++;
 	}
-	pthread_mutex_unlock(&ink_global_actor_map_lock);
+	InkActor_unlockActorLock();
 	if (!finished) goto AGAIN;
 
 	return;
@@ -103,11 +115,20 @@ AGAIN:
 Ink_InterpreteEngine *InkActor_getActor(string name)
 {
 	Ink_InterpreteEngine *ret = NULL;
-	pthread_mutex_lock(&ink_global_actor_map_lock);
+	InkActor_lockActorLock();
 	if (ink_global_actor_map.find(name) != ink_global_actor_map.end()) {
 		ret = ink_global_actor_map[name]->engine;
 	}
-	pthread_mutex_unlock(&ink_global_actor_map_lock);
+	InkActor_unlockActorLock();
+	return ret;
+}
+
+Ink_InterpreteEngine *InkActor_getActor_nolock(string name)
+{
+	Ink_InterpreteEngine *ret = NULL;
+	if (ink_global_actor_map.find(name) != ink_global_actor_map.end()) {
+		ret = ink_global_actor_map[name]->engine;
+	}
 	return ret;
 }
 
@@ -116,14 +137,14 @@ Ink_ActorCountType InkActor_getActorCount()
 	Ink_ActorCountType ret;
 	Ink_ActorMap::iterator actor_it;
 
-	pthread_mutex_lock(&ink_global_actor_map_lock);
+	InkActor_lockActorLock();
 
 	for (actor_it = ink_global_actor_map.begin(), ret = 0;
 		 actor_it != ink_global_actor_map.end(); actor_it++) {
 		if (!actor_it->second->finished) ret++;
 	}
 
-	pthread_mutex_unlock(&ink_global_actor_map_lock);
+	InkActor_unlockActorLock();
 
 	return ret;
 }
@@ -133,7 +154,7 @@ string *InkActor_getActorName(Ink_InterpreteEngine *engine)
 	string *ret = NULL;
 	Ink_ActorMap::iterator actor_it;
 
-	pthread_mutex_lock(&ink_global_actor_map_lock);
+	InkActor_lockActorLock();
 
 	for (actor_it = ink_global_actor_map.begin(), ret = 0;
 		 actor_it != ink_global_actor_map.end(); actor_it++) {
@@ -142,7 +163,22 @@ string *InkActor_getActorName(Ink_InterpreteEngine *engine)
 		}
 	}
 
-	pthread_mutex_unlock(&ink_global_actor_map_lock);
+	InkActor_unlockActorLock();
+
+	return ret;
+}
+
+string *InkActor_getActorName_nolock(Ink_InterpreteEngine *engine)
+{
+	string *ret = NULL;
+	Ink_ActorMap::iterator actor_it;
+
+	for (actor_it = ink_global_actor_map.begin(), ret = 0;
+		 actor_it != ink_global_actor_map.end(); actor_it++) {
+		if (actor_it->second->engine == engine) {
+			ret = new string(actor_it->first);
+		}
+	}
 
 	return ret;
 }
@@ -152,14 +188,14 @@ bool InkActor_isRootActor(Ink_InterpreteEngine *engine)
 	bool is_root = false;
 	Ink_ActorMap::iterator actor_it;
 
-	pthread_mutex_lock(&ink_global_actor_map_lock);
+	InkActor_lockActorLock();
 	for (actor_it = ink_global_actor_map.begin();
 		 actor_it != ink_global_actor_map.end(); actor_it++) {
 		if (actor_it->second->engine == engine) {
 			is_root = actor_it->second->is_root;
 		}
 	}
-	pthread_mutex_unlock(&ink_global_actor_map_lock);
+	InkActor_unlockActorLock();
 
 	return is_root;
 }

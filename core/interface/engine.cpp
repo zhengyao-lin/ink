@@ -76,8 +76,11 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	dbg_print_detail = false;
 	
 	protocol_map = Ink_ProtocolMap();
-	pthread_mutex_init(&message_mutex, NULL);
+	pthread_mutex_init(&message_lock, NULL);
 	message_queue = Ink_ActorMessageQueue();
+
+	pthread_mutex_init(&watcher_lock, NULL);
+	watcher_list = Ink_ActorWatcherList();
 	
 	custom_interrupt_signal = Ink_CustomInterruptSignal();
 
@@ -293,10 +296,16 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context, bool if_tra
 					tmp_sig_name = "<unregisterred>";
 				}
 			}
+
 			if (getSignal() != INTER_EXIT)
 				InkWarn_Trapping_Untrapped_Signal(engine, tmp_sig_name);
 
 			ret = getInterruptValue();
+
+			if (getSignal() == INTER_THROW) {
+				broadcastWatcher("error exit", Ink_ExceptionRaw::toRaw(ret));
+			}
+
 			if (if_trap_signal) {
 				trapSignal();
 			}

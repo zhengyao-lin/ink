@@ -1006,7 +1006,7 @@ try_actor = fn () {
 }
 
 let i = 1;
-while (i <= 1) {
+while (0) {
 	p(i++)
 	try_actor();
 }
@@ -1050,7 +1050,7 @@ actor1 = actor () {
 	// 1 = 2;
 }
 
-//actor1(_)("he");
+// actor1(_)("he");
 
 let msg
 // msg = receive() for(800)
@@ -1605,3 +1605,16 @@ a -> b
 a = 10
 p(b)
 
+act = actor () {
+	import multink
+	receive() for(100)
+	sadsaddsad()
+}
+
+act("test1")
+actor_watch("test1");
+
+msg = receive() forever()
+p("error from actor: " + msg.ex.msg)
+
+join_all();

@@ -89,4 +89,11 @@ InkWarn_Multink_Expect_Instruction(Ink_InterpreteEngine *engine)
 	return;
 }
 
+inline void
+InkWarn_Multink_Require_Registered_Actor(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, "Only actors can watch or get self name");
+	return;
+}
+
 #endif
