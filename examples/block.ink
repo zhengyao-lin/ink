@@ -25,7 +25,7 @@ func = fn (bool) {
 	};
 	p("what?");
 };
-
+p("hi")
 func(0);
 
 func = fn (bool) {
@@ -121,7 +121,7 @@ func();
 
 i = 10;
 
-if (i == 0 && i = 1) {
+if (i == 0 && (i = 1)) {
 	p(i);
 };
 

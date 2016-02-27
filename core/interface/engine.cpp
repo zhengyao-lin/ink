@@ -128,7 +128,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 
-	// global_context->context->setSlot_c("this", global_context->context);
+	global_context->context->setSlot_c("self", global_context->context);
 	global_context->context->setSlot_c("top", global_context->context);
 	global_context->context->setSlot_c("let", global_context->context);
 	global_context->context->setSlot_c("auto", tmp = new Ink_Object(this));

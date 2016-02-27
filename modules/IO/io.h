@@ -140,4 +140,11 @@ InkWarn_Direct_Not_Exist(Ink_InterpreteEngine *engine, const char *path)
 	return;
 }
 
+inline void
+InkWarn_File_Failed_Read_File(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, "Failed to read file");
+	return;
+}
+
 #endif

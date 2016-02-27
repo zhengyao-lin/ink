@@ -116,8 +116,11 @@ public:
 
 		InkPack_Size i;
 		for (i = 0; i < size; i++) {
-			fread(&(table[i].key), sizeof(T_T1), 1, fp);
-			fread(&(table[i].value), sizeof(T_T2), 1, fp);
+			if (!(fread(&(table[i].key), sizeof(T_T1), 1, fp)
+				&& fread(&(table[i].value), sizeof(T_T2), 1, fp))) {
+				free(table);
+				return NULL;
+			}
 		}
 
 		return new InkPack_Table<T_T1, T_T2>(size, table);
@@ -220,7 +223,11 @@ public:
 
 		data = (byte *)malloc(sizeof(byte) * file_size);
 		fseek(fp, 0L, SEEK_SET);
-		fread(data, sizeof(byte), file_size, fp);
+		if (!fread(data, sizeof(byte), file_size, fp)) {
+			free(data);
+			file_size = 0;
+			data = NULL;
+		}
 	}
 
 	InkPack_FileBlock(InkPack_Size size, byte *d)

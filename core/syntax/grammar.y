@@ -1377,8 +1377,6 @@ single_element_expression
 	| TIDENTIFIER
 	{
 		$$ = new Ink_IdentifierExpression($1);
-		if (*$1 == "_")
-			$$->is_unknown = true;
 		SET_LINE_NO($$);
 	}
 	;

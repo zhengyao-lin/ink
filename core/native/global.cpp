@@ -371,6 +371,39 @@ static Ink_Object *Ink_DeleteSignal(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return new Ink_Numeric(engine, engine->deleteCustomInterruptSignal(as<Ink_String>(argv[0])->getValue()));
 }
 
+static Ink_Object *Ink_SetErrorMode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	string mode = as<Ink_String>(argv[0])->getValue();
+
+	if (mode == "strict") {
+		engine->setErrorMode(INK_ERRMODE_STRICT);
+	} else if (mode == "default") {
+		engine->setErrorMode(INK_ERRMODE_DEFAULT);
+	} else {
+		return NULL_OBJ;
+	}
+
+	return TRUE_OBJ;
+}
+
+static Ink_Object *Ink_GetErrorMode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_ErrorMode mode = engine->getErrorMode();
+
+	switch (mode) {
+		case INK_ERRMODE_STRICT:
+			return new Ink_String(engine, "strict");
+		case INK_ERRMODE_DEFAULT:
+			return new Ink_String(engine, "default");
+	}
+
+	return new Ink_String(engine, "unknown");
+}
+
 void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 {
 	context->context->setSlot_c("p", new Ink_FunctionObject(engine, Ink_Print));
@@ -386,6 +419,13 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 
 	context->context->setSlot_c("debug", new Ink_FunctionObject(engine, Ink_Debug));
 	context->context->setSlot_c("where", new Ink_FunctionObject(engine, Ink_Where));
+
+	Ink_Object *engine_obj = new Ink_Object(engine);
+
+	Ink_HashTable *errmode_hash = engine_obj->setSlot_c("errmode", new Ink_String(engine, ""));
+	errmode_hash->getter = new Ink_FunctionObject(engine, Ink_GetErrorMode);
+	errmode_hash->setter = new Ink_FunctionObject(engine, Ink_SetErrorMode);
+	context->context->setSlot_c("engine", engine_obj);
 
 	Ink_Object *array_cons = new Ink_FunctionObject(engine, Ink_ArrayConstructor);
 	context->context->setSlot_c("Array", array_cons);

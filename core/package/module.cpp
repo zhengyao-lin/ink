@@ -54,7 +54,10 @@ Ink_Package *Ink_Package::readFrom(FILE *fp)
 	Ink_Package *ret = new Ink_Package(tmp_pack_info);
 	InkPack_FileBlock *tmp = NULL;
 
-	fread(&dl_file_count, sizeof(InkPack_Size), 1, fp);
+	if (!fread(&dl_file_count, sizeof(InkPack_Size), 1, fp)) {
+		delete ret;
+		return NULL;
+	}
 
 	for (i = 0; i < dl_file_count; i++) {
 		ret->addDLFile(tmp = InkPack_FileBlock::readFrom(fp),

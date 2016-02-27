@@ -23,6 +23,12 @@ static const char *dl_fixed_mod_load_dir[] = {
 static Ink_SizeType dl_mod_load_dir_len = 0;
 static char **dl_mod_load_dir = NULL;
 
+template <typename T1>
+inline T1 asFunctionPointer(void *p)
+{
+	return reinterpret_cast<T1>(p);
+}
+
 void Ink_addModPath(const char *path)
 {
 	dl_mod_load_dir = (char **)realloc(dl_mod_load_dir,
@@ -68,7 +74,7 @@ void Ink_applyAllModules(Ink_InterpreteEngine *engine, Ink_ContextChain *context
 	for (iter = dl_handler_pool.begin();
 		 iter != dl_handler_pool.end(); iter++) {
 		if (*iter) {
-			InkMod_Loader_t loader = (InkMod_Loader_t)INK_DL_SYMBOL(*iter, "InkMod_Loader");
+			InkMod_Loader_t loader = asFunctionPointer<InkMod_Loader_t>(INK_DL_SYMBOL(*iter, "InkMod_Loader"));
 			if (loader)
 				loader(engine, context);
 		}
@@ -117,8 +123,8 @@ void Ink_Package::preload(const char *path)
 	tmp = pack->dl_file[index]->bufferToTmp();
 	handler = INK_DL_OPEN(tmp->c_str(), RTLD_NOW);
 	delete tmp;
-	InkMod_Loader_t loader = (InkMod_Loader_t)INK_DL_SYMBOL(handler, "InkMod_Loader");
-	InkMod_Init_t init = (InkMod_Init_t)INK_DL_SYMBOL(handler, "InkMod_Init");
+	InkMod_Loader_t loader = asFunctionPointer<InkMod_Loader_t>(INK_DL_SYMBOL(handler, "InkMod_Loader"));
+	InkMod_Init_t init = asFunctionPointer<InkMod_Init_t>(INK_DL_SYMBOL(handler, "InkMod_Init"));
 
 	if (!handler) {
 		InkWarn_Failed_Load_Mod(NULL, path);
@@ -185,8 +191,8 @@ void Ink_preloadModule(const char *path)
 		return;
 	}
 
-	InkMod_Loader_t loader = (InkMod_Loader_t)INK_DL_SYMBOL(handler, "InkMod_Loader");
-	InkMod_Init_t init = (InkMod_Init_t)INK_DL_SYMBOL(handler, "InkMod_Init");
+	InkMod_Loader_t loader = asFunctionPointer<InkMod_Loader_t>(INK_DL_SYMBOL(handler, "InkMod_Loader"));
+	InkMod_Init_t init = asFunctionPointer<InkMod_Init_t>(INK_DL_SYMBOL(handler, "InkMod_Init"));
 	if (!loader) {
 		InkWarn_Failed_Find_Loader(NULL, path);
 		INK_DL_CLOSE(handler);

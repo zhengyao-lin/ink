@@ -565,26 +565,26 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 				/* if the parameter is declared as reference, seal the expression to a anonymous function */
 				if (param_list[i].is_variant) {
 					for (; i < tmp_arg_list.size(); i++) {
-						if (tmp_arg_list[i]->arg->is_unknown) {
+						/* if (tmp_arg_list[i]->arg->is_unknown) {
 							argv[i] = new Ink_Unknown(engine);
-						} else {
-							Ink_ExpressionList exp_list = Ink_ExpressionList();
-							exp_list.push_back(tmp_arg_list[i]->arg);
-							argv[i] = new Ink_FunctionObject(engine, Ink_ParamList(), exp_list,
-															 context_chain->copyContextChain(),
-															 true /* is_inline */, true /* is_ref */);
-						}
-					}
-				} else {
-					if (tmp_arg_list[i]->arg->is_unknown) {
-						argv[i] = new Ink_Unknown(engine);
-					} else {
+						} else { */
 						Ink_ExpressionList exp_list = Ink_ExpressionList();
 						exp_list.push_back(tmp_arg_list[i]->arg);
 						argv[i] = new Ink_FunctionObject(engine, Ink_ParamList(), exp_list,
 														 context_chain->copyContextChain(),
 														 true /* is_inline */, true /* is_ref */);
+						//}
 					}
+				} else {
+					/* if (tmp_arg_list[i]->arg->is_unknown) {
+						argv[i] = new Ink_Unknown(engine);
+					} else { */
+					Ink_ExpressionList exp_list = Ink_ExpressionList();
+					exp_list.push_back(tmp_arg_list[i]->arg);
+					argv[i] = new Ink_FunctionObject(engine, Ink_ParamList(), exp_list,
+													 context_chain->copyContextChain(),
+													 true /* is_inline */, true /* is_ref */);
+					// }
 				}
 			} else {
 				/* normal argument */

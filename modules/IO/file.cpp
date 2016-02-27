@@ -212,7 +212,10 @@ Ink_Object *InkNative_File_ReadAll(Ink_InterpreteEngine *engine, Ink_ContextChai
 		buffer = (char *)malloc(len + 1);
 
 		fseek(tmp, 0L, SEEK_SET);
-		fread(buffer, len, 1, tmp);
+		if (!fread(buffer, len, 1, tmp)) {
+			InkWarn_File_Failed_Read_File(engine);
+			return NULL_OBJ;
+		}
 		buffer[len] = '\0';
 
 		ret = new Ink_String(engine, string(buffer));

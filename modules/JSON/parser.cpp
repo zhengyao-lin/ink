@@ -35,6 +35,9 @@ JSON_lexer(string str)
 	string string_literal = "";
 	string numeric_literal = "";
 	InkJSON_Value tmp_val;
+	
+	tmp_val.str = NULL;
+	tmp_val.num = 0;
 
 	for (i = 0; i < str.length(); i++) {
 		switch (str[i]) {

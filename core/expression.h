@@ -24,10 +24,9 @@ public:
 	const char *file_name;
 	Ink_LineNoType line_number;
 	std::string *file_name_p;
-	bool is_unknown;
 
 	Ink_Expression()
-	: file_name(NULL), line_number(-1), file_name_p(NULL), is_unknown(false)
+	: file_name(NULL), line_number(-1), file_name_p(NULL)
 	{ }
 	
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain) { return eval(engine, context_chain, Ink_EvalFlag()); }
