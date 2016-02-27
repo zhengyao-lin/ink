@@ -1624,6 +1624,9 @@ join_all();
 $ = fn (&lvals...) {
 	{
 		`=`: fn (rval) {
+			if (typename(rval) != "array") {
+				retn
+			}
 			for (let i = 0, i < rval.size(), i++) {
 				if (i < lvals.size()) {
 					lvals[i]() = rval[i];
