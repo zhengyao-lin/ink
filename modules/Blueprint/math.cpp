@@ -171,6 +171,33 @@ Ink_Object *InkMod_Blueprint_Math_ATangent(Ink_InterpreteEngine *engine, Ink_Con
 	return new Ink_Numeric(engine, getOutputValue(atan(as<Ink_Numeric>(argv[0])->value)));
 }
 
+Ink_Object *InkMod_Blueprint_Math_SineH(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, sinh(getInputValue(argv[0])));
+}
+
+Ink_Object *InkMod_Blueprint_Math_CosineH(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, cosh(getInputValue(argv[0])));
+}
+
+Ink_Object *InkMod_Blueprint_Math_TangentH(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, tanh(getInputValue(argv[0])));
+}
+
 void InkMod_Blueprint_Math_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
 	bondee->setSlot_c("setmode", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_SetMode));
@@ -186,6 +213,10 @@ void InkMod_Blueprint_Math_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bond
 	bondee->setSlot_c("asin", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_ASine));
 	bondee->setSlot_c("acos", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_ACosine));
 	bondee->setSlot_c("atan", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_ATangent));
+
+	bondee->setSlot_c("sinh", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_SineH));
+	bondee->setSlot_c("cosh", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_CosineH));
+	bondee->setSlot_c("tanh", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_TangentH));
 
 	bondee->setSlot_c("pi", new Ink_Numeric(engine, M_PI));
 

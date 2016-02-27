@@ -42,14 +42,19 @@ let object_to_str = fn (obj) {
 	} else if (type == "string") {
 		retn "\"" + obj + "\""
 	} else if (type == "array") {
-		let ret = "[ "
+		if (object_traced_stack.find(obj) >= 0) {
+			retn "[...]"
+		}
+		object_traced_stack.push(obj)
+
+		let ret = "["
 		obj.each { | v |
-			if (ret != "[ ") {
+			if (ret != "[") {
 				ret = ret + ", ";
 			}
 			ret = ret + object_to_str(v)
 		}
-		ret = ret + " ]"
+		ret = ret + "]"
 		retn ret
 	} else if (type == "null" || type == "undefined") {
 		retn type
@@ -57,7 +62,7 @@ let object_to_str = fn (obj) {
 		retn "fn () { ... }"
 	} else {
 		if (object_traced_stack.find(obj) >= 0) {
-			retn "<traced>"
+			retn "{...}"
 		}
 		object_traced_stack.push(obj)
 

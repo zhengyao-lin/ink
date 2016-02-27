@@ -1605,6 +1605,7 @@ a -> b
 a = 10
 p(b)
 
+/*
 act = actor () {
 	import multink
 	receive() for(100)
@@ -1618,3 +1619,36 @@ msg = receive() forever()
 p("error from actor: " + msg.ex.msg)
 
 join_all();
+*/
+
+$ = fn (&lvals...) {
+	{
+		`=`: fn (rval) {
+			for (let i = 0, i < rval.size(), i++) {
+				if (i < lvals.size()) {
+					lvals[i]() = rval[i];
+				}
+			}
+		}
+	}
+}
+
+!!a
+
+a = 0
+b = 0
+c = 0
+
+$(a, b, c) = ["first", "second", "third"]
+
+p("a = " + a);
+p("b = " + b);
+p("c = " + c);
+
+a = "second after reverse"
+b = "first after reverse"
+
+$(a, b) = [b, a]
+
+p("a = " + a);
+p("b = " + b);
