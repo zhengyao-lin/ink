@@ -355,7 +355,7 @@ Ink_Object *Ink_ActorFunction::clone(Ink_InterpreteEngine *engine)
 	
 	new_obj->is_native = is_native;
 	new_obj->is_inline = is_inline;
-	new_obj->is_generator = is_generator;
+	new_obj->is_ref = is_ref;
 	new_obj->native = native;
 
 	new_obj->param = param;
@@ -380,7 +380,7 @@ Ink_Object *Ink_ActorFunction::cloneDeep(Ink_InterpreteEngine *engine)
 	
 	new_obj->is_native = is_native;
 	new_obj->is_inline = is_inline;
-	new_obj->is_generator = is_generator;
+	new_obj->is_ref = is_ref;
 	new_obj->native = native;
 
 	new_obj->param = param;

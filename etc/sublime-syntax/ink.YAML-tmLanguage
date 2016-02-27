@@ -70,7 +70,7 @@ patterns:
   captures:
     '1': {name: variable.parameter.ink}
 
-- comment: Function generator's name, e.g. fn ([arg[, arg]])
+- comment: Protocol's name, e.g. fn ([arg[, arg]])
   name: none
   match: \b(fn|inl|macro|actor)\b\s*\((\s*&?\s*([a-zA-Z_?$]([a-zA-Z_?$]|[0-9])*)\s*(\.\.\.)?\s*(,\s*&?\s*([a-zA-Z_?$]([a-zA-Z_?$]|[0-9])*)\s*(\.\.\.)?\s*)*)*\s*\)
   captures:

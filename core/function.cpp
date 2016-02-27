@@ -247,30 +247,38 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	}
 
 	/* create new local context */
-	local = new Ink_ContextObject(engine);
-	context->addContext(local);
-
-	if (if_set_sp_ptr) {
-		// local->setSlot_c("base", getSlot(engine, "base"));
-		local->setSlot_c("base", pa_info_base_p ? pa_info_base_p : getBase());
-		local->setSlot_c("this", this);
-	} else if (is_native) {
-		local->setSlot_c("base", pa_info_base_p ? pa_info_base_p : getBase());
+	if (is_ref) {
+		local = context->getLocal()->context;
+	} else {
+		local = new Ink_ContextObject(engine);
+		context->addContext(local);
 	}
 
-	local->setSlot_c("self", this);
+	if (!is_ref) {
+		if (if_set_sp_ptr) {
+			// local->setSlot_c("base", getSlot(engine, "base"));
+			local->setSlot_c("base", pa_info_base_p ? pa_info_base_p : getBase());
+			local->setSlot_c("this", this);
+		} else if (is_native) {
+			local->setSlot_c("base", pa_info_base_p ? pa_info_base_p : getBase());
+		}
 
-	local->setSlot_c("let", local);
+		local->setSlot_c("self", this);
+		local->setSlot_c("let", local);
 
-	/* set "this" pointer if exists */
-	if (this_p)
-		local->setSlot_c("this", this_p);
+		/* set "this" pointer if exists */
+		if (this_p)
+			local->setSlot_c("this", this_p);
+	}
 
 	setDebugName(this_debug_name_back);
 	free(this_debug_name_back);
 
 	/* set trace(unsed for mark&sweep GC) and set debug info */
-	engine->addTrace(local)->setDebug(engine->current_file_name, engine->current_line_number, this);
+	if (!is_ref) {
+		engine->addTrace(local)->setDebug(engine->current_file_name,
+										  engine->current_line_number, this);
+	}
 
 	/* set local context */
 	// gc_engine->initContext(context);
@@ -357,9 +365,11 @@ SIGINT_END:
 	if (if_delete_argv)
 		free(argv);
 
-	/* remove local context from chain and trace */
-	context->removeLast();
-	engine->removeTrace(local);
+	/* remove local context from chain and trace(if not reference) */
+	if (!is_ref) {
+		context->removeLast();
+		engine->removeTrace(local);
+	}
 	
 	/* mark return value before sweeping */
 	if (ret_val) {
@@ -393,7 +403,7 @@ Ink_Object *Ink_FunctionObject::clone(Ink_InterpreteEngine *engine)
 	
 	new_obj->is_native = is_native;
 	new_obj->is_inline = is_inline;
-	new_obj->is_generator = is_generator;
+	new_obj->is_ref = is_ref;
 	new_obj->native = native;
 
 	new_obj->param = param;
@@ -419,7 +429,7 @@ Ink_Object *Ink_FunctionObject::cloneDeep(Ink_InterpreteEngine *engine)
 	
 	new_obj->is_native = is_native;
 	new_obj->is_inline = is_inline;
-	new_obj->is_generator = is_generator;
+	new_obj->is_ref = is_ref;
 	new_obj->native = native;
 
 	new_obj->param = param;

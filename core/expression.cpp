@@ -572,7 +572,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 							exp_list.push_back(tmp_arg_list[i]->arg);
 							argv[i] = new Ink_FunctionObject(engine, Ink_ParamList(), exp_list,
 															 context_chain->copyContextChain(),
-															 true);
+															 true /* is_inline */, true /* is_ref */);
 						}
 					}
 				} else {
@@ -583,7 +583,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 						exp_list.push_back(tmp_arg_list[i]->arg);
 						argv[i] = new Ink_FunctionObject(engine, Ink_ParamList(), exp_list,
 														 context_chain->copyContextChain(),
-														 true);
+														 true /* is_inline */, true /* is_ref */);
 					}
 				}
 			} else {

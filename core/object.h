@@ -246,7 +246,7 @@ class Ink_FunctionObject: public Ink_Object {
 public:
 	bool is_native;
 	bool is_inline;
-	bool is_generator;
+	bool is_ref;
 
 	Ink_NativeFunction native;
 
@@ -265,7 +265,7 @@ public:
 
 	Ink_FunctionObject(Ink_InterpreteEngine *engine)
 	: Ink_Object(engine),
-	  is_native(false), is_inline(false), is_generator(false), native(NULL),
+	  is_native(false), is_inline(false), is_ref(false), native(NULL),
 	  param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL),
 	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_base_p(NULL), pa_info_this_p(NULL),
 	  pa_info_if_return_this(false)
@@ -276,7 +276,7 @@ public:
 
 	Ink_FunctionObject(Ink_InterpreteEngine *engine, Ink_NativeFunction native, bool is_inline = false)
 	: Ink_Object(engine),
-	  is_native(true), is_inline(is_inline), is_generator(false), native(native),
+	  is_native(true), is_inline(is_inline), is_ref(false), native(native),
 	  param(Ink_ParamList()), exp_list(Ink_ExpressionList()), closure_context(NULL),
 	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_base_p(NULL), pa_info_this_p(NULL),
 	  pa_info_if_return_this(false)
@@ -290,7 +290,7 @@ public:
 
 	Ink_FunctionObject(Ink_InterpreteEngine *engine, Ink_NativeFunction native, Ink_ParamList param)
 	: Ink_Object(engine),
-	  is_native(true), is_inline(false), is_generator(false), native(native),
+	  is_native(true), is_inline(false), is_ref(false), native(native),
 	  param(param), exp_list(Ink_ExpressionList()), closure_context(NULL),
 	  attr(Ink_FunctionAttribution()), pa_argc(0), pa_argv(NULL), pa_info_base_p(NULL), pa_info_this_p(NULL),
 	  pa_info_if_return_this(false)
@@ -304,9 +304,9 @@ public:
 
 	Ink_FunctionObject(Ink_InterpreteEngine *engine,
 					   Ink_ParamList param, Ink_ExpressionList exp_list, Ink_ContextChain *closure_context,
-					   bool is_inline = false, bool is_generator = false)
+					   bool is_inline = false, bool is_ref = false)
 	: Ink_Object(engine),
-	  is_native(false), is_inline(is_inline), is_generator(is_generator), native(NULL),
+	  is_native(false), is_inline(is_inline), is_ref(is_ref), native(NULL),
 	  param(param), exp_list(exp_list), closure_context(closure_context), attr(Ink_FunctionAttribution()),
 	  pa_argc(0), pa_argv(NULL), pa_info_base_p(NULL), pa_info_this_p(NULL), pa_info_if_return_this(false)
 	{

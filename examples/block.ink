@@ -1648,7 +1648,14 @@ p("c = " + c);
 a = "second after reverse"
 b = "first after reverse"
 
-$(a, b) = [b, a]
+$(let a, let b) = [b, a]
 
 p("a = " + a);
 p("b = " + b);
+
+test_f = fn (&a) {
+	a() = "yes"
+}
+
+test_f(abcd)
+p(abcd)
