@@ -21,6 +21,9 @@
 
 namespace ink {
 
+std::string getProgPath();
+char *getModulePath();
+
 inline bool createDirIfNotExist(const char *path) /* return: if exist */
 {
 	if (!isDirExist(path)) {

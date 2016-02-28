@@ -29,9 +29,10 @@ Ink_Object *InkMod_Blueprint_System_Env_AtAssign(Ink_InterpreteEngine *engine, I
 	}
 
 	string val = as<Ink_String>(argv[0])->getValue();
+	string set = string(base->address->key) + val;
 	int err_code;
 
-	if ((err_code = setenv(base->address->key, val.c_str(), true)) != 0) {
+	if ((err_code = putenv(set.c_str())) != 0) {
 		InkWarn_Blueprint_Env_Failed_Set_Env(engine, base->address->key);
 	}
 
@@ -87,15 +88,10 @@ Ink_Object *InkMod_Blueprint_System_SetEnv(Ink_InterpreteEngine *engine, Ink_Con
 		return NULL_OBJ;
 	}
 
-	bool override = true;
-	if (argc > 2 && argv[2]->type == INK_NUMERIC) {
-		override = as<Ink_Numeric>(argv[2])->value;
-	}
-
 	string name = as<Ink_String>(argv[0])->getValue();
 	string val = as<Ink_String>(argv[1])->getValue();
 
-	return new Ink_Numeric(engine, setenv(name.c_str(), val.c_str(), override) == 0);
+	return new Ink_Numeric(engine, putenv((name + val).c_str()) == 0);
 }
 
 Ink_Object *InkMod_Blueprint_System_GetEnv(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)

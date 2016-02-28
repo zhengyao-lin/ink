@@ -22,9 +22,7 @@ namespace ink {
 	#include <string>
 	#include <string.h>
 	#include <windows.h>
-	#define INK_MODULE_DIR ((getProgPath() + "modules").c_str())
-
-	std::string getProgPath();
+	#define INK_MODULE_DIR (getModulePath())
 
 #endif
 

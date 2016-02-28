@@ -67,7 +67,7 @@ castValueByMode(Ink_InterpreteEngine *engine, double val /* output radian */)
 		case CALMODE_RADIAN:
 			return val;
 		case CALMODE_DEGREE:
-			return M_PI / 180 * val;
+			return INK_M_PI / 180 * val;
 	}
 
 	return val;
@@ -80,7 +80,7 @@ _getOutputValue(Ink_InterpreteEngine *engine, double val /* input value */)
 		case CALMODE_RADIAN:
 			return val;
 		case CALMODE_DEGREE:
-			return 180 / M_PI * val;
+			return 180 / INK_M_PI * val;
 	}
 
 	return val;
@@ -101,7 +101,7 @@ Ink_Object *InkMod_Blueprint_Math_ToDegree(Ink_InterpreteEngine *engine, Ink_Con
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, 180 / M_PI * as<Ink_Numeric>(argv[0])->value);
+	return new Ink_Numeric(engine, 180 / INK_M_PI * as<Ink_Numeric>(argv[0])->value);
 }
 
 Ink_Object *InkMod_Blueprint_Math_ToRadian(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -110,7 +110,7 @@ Ink_Object *InkMod_Blueprint_Math_ToRadian(Ink_InterpreteEngine *engine, Ink_Con
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, M_PI / 180 * as<Ink_Numeric>(argv[0])->value);
+	return new Ink_Numeric(engine, INK_M_PI / 180 * as<Ink_Numeric>(argv[0])->value);
 }
 
 Ink_Object *InkMod_Blueprint_Math_Sine(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
