@@ -198,6 +198,62 @@ Ink_Object *InkMod_Blueprint_Math_TangentH(Ink_InterpreteEngine *engine, Ink_Con
 	return new Ink_Numeric(engine, tanh(getInputValue(argv[0])));
 }
 
+Ink_Object *InkMod_Blueprint_Math_Hypotenuse(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 2, INK_NUMERIC, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, hypot(as<Ink_Numeric>(argv[0])->value,
+										 as<Ink_Numeric>(argv[1])->value));
+}
+
+Ink_Object *InkMod_Blueprint_Math_SquareRoot(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, sqrt(as<Ink_Numeric>(argv[0])->value));
+}
+
+Ink_Object *InkMod_Blueprint_Math_Pow(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 2, INK_NUMERIC, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, pow(as<Ink_Numeric>(argv[0])->value,
+									   as<Ink_Numeric>(argv[1])->value));
+}
+
+Ink_Object *InkMod_Blueprint_Math_Exp(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, exp(as<Ink_Numeric>(argv[0])->value));
+}
+
+Ink_Object *InkMod_Blueprint_Math_Log(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, log(as<Ink_Numeric>(argv[0])->value));
+}
+
+Ink_Object *InkMod_Blueprint_Math_Log10(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, log10(as<Ink_Numeric>(argv[0])->value));
+}
+
 void InkMod_Blueprint_Math_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
 	bondee->setSlot_c("setmode", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_SetMode));
@@ -217,6 +273,14 @@ void InkMod_Blueprint_Math_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bond
 	bondee->setSlot_c("sinh", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_SineH));
 	bondee->setSlot_c("cosh", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_CosineH));
 	bondee->setSlot_c("tanh", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_TangentH));
+
+	bondee->setSlot_c("hypot", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Hypotenuse));
+
+	bondee->setSlot_c("sqrt", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_SquareRoot));
+	bondee->setSlot_c("pow", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Pow));
+	bondee->setSlot_c("exp", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Exp));
+	bondee->setSlot_c("log", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Log));
+	bondee->setSlot_c("log10", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Log10));
 
 	bondee->setSlot_c("pi", new Ink_Numeric(engine, M_PI));
 

@@ -1078,6 +1078,13 @@ postfix_expression
 												  arg), true, false);
 		SET_LINE_NO($$);
 	}
+	| postfix_expression TLNOT
+	{
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("!p")),
+									Ink_ArgumentList());
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
 	| postfix_expression TDCOLON nllo function_expression
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();

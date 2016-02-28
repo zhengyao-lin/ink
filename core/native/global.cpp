@@ -447,7 +447,7 @@ void Ink_GlobalConstantInit()
 	return;
 }
 
-int numeric_native_method_table_count = 23;
+int numeric_native_method_table_count = 27;
 InkNative_MethodTable numeric_native_method_table[] = {
 	{"+", new Ink_FunctionObject(NULL, InkNative_Numeric_Add)},
 	{"-", new Ink_FunctionObject(NULL, InkNative_Numeric_Sub)},
@@ -468,10 +468,14 @@ InkNative_MethodTable numeric_native_method_table[] = {
 	{"<=", new Ink_FunctionObject(NULL, InkNative_Numeric_LessOrEqual)},
 	{"+u", new Ink_FunctionObject(NULL, InkNative_Numeric_Add_Unary)},
 	{"-u", new Ink_FunctionObject(NULL, InkNative_Numeric_Sub_Unary)},
+	{"!p", new Ink_FunctionObject(NULL, InkNative_Numeric_Not_Postfix)},
 	{"to_str", new Ink_FunctionObject(NULL, InkNative_Numeric_ToString)},
 	{"ceil", new Ink_FunctionObject(NULL, InkNative_Numeric_Ceil)},
 	{"floor", new Ink_FunctionObject(NULL, InkNative_Numeric_Floor)},
-	{"round", new Ink_FunctionObject(NULL, InkNative_Numeric_Round)}
+	{"round", new Ink_FunctionObject(NULL, InkNative_Numeric_Round)},
+	{"abs", new Ink_FunctionObject(NULL, InkNative_Numeric_Abs)},
+	{"isnan", new Ink_FunctionObject(NULL, InkNative_Numeric_IsNan)},
+	{"isinf", new Ink_FunctionObject(NULL, InkNative_Numeric_IsInf)}
 };
 
 int string_native_method_table_count = 10;

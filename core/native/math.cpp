@@ -250,6 +250,19 @@ Ink_Object *InkNative_Numeric_Sub_Unary(Ink_InterpreteEngine *engine, Ink_Contex
 	return new Ink_Numeric(engine, -as<Ink_Numeric>(base)->value);
 }
 
+Ink_Object *InkNative_Numeric_Not_Postfix(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
+
+	Ink_NumericValue val = as<Ink_Numeric>(base)->value;
+	Ink_NumericValue ret, i;
+	for (i = 1, ret = 1; i <= val; i++) ret *= i;
+
+	return new Ink_Numeric(engine, ret);
+}
+
 Ink_Object *InkNative_Numeric_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -286,6 +299,33 @@ Ink_Object *InkNative_Numeric_Round(Ink_InterpreteEngine *engine, Ink_ContextCha
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, round(as<Ink_Numeric>(base)->value));
+}
+
+Ink_Object *InkNative_Numeric_Abs(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
+
+	return new Ink_Numeric(engine, fabs(as<Ink_Numeric>(base)->value));
+}
+
+Ink_Object *InkNative_Numeric_IsNan(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
+
+	return new Ink_Numeric(engine, isnan((long double)as<Ink_Numeric>(base)->value));
+}
+
+Ink_Object *InkNative_Numeric_IsInf(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
+
+	return new Ink_Numeric(engine, isinf((long double)as<Ink_Numeric>(base)->value));
 }
 
 extern int numeric_native_method_table_count;
