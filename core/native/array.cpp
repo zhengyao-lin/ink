@@ -233,19 +233,17 @@ Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return new Ink_FunctionObject(engine, Ink_ParamList(), ret_val, context->copyContextChain());
 }
 
-extern int array_native_method_table_count;
-extern InkNative_MethodTable array_native_method_table[];
-
 void Ink_Array::Ink_ArrayMethodInit(Ink_InterpreteEngine *engine)
 {
-	InkNative_MethodTable *table = array_native_method_table;
-	Ink_Object *tmp;
-	int i, count = array_native_method_table_count;
-
-	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, tmp = table[i].func->cloneDeep(engine));
-		tmp->initProto(engine);
-	}
+	setSlot_c("[]", new Ink_FunctionObject(engine, InkNative_Array_Index));
+	setSlot_c("push", new Ink_FunctionObject(engine, InkNative_Array_Push));
+	setSlot_c("size", new Ink_FunctionObject(engine, InkNative_Array_Size));
+	setSlot_c("each", new Ink_FunctionObject(engine, InkNative_Array_Each, true));
+	setSlot_c("last", new Ink_FunctionObject(engine, InkNative_Array_Last));
+	setSlot_c("remove", new Ink_FunctionObject(engine, InkNative_Array_Remove));
+	setSlot_c("rebuild", new Ink_FunctionObject(engine, InkNative_Array_Rebuild));
+	
+	return;
 }
 
 }

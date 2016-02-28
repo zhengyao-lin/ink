@@ -219,14 +219,20 @@ extern InkNative_MethodTable object_native_method_table[];
 
 void Ink_Object::Ink_ObjectMethodInit(Ink_InterpreteEngine *engine)
 {
-	InkNative_MethodTable *table = object_native_method_table;
-	Ink_Object *tmp;
-	int i, count = object_native_method_table_count;
-
-	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, tmp = table[i].func->cloneDeep(engine));
-		tmp->initProto(engine);
-	}
+	setSlot_c("->", new Ink_FunctionObject(engine, InkNative_Object_Bond));
+	setSlot_c("!!", new Ink_FunctionObject(engine, InkNative_Object_Debond));
+	setSlot_c("!", new Ink_FunctionObject(engine, InkNative_Object_Not));
+	setSlot_c("==", new Ink_FunctionObject(engine, InkNative_Object_Equal));
+	setSlot_c("!=", new Ink_FunctionObject(engine, InkNative_Object_NotEqual));
+	setSlot_c("[]", new Ink_FunctionObject(engine, InkNative_Object_Index));
+	setSlot_c("new", new Ink_FunctionObject(engine, InkNative_Object_New));
+	setSlot_c("delete", new Ink_FunctionObject(engine, InkNative_Object_Delete));
+	setSlot_c("clone", new Ink_FunctionObject(engine, InkNative_Object_Clone));
+	setSlot_c("getter", new Ink_FunctionObject(engine, InkNative_Object_SetGetter));
+	setSlot_c("setter", new Ink_FunctionObject(engine, InkNative_Object_SetSetter));
+	setSlot_c("each", new Ink_FunctionObject(engine, InkNative_Object_Each, true));
+	
+	return;
 }
 
 }

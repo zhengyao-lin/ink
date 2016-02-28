@@ -328,19 +328,37 @@ Ink_Object *InkNative_Numeric_IsInf(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return new Ink_Numeric(engine, isinf((long double)as<Ink_Numeric>(base)->value));
 }
 
-extern int numeric_native_method_table_count;
-extern InkNative_MethodTable numeric_native_method_table[];
-
 void Ink_Numeric::Ink_NumericMethodInit(Ink_InterpreteEngine *engine)
 {
-	InkNative_MethodTable *table = numeric_native_method_table;
-	Ink_Object *tmp;
-	int i, count = numeric_native_method_table_count;
-
-	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, tmp = table[i].func->cloneDeep(engine));
-		tmp->initProto(engine);
-	}
+	setSlot_c("+", new Ink_FunctionObject(engine, InkNative_Numeric_Add));
+	setSlot_c("-", new Ink_FunctionObject(engine, InkNative_Numeric_Sub));
+	setSlot_c("*", new Ink_FunctionObject(engine, InkNative_Numeric_Mul));
+	setSlot_c("/", new Ink_FunctionObject(engine, InkNative_Numeric_Div));
+	setSlot_c("%", new Ink_FunctionObject(engine, InkNative_Numeric_Mod));
+	setSlot_c("&", new Ink_FunctionObject(engine, InkNative_Numeric_And));
+	setSlot_c("|", new Ink_FunctionObject(engine, InkNative_Numeric_Or));
+	setSlot_c("^", new Ink_FunctionObject(engine, InkNative_Numeric_Xor));
+	setSlot_c("<<", new Ink_FunctionObject(engine, InkNative_Numeric_ShiftLeft));
+	setSlot_c(">>", new Ink_FunctionObject(engine, InkNative_Numeric_ShiftRight));
+	setSlot_c("~", new Ink_FunctionObject(engine, InkNative_Numeric_Inverse));
+	setSlot_c("==", new Ink_FunctionObject(engine, InkNative_Numeric_Equal));
+	setSlot_c("!=", new Ink_FunctionObject(engine, InkNative_Numeric_NotEqual));
+	setSlot_c(">", new Ink_FunctionObject(engine, InkNative_Numeric_Greater));
+	setSlot_c("<", new Ink_FunctionObject(engine, InkNative_Numeric_Less));
+	setSlot_c(">=", new Ink_FunctionObject(engine, InkNative_Numeric_GreaterOrEqual));
+	setSlot_c("<=", new Ink_FunctionObject(engine, InkNative_Numeric_LessOrEqual));
+	setSlot_c("+u", new Ink_FunctionObject(engine, InkNative_Numeric_Add_Unary));
+	setSlot_c("-u", new Ink_FunctionObject(engine, InkNative_Numeric_Sub_Unary));
+	setSlot_c("!p", new Ink_FunctionObject(engine, InkNative_Numeric_Not_Postfix));
+	setSlot_c("to_str", new Ink_FunctionObject(engine, InkNative_Numeric_ToString));
+	setSlot_c("ceil", new Ink_FunctionObject(engine, InkNative_Numeric_Ceil));
+	setSlot_c("floor", new Ink_FunctionObject(engine, InkNative_Numeric_Floor));
+	setSlot_c("round", new Ink_FunctionObject(engine, InkNative_Numeric_Round));
+	setSlot_c("abs", new Ink_FunctionObject(engine, InkNative_Numeric_Abs));
+	setSlot_c("isnan", new Ink_FunctionObject(engine, InkNative_Numeric_IsNan));
+	setSlot_c("isinf", new Ink_FunctionObject(engine, InkNative_Numeric_IsInf));
+	
+	return;
 }
 
 }

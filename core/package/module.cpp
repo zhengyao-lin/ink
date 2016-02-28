@@ -18,7 +18,6 @@ InkPack_String *InkPack_String::readFrom(FILE *fp)
 	}
 	if (tmp_len)
 		tmp_str[tmp_len] = '\0';
-	printf("len: %ld, str: %s\n", tmp_len, tmp_str);
 
 	return new InkPack_String(tmp_str, false);
 }

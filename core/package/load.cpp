@@ -49,7 +49,9 @@ void Ink_disposeModules()
 {
 	DLHandlerPool::size_type i;
 	Ink_SizeType j;
+	
 	pthread_mutex_lock(&dl_handler_pool_lock);
+
 	for (i = 0; i < dl_handler_pool.size(); i++) {
 		INK_DL_CLOSE(dl_handler_pool[i]);
 	}
@@ -62,7 +64,9 @@ void Ink_disposeModules()
 	if (tmp_prog_path) {
 		free(tmp_prog_path);
 	}
+	
 	pthread_mutex_unlock(&dl_handler_pool_lock);
+
 	return;
 }
 
@@ -178,34 +182,39 @@ void Ink_Package::preload(const char *path)
 	return;
 }
 
+inline void showDLError()
+{
+	const char *errmsg;
+	if ((errmsg = INK_DL_ERROR()) != NULL)
+		printf("%s\n", errmsg);
+	return;
+}
+
 void Ink_preloadModule(const char *path)
 {
 	INK_DL_HANDLER handler = INK_DL_OPEN(path, RTLD_NOW);
 	int errnum;
-	const char *errmsg;
 
 	if (!handler) {
 		InkWarn_Failed_Load_Mod(NULL, path);
-		if ((errmsg = INK_DL_ERROR()) != NULL)
-			printf("%s\n", errmsg);
+		showDLError();
 		return;
 	}
+	showDLError();
 
 	InkMod_Loader_t loader = asFunctionPointer<InkMod_Loader_t>(INK_DL_SYMBOL(handler, "InkMod_Loader"));
 	InkMod_Init_t init = asFunctionPointer<InkMod_Init_t>(INK_DL_SYMBOL(handler, "InkMod_Init"));
 	if (!loader) {
 		InkWarn_Failed_Find_Loader(NULL, path);
 		INK_DL_CLOSE(handler);
-		if ((errmsg = INK_DL_ERROR()) != NULL)
-			printf("%s\n", errmsg);
+		showDLError();
 		return;
 	}
 
 	if (!init) {
 		InkWarn_Failed_Find_Init(NULL, path);
 		INK_DL_CLOSE(handler);
-		if ((errmsg = INK_DL_ERROR()) != NULL)
-			printf("%s\n", errmsg);
+		showDLError();
 		return;
 	}
 

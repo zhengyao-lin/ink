@@ -155,14 +155,18 @@ extern InkNative_MethodTable string_native_method_table[];
 
 void Ink_String::Ink_StringMethodInit(Ink_InterpreteEngine *engine)
 {
-	InkNative_MethodTable *table = string_native_method_table;
-	Ink_Object *tmp;
-	int i, count = string_native_method_table_count;
+	setSlot_c("+", new Ink_FunctionObject(engine, InkNative_String_Add));
+	setSlot_c("<", new Ink_FunctionObject(engine, InkNative_String_Index));
+	setSlot_c(">", new Ink_FunctionObject(engine, InkNative_String_Greater));
+	setSlot_c("<", new Ink_FunctionObject(engine, InkNative_String_Less));
+	setSlot_c(">=", new Ink_FunctionObject(engine, InkNative_String_GreaterOrEqual));
+	setSlot_c("<=", new Ink_FunctionObject(engine, InkNative_String_LessOrEqual));
+	setSlot_c("[]", new Ink_FunctionObject(engine, InkNative_String_Index));
+	setSlot_c("length", new Ink_FunctionObject(engine, InkNative_String_Length));
+	setSlot_c("substr", new Ink_FunctionObject(engine, InkNative_String_SubStr));
+	setSlot_c("to_str", new Ink_FunctionObject(engine, InkNative_String_ToString));
 
-	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, tmp = table[i].func->cloneDeep(engine));
-		tmp->initProto(engine);
-	}
+	return;
 }
 
 }

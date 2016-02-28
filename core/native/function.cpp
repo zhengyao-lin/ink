@@ -196,24 +196,23 @@ extern InkNative_MethodTable explist_native_method_table[];
 
 void Ink_FunctionObject::Ink_FunctionMethodInit(Ink_InterpreteEngine *engine)
 {
-	InkNative_MethodTable *table = function_native_method_table;
-	int i, count = function_native_method_table_count;
+	Ink_ParamList scope_param = Ink_ParamList();
+	scope_param.push_back(Ink_Parameter(NULL, true));
 
-	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, table[i].func->cloneDeep(engine));
-	}
+	setSlot_c("<<", new Ink_FunctionObject(engine, InkNative_Function_Insert));
+	setSlot_c("exp", new Ink_FunctionObject(engine, InkNative_Function_GetExp));
+	setSlot_c("[]", new Ink_FunctionObject(engine, InkNative_Function_RangeCall));
+	setSlot_c("::", new Ink_FunctionObject(engine, InkNative_Function_GetScope, scope_param));
+
+	return;
 }
 
 void Ink_ExpListObject::Ink_ExpListMethodInit(Ink_InterpreteEngine *engine)
 {
-	InkNative_MethodTable *table = explist_native_method_table;
-	Ink_Object *tmp;
-	int i, count = explist_native_method_table_count;
-
-	for (i = 0; i < count; i++) {
-		setSlot(table[i].name, tmp = table[i].func->cloneDeep(engine));
-		tmp->initProto(engine);
-	}
+	setSlot_c("to_array", new Ink_FunctionObject(engine, InkNative_ExpList_ToArray));
+	setSlot_c("<<", new Ink_FunctionObject(engine, InkNative_ExpList_Insert));
+	
+	return;
 }
 
 }
