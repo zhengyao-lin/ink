@@ -1662,3 +1662,6 @@ test_f = fn (&a) {
 
 test_f(abcd)
 p(abcd)
+
+sys.env['a'] = "b"
+p(sys.getenv("a"))

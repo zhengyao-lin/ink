@@ -5,10 +5,35 @@
 #include "core/object.h"
 #include "core/native/general.h"
 #include "includes/switches.h"
+#include "includes/universal.h"
 
 using namespace std;
 
 extern char **environ;
+
+inline int
+_setenv(const char *name, const char *val)
+{
+#ifdef INK_PLATFORM_LINUX
+	return setenv(name, val, true);
+#else
+	if (strstr(name, "="))
+		return 1;
+
+	Ink_SizeType n_len, v_len;
+	Ink_SizeType len = (n_len = strlen(name)) + (v_len = strlen(val)) + 1;
+	char *tmp_str = (char *)calloc(len + 1, sizeof(char));
+
+	strcat(tmp_str, name);
+	tmp_str[n_len] = '=';
+	strcat(tmp_str + n_len + 1, val);
+
+	int ret = putenv(tmp_str);
+	free(tmp_str);
+
+	return ret;
+#endif
+}
 
 Ink_Object *InkMod_Blueprint_System_Env_AtAssign(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
@@ -29,10 +54,9 @@ Ink_Object *InkMod_Blueprint_System_Env_AtAssign(Ink_InterpreteEngine *engine, I
 	}
 
 	string val = as<Ink_String>(argv[0])->getValue();
-	string set = string(base->address->key) + val;
 	int err_code;
 
-	if ((err_code = putenv(set.c_str())) != 0) {
+	if ((err_code = _setenv(base->address->key, val.c_str())) != 0) {
 		InkWarn_Blueprint_Env_Failed_Set_Env(engine, base->address->key);
 	}
 
@@ -91,7 +115,7 @@ Ink_Object *InkMod_Blueprint_System_SetEnv(Ink_InterpreteEngine *engine, Ink_Con
 	string name = as<Ink_String>(argv[0])->getValue();
 	string val = as<Ink_String>(argv[1])->getValue();
 
-	return new Ink_Numeric(engine, putenv((name + val).c_str()) == 0);
+	return new Ink_Numeric(engine, _setenv(name.c_str(), val.c_str()) == 0);
 }
 
 Ink_Object *InkMod_Blueprint_System_GetEnv(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
