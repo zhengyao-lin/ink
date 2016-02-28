@@ -25,6 +25,7 @@
 	} \
 } while (0)
 
+#define IS_BIN(c) ((c) == '0' || (c) == '1')
 #define IS_DEC(c) ((c) <= '9' && (c) >= '0')
 #define IS_HEX(c) (IS_DEC(c) || ((c) <= 'f' && (c) >= 'a') || ((c) <= 'F' && (c) >= 'A'))
 #define IS_OCT(c) ((c) <= '7' && (c) >= '0')
@@ -33,6 +34,7 @@
 #define TO_LOWER(c) (IS_CAPITAL(c) ? 'a' + (c) - 'A' : (c))
 
 #define DEC_TO_NUM(c) ((c) - '0')
+#define BIN_TO_NUM(c) (DEC_TO_NUM(c))
 #define HEX_TO_NUM(c) (IS_DEC(c) ? DEC_TO_NUM(c) : TO_LOWER(c) - 'a' + 10)
 #define OCT_TO_NUM(c) (DEC_TO_NUM(c))
 
@@ -53,9 +55,10 @@ Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success
 	string::size_type i;
 	int flag = 1, flag_back = 1, decimal = 0;
 	enum {
+		BIN = 2,
+		OCT = 8,
 		DEC = 10,
-		HEX = 16,
-		OCT = 8
+		HEX = 16
 	} mode = DEC;
 
 	if (is_success)
@@ -79,6 +82,9 @@ Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success
 				code = code.substr(1);
 			} else if (code[0] == 'o' || code[0] == 'O') {
 				mode = OCT;
+				code = code.substr(1);
+			} else if (code[0] == 'b' || code[0] == 'B') {
+				mode = BIN;
 				code = code.substr(1);
 			}
 		}

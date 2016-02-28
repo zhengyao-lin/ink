@@ -2,12 +2,19 @@
 SP				[ \t\v\f]
 NEWLINE			[\r\n]
 PM				[+-]
+
+BIN_PRE			(0[bB])
+HEX_PRE			(0[xX])
+OCT_PRE			(0[oO])
+
+BIN				[01]
 DEC				[0-9]
 HEX				[a-fA-F0-9]
 OCT				[0-7]
 POWER_MARK		[eE]
 LETTER			[a-zA-Z_?$]
 FIRST_LETTER	({LETTER}|[@])
+EXP_OPT			(({POWER_MARK}[-+]?{DEC}+)?)
 
 DIGITS			({DIGIT})+
 SPS				({SP})+
@@ -234,31 +241,39 @@ void yyerror(const char *msg);
 	}
 	return TIDENTIFIER;
 }
-<INITIAL>"0"[oO]{OCT}+\.{OCT}+ { // oct
+<INITIAL>{BIN_PRE}{BIN}+\.{BIN}+{EXP_OPT} { // bin
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>"0"[oO]{OCT}+ { // oct
+<INITIAL>{BIN_PRE}{BIN}+{EXP_OPT} { // bin
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>"0"[xX]{HEX}+\.{HEX}+ { // hex
+<INITIAL>{OCT_PRE}{OCT}+\.{OCT}+{EXP_OPT} { // oct
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>"0"[xX]{HEX}+ { // hex
+<INITIAL>{OCT_PRE}{OCT}+{EXP_OPT} { // oct
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>{DEC}*\.{DEC}+({POWER_MARK}[-+]?{DEC}+)? { // dec
+<INITIAL>{HEX_PRE}{HEX}+\.{HEX}+{EXP_OPT} { // hex
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>0({POWER_MARK}[-+]?{DEC}+)? { // dec
+<INITIAL>{HEX_PRE}{HEX}+{EXP_OPT} { // hex
 	SAVE_TOKEN();
 	return TNUMERIC;
 }
-<INITIAL>[1-9]{DEC}*({POWER_MARK}[-+]?{DEC}+)? { // dec
+<INITIAL>{DEC}*\.{DEC}+{EXP_OPT} { // dec
+	SAVE_TOKEN();
+	return TNUMERIC;
+}
+<INITIAL>0{EXP_OPT} { // dec
+	SAVE_TOKEN();
+	return TNUMERIC;
+}
+<INITIAL>[1-9]{DEC}*{EXP_OPT} { // dec
 	SAVE_TOKEN();
 	return TNUMERIC;
 }

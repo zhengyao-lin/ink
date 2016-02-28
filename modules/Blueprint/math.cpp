@@ -5,7 +5,8 @@
 #include "core/native/general.h"
 #include "core/gc/collect.h"
 
-#define M_PI 3.14159265358979323846
+#define INK_M_PI 3.14159265358979323846
+#define INK_M_E 2.71828182845904523536
 
 using namespace ink;
 
@@ -282,7 +283,8 @@ void InkMod_Blueprint_Math_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bond
 	bondee->setSlot_c("log", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Log));
 	bondee->setSlot_c("log10", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Log10));
 
-	bondee->setSlot_c("pi", new Ink_Numeric(engine, M_PI));
+	bondee->setSlot_c("pi", new Ink_Numeric(engine, INK_M_PI));
+	bondee->setSlot_c("e", new Ink_Numeric(engine, INK_M_E));
 
 	return;
 }
