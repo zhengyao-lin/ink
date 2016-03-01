@@ -6,8 +6,8 @@
 #include "includes/switches.h"
 
 #define CURRENT_OBJECT_COUNT (object_count)
-#define CURRENT_COLLECT_TRESHOLD (collect_treshold)
-#define CURRENT_COLLECT_TRESHOLD_UNIT (engine->igc_collect_treshold_unit)
+#define CURRENT_COLLECT_THRESHOLD (collect_threshold)
+#define CURRENT_COLLECT_THRESHOLD_UNIT (engine->igc_collect_threshold_unit)
 #define CURRENT_MARK_PERIOD (engine->igc_mark_period)
 
 namespace ink {
@@ -19,7 +19,7 @@ IGC_CollectEngine::IGC_CollectEngine(Ink_InterpreteEngine *engine)
 	object_chain = NULL;
 	object_chain_last = NULL;
 	object_count = 0;
-	collect_treshold = engine->igc_collect_treshold;
+	collect_threshold = engine->igc_collect_threshold;
 }
 
 void IGC_CollectEngine::addUnit(IGC_CollectUnit *unit)
@@ -154,8 +154,8 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 #define upper(i) ((i) > (IGC_ObjectCountType)(i) ? (IGC_ObjectCountType)(i) + 1 : (IGC_ObjectCountType)(i))
 #define lower(i) ((IGC_ObjectCountType)(i))
 #define oc (CURRENT_OBJECT_COUNT)
-#define t (CURRENT_COLLECT_TRESHOLD)
-#define tu (CURRENT_COLLECT_TRESHOLD_UNIT)
+#define t (CURRENT_COLLECT_THRESHOLD)
+#define tu (CURRENT_COLLECT_THRESHOLD_UNIT)
 
 void IGC_CollectEngine::checkGC()
 {

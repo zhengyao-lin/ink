@@ -25,7 +25,7 @@ public:
 	bool if_run;
 
 	/* settings */
-	IGC_ObjectCountType igc_collect_treshold;
+	IGC_ObjectCountType igc_collect_threshold;
 	bool dbg_print_detail;
 
 	Ink_InputSetting(const char *input_file_path = NULL, FILE *fp = stdin, bool close_fp = false);

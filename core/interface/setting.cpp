@@ -13,7 +13,7 @@ using namespace std;
 Ink_InputSetting::Ink_InputSetting(const char *input_file_path, FILE *fp, bool close_fp)
 : close_fp(close_fp), input_file_pointer(fp), code_mode(SOURCE_CODE), input_file_path(input_file_path), if_run(true)
 {
-	igc_collect_treshold = IGC_COLLECT_TRESHOLD_UNIT;
+	igc_collect_threshold = IGC_COLLECT_THRESHOLD_UNIT;
 	dbg_print_detail = false;
 }
 
@@ -42,7 +42,7 @@ inline void printUsage(const char *prog_path)
 "  %-25s %s\n",
 	"--help or -h",							"Display this usage page",
 	"--mod-path=<path> or -m=<path>",		"Add module searching path",
-	"--gc-treshold=<treshold>",				"Set collect treshold for garbage collector",
+	"--gc-threshold=<threshold>",				"Set collect threshold for garbage collector",
 	"--debug or -d",						"Open debug mode(print more debug info when error occurs, optional value(true or false))",
 	"--import-path=<path> or -i=<path>",	"Add import search path(can be used several times)");
 }
@@ -68,7 +68,7 @@ inline bool processArg(Ink_InputSetting &setting, Ink_SizeType dash_count,
 			setting.if_run = false;
 			return true;
 		}
-	} else if (IS_DOUBLE_DASH_ARG("gc-treshold")) {
+	} else if (IS_DOUBLE_DASH_ARG("gc-threshold")) {
 		if (has_val) {
 			int tmp = atoi(val.c_str());
 			if (tmp <= 0) {
@@ -76,7 +76,7 @@ inline bool processArg(Ink_InputSetting &setting, Ink_SizeType dash_count,
 				setting.if_run = false;
 				return true;
 			} else {
-				setting.igc_collect_treshold = tmp;
+				setting.igc_collect_threshold = tmp;
 			}
 		} else {
 			fprintf(stderr, "Option %s requires a value\n", REPRINT_ARG.c_str());

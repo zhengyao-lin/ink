@@ -4,7 +4,7 @@
 #include "../object.h"
 #include "../general.h"
 
-#define IGC_COLLECT_TRESHOLD_UNIT (512)
+#define IGC_COLLECT_THRESHOLD_UNIT (512)
 
 namespace ink {
 
@@ -41,7 +41,7 @@ public:
 	Ink_InterpreteEngine *engine;
 
 	IGC_ObjectCountType object_count;
-	IGC_ObjectCountType collect_treshold;
+	IGC_ObjectCountType collect_threshold;
 
 	IGC_CollectEngine(Ink_InterpreteEngine *engine);
 

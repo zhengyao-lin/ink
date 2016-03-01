@@ -89,8 +89,8 @@ public:
 
 	Ink_ContextChain *trace;
 
-	IGC_ObjectCountType igc_collect_treshold;
-	IGC_ObjectCountType igc_collect_treshold_unit;
+	IGC_ObjectCountType igc_collect_threshold;
+	IGC_ObjectCountType igc_collect_threshold_unit;
 
 	IGC_CollectEngine *current_gc_engine;
 	IGC_MarkType igc_mark_period;
@@ -136,7 +136,7 @@ public:
 
 	inline void applySetting(Ink_InputSetting setting)
 	{
-		igc_collect_treshold = setting.igc_collect_treshold;
+		igc_collect_threshold = setting.igc_collect_threshold;
 		dbg_print_detail = setting.dbg_print_detail;
 		return;
 	}
