@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "bignum.h"
 
 using namespace std;
