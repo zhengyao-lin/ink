@@ -1,6 +1,7 @@
 #ifndef _SWITCHES_H_
 #define _SWITCHES_H_
 
+#include <stdlib.h>
 #include <string.h>
 #include "universal.h"
 

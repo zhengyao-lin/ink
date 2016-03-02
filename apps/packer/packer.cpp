@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <string>
+#include "core/general.h"
 #include "core/error.h"
 #include "core/package/load.h"
 
@@ -120,7 +121,7 @@ public:
 
 Ink_MagicNumber getVersionBySuffix(char *path)
 {
-	auto i = strlen(path);
+	Ink_SizeType i = strlen(path);
 
 	if (i >= 3
 		&& path[i - 1] == 'o'

@@ -1,10 +1,10 @@
+include makefile.head
+
 ifeq ($(ARCH), arm)
 	export ARCH_PREFIX=arm-none-linux-gnueabi-
 else
 	export ARCH_PREFIX=
 endif
-
-include makefile.head
 
 ifeq ($(PLATFORM), win64)
 	export GLOBAL_PLATFORM = windows
