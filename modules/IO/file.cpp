@@ -145,12 +145,16 @@ Ink_Object *InkNative_File_GetString(Ink_InterpreteEngine *engine, Ink_ContextCh
 	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 	char buffer[FILE_GETS_BUFFER_SIZE] = { '\0' };
+	char *tmp_str;
 
 	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 	if (tmp) {
-		return new Ink_String(engine, string(fgets(buffer, FILE_GETS_BUFFER_SIZE, tmp)));
+		tmp_str = fgets(buffer, FILE_GETS_BUFFER_SIZE, tmp);
+		if (tmp_str)
+			return new Ink_String(engine, string(tmp_str));
+		return NULL_OBJ;
 	}
 
 	InkWarn_IO_Uninitialized_File_Pointer(engine);

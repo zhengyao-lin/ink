@@ -1665,3 +1665,11 @@ p(abcd)
 
 sys.env['a'] = "b"
 p(sys.getenv("a"))
+
+"123:23:ssd323".split(":").each { | val |
+	p(val);
+}
+
+"123".split(":").each(p(_))
+"::".split("::").each(p(_))
+"".split("::").each(p(_))

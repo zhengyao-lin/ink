@@ -91,6 +91,38 @@ Ink_Object *InkNative_String_SubStr(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return new Ink_String(engine, origin.substr(offset, length));
 }
 
+Ink_Object *InkNative_String_Split(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+	wstring::size_type i, last;
+
+	ASSUME_BASE_TYPE(engine, INK_STRING);
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
+		return NULL_OBJ;
+	}
+
+	wstring base_str = as<Ink_String>(base)->getWValue();
+	wstring split = as<Ink_String>(argv[0])->getWValue();
+	Ink_ArrayValue ret_val = Ink_ArrayValue();
+	wstring tmp;
+
+	for (i = 0, last = 0; i < base_str.size(); i++) {
+		if (base_str.substr(i, split.length()) == split) {
+			ret_val.push_back(new Ink_HashTable(new Ink_String(engine, tmp = (i > last
+																	   ? base_str.substr(last, i - last)
+																	   : L""))));
+			last = i + split.length();
+			i += split.length() - 1;
+		}
+	}
+
+	ret_val.push_back(new Ink_HashTable(new Ink_String(engine, i > last
+															   ? base_str.substr(last, i - last)
+															   : L"")));
+
+	return new Ink_Array(engine, ret_val);
+}
+
 Ink_Object *InkNative_String_Greater(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -164,6 +196,7 @@ void Ink_String::Ink_StringMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("[]", new Ink_FunctionObject(engine, InkNative_String_Index));
 	setSlot_c("length", new Ink_FunctionObject(engine, InkNative_String_Length));
 	setSlot_c("substr", new Ink_FunctionObject(engine, InkNative_String_SubStr));
+	setSlot_c("split", new Ink_FunctionObject(engine, InkNative_String_Split));
 	setSlot_c("to_str", new Ink_FunctionObject(engine, InkNative_String_ToString));
 
 	return;
