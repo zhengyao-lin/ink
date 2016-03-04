@@ -87,11 +87,6 @@ Ink_Object *InkNative_Object_New(Ink_InterpreteEngine *engine, Ink_ContextChain 
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_Object *new_obj = new Ink_Object(engine);
-	Ink_Object *proto = base->getProto();
-
-	if (proto) {
-		new_obj->setProto(proto);
-	}
 
 	if (base->type == INK_FUNCTION) {
 		return base->call(engine, context, argc, argv, new_obj);

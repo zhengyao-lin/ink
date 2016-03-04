@@ -1500,17 +1500,17 @@ TypeA = fn () {
 }
 
 TypeB = fn () {
+	this.prototype = new TypeA();
 	let this.a = 20
 }
-TypeB.prototype = new TypeA();
 
 tmp = new TypeB();
 tmp.p();
 
 ExArray = fn () {
+	this.prototype = new Array()
 	this.a = 10
 }
-ExArray.prototype = new Array()
 tmp = new ExArray();
 
 act = actor () {

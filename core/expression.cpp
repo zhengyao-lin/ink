@@ -226,6 +226,7 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	const char *file_name_back;
 	Ink_LineNoType line_num_back;
 	bool ret_val = false;
+	Ink_Object *ret = NULL;
 	SET_LINE_NUM;
 
 	/* first eval left hand side */
@@ -237,29 +238,32 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 
 	if (isTrue(lhs)) {
 		/* left hand side true */
-		if (type == LOGIC_OR)
+		if (type == LOGIC_OR) {
 			/* if operator is or, return true directly */
 			ret_val = true;
-		else {
+			ret = lhs;
+		} else {
 			/* if operator is and, make sure the right hand side is true, too */
 			rhs = rval->eval(engine, context_chain);
 			CATCH_SIGNAL_RET;
 
 			if (isTrue(rhs)) {
 				ret_val = true;
+				ret = rhs;
 			}
 		}
 	} else {
 		/* if operator is or, judge right hand side */
-		if (type == LOGIC_OR && isTrue(rval->eval(engine, context_chain))) {
+		if (type == LOGIC_OR && isTrue(rhs = rval->eval(engine, context_chain))) {
 			CATCH_SIGNAL_RET;
 			ret_val = true;
+			ret = rhs;
 		}
 	}
 
 	RESTORE_LINE_NUM;
 
-	return new Ink_Numeric(engine, ret_val);
+	return ret ? ret : new Ink_Numeric(engine, ret_val);
 }
 
 Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)

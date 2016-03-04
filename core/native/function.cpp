@@ -69,7 +69,7 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 
 	range = getSlotWithProto(engine, context, argv[0], "range");
 	if (range->type != INK_FUNCTION) {
-		// InkWarn_Method_Fallthrough(engine, INK_OBJECT);
+		InkNote_Method_Fallthrough(engine, "[]", INK_FUNCTION, INK_OBJECT);
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
 
