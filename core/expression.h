@@ -205,17 +205,17 @@ public:
 	}
 };
 
-class Ink_TableExpression: public Ink_Expression {
+class Ink_ListExpression: public Ink_Expression {
 public:
 	Ink_ExpressionList elem_list;
 
-	Ink_TableExpression(Ink_ExpressionList elem_list)
+	Ink_ListExpression(Ink_ExpressionList elem_list)
 	: elem_list(elem_list)
 	{ }
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
-	virtual ~Ink_TableExpression()
+	virtual ~Ink_ListExpression()
 	{
 		Ink_ExpressionList::size_type i;
 		for (i = 0; i < elem_list.size(); i++) {

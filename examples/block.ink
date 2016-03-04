@@ -1671,5 +1671,37 @@ p(sys.getenv("a"))
 }
 
 "123".split(":").each(p(_))
-"::".split("::").each(p(_))
+"::2".split("::").each(p(_))
 "".split("::").each(p(_))
+
+`[]` = fn (arr) {
+	p("called!!")
+	let ret = "["
+	for (let i = 0, i < arr.size(), i++) {
+		if (ret != "[") {
+			ret += ", "
+		}
+		ret += arr[i]
+	}
+	ret += "]"
+}
+
+p([1, 2, 3, "s"])
+
+delete `[]`
+
+`{}` = fn (obj) {
+	p("called!!!")
+	let ret = "{"
+	obj.each { | k, v |
+		if (ret != "{") {
+			ret += ", "
+		}
+		ret += "\"" + k + "\": " + v
+	}
+	ret += "}"
+}
+
+p({a: 10, b: 20, c: "haha"})
+
+delete `{}`

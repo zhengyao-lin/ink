@@ -337,6 +337,7 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 	SET_LINE_NUM;
 
 	Ink_Object *ret = new Ink_Object(engine), *key;
+	Ink_Object *hash_method = NULL, **argv = NULL;
 	Ink_HashTableMapping::size_type i;
 
 	for (i = 0; i < mapping.size(); i++) {
@@ -359,11 +360,19 @@ Ink_Object *Ink_HashTableExpression::eval(Ink_InterpreteEngine *engine, Ink_Cont
 		}
 	}
 
+	hash_method = Ink_IdentifierExpression::getContextSlot(engine, context_chain, "{}", Ink_EvalFlag(), false);
+	if (hash_method->type == INK_FUNCTION) {
+		argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 1);
+		argv[0] = ret;
+		ret = hash_method->call(engine, context_chain, 1, argv);
+		free(argv);
+	}
+
 	RESTORE_LINE_NUM;
 	return ret;
 }
 
-Ink_Object *Ink_TableExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_ListExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	const char *file_name_back;
 	Ink_LineNoType line_num_back;
@@ -371,6 +380,9 @@ Ink_Object *Ink_TableExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 
 	Ink_ArrayValue val = Ink_ArrayValue();
 	Ink_ArrayValue::size_type i;
+	Ink_Object *list_method;
+	Ink_Object **argv = NULL;
+	Ink_Object *ret = NULL;
 
 	for (i = 0; i < elem_list.size(); i++) {
 		val.push_back(new Ink_HashTable("", elem_list[i]->eval(engine, context_chain)));
@@ -381,8 +393,18 @@ Ink_Object *Ink_TableExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 		}
 	}
 
+	ret = new Ink_Array(engine, val);
+
+	list_method = Ink_IdentifierExpression::getContextSlot(engine, context_chain, "[]", Ink_EvalFlag(), false);
+	if (list_method->type == INK_FUNCTION) {
+		argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 1);
+		argv[0] = ret;
+		ret = list_method->call(engine, context_chain, 1, argv);
+		free(argv);
+	}
+
 	RESTORE_LINE_NUM;
-	return new Ink_Array(engine, val);
+	return ret;
 }
 
 Ink_Object *Ink_HashExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)

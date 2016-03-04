@@ -946,7 +946,7 @@ argument_attachment
 	{
 		$$ = new Ink_ArgumentList();
 		$$->push_back(new Ink_Argument(new Ink_StringConstant($1)));
-		$$->push_back(new Ink_Argument(new Ink_TableExpression(*$4)));
+		$$->push_back(new Ink_Argument(new Ink_ListExpression(*$4)));
 		delete $4;
 	}
 	| TWITH nllo function_expression
@@ -972,7 +972,7 @@ argument_attachment
 	{
 		$$ = new Ink_ArgumentList();
 		$$->push_back(new Ink_Argument(new Ink_StringConstant($1)));
-		$$->push_back(new Ink_Argument(new Ink_TableExpression(*$4)));
+		$$->push_back(new Ink_Argument(new Ink_ListExpression(*$4)));
 		$$->insert($$->end(), $6->begin(), $6->end());
 		delete $4;
 		delete $6;
@@ -1402,7 +1402,7 @@ primary_expression
 	}
 	| TLBRAKT element_list_opt TRBRAKT
 	{
-		$$ = new Ink_TableExpression(*$2);
+		$$ = new Ink_ListExpression(*$2);
 		delete $2;
 		SET_LINE_NO($$);
 	}
