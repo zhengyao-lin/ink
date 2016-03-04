@@ -2,6 +2,7 @@
 #include "bignum.h"
 #include "interface.h"
 #include "core/object.h"
+#include "core/native/native.h"
 #include "core/native/general.h"
 
 using namespace ink;
@@ -137,8 +138,9 @@ Ink_Object *InkNative_BigNumeric_Equal(Ink_InterpreteEngine *engine, Ink_Context
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
 	if (!checkArgument(false, argc, argv, 1, BIGNUMERIC_TYPE)
-		&& !checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
-		return NULL_OBJ;
+		&& !checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
+		InkNote_Method_Fallthrough(engine, "!=", BIGNUMERIC_TYPE, INK_OBJECT);
+		return InkNative_Object_Equal(engine, context, argc, argv, this_p);
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
 							  ? as<Ink_Numeric>(argv[0])->value
@@ -154,8 +156,9 @@ Ink_Object *InkNative_BigNumeric_NotEqual(Ink_InterpreteEngine *engine, Ink_Cont
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
 	if (!checkArgument(false, argc, argv, 1, BIGNUMERIC_TYPE)
-		&& !checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
-		return NULL_OBJ;
+		&& !checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
+		InkNote_Method_Fallthrough(engine, "==", BIGNUMERIC_TYPE, INK_OBJECT);
+		return InkNative_Object_NotEqual(engine, context, argc, argv, this_p);
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
 							  ? as<Ink_Numeric>(argv[0])->value
@@ -294,7 +297,9 @@ Ink_Object *InkMod_Bignum_Constructor(Ink_InterpreteEngine *engine, Ink_ContextC
 	Ink_Bignum_NumericValue ret_val;
 	string tmp_str;
 
-	if (checkArgument(false, argc, argv, 1, INK_STRING)) {
+	if (checkArgument(false, argc, argv, 1, BIGNUMERIC_TYPE)) {
+		ret_val = Ink_Bignum_NumericValue(as<Ink_BigNumeric>(argv[0])->value);
+	} else if (checkArgument(false, argc, argv, 1, INK_STRING)) {
 		ret_val = Ink_Bignum_NumericValue(tmp_str = as<Ink_String>(argv[0])->getValue());
 		if (!ret_val.isValid()) {
 			InkWarn_Bignum_Failed_Parse_Bignum(engine, tmp_str.c_str());

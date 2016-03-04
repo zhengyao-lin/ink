@@ -161,6 +161,7 @@ Ink_Object *InkNative_Numeric_Equal(Ink_InterpreteEngine *engine, Ink_ContextCha
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	if (!checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
+		InkNote_Method_Fallthrough(engine, "==", INK_NUMERIC, INK_OBJECT);
 		return InkNative_Object_Equal(engine, context, argc, argv, this_p);
 	}
 
@@ -174,6 +175,7 @@ Ink_Object *InkNative_Numeric_NotEqual(Ink_InterpreteEngine *engine, Ink_Context
 	if (!argc) return NULL_OBJ;
 
 	if (!checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
+		InkNote_Method_Fallthrough(engine, "!=", INK_NUMERIC, INK_OBJECT);
 		return InkNative_Object_NotEqual(engine, context, argc, argv, this_p);
 	}
 

@@ -1,6 +1,7 @@
 import blueprint
+//import bignums
 
-// dp = new Array(100)
+//dp = new Array(101)
 
 /* import "test.ik"
 import "block.ik"
@@ -8,16 +9,11 @@ import "general.ik"
 */
 
 fib = fn (n) do
-	/* if (dp[n]) do
-		retn dp[n]
-	end */
+	//if (dp[n] != undefined) do
+		//retn dp[n]
+	//end
 
-	if (n == 0 ||
-		n == 1) do
-		retn 1
-	end
-
-	retn this(n - 2) + this(n - 1);
+	retn /*dp[n] = bignum*/((n == 0 || n == 1) || (self(n - 2) + self(n - 1)))
 end
 
-p(fib(15));
+p(fib(15).to_str());

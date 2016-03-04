@@ -225,8 +225,8 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 {
 	const char *file_name_back;
 	Ink_LineNoType line_num_back;
-	bool ret_val = false;
 	Ink_Object *ret = NULL;
+
 	SET_LINE_NUM;
 
 	/* first eval left hand side */
@@ -236,34 +236,29 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	/* interrupt signal received */
 	CATCH_SIGNAL_RET;
 
-	if (isTrue(lhs)) {
-		/* left hand side true */
-		if (type == LOGIC_OR) {
-			/* if operator is or, return true directly */
-			ret_val = true;
+	// logic and/or: return the value that determines the true/false
+	if (type == LOGIC_AND) {
+		if (isTrue(lhs)) {
+			ret = rhs = rval->eval(engine, context_chain);
+			CATCH_SIGNAL_RET;
+		} else {
+			ret = lhs;
+		}
+	} else if (type == LOGIC_OR) {
+		if (isTrue(lhs)) {
 			ret = lhs;
 		} else {
-			/* if operator is and, make sure the right hand side is true, too */
-			rhs = rval->eval(engine, context_chain);
+			ret = rhs = rval->eval(engine, context_chain);
 			CATCH_SIGNAL_RET;
-
-			if (isTrue(rhs)) {
-				ret_val = true;
-				ret = rhs;
-			}
 		}
 	} else {
-		/* if operator is or, judge right hand side */
-		if (type == LOGIC_OR && isTrue(rhs = rval->eval(engine, context_chain))) {
-			CATCH_SIGNAL_RET;
-			ret_val = true;
-			ret = rhs;
-		}
+		// usually unreachable
+		assert(type == LOGIC_AND || type == LOGIC_OR);
 	}
 
 	RESTORE_LINE_NUM;
 
-	return ret ? ret : new Ink_Numeric(engine, ret_val);
+	return ret;
 }
 
 Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
@@ -307,9 +302,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 		CATCH_SIGNAL_RET;
 
 		return ret;
-	} else
-
-	if (lval_ret->address) {
+	} else if (lval_ret->address) {
 		if (lval_ret->address->setter) { /* if has setter, call it */
 			tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			tmp[0] = rval_ret;
