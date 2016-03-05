@@ -104,6 +104,8 @@
 	TAAND				// &=
 	TAXOR				// ^=
 	TAOR				// |=
+	TALAND				// &&=
+	TALOR				// ||=
 
 /* binary operators */
 %token <token>
@@ -577,6 +579,22 @@ assignment_expression
 		SET_LINE_NO($$);
 		SET_LINE_NO(tmp_call);
 		SET_LINE_NO(tmp_hash);
+	}
+	| logical_or_expression TALAND nllo assignment_expression
+	{
+		Ink_LogicExpression *tmp_logic = new Ink_LogicExpression($1, $4, LOGIC_AND, false);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_logic);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_logic);
+	}
+	| logical_or_expression TALOR nllo assignment_expression
+	{
+		Ink_LogicExpression *tmp_logic = new Ink_LogicExpression($1, $4, LOGIC_OR, false);
+
+		$$ = new Ink_AssignmentExpression($1, tmp_logic);
+		SET_LINE_NO($$);
+		SET_LINE_NO(tmp_logic);
 	}
 	;
 

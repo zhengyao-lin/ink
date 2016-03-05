@@ -1705,3 +1705,12 @@ delete `[]`
 p({a: 10, b: 20, c: "haha"})
 
 delete `{}`
+
+default_arg = fn (a, b) {
+	a ||= "yes!!"
+	b ||= "default"
+
+	p(a + " and " + b)
+}
+
+default_arg(undefined, "yes!!")

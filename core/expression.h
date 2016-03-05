@@ -123,16 +123,19 @@ public:
 	Ink_Expression *lval;
 	Ink_Expression *rval;
 	LogicType type;
+	bool if_dispose_lval;
 
-	Ink_LogicExpression(Ink_Expression *lval, Ink_Expression *rval, LogicType type)
-	: lval(lval), rval(rval), type(type)
+	Ink_LogicExpression(Ink_Expression *lval, Ink_Expression *rval,
+						LogicType type, bool if_dispose_lval = true)
+	: lval(lval), rval(rval), type(type), if_dispose_lval(if_dispose_lval)
 	{ }
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
 	virtual ~Ink_LogicExpression()
 	{
-		delete lval;
+		if (if_dispose_lval)
+			delete lval;
 		delete rval;
 	}
 };

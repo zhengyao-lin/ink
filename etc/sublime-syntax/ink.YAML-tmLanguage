@@ -7,6 +7,34 @@ fileTypes: [ink]
 uuid: fc0c2fa4-2bc8-4b8e-841f-5276668f8747
 
 patterns:
+
+- comment: String literal
+  name: string.quoted.double.ink
+  begin: \"
+  end: \"
+  patterns:
+  - comment: Escape characters
+    name: constant.character.escape.ink
+    match: \\.
+
+- comment: String literal
+  name: string.quoted.single.ink
+  begin: \'
+  end: \'
+  patterns:
+  - comment: Escape characters
+    name: constant.character.escape.ink
+    match: \\.
+
+- comment: Identifier literal
+  name: constant.other.ink
+  begin: \`
+  end: \`
+  patterns:
+  - comment: Escape characters
+    name: string.quoted.other.ink
+    match: \\.
+
 - comment: Constants
   name: constant.language.ink
   match: \b(null|undefined)\b
@@ -28,8 +56,8 @@ patterns:
   match: (^)\s*:\s*(@?([a-zA-Z_?$])(([a-zA-Z_?$])|([0-9]))*)
 
 - comment: Scope expression
-  name: none
-  match: ([^\r\n\s]):(@?([a-zA-Z_?$])(([a-zA-Z_?$])|([0-9]))*)
+  name: keyword.control.ink
+  match: ([^\r\n\s])::(@?([a-zA-Z_?$])(([a-zA-Z_?$])|([0-9]))*)
 
 - comment: Interrupt signals
   name: keyword.control.ink
@@ -76,33 +104,6 @@ patterns:
   captures:
     '1': {name: keyword.other.ink}
     '2': {name: variable.parameter.ink}
-
-- comment: String literal
-  name: string.quoted.double.ink
-  begin: \"
-  end: \"
-  patterns:
-  - comment: Escape characters
-    name: constant.character.escape.ink
-    match: \\.
-
-- comment: String literal
-  name: string.quoted.single.ink
-  begin: \'
-  end: \'
-  patterns:
-  - comment: Escape characters
-    name: constant.character.escape.ink
-    match: \\.
-
-- comment: Identifier literal
-  name: constant.other.ink
-  begin: \`
-  end: \`
-  patterns:
-  - comment: Escape characters
-    name: string.quoted.other.ink
-    match: \\.
 
 - comment: Invalid block comment
   name: invalid.illegal
