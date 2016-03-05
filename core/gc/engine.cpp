@@ -117,6 +117,19 @@ void IGC_CollectEngine::doCollect()
 	return;
 }
 
+void IGC_CollectEngine::link(IGC_CollectEngine *engine)
+{
+	if (object_chain_last) {
+		object_chain_last->next = engine->object_chain;
+		if (engine->object_chain)
+			engine->object_chain->prev = object_chain_last;
+	} else {
+		object_chain = engine->object_chain;
+	}
+	if (engine->object_chain_last)
+		object_chain_last = engine->object_chain_last;
+}
+
 void IGC_CollectEngine::collectGarbage(bool delete_all)
 {
 	Ink_ContextChain *i;

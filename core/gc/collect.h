@@ -59,18 +59,7 @@ public:
 	void doCollect();
 	void collectGarbage(bool delete_all = false);
 	void checkGC();
-	inline void link(IGC_CollectEngine *engine)
-	{
-		if (object_chain_last) {
-			object_chain_last->next = engine->object_chain;
-			if (engine->object_chain)
-				engine->object_chain->prev = object_chain_last;
-		} else {
-			object_chain = engine->object_chain;
-		}
-		if (engine->object_chain_last)
-			object_chain_last = engine->object_chain_last;
-	}
+	void link(IGC_CollectEngine *engine);
 
 	~IGC_CollectEngine()
 	{ }
