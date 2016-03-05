@@ -431,7 +431,7 @@ public:
 
 	inline const char *getFilePath()
 	{
-		return  input_file_path;
+		return input_file_path;
 	}
 
 	void initTypeMapping();
