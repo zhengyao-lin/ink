@@ -9,6 +9,7 @@
 
 #define DBG_TAB "    "
 #define DBG_DEFAULT_PREFIX "INK_DEBUG: "
+#define DBG_DEFAULT_MAX_TRACE 7
 
 namespace ink {
 

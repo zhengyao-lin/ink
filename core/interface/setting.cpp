@@ -15,6 +15,7 @@ Ink_InputSetting::Ink_InputSetting(const char *input_file_path, FILE *fp, bool c
 {
 	igc_collect_threshold = IGC_COLLECT_THRESHOLD_UNIT;
 	dbg_print_detail = false;
+	dbg_max_trace = DBG_DEFAULT_MAX_TRACE;
 }
 
 inline bool isArg(const char *arg)
@@ -39,12 +40,14 @@ inline void printUsage(const char *prog_path)
 "  %-25s %s\n"
 "  %-25s %s\n"
 "  %-25s %s\n"
+"  %-25s %s\n"
 "  %-25s %s\n",
 	"--help or -h",							"Display this usage page",
 	"--mod-path=<path> or -m=<path>",		"Add module searching path",
 	"--gc-threshold=<threshold>",				"Set collect threshold for garbage collector",
 	"--debug or -d",						"Open debug mode(print more debug info when error occurs, optional value(true or false))",
-	"--import-path=<path> or -i=<path>",	"Add import search path(can be used several times)");
+	"--import-path=<path> or -i=<path>",	"Add import search path(can be used several times)",
+	"--max-trace=<count>",					"Set max trace count, less than one or no argument mean print all trace");
 }
 
 /* return: if print usage */
@@ -104,6 +107,13 @@ inline bool processArg(Ink_InputSetting &setting, Ink_SizeType dash_count,
 			fprintf(stderr, "Option %s requires a value\n", REPRINT_ARG.c_str());
 			setting.if_run = false;
 			return true;
+		}
+	} else if (IS_DOUBLE_DASH_ARG("max-trace")) {
+		if (has_val) {
+			int tmp = atoi(val.c_str());
+			setting.dbg_max_trace = tmp;
+		} else {
+			setting.dbg_max_trace = -1;
 		}
 	} else {
 		fprintf(stderr, "Unknown option %s\n", REPRINT_ARG.c_str());

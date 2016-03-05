@@ -109,6 +109,7 @@ public:
 	ThreadPool thread_pool;
 
 	bool dbg_print_detail;
+	Ink_SizeType dbg_max_trace;
 	vector<DBG_TypeMapping *> dbg_type_mapping;
 	vector<Ink_Object *> dbg_traced_stack;
 
@@ -134,10 +135,22 @@ public:
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
 
+	inline void setMaxTrace(Ink_SizeType c)
+	{
+		dbg_max_trace = c;
+		return;
+	}
+
+	inline Ink_SizeType getMaxTrace()
+	{
+		return dbg_max_trace;
+	}
+
 	inline void applySetting(Ink_InputSetting setting)
 	{
 		igc_collect_threshold = setting.igc_collect_threshold;
 		dbg_print_detail = setting.dbg_print_detail;
+		dbg_max_trace = setting.dbg_max_trace;
 		return;
 	}
 
@@ -208,16 +221,7 @@ public:
 		return custom_interrupt_signal.size() + INTER_LAST;
 	}
 
-	inline Ink_InterruptSignal getCustomInterruptSignal(string id)
-	{
-		Ink_CustomInterruptSignal::iterator sig_iter;
-		for (sig_iter = custom_interrupt_signal.begin();
-			 sig_iter != custom_interrupt_signal.end(); sig_iter++) {
-			if (id == **sig_iter)
-				return sig_iter - custom_interrupt_signal.begin() + 1 + INTER_LAST;
-		}
-		return 0;
-	}
+	Ink_InterruptSignal getCustomInterruptSignal(string id);
 
 	inline string *getCustomInterruptSignalName(Ink_InterruptSignal sig)
 	{
@@ -228,29 +232,8 @@ public:
 		return NULL;
 	}
 
-	inline bool deleteCustomInterruptSignal(string id)
-	{
-		Ink_CustomInterruptSignal::iterator sig_iter;
-		for (sig_iter = custom_interrupt_signal.begin();
-			 sig_iter != custom_interrupt_signal.end(); sig_iter++) {
-			if (id == **sig_iter) {
-				delete *sig_iter;
-				custom_interrupt_signal.erase(sig_iter);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	inline void disposeCustomInterruptSignal()
-	{
-		Ink_CustomInterruptSignal::iterator sig_iter;
-		for (sig_iter = custom_interrupt_signal.begin();
-			 sig_iter != custom_interrupt_signal.end(); sig_iter++) {
-			delete *sig_iter;
-		}
-		return;
-	}
+	bool deleteCustomInterruptSignal(string id);
+	void disposeCustomInterruptSignal();
 
 	inline void setErrorMode(Ink_ErrorMode mode)
 	{
@@ -323,17 +306,7 @@ public:
 		return;
 	}
 
-	inline IGC_Bonding searchGCBonding(Ink_HashTable *to)
-	{
-		IGC_BondingList::iterator bond_iter;
-		for (bond_iter = igc_bonding_list.begin();
-			 bond_iter != igc_bonding_list.end(); bond_iter++) {
-			if ((*bond_iter).second == to) {
-				return *bond_iter;
-			}
-		}
-		return IGC_Bonding(NULL, NULL);
-	}
+	IGC_Bonding searchGCBonding(Ink_HashTable *to);
 
 	void breakUnreachableBonding(Ink_HashTable *to);
 
@@ -363,14 +336,7 @@ public:
 		return;
 	}
 
-	inline void callAllDestructor()
-	{
-		Ink_CustomDestructorQueue::size_type i;
-		for (i = 0; i < custom_destructor_queue.size(); i++) {
-			custom_destructor_queue[i].destruct_func(this, custom_destructor_queue[i].arg);
-		}
-		return;
-	}
+	void callAllDestructor();
 
 	inline void initPrototypeSearch()
 	{
@@ -410,79 +376,12 @@ public:
 		return;
 	}
 
-	inline Ink_Object *receiveMessage()
-	{
-		Ink_Object *ret = NULL;
-		Ink_ActorMessage *msg = NULL;
-		Ink_InterpreteEngine *engine = this;
-
-		pthread_mutex_lock(&message_lock);
-		if (!message_queue.empty()) {
-			msg = message_queue.front();
-			ret = new Ink_Object(this);
-			ret->setSlot_c("msg", new Ink_String(this, *(msg->msg)));
-			ret->setSlot_c("sender", new Ink_String(this, *(msg->sender)));
-			ret->setSlot_c("ex", msg->ex
-								 ? (Ink_Object *)msg->ex->toObject(this)
-								 : (Ink_Object *)UNDEFINED);
-			delete msg;
-			message_queue.pop();
-		}
-		pthread_mutex_unlock(&message_lock);
-		return ret;
-	}
-
-	inline void sendInMessage(Ink_InterpreteEngine *sender, string msg, Ink_ExceptionRaw *ex = NULL)
-	{
-		pthread_mutex_lock(&message_lock);
-		message_queue.push(new Ink_ActorMessage(new string(msg), InkActor_getActorName(sender), ex));
-		pthread_mutex_unlock(&message_lock);
-		return;
-	}
-
-	inline void sendInMessage_nolock(Ink_InterpreteEngine *sender, string msg, Ink_ExceptionRaw *ex = NULL)
-	{
-		pthread_mutex_lock(&message_lock);
-		message_queue.push(new Ink_ActorMessage(new string(msg), InkActor_getActorName_nolock(sender), ex));
-		pthread_mutex_unlock(&message_lock);
-		return;
-	}
-
-	inline void disposeAllMessage()
-	{
-		pthread_mutex_lock(&message_lock);
-		while (!message_queue.empty()) {
-			delete message_queue.front();
-			message_queue.pop();
-		}
-		pthread_mutex_unlock(&message_lock);
-		return;
-	}
-
-	inline void addWatcher(string name)
-	{
-		pthread_mutex_lock(&watcher_lock);
-		watcher_list.push_back(name);
-		pthread_mutex_unlock(&watcher_lock);
-		return;
-	}
-
-	inline void broadcastWatcher(string msg, Ink_ExceptionRaw *ex = NULL)
-	{
-		Ink_InterpreteEngine *tmp_engine = NULL;
-		Ink_ActorWatcherList::iterator w_iter;
-
-		for (w_iter = watcher_list.begin();
-			 w_iter != watcher_list.end(); w_iter++) {
-			InkActor_lockActorLock();
-			if ((tmp_engine = InkActor_getActor_nolock(*w_iter)) != NULL) {
-				tmp_engine->sendInMessage_nolock(this, msg, ex);
-			}
-			InkActor_unlockActorLock();
-		}
-
-		return;
-	}
+	Ink_Object *receiveMessage();
+	void sendInMessage(Ink_InterpreteEngine *sender, string msg, Ink_ExceptionRaw *ex = NULL);
+	void sendInMessage_nolock(Ink_InterpreteEngine *sender, string msg, Ink_ExceptionRaw *ex = NULL);
+	void disposeAllMessage();
+	void addWatcher(string name);
+	void broadcastWatcher(string msg, Ink_ExceptionRaw *ex = NULL);
 
 	inline void addProtocol(const char *name, Ink_Protocol proto)
 	{
@@ -498,83 +397,20 @@ public:
 		return NULL;
 	}
 
-	inline int initThread()
-	{
-		//thread_lock.init();
-		pthread_mutex_init(&thread_pool_lock, NULL);
-		return 0;
-	}
+	int initThread();
+	ThreadID getThreadID();
+	ThreadID registerThread(ThreadID id);
+	void addThread(pthread_t *thread);
+	void joinAllThread();
 
-#define CURRENT_LAYER (thread_id_map_stack.size() - 1)
-
-	inline ThreadID getThreadID()
-	{
-		ThreadID id;
-
-		pthread_mutex_lock(&thread_pool_lock);
-		id = thread_id_map_stack[CURRENT_LAYER][getThreadID_raw()];
-		pthread_mutex_unlock(&thread_pool_lock);
-
-		return id;
-	}
-
-	inline ThreadID registerThread(ThreadID id)
-	{
-		pthread_mutex_lock(&thread_pool_lock);
-		thread_id_map_stack[CURRENT_LAYER][getThreadID_raw()] = id;
-		pthread_mutex_unlock(&thread_pool_lock);
-
-		return id;
-	}
-
-	inline void addLayer()
-	{
-		pthread_mutex_lock(&thread_pool_lock);
-		thread_id_map_stack.push_back(ThreadIDMap());
-		pthread_mutex_unlock(&thread_pool_lock);
-	}
-
-	inline void removeLayer()
-	{
-		pthread_mutex_lock(&thread_pool_lock);
-		thread_id_map_stack.pop_back();
-		pthread_mutex_unlock(&thread_pool_lock);
-	}
-
-	inline ThreadLayerType getCurrentLayer()
-	{
-		pthread_mutex_lock(&thread_pool_lock);
-		ThreadLayerType ret = CURRENT_LAYER;
-		pthread_mutex_unlock(&thread_pool_lock);
-		return ret;
-	}
-
-	inline void addThread(pthread_t *thread)
-	{
-		pthread_mutex_lock(&thread_pool_lock);
-		thread_pool.push_back(thread);
-		pthread_mutex_unlock(&thread_pool_lock);
-
-		return;
-	}
-
-	inline void joinAllThread()
-	{
-		pthread_t *thd;
-		ThreadPool::size_type i;
-		for (i = 0; i < thread_pool.size(); i++) {
-			pthread_mutex_lock(&thread_pool_lock);
-			thd = thread_pool[i];
-			pthread_mutex_unlock(&thread_pool_lock);
-
-			pthread_join(*thd, NULL);
-			free(thd);
-		}
-		return;
-	}
+	void addLayer();
+	void removeLayer();
+	ThreadLayerType getCurrentLayer();
 
 	inline Ink_ContextChain *getTrace()
-	{ return trace; }
+	{
+		return trace;
+	}
 
 	inline int setCurrentGC(IGC_CollectEngine *engine)
 	{
@@ -598,44 +434,10 @@ public:
 		return  input_file_path;
 	}
 
-	inline void initTypeMapping()
-	{
-		Ink_TypeTag i;
-
-		dbg_type_mapping = vector<DBG_TypeMapping *>();
-
-		for (i = 0; i < INK_LAST; i++) {
-			dbg_type_mapping.push_back(new DBG_TypeMapping(i, dbg_fixed_type_mapping[i].name));
-		}
-
-		return;
-	}
-
-	inline void disposeTypeMapping()
-	{
-		vector<DBG_TypeMapping *>::iterator type_iter;
-
-		for (type_iter = dbg_type_mapping.begin();
-			 type_iter != dbg_type_mapping.end(); type_iter++) {
-			delete *type_iter;
-		}
-		dbg_type_mapping = vector<DBG_TypeMapping *>();
-
-		return;
-	}
-
-	inline Ink_TypeTag registerType(const char *name)
-	{
-		string *tmp_str = new string(name);
-		Ink_TypeTag ret = dbg_type_mapping.size();
-		dbg_type_mapping.push_back(new DBG_TypeMapping(ret, tmp_str->c_str(), tmp_str));
-		return ret;
-	}
-
-	inline const char *getTypeName(Ink_TypeTag type_tag)
-	{
-		return dbg_type_mapping[type_tag]->name;
-	}
+	void initTypeMapping();
+	void disposeTypeMapping();
+	Ink_TypeTag registerType(const char *name);
+	const char *getTypeName(Ink_TypeTag type_tag);
 
 	inline void initPrintDebugInfo()
 	{

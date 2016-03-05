@@ -1,5 +1,8 @@
 TARGET=interface.o
 REQUIRE=\
+	message.o \
+	type.o \
+	thread.o \
 	engine.o \
 	setting.o
 

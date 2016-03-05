@@ -27,6 +27,7 @@ public:
 	/* settings */
 	IGC_ObjectCountType igc_collect_threshold;
 	bool dbg_print_detail;
+	Ink_SizeType dbg_max_trace;
 
 	Ink_InputSetting(const char *input_file_path = NULL, FILE *fp = stdin, bool close_fp = false);
 

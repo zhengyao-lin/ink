@@ -74,6 +74,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	coro_scheduler_stack = Ink_SchedulerStack();
 
 	dbg_print_detail = false;
+	dbg_max_trace = DBG_DEFAULT_MAX_TRACE;
 	
 	protocol_map = Ink_ProtocolMap();
 	pthread_mutex_init(&message_lock, NULL);
@@ -367,6 +368,64 @@ void Ink_InterpreteEngine::cleanContext(Ink_ContextChain *context)
 		delete tmp;
 	}
 
+	return;
+}
+
+// from engine inline
+
+Ink_InterruptSignal Ink_InterpreteEngine::getCustomInterruptSignal(string id)
+{
+	Ink_CustomInterruptSignal::iterator sig_iter;
+	for (sig_iter = custom_interrupt_signal.begin();
+		 sig_iter != custom_interrupt_signal.end(); sig_iter++) {
+		if (id == **sig_iter)
+			return sig_iter - custom_interrupt_signal.begin() + 1 + INTER_LAST;
+	}
+	return 0;
+}
+
+bool Ink_InterpreteEngine::deleteCustomInterruptSignal(string id)
+{
+	Ink_CustomInterruptSignal::iterator sig_iter;
+	for (sig_iter = custom_interrupt_signal.begin();
+		 sig_iter != custom_interrupt_signal.end(); sig_iter++) {
+		if (id == **sig_iter) {
+			delete *sig_iter;
+			custom_interrupt_signal.erase(sig_iter);
+			return true;
+		}
+	}
+	return false;
+}
+
+void Ink_InterpreteEngine::disposeCustomInterruptSignal()
+{
+	Ink_CustomInterruptSignal::iterator sig_iter;
+	for (sig_iter = custom_interrupt_signal.begin();
+		 sig_iter != custom_interrupt_signal.end(); sig_iter++) {
+		delete *sig_iter;
+	}
+	return;
+}
+
+IGC_Bonding Ink_InterpreteEngine::searchGCBonding(Ink_HashTable *to)
+{
+	IGC_BondingList::iterator bond_iter;
+	for (bond_iter = igc_bonding_list.begin();
+		 bond_iter != igc_bonding_list.end(); bond_iter++) {
+		if ((*bond_iter).second == to) {
+			return *bond_iter;
+		}
+	}
+	return IGC_Bonding(NULL, NULL);
+}
+
+void Ink_InterpreteEngine::callAllDestructor()
+{
+	Ink_CustomDestructorQueue::size_type i;
+	for (i = 0; i < custom_destructor_queue.size(); i++) {
+		custom_destructor_queue[i].destruct_func(this, custom_destructor_queue[i].arg);
+	}
 	return;
 }
 
