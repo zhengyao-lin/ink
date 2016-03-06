@@ -582,7 +582,7 @@ obj = {
 delete obj.hello?
 p(obj.hello?);
 
-//import json
+import json
 
 p(json.encode(
 {
@@ -1662,6 +1662,8 @@ test_f = fn (&a) {
 
 test_f(abcd)
 p(abcd)
+
+import /*blueprint.*/sys
 
 sys.env['a'] = "b"
 p(sys.getenv("a"))

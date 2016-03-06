@@ -296,8 +296,9 @@ Ink_Object *InkMod_Blueprint_Math_Loader(Ink_InterpreteEngine *engine, Ink_Conte
 	}
 
 	Ink_Object *apply_to = argv[1];
+	Ink_Object *math_pkg = addPackage(engine, apply_to, "math", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Loader));
 
-	InkMod_Blueprint_Math_bondTo(engine, apply_to);
+	InkMod_Blueprint_Math_bondTo(engine, math_pkg);
 
 	return NULL_OBJ;
 }

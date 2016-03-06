@@ -381,7 +381,7 @@ public:
 	void sendInMessage_nolock(Ink_InterpreteEngine *sender, string msg, Ink_ExceptionRaw *ex = NULL);
 	void disposeAllMessage();
 	void addWatcher(string name);
-	void broadcastWatcher(string msg, Ink_ExceptionRaw *ex = NULL);
+	bool broadcastWatcher(string msg, Ink_ExceptionRaw *ex = NULL);
 
 	inline void addProtocol(const char *name, Ink_Protocol proto)
 	{

@@ -11,11 +11,11 @@
 using namespace ink;
 using namespace std;
 
-extern InkMod_ModuleID ink_native_file_mod_id;
+extern InkMod_ModuleID ink_native_io_mod_id;
 
 Ink_TypeTag getDirectType(Ink_InterpreteEngine *engine)
 {
-	return engine->getEngineComAs<Ink_TypeTag>(ink_native_file_mod_id)[1];
+	return engine->getEngineComAs<com_struct>(ink_native_io_mod_id)->direct_type;
 }
 
 Ink_Object *InkNative_Direct_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -240,6 +240,29 @@ void Ink_DirectPointer::Ink_DirectMethodInit(Ink_InterpreteEngine *engine)
 	return;
 }
 
+void InkMod_Direct_bondType(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
+{
+	Ink_Object *tmp;
+	com_struct *com = NULL;
+	Ink_Object *obj_proto = engine->getTypePrototype(INK_OBJECT);
+
+	if (!(com = engine->getEngineComAs<com_struct>(ink_native_io_mod_id))) {
+		// type_p = (Ink_TypeTag *)malloc(sizeof(Ink_TypeTag) * 2);
+		com = new com_struct();
+
+		engine->addEngineCom(ink_native_io_mod_id, com);
+		engine->addDestructor(Ink_EngineDestructor(InkMod_IO_EngineComCleaner, new com_cleaner_arg(ink_native_io_mod_id)));
+	} else if (com->direct_type != (Ink_TypeTag)-1) /* has registered */ return;
+
+	com->direct_type = engine->registerType("direct");
+	context->getGlobal()->context->setSlot_c("$direct", tmp = new Ink_DirectPointer(engine));
+	engine->setTypePrototype(com->direct_type, tmp);
+	tmp->setProto(obj_proto);
+	tmp->derivedMethodInit(engine);
+
+	return;
+}
+
 void InkMod_Direct_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
 	bondee->setSlot_c("Directory", new Ink_FunctionObject(engine, InkNative_Direct_Constructor));
@@ -258,6 +281,7 @@ Ink_Object *InkMod_Direct_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain 
 
 	Ink_Object *apply_to = argv[1];
 	
+	InkMod_Direct_bondType(engine, context);
 	InkMod_Direct_bondTo(engine, apply_to);
 
 	return NULL_OBJ;

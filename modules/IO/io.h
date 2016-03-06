@@ -5,6 +5,7 @@
 #include <string>
 #include "core/object.h"
 #include "core/error.h"
+#include "core/package/load.h"
 #include "../../includes/universal.h"
 
 #define FILE_GETS_BUFFER_SIZE 1000
@@ -20,6 +21,24 @@
 #endif
 
 using namespace ink;
+
+struct com_cleaner_arg {
+	InkMod_ModuleID id;
+	com_cleaner_arg(InkMod_ModuleID id)
+	: id(id)
+	{ }
+};
+
+struct com_struct {
+	Ink_TypeTag file_type;
+	Ink_TypeTag direct_type;
+
+	com_struct()
+	: file_type(-1), direct_type(-1)
+	{ }
+};
+
+void InkMod_IO_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg);
 
 Ink_TypeTag getFilePointerType(Ink_InterpreteEngine *engine);
 Ink_TypeTag getDirectType(Ink_InterpreteEngine *engine);

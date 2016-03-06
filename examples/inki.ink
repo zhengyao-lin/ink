@@ -2,6 +2,7 @@
 
 import blueprint
 import io
+import readline
 
 $array.find = fn (obj) {
 	let i = 0
@@ -23,7 +24,7 @@ let readln = fn (prompt) {
 		p("Cannot find GNU readline lib")
 		exit
 	}
-	readline.rl_read(prompt)
+	readline.read(prompt)
 }
 
 let print = fn (str) {

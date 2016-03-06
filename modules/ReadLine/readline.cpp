@@ -35,7 +35,7 @@ CLEAN:
 
 void InkMod_ReadLine_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
-	bondee->setSlot_c("rl_read", new Ink_FunctionObject(engine, InkNative_ReadLine_Read));
+	bondee->setSlot_c("read", new Ink_FunctionObject(engine, InkNative_ReadLine_Read));
 
 	return;
 }
@@ -47,8 +47,9 @@ Ink_Object *InkMod_ReadLine_Loader(Ink_InterpreteEngine *engine, Ink_ContextChai
 	}
 
 	Ink_Object *apply_to = argv[1];
+	Ink_Object *readline_pkg = addPackage(engine, apply_to, "readline", new Ink_FunctionObject(engine, InkMod_ReadLine_Loader));
 
-	InkMod_ReadLine_bondTo(engine, apply_to);
+	InkMod_ReadLine_bondTo(engine, readline_pkg);
 
 	return NULL_OBJ;
 }
@@ -58,10 +59,8 @@ extern "C" {
 
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
-		Ink_Object *rl_pkg = addPackage(engine, context, "readline", new Ink_FunctionObject(engine, InkMod_ReadLine_Loader));
+		addPackage(engine, context, "readline", new Ink_FunctionObject(engine, InkMod_ReadLine_Loader));
 
-		InkMod_ReadLine_bondTo(engine, rl_pkg);
-		
 		return;
 	}
 

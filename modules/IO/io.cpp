@@ -10,20 +10,15 @@
 using namespace ink;
 using namespace std;
 
-InkMod_ModuleID ink_native_file_mod_id;
-
-struct com_cleaner_arg {
-	InkMod_ModuleID id;
-	com_cleaner_arg(InkMod_ModuleID id)
-	: id(id)
-	{ }
-};
+InkMod_ModuleID ink_native_io_mod_id;
 
 void InkMod_IO_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
 {
 	com_cleaner_arg *tmp = (com_cleaner_arg *)arg;
-	free(engine->getEngineComAs<Ink_TypeTag>(tmp->id));
+
+	delete engine->getEngineComAs<com_struct>(tmp->id);
 	delete tmp;
+	
 	return;
 }
 
@@ -59,6 +54,7 @@ Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 		file_loader->call(engine, context, 2, tmp_argv);
 	} else {
 		InkWarn_Package_Broken(engine, "io.file");
+		return NULL_OBJ;
 	}
 
 	tmp_argv[0] = direct_pkg;
@@ -67,6 +63,7 @@ Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 		direct_loader->call(engine, context, 2, tmp_argv);
 	} else {
 		InkWarn_Package_Broken(engine, "io.direct");
+		return NULL_OBJ;
 	}
 
 	free(tmp_argv);
@@ -79,41 +76,16 @@ Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 extern "C" {
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
-		Ink_Object *tmp;
-		Ink_TypeTag *type_p = NULL;
-		Ink_Object *obj_proto = engine->getTypePrototype(INK_OBJECT);
-
-		if (!engine->getEngineComAs<Ink_TypeTag>(ink_native_file_mod_id)) {
-			type_p = (Ink_TypeTag *)malloc(sizeof(Ink_TypeTag) * 2);
-
-			type_p[0] = (Ink_TypeTag)engine->registerType("io.file.File");
-			type_p[1] = (Ink_TypeTag)engine->registerType("io.direct.Directory");
-
-			engine->addEngineCom(ink_native_file_mod_id, type_p);
-			engine->addDestructor(Ink_EngineDestructor(InkMod_IO_EngineComCleaner, new com_cleaner_arg(ink_native_file_mod_id)));
-
-			context->getGlobal()->context->setSlot_c("$io.file.File", tmp = new Ink_FilePointer(engine));
-			engine->setTypePrototype(FILE_POINTER_TYPE, tmp);
-			tmp->setProto(obj_proto);
-			tmp->derivedMethodInit(engine);
-			context->getGlobal()->context->setSlot_c("$io.direct.Directory", tmp = new Ink_DirectPointer(engine));
-			engine->setTypePrototype(DIRECT_TYPE, tmp);
-			tmp->setProto(obj_proto);
-			tmp->derivedMethodInit(engine);
-		}
-
 		Ink_Object *io_pkg = addPackage(engine, context, "io", new Ink_FunctionObject(engine, InkMod_IO_Loader));
-		Ink_Object *io_file_pkg = addPackage(engine, io_pkg, "file", new Ink_FunctionObject(engine, InkMod_File_Loader));
-		Ink_Object *io_direct_pkg = addPackage(engine, io_pkg, "direct", new Ink_FunctionObject(engine, InkMod_Direct_Loader));
+		addPackage(engine, io_pkg, "file", new Ink_FunctionObject(engine, InkMod_File_Loader));
+		addPackage(engine, io_pkg, "direct", new Ink_FunctionObject(engine, InkMod_Direct_Loader));
 
-		InkMod_IO_bondTo(engine, io_pkg);
-		InkMod_File_bondTo(engine, io_file_pkg);
-		InkMod_Direct_bondTo(engine, io_direct_pkg);
+		return;
 	}
 
 	int InkMod_Init(InkMod_ModuleID id)
 	{
-		ink_native_file_mod_id = id;
+		ink_native_io_mod_id = id;
 		return 0;
 	}
 }

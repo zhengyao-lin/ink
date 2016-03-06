@@ -10,11 +10,11 @@
 using namespace ink;
 using namespace std;
 
-extern InkMod_ModuleID ink_native_file_mod_id;
+extern InkMod_ModuleID ink_native_io_mod_id;
 
 Ink_TypeTag getFilePointerType(Ink_InterpreteEngine *engine)
 {
-	return engine->getEngineComAs<Ink_TypeTag>(ink_native_file_mod_id)[0];
+	return engine->getEngineComAs<com_struct>(ink_native_io_mod_id)->file_type;
 }
 
 inline Ink_NumericValue getNumVal(Ink_Object *num)
@@ -286,6 +286,29 @@ void Ink_FilePointer::Ink_FilePointerMethodInit(Ink_InterpreteEngine *engine)
 	return;
 }
 
+void InkMod_File_bondType(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
+{
+	Ink_Object *tmp;
+	com_struct *com = NULL;
+	Ink_Object *obj_proto = engine->getTypePrototype(INK_OBJECT);
+
+	if (!(com = engine->getEngineComAs<com_struct>(ink_native_io_mod_id))) {
+		// type_p = (Ink_TypeTag *)malloc(sizeof(Ink_TypeTag) * 2);
+		com = new com_struct();
+
+		engine->addEngineCom(ink_native_io_mod_id, com);
+		engine->addDestructor(Ink_EngineDestructor(InkMod_IO_EngineComCleaner, new com_cleaner_arg(ink_native_io_mod_id)));
+	} else if (com->file_type != (Ink_TypeTag)-1) /* has registered */ return;
+
+	com->file_type = engine->registerType("file");
+	context->getGlobal()->context->setSlot_c("$file", tmp = new Ink_FilePointer(engine));
+	engine->setTypePrototype(com->file_type, tmp);
+	tmp->setProto(obj_proto);
+	tmp->derivedMethodInit(engine);
+
+	return;
+}
+
 void InkMod_File_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
 	bondee->setSlot_c("File", new Ink_FunctionObject(engine, InkNative_File_Constructor));
@@ -306,6 +329,7 @@ Ink_Object *InkMod_File_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *c
 
 	Ink_Object *apply_to = argv[1];
 
+	InkMod_File_bondType(engine, context);
 	InkMod_File_bondTo(engine, apply_to);
 
 	return NULL_OBJ;

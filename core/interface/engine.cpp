@@ -275,7 +275,8 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context, bool if_tra
 	Ink_ContextObject *local = NULL;
 	unsigned int i;
 	const char *tmp_sig_name = NULL;
-	string *tmp_str  =NULL;
+	string *tmp_str = NULL;
+	Ink_ExceptionRaw *tmp_ex = NULL;
 
 	if (!context) context = global_context;
 	local = context->getLocal()->context;
@@ -304,7 +305,9 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context, bool if_tra
 			ret = getInterruptValue();
 
 			if (getSignal() == INTER_THROW) {
-				broadcastWatcher("error exit", Ink_ExceptionRaw::toRaw(ret));
+				if (!broadcastWatcher("error exit", tmp_ex = Ink_ExceptionRaw::toRaw(ret))) {
+					delete tmp_ex;
+				}
 			}
 
 			if (if_trap_signal) {

@@ -184,8 +184,9 @@ Ink_Object *InkMod_Blueprint_System_Loader(Ink_InterpreteEngine *engine, Ink_Con
 	}
 
 	Ink_Object *apply_to = argv[1];
+	Ink_Object *sys_pkg = addPackage(engine, apply_to, "sys", new Ink_FunctionObject(engine, InkMod_Blueprint_System_Loader));
 
-	InkMod_Blueprint_System_bondTo(engine, apply_to);
+	InkMod_Blueprint_System_bondTo(engine, sys_pkg);
 
 	return NULL_OBJ;
 }

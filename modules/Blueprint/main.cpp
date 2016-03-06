@@ -68,28 +68,12 @@ void InkMod_Blueprint_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
 extern "C" {
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
-		InkMod_Blueprint_EngineCom *engine_com = NULL;
-
-		if (!engine->getEngineComAs<InkMod_Blueprint_EngineCom>(ink_native_blueprint_mod_id)) {
-			/* haven't added yet */
-			engine_com = new InkMod_Blueprint_EngineCom();
-			engine->addEngineCom(ink_native_blueprint_mod_id, engine_com);
-			engine->addDestructor(Ink_EngineDestructor(InkMod_Blueprint_EngineComCleaner,
-													   new com_cleaner_arg(ink_native_blueprint_mod_id)));
-		}
-
 		Ink_Object *blueprint_pkg = addPackage(engine, context, "blueprint",
 											   new Ink_FunctionObject(engine, InkMod_Blueprint_Loader));
-		Ink_Object *base_pkg = addPackage(engine, blueprint_pkg, "base",
-										  new Ink_FunctionObject(engine, InkMod_Blueprint_Base_Loader));
-		Ink_Object *sys_pkg = addPackage(engine, blueprint_pkg, "sys",
-										 new Ink_FunctionObject(engine, InkMod_Blueprint_System_Loader));
-		Ink_Object *math_pkg = addPackage(engine, blueprint_pkg, "math",
-										  new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Loader));
 
-		InkMod_Blueprint_Base_bondTo(engine, base_pkg);
-		InkMod_Blueprint_System_bondTo(engine, sys_pkg);
-		InkMod_Blueprint_Math_bondTo(engine, math_pkg);
+		addPackage(engine, blueprint_pkg, "base", new Ink_FunctionObject(engine, InkMod_Blueprint_Base_Loader));
+		addPackage(engine, blueprint_pkg, "sys", new Ink_FunctionObject(engine, InkMod_Blueprint_System_Loader));
+		addPackage(engine, blueprint_pkg, "math", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Loader));
 
 		return;
 	}

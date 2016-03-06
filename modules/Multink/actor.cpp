@@ -435,10 +435,7 @@ Ink_Object *InkMod_Actor_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *
 extern "C" {
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
-		Ink_Object *actor_pkg = addPackage(engine, context, "multink", new Ink_FunctionObject(engine, InkMod_Actor_Loader));
-		
-		InkMod_Actor_bondTo(engine, actor_pkg);
-		
+		addPackage(engine, context, "multink", new Ink_FunctionObject(engine, InkMod_Actor_Loader));
 		engine->addProtocol("actor", InkMod_Actor_ActorProtocol);
 
 		return;

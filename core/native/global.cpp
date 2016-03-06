@@ -436,6 +436,8 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 	context->context->setSlot_c("_", new Ink_Unknown(engine));
 
 	Ink_applyAllModules(engine, context);
+
+	return;
 }
 
 Ink_Undefined *ink_global_constant_undefined;

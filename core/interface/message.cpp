@@ -59,21 +59,23 @@ void Ink_InterpreteEngine::addWatcher(string name)
 	return;
 }
 
-void Ink_InterpreteEngine::broadcastWatcher(string msg, Ink_ExceptionRaw *ex)
+bool Ink_InterpreteEngine::broadcastWatcher(string msg, Ink_ExceptionRaw *ex)
 {
 	Ink_InterpreteEngine *tmp_engine = NULL;
 	Ink_ActorWatcherList::iterator w_iter;
+	bool has_send = false;
 
 	for (w_iter = watcher_list.begin();
 		 w_iter != watcher_list.end(); w_iter++) {
 		InkActor_lockActorLock();
 		if ((tmp_engine = InkActor_getActor_nolock(*w_iter)) != NULL) {
 			tmp_engine->sendInMessage_nolock(this, msg, ex);
+			has_send = true;
 		}
 		InkActor_unlockActorLock();
 	}
 
-	return;
+	return has_send;
 }
 
 }

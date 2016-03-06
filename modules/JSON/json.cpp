@@ -126,8 +126,9 @@ Ink_Object *InkMod_JSON_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *c
 	}
 
 	Ink_Object *apply_to = argv[1];
+	Ink_Object *json_pkg = addPackage(engine, apply_to, "json", new Ink_FunctionObject(engine, InkMod_JSON_Loader));
 
-	InkMod_JSON_bondTo(engine, apply_to);
+	InkMod_JSON_bondTo(engine, json_pkg);
 
 	return NULL_OBJ;
 }
@@ -137,9 +138,7 @@ extern "C" {
 
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
-		Ink_Object *json_pkg = addPackage(engine, context, "json", new Ink_FunctionObject(engine, InkMod_JSON_Loader));
-
-		InkMod_JSON_bondTo(engine, json_pkg);
+		addPackage(engine, context, "json", new Ink_FunctionObject(engine, InkMod_JSON_Loader));
 		
 		return;
 	}
