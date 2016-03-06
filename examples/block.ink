@@ -1674,6 +1674,8 @@ p(sys.getenv("a"))
 "::2".split("::").each(p(_))
 "".split("::").each(p(_))
 
+backup = `[]`
+
 `[]` = fn (arr) {
 	p("called!!")
 	let ret = "["
@@ -1688,7 +1690,9 @@ p(sys.getenv("a"))
 
 p([1, 2, 3, "s"])
 
-delete `[]`
+`[]` = backup
+
+backup = `{}`
 
 `{}` = fn (obj) {
 	p("called!!!")
@@ -1704,7 +1708,7 @@ delete `[]`
 
 p({a: 10, b: 20, c: "haha"})
 
-delete `{}`
+`{}` = backup
 
 default_arg = fn (a, b) {
 	a ||= "yes!!"

@@ -431,6 +431,7 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 	context->context->setSlot_c("Array", array_cons);
 
 	context->context->setSlot_c("undefined", UNDEFINED);
+	context->context->setSlot_c("?", UNDEFINED);
 	context->context->setSlot_c("null", NULL_OBJ);
 	context->context->setSlot_c("_", new Ink_Unknown(engine));
 
