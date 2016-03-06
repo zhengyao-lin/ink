@@ -41,9 +41,10 @@ Ink_Object *InkMod_Blueprint_Loader(Ink_InterpreteEngine *engine, Ink_ContextCha
 		InkWarn_Package_Broken(engine, "blueprint.base");
 	}
 
-	/* blueprint.sys */
+	/*
 	apply_to->setSlot_c("sys", self->getSlot(engine, "sys"));
 	apply_to->setSlot_c("math", self->getSlot(engine, "math"));
+	*/
 
 	free(tmp_argv);
 

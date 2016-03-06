@@ -1663,7 +1663,7 @@ test_f = fn (&a) {
 test_f(abcd)
 p(abcd)
 
-import /*blueprint.*/sys
+import blueprint.sys
 
 sys.env['a'] = "b"
 p(sys.getenv("a"))
