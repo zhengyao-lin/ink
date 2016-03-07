@@ -80,9 +80,13 @@ InkWarn_Insert_Non_Function_Object(Ink_InterpreteEngine *engine)
 }
 
 inline void
-InkWarn_Index_Exceed(Ink_InterpreteEngine *engine)
+InkWarn_Index_Exceed(Ink_InterpreteEngine *engine,
+					 Ink_ArrayValue::size_type index,
+					 Ink_ArrayValue::size_type size)
 {
-	InkErro_doPrintWarning(engine, "Index exceed size of the array");
+	std::stringstream strm;
+	strm << "Index " << index << " exceed size of the array(" << size << ")";
+	InkErro_doPrintWarning(engine, strm.str().c_str());
 	return;
 }
 
@@ -459,6 +463,19 @@ inline void
 InkNote_Exceed_Argument(Ink_InterpreteEngine *engine)
 {
 	InkErro_doPrintNote(engine, "Argument(s) exceed");
+	return;
+}
+
+inline void
+InkNote_Array_Slice_Start_Greater(Ink_InterpreteEngine *engine,
+								  Ink_ArrayValue::size_type start,
+								  Ink_ArrayValue::size_type end)
+{
+	std::stringstream strm;
+	strm << "The first argument "
+		 << start << "(start index) is greater than the second argument "
+		 << end << "(end index) in slice function(swap them in default)";
+	InkErro_doPrintNote(engine, strm.str().c_str());
 	return;
 }
 

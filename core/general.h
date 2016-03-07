@@ -166,6 +166,7 @@ typedef Ink_UInt64 IGC_ObjectCountType;
 typedef Ink_SInt64 Ink_LineNoType;
 typedef Ink_SInt32 Ink_ExceptionCode;
 typedef double Ink_NumericValue;
+typedef std::vector<Ink_HashTable *> Ink_ArrayValue;
 
 typedef void (*IGC_Marker)(Ink_InterpreteEngine *engine, Ink_Object *obj);
 typedef std::pair<Ink_HashTable *, Ink_HashTable *> IGC_Bonding;

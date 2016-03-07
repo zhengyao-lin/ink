@@ -510,8 +510,6 @@ public:
 	}
 };
 
-typedef std::vector<Ink_HashTable *> Ink_ArrayValue;
-
 class Ink_Array: public Ink_Object {
 public:
 	Ink_ArrayValue value;

@@ -58,17 +58,22 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
 
-	index = getRealIndex(as<Ink_Numeric>(argv[0])->value, obj->value.size());
-	if (index < obj->value.size()) {
-		if (!obj->value[index]) obj->value[index] = new Ink_HashTable(UNDEFINED);
-		hash = Ink_Object::traceHashBond(obj->value[index]);
-		ret = hash->getValue();
-		ret->address = hash;
-		// ret->setSlot_c("base", base);
-		ret->setBase(base);
+	if (argc > 1 && argv[1]->type == INK_NUMERIC) {
+		/* two argument -- slice */
+		return InkNative_Array_Slice(engine, context, argc, argv, this_p);
 	} else {
-		InkWarn_Index_Exceed(engine);
-		return UNDEFINED;
+		index = getRealIndex(as<Ink_Numeric>(argv[0])->value, obj->value.size());
+		if (index < obj->value.size()) {
+			if (!obj->value[index]) obj->value[index] = new Ink_HashTable(UNDEFINED);
+			hash = Ink_Object::traceHashBond(obj->value[index]);
+			ret = hash->getValue();
+			ret->address = hash;
+			// ret->setSlot_c("base", base);
+			ret->setBase(base);
+		} else {
+			InkWarn_Index_Exceed(engine, index, obj->value.size());
+			return UNDEFINED;
+		}
 	}
 
 	return ret;
@@ -227,6 +232,41 @@ Ink_Object *InkNative_Array_Remove(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return ret;
 }
 
+Ink_Object *InkNative_Array_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_ARRAY);
+
+	if (!checkArgument(engine, argc, argv, 2, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	Ink_ArrayValue base_val = as<Ink_Array>(base)->value;
+	Ink_ArrayValue::size_type start = getRealIndex(as<Ink_Numeric>(argv[0])->value, base_val.size()),
+							  end = getRealIndex(as<Ink_Numeric>(argv[1])->value, base_val.size()), tmp, i;
+
+	if (start > end) {
+		InkNote_Array_Slice_Start_Greater(engine, start, end);
+		tmp = start;
+		start = end;
+		end = tmp;
+	}
+
+	if (end >= base_val.size()) {
+		InkWarn_Index_Exceed(engine, end, base_val.size());
+		return NULL_OBJ;
+	}
+
+	Ink_ArrayValue ret_val = Ink_ArrayValue(end - start + 1, NULL);
+	for (i = start; i <= end; i++) {
+		if (base_val[i]) 
+			ret_val[i - start] = new Ink_HashTable(base_val[i]->getValue());
+	}
+
+	return new Ink_Array(engine, ret_val);
+}
+
 Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -272,6 +312,7 @@ void Ink_Array::Ink_ArrayMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("each", new Ink_FunctionObject(engine, InkNative_Array_Each, true));
 	setSlot_c("last", new Ink_FunctionObject(engine, InkNative_Array_Last));
 	setSlot_c("remove", new Ink_FunctionObject(engine, InkNative_Array_Remove));
+	setSlot_c("slice", new Ink_FunctionObject(engine, InkNative_Array_Slice));
 	setSlot_c("rebuild", new Ink_FunctionObject(engine, InkNative_Array_Rebuild));
 	
 	return;
