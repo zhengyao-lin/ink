@@ -13,6 +13,36 @@ inline Ink_ArrayValue::size_type getRealIndex(long index, Ink_ArrayValue::size_t
 	return index;
 }
 
+Ink_Object *InkNative_Array_Link(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+	Ink_ArrayValue::size_type i, size;
+
+	ASSUME_BASE_TYPE(engine, INK_ARRAY);
+
+	if (!checkArgument(engine, argc, argv, 1, INK_ARRAY)) {
+		return NULL_OBJ;
+	}
+
+	Ink_ArrayValue base_val = as<Ink_Array>(base)->value;
+	Ink_ArrayValue linkee = as<Ink_Array>(argv[0])->value;
+	Ink_ArrayValue ret_val = Ink_ArrayValue(size = base_val.size() + linkee.size(), NULL);
+
+	for (i = 0; i < size; i++) {
+		if (i < base_val.size()) {
+			if (base_val[i]) {
+				ret_val[i] = new Ink_HashTable(base_val[i]->getValue());
+			}
+		} else {
+			if (linkee[i - base_val.size()]) {
+				ret_val[i] = new Ink_HashTable(linkee[i - base_val.size()]->getValue());
+			}
+		}
+	}
+
+	return new Ink_Array(engine, ret_val);
+}
+
 Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -235,6 +265,7 @@ Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 void Ink_Array::Ink_ArrayMethodInit(Ink_InterpreteEngine *engine)
 {
+	setSlot_c("+", new Ink_FunctionObject(engine, InkNative_Array_Link));
 	setSlot_c("[]", new Ink_FunctionObject(engine, InkNative_Array_Index));
 	setSlot_c("push", new Ink_FunctionObject(engine, InkNative_Array_Push));
 	setSlot_c("size", new Ink_FunctionObject(engine, InkNative_Array_Size));

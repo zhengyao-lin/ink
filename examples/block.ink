@@ -1720,3 +1720,8 @@ default_arg = fn (a, b) {
 }
 
 default_arg(undefined, "yes!!")
+
+([1] + [2, 3, 4]).each(p(_))
+(new Array() + [2, 3, 4]).each(p(_))
+(new Array(5) + [2, 3]).each(p(_))
+
