@@ -237,14 +237,14 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 	CATCH_SIGNAL_RET;
 
 	// logic and/or: return the value that determines the true/false
-	if (type == LOGIC_AND) {
+	if (type == INK_LOGIC_AND) {
 		if (isTrue(lhs)) {
 			ret = rhs = rval->eval(engine, context_chain);
 			CATCH_SIGNAL_RET;
 		} else {
 			ret = lhs;
 		}
-	} else if (type == LOGIC_OR) {
+	} else if (type == INK_LOGIC_OR) {
 		if (isTrue(lhs)) {
 			ret = lhs;
 		} else {
@@ -253,7 +253,7 @@ Ink_Object *Ink_LogicExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextC
 		}
 	} else {
 		// usually unreachable
-		assert(type == LOGIC_AND || type == LOGIC_OR);
+		assert(type == INK_LOGIC_AND || type == INK_LOGIC_OR);
 	}
 
 	RESTORE_LINE_NUM;

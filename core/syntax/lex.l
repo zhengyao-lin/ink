@@ -207,6 +207,7 @@ void yyerror(const char *msg);
 <INITIAL>"."						return TOKEN(TDOT);
 
 <INITIAL>"->"						return TOKEN(TARR);
+<INITIAL>"<=>"						return TOKEN(TCSS);
 <INITIAL>"<="						return TOKEN(TCLE);
 <INITIAL>"<"						return TOKEN(TCLT);
 <INITIAL>">="						return TOKEN(TCGE);

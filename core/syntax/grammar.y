@@ -134,6 +134,7 @@
 
 /* condition operators */
 %token <token>
+	TCSS				// <=>
 	TCLE				// <=
 	TCLT				// <
 	TCGE				// >=
@@ -582,7 +583,7 @@ assignment_expression
 	}
 	| logical_or_expression TALAND nllo assignment_expression
 	{
-		Ink_LogicExpression *tmp_logic = new Ink_LogicExpression($1, $4, LOGIC_AND, false);
+		Ink_LogicExpression *tmp_logic = new Ink_LogicExpression($1, $4, INK_LOGIC_AND, false);
 
 		$$ = new Ink_AssignmentExpression($1, tmp_logic);
 		SET_LINE_NO($$);
@@ -590,7 +591,7 @@ assignment_expression
 	}
 	| logical_or_expression TALOR nllo assignment_expression
 	{
-		Ink_LogicExpression *tmp_logic = new Ink_LogicExpression($1, $4, LOGIC_OR, false);
+		Ink_LogicExpression *tmp_logic = new Ink_LogicExpression($1, $4, INK_LOGIC_OR, false);
 
 		$$ = new Ink_AssignmentExpression($1, tmp_logic);
 		SET_LINE_NO($$);
@@ -602,7 +603,7 @@ logical_or_expression
 	: logical_and_expression
 	| logical_or_expression TLOR nllo logical_and_expression
 	{
-		$$ = new Ink_LogicExpression($1, $4, LOGIC_OR);
+		$$ = new Ink_LogicExpression($1, $4, INK_LOGIC_OR);
 		SET_LINE_NO($$);
 	}
 	;
@@ -611,7 +612,7 @@ logical_and_expression
 	: yield_expression
 	| logical_and_expression TLAND nllo yield_expression
 	{
-		$$ = new Ink_LogicExpression($1, $4, LOGIC_AND);
+		$$ = new Ink_LogicExpression($1, $4, INK_LOGIC_AND);
 		SET_LINE_NO($$);
 	}
 	;
@@ -693,6 +694,15 @@ equality_expression
 
 relational_expression
 	: shift_expression
+	| relational_expression TCSS nllo shift_expression
+	{
+		Ink_ArgumentList arg = Ink_ArgumentList();
+		arg.push_back(new Ink_Argument($4));
+
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("<=>")), arg);
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
 	| relational_expression TCLT nllo shift_expression
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();

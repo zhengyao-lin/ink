@@ -448,6 +448,14 @@ InkWarn_Cocall_Argument_Require(Ink_InterpreteEngine *engine)
 }
 
 inline void
+InkWarn_Wrong_Ret_Val_For_Compare(Ink_InterpreteEngine *engine, Ink_TypeTag type)
+{
+	InkErro_doPrintWarning(engine, "Wrong return value of '<=>' method for comparision(expecting numeric, <type> given)",
+						   getTypeName(engine, type));
+	return;
+}
+
+inline void
 InkNote_Method_Fallthrough(Ink_InterpreteEngine *engine, const char *name, Ink_TypeTag origin, Ink_TypeTag to_type)
 {
 #ifdef INK_DEBUG_FLAG

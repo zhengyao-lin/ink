@@ -131,6 +131,23 @@ Ink_Object *InkNative_BigNumeric_Mod(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value % val);
 }
 
+Ink_Object *InkNative_BigNumeric_Spaceship(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
+
+	if (!checkArgument(false, argc, argv, 1, BIGNUMERIC_TYPE)
+		&& !checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
+							  ? as<Ink_Numeric>(argv[0])->value
+							  : as<Ink_BigNumeric>(argv[0])->value;
+
+	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value - val);
+}
+
 Ink_Object *InkNative_BigNumeric_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -278,6 +295,7 @@ void Ink_BigNumeric::Ink_BigNumericMethodInit(Ink_InterpreteEngine *engine)
 	// setSlot_c("~", new Ink_FunctionObject(NULL, InkNative_Numeric_Inverse));
 
 	setSlot_c("div", new Ink_FunctionObject(engine, InkNative_BigNumeric_Div));
+	setSlot_c("<=>", new Ink_FunctionObject(engine, InkNative_BigNumeric_Spaceship));
 	setSlot_c("==", new Ink_FunctionObject(engine, InkNative_BigNumeric_Equal));
 	setSlot_c("!=", new Ink_FunctionObject(engine, InkNative_BigNumeric_NotEqual));
 	setSlot_c(">", new Ink_FunctionObject(engine, InkNative_BigNumeric_Greater));

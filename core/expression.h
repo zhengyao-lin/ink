@@ -111,10 +111,10 @@ public:
 	}
 };
 
-typedef enum {
-	LOGIC_OR,
-	LOGIC_AND
-} LogicType;
+enum Ink_LogicType {
+	INK_LOGIC_OR,
+	INK_LOGIC_AND
+};
 
 bool isTrue(Ink_Object *cond);
 
@@ -122,11 +122,11 @@ class Ink_LogicExpression: public Ink_Expression {
 public:
 	Ink_Expression *lval;
 	Ink_Expression *rval;
-	LogicType type;
+	Ink_LogicType type;
 	bool if_dispose_lval;
 
 	Ink_LogicExpression(Ink_Expression *lval, Ink_Expression *rval,
-						LogicType type, bool if_dispose_lval = true)
+						Ink_LogicType type, bool if_dispose_lval = true)
 	: lval(lval), rval(rval), type(type), if_dispose_lval(if_dispose_lval)
 	{ }
 

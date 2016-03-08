@@ -154,6 +154,19 @@ Ink_Object *InkNative_Numeric_Inverse(Ink_InterpreteEngine *engine, Ink_ContextC
 	return new Ink_Numeric(engine, ~(getIntegerVal(base)));
 }
 
+Ink_Object *InkNative_Numeric_Spaceship(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
+
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->value - as<Ink_Numeric>(argv[0])->value);
+}
+
 Ink_Object *InkNative_Numeric_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -343,6 +356,7 @@ void Ink_Numeric::Ink_NumericMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("<<", new Ink_FunctionObject(engine, InkNative_Numeric_ShiftLeft));
 	setSlot_c(">>", new Ink_FunctionObject(engine, InkNative_Numeric_ShiftRight));
 	setSlot_c("~", new Ink_FunctionObject(engine, InkNative_Numeric_Inverse));
+	setSlot_c("<=>", new Ink_FunctionObject(engine, InkNative_Numeric_Spaceship));
 	setSlot_c("==", new Ink_FunctionObject(engine, InkNative_Numeric_Equal));
 	setSlot_c("!=", new Ink_FunctionObject(engine, InkNative_Numeric_NotEqual));
 	setSlot_c(">", new Ink_FunctionObject(engine, InkNative_Numeric_Greater));
