@@ -2,6 +2,7 @@ include makefile.head
 
 ifeq ($(ARCH), arm)
 	export ARCH_PREFIX=arm-none-linux-gnueabi-
+	export GLOBAL_PLATFORM_ARCH=arm
 else
 	export ARCH_PREFIX=
 endif

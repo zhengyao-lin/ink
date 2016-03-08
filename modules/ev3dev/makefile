@@ -1,3 +1,5 @@
+ifeq ($(GLOBAL_PLATFORM_ARCH), arm)
+
 TARGET=build/ev3dev.$(GLOBAL_LIB_SUFFIX)
 REQUIRE=\
 	motor.o \
@@ -16,3 +18,5 @@ $(TARGET): $(REQUIRE)
 
 clean:
 	$(RM) -r *.o *.$(GLOBAL_LIB_SUFFIX) build
+
+endif
