@@ -1,5 +1,5 @@
-#ifndef _NATIVE_JSON_H_
-#define _NATIVE_JSON_H_
+#ifndef _MOD_JSON_H_
+#define _MOD_JSON_H_
 
 #include "core/object.h"
 #include "core/error.h"

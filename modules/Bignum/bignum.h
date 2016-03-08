@@ -1,5 +1,5 @@
-#ifndef _NATIVE_BIGNUM_H_
-#define _NATIVE_BIGNUM_H_
+#ifndef _MOD_BIGNUM_H_
+#define _MOD_BIGNUM_H_
 
 #include <deque>
 #include <vector>

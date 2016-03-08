@@ -1,5 +1,5 @@
-#ifndef _NATIVE_PARSER_H_
-#define _NATIVE_PARSER_H_
+#ifndef _MOD_PARSER_H_
+#define _MOD_PARSER_H_
 
 #include <string>
 #include <vector>

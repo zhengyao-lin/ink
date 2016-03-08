@@ -1,5 +1,5 @@
-#ifndef _NATIVE_FILE_H
-#define _NATIVE_FILE_H
+#ifndef _MOD_FILE_H
+#define _MOD_FILE_H
 
 #include <stdio.h>
 #include <string>

@@ -1,5 +1,5 @@
-#ifndef _NATIVE_INTERFACE_H_
-#define _NATIVE_INTERFACE_H_
+#ifndef _MOD_INTERFACE_H_
+#define _MOD_INTERFACE_H_
 
 #include "core/interface/engine.h"
 #include "core/object.h"

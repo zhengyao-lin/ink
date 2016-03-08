@@ -1,5 +1,5 @@
-#ifndef _BLUEPRINT_H_
-#define _BLUEPRINT_H_
+#ifndef _MOD_BLUEPRINT_H_
+#define _MOD_BLUEPRINT_H_
 
 #include "core/object.h"
 #include "core/general.h"
