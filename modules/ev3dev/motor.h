@@ -14,7 +14,6 @@ public:
 	: id(id)
 	{ }
 
-
 };
 
 #endif

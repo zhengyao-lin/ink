@@ -87,7 +87,7 @@ p(func());
 p(!0);
 p(!123);
 
-func = fn () {
+func1 = fn () {
 	let a = 10.1;
 
 	p("a = " + a);
@@ -117,7 +117,7 @@ func = fn () {
 	};
 };
 
-func();
+func1();
 
 i = 10;
 

@@ -77,6 +77,8 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 void IGC_CollectEngine::deleteObject(IGC_CollectUnit *unit)
 {
 	CURRENT_OBJECT_COUNT--;
+	// if (unit && unit->obj && unit->obj->getDebugName())
+		// printf("%s\n", unit->obj->getDebugName());
 	delete unit;
 	return;
 }
@@ -128,6 +130,10 @@ void IGC_CollectEngine::link(IGC_CollectEngine *engine)
 	}
 	if (engine->object_chain_last)
 		object_chain_last = engine->object_chain_last;
+
+	object_count += engine->object_count;
+
+	return;
 }
 
 void IGC_CollectEngine::collectGarbage(bool delete_all)
@@ -135,9 +141,7 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 	Ink_ContextChain *i;
 	Ink_PardonList::iterator pardon_iter;
 	vector<DBG_TypeMapping *>::iterator type_iter;
-	//clock_t st;
 
-	//st = clock();
 	if (!delete_all) {
 		for (i = engine->trace->getGlobal();
 			 i; i = i->inner) {
@@ -152,7 +156,6 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 			doMark((*type_iter)->proto);
 		}
 		doMark(engine->getInterruptValue());
-
 	}
 	doCollect();
 	// printf("\nreduced: %ld in %ld\n", origin - CURRENT_OBJECT_COUNT, origin);
@@ -192,6 +195,7 @@ void IGC_CollectEngine::checkGC()
 #ifndef INK_DEBUG_FLAG
 	}
 #endif
+
 	return;
 }
 
