@@ -14,8 +14,6 @@ public:
 	const char *key;
 
 	Ink_HashTable *next;
-	Ink_HashTable *bonding;
-	Ink_HashTable *bondee;
 
 	Ink_Object *setter;
 	Ink_Object *getter;

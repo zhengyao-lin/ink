@@ -13,7 +13,7 @@ fib = fn (n) do
 		//retn dp[n]
 	//end
 
-	retn /*dp[n] = bignum*/((n == 0 || n == 1) || (self(n - 2) + self(n - 1)))
+	retn ((n == 0 || n == 1) || (self(n - 2) + self(n - 1)))
 end
 
 p(fib(15).to_str());

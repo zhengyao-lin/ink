@@ -375,10 +375,11 @@ SIGINT_END:
 	if (ret_val) {
 		engine->setGlobalReturnValue(ret_val);
 		// ret_val->setBase(NULL);
-		gc_engine->doMark(ret_val);
+		// gc_engine->doMark(ret_val);
 	}
 
-	gc_engine->collectGarbage();
+	// gc_engine->collectGarbage();
+	gc_engine->checkGC();
 
 	/* dispose context chain copied */
 	Ink_ContextChain::disposeContextChain(context);

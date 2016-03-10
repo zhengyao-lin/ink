@@ -4,7 +4,7 @@
 #include "../object.h"
 #include "../general.h"
 
-#define IGC_COLLECT_THRESHOLD_UNIT (512)
+#define IGC_COLLECT_THRESHOLD_UNIT (128)
 
 namespace ink {
 

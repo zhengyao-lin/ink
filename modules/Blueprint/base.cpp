@@ -105,9 +105,8 @@ Ink_Object *InkMod_Blueprint_Base_While(Ink_InterpreteEngine *engine, Ink_Contex
 		return NULL_OBJ;
 	}
 
-	ret = NULL_OBJ;
+	ret = NULL;
 	while (isTrue(cond->call(engine, context))) {
-		gc_engine->doMark(ret);
 		gc_engine->checkGC();
 		if (block) {
 			ret = block->call(engine, context);
@@ -128,7 +127,7 @@ Ink_Object *InkMod_Blueprint_Base_While(Ink_InterpreteEngine *engine, Ink_Contex
 		}
 	}
 
-	return ret;
+	return ret ? ret : NULL_OBJ;
 }
 
 Ink_Object *InkMod_Blueprint_Base_For(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -158,9 +157,8 @@ Ink_Object *InkMod_Blueprint_Base_For(Ink_InterpreteEngine *engine, Ink_ContextC
 		return NULL_OBJ;
 	}
 
-	ret = NULL_OBJ;
+	ret = NULL;
 	for (; isTrue(cond->call(engine, context)); incr->call(engine, context)) {
-		gc_engine->doMark(ret);
 		gc_engine->checkGC();
 		if (block) {
 			ret = block->call(engine, context);
@@ -181,7 +179,7 @@ Ink_Object *InkMod_Blueprint_Base_For(Ink_InterpreteEngine *engine, Ink_ContextC
 		}
 	}
 
-	return ret;
+	return ret ? ret : NULL_OBJ;
 }
 
 Ink_Object *InkMod_Blueprint_Base_Try(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)

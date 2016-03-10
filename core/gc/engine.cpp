@@ -41,7 +41,9 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 	Ink_HashTable *i;
 
 	if (obj && obj->mark != CURRENT_MARK_PERIOD) obj->mark = CURRENT_MARK_PERIOD;
-	else return;
+	else {
+		return;
+	}
 
 	doMark(engine, obj->getBase());
 
@@ -53,20 +55,15 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 		if (obj->proto_hash->getter) {
 			doMark(engine, obj->proto_hash->getter);
 		}
-		if (obj->proto_hash->bonding) {
-			engine->addGCBonding(obj->proto_hash, obj->proto_hash->bonding);
-		}
 	}
 
 	for (i = obj->hash_table; i; i = i->next) {
+		//printf("\tmarking hash table\n");
 		doMark(engine, i->getValue());
 		if (i->setter)
 			doMark(engine, i->setter);
 		if (i->getter)
 			doMark(engine, i->getter);
-		if (i->bonding) {
-			engine->addGCBonding(i, i->bonding);
-		}
 	}
 
 	obj->doSelfMark(engine, doMark);
@@ -77,8 +74,6 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 void IGC_CollectEngine::deleteObject(IGC_CollectUnit *unit)
 {
 	CURRENT_OBJECT_COUNT--;
-	// if (unit && unit->obj && unit->obj->getDebugName())
-		// printf("%s\n", unit->obj->getDebugName());
 	delete unit;
 	return;
 }
@@ -156,6 +151,7 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 			doMark((*type_iter)->proto);
 		}
 		doMark(engine->getInterruptValue());
+		doMark(engine->getGlobalReturnValue());
 	}
 	doCollect();
 	// printf("\nreduced: %ld in %ld\n", origin - CURRENT_OBJECT_COUNT, origin);
@@ -175,9 +171,9 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 
 void IGC_CollectEngine::checkGC()
 {
-#ifndef INK_DEBUG_FLAG
+//#ifndef INK_DEBUG_FLAG
 	if (oc >= t) {
-#endif
+//#endif
 
 	// printf("before: oc: %ld; ", oc);
 
@@ -192,9 +188,9 @@ void IGC_CollectEngine::checkGC()
 		// printf("t recuce to: %ld\n", t);
 	}
 
-#ifndef INK_DEBUG_FLAG
+//#ifndef INK_DEBUG_FLAG
 	}
-#endif
+//#endif
 
 	return;
 }
