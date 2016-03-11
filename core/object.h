@@ -64,6 +64,19 @@ public:
 		return base_p;
 	}
 
+	static inline Ink_HashTable *traceHashBond(Ink_HashTable *begin, bool set_bondee = true)
+	{
+		Ink_HashTable *ret = NULL;
+
+		if (!begin) return NULL;
+
+		for (ret = begin; ret->bonding; ret = ret->bonding) ;
+		if (set_bondee)
+			ret->bondee = begin;
+
+		return ret;
+	}
+
 	void initProto(Ink_InterpreteEngine *engine);
 
 	inline void setProto(Ink_Object *proto)
@@ -77,9 +90,9 @@ public:
 		return;
 	}
 
-	inline Ink_HashTable *getProtoHash()
+	inline Ink_HashTable *getProtoHash(bool set_bondee = true)
 	{
-		return proto_hash;
+		return traceHashBond(proto_hash, set_bondee);
 	}
 
 	Ink_Object *getProto();

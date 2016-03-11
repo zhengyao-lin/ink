@@ -521,13 +521,10 @@ Ink_Bignum_NumericValue::Ink_Bignum_NumericValue(string str)
 			integer = Ink_Bignum_Integer(str.substr(0, pos));
 			decimal = Ink_Bignum_Integer(str.substr(pos + 1)).abs();
 			
-			num = integer;
-			num.digits.insert(num.digits.begin(),
-							  decimal.digits.begin(),
-							  decimal.digits.end());
+			num = Ink_Bignum_Integer(str.substr(0, pos) + str.substr(pos + 1));
 			num.sign = sign > 0;
 
-			std_pow = integer > 0 ? integer.digits.size() : num.digits.size() - decimal.digits.size();
+			std_pow = integer != 0 ? integer.digits.size() : - str.substr(pos + 1).size() + decimal.digits.size();
 		} else {
 			num = sign * Ink_Bignum_Integer(str);
 			std_pow = num.digits.size();

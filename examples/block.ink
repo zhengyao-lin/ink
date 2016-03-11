@@ -1269,7 +1269,7 @@ p(nobody);
 
 a = 20;
 fn () {
-	let c = 20;
+	let c = "what?";
 	let b = 10;
 
 	a -> c

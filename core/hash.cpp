@@ -9,6 +9,8 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, string *key_p)
 : value(val), key(k), key_p(key_p)
 {
 	next = NULL;
+	bonding = NULL;
+	bondee = NULL;
 
 	setter = NULL;
 	getter = NULL;
@@ -19,6 +21,8 @@ Ink_HashTable::Ink_HashTable(Ink_Object *val)
 : value(val), key(""), key_p(NULL)
 {
 	next = NULL;
+	bonding = NULL;
+	bondee = NULL;
 
 	setter = NULL;
 	getter = NULL;

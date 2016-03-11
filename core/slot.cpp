@@ -29,7 +29,7 @@ Ink_Object *Ink_Object::getSlot(Ink_InterpreteEngine *engine, const char *key)
 
 Ink_Object *Ink_Object::getProto()
 {
-	Ink_HashTable *ret = getProtoHash();
+	Ink_HashTable *ret = getProtoHash(false);
 
 	return ret ? ret->getValue() : NULL;
 }
@@ -51,8 +51,8 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 			if (i->setter || i->getter) {
 				if (is_from_proto) *is_from_proto = false;
 				return i;
-			} else if(i->getValue()) {
-				ret = i;
+			} else if(i->getValue() || i->bonding) {
+				ret = traceHashBond(i);
 				if (is_from_proto) *is_from_proto = false;
 				return ret;
 			}
@@ -103,7 +103,7 @@ Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_c
 	for (i = hash_table; i; i = i->next) {
 		if (if_check_exist) {
 			if (!strcmp(i->key, key)) {
-				slot = i;
+				slot = traceHashBond(i);
 			}
 		}
 		last = i;
@@ -150,6 +150,7 @@ void Ink_Object::cleanHashTable()
 			&& obj->address == proto_hash) {
 			obj->address = NULL;
 		}
+		engine->breakUnreachableBonding(proto_hash);
 		delete proto_hash;
 		proto_hash = NULL;
 	}
@@ -175,6 +176,7 @@ void Ink_Object::cleanHashTable(Ink_HashTable *table)
 			&& obj->address == tmp) {
 			obj->address = NULL;
 		}
+		engine->breakUnreachableBonding(tmp);
 		delete tmp;
 	}
 

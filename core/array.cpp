@@ -15,6 +15,7 @@ void Ink_Array::disposeArrayValue()
 				&& obj->address == value[i]) {
 				obj->address = NULL;
 			}
+			engine->breakUnreachableBonding(value[i]);
 			delete value[i];
 		}
 	}
@@ -27,6 +28,9 @@ void Ink_Array::doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
 	for (i = 0; i < value.size(); i++) {
 		if (value[i]) {
 			marker(engine, value[i]->getValue());
+			if (value[i]->bonding) {
+				engine->addGCBonding(value[i], value[i]->bonding);
+			}
 		}
 	}
 	return;

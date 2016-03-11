@@ -65,7 +65,7 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 		index = getRealIndex(as<Ink_Numeric>(argv[0])->value, obj->value.size());
 		if (index < obj->value.size()) {
 			if (!obj->value[index]) obj->value[index] = new Ink_HashTable(UNDEFINED);
-			hash = obj->value[index];
+			hash = Ink_Object::traceHashBond(obj->value[index]);
 			ret = hash->getValue();
 			ret->address = hash;
 			// ret->setSlot_c("base", base);

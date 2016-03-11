@@ -55,15 +55,20 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 		if (obj->proto_hash->getter) {
 			doMark(engine, obj->proto_hash->getter);
 		}
+		if (obj->proto_hash->bonding) {
+			engine->addGCBonding(obj->proto_hash, obj->proto_hash->bonding);
+		}
 	}
 
 	for (i = obj->hash_table; i; i = i->next) {
-		//printf("\tmarking hash table\n");
 		doMark(engine, i->getValue());
 		if (i->setter)
 			doMark(engine, i->setter);
 		if (i->getter)
 			doMark(engine, i->getter);
+		if (i->bonding) {
+			engine->addGCBonding(i, i->bonding);
+		}
 	}
 
 	obj->doSelfMark(engine, doMark);
@@ -95,20 +100,25 @@ void IGC_CollectEngine::disposeChainWithoutDelete(IGC_CollectUnit *chain)
 
 void IGC_CollectEngine::doCollect()
 {
-	IGC_CollectUnit *i, *tmp, *last = NULL;
+	IGC_CollectUnit *i, *tmp,
+					*last = NULL,
+					*head = NULL;
 
-	for (i = object_chain; i;) {
+	for (i = head = object_chain; i;) {
 		tmp = i;
 		i = i->next;
 		if (tmp->obj->mark != CURRENT_MARK_PERIOD) {
 			// if (tmp == object_chain) object_chain = i;
+			if (tmp == head) {
+				head = tmp->next;
+			}
 			deleteObject(tmp);
 		} else {
 			last = tmp;
 		}
 	}
-	for (i = last; i && i->prev; i = i->prev) ;
-	object_chain = i;
+	// for (i = last; i && i->prev; i = i->prev) ;
+	object_chain = head;
 	object_chain_last = last;
 
 	return;
@@ -171,9 +181,9 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 
 void IGC_CollectEngine::checkGC()
 {
-//#ifndef INK_DEBUG_FLAG
+#ifndef INK_DEBUG_FLAG
 	if (oc >= t) {
-//#endif
+#endif
 
 	// printf("before: oc: %ld; ", oc);
 
@@ -188,9 +198,9 @@ void IGC_CollectEngine::checkGC()
 		// printf("t recuce to: %ld\n", t);
 	}
 
-//#ifndef INK_DEBUG_FLAG
+#ifndef INK_DEBUG_FLAG
 	}
-//#endif
+#endif
 
 	return;
 }

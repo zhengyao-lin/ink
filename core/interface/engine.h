@@ -94,6 +94,7 @@ public:
 
 	IGC_CollectEngine *current_gc_engine;
 	IGC_MarkType igc_mark_period;
+	IGC_BondingList igc_bonding_list;
 	Ink_Object *igc_global_ret_val;
 	Ink_PardonList igc_pardon_list;
 
@@ -295,9 +296,19 @@ public:
 
 	inline void initGCCollect()
 	{
-		// igc_bonding_list = IGC_BondingList();
+		igc_bonding_list = IGC_BondingList();
 		return;
 	}
+
+	inline void addGCBonding(Ink_HashTable *from, Ink_HashTable *to)
+	{
+		igc_bonding_list.push_back(IGC_Bonding(from, to));
+		return;
+	}
+
+	IGC_Bonding searchGCBonding(Ink_HashTable *to);
+
+	void breakUnreachableBonding(Ink_HashTable *to);
 
 	inline int addEngineCom(InkMod_ModuleID id, Ink_CustomEngineCom com)
 	{
