@@ -235,6 +235,11 @@ Ink_Object *InkMod_Blueprint_Base_Try(Ink_InterpreteEngine *engine, Ink_ContextC
 RETRY:
 	engine->setErrorMode(INK_ERRMODE_STRICT);
 	ret = test_block->call(engine, context);
+
+	/* force collect garbage for some potential errors(e.g. illegal bonding) */
+	engine->setGlobalReturnValue(ret);
+	gc_engine->collectGarbage();
+	
 	engine->setErrorMode(err_mode_back);
 	if (engine->getSignal() == INTER_THROW) {
 		if (catch_block) {
@@ -247,7 +252,7 @@ RETRY:
 			free(tmp_argv);
 			if (engine->getSignal() == INTER_RETRY) {
 				engine->trapSignal();
-				gc_engine->checkGC();
+				// gc_engine->checkGC();
 				goto RETRY;
 			}
 			if (engine->getSignal() != INTER_NONE) {
