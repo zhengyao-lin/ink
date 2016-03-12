@@ -665,31 +665,36 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 					 *base_context = NULL, *missing_base_context = NULL;
 	Ink_Object *ret;
 	Ink_Object **argv;
+	wchar_t *tmp_wstr = NULL;
 
 	hash = context_chain->searchSlotMapping(engine, name, &base_context);
 	missing = context_chain->searchSlotMapping(engine, "missing", &missing_base_context);
 
 	/* if the slot cannot be found */
 	if (!hash) {
-		if (if_create_slot) { /* if has the "var" keyword */
-			ret = new Ink_Object(engine);
-			hash = dest_context->context->setSlot(name, ret);
-		} else { /* generate a undefined value */
-			if (missing && missing->getValue()->type == INK_FUNCTION) {
-				argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
-				argv[0] = new Ink_String(engine, name);
-				
-				if (missing_base_context)
-					missing->getValue()->setBase(missing_base_context->context);
-				else missing->getValue()->setBase(NULL);
+		/* find constant */
+		if ((ret = engine->findConstant(wstring(tmp_wstr = Ink_mbstowcs_alloc(name))))
+			== NULL) {
+			if (if_create_slot) { /* if has the "var" keyword */
+				ret = new Ink_Object(engine);
+				hash = dest_context->context->setSlot(name, ret);
+			} else { /* generate a undefined value */
+				if (missing && missing->getValue()->type == INK_FUNCTION) {
+					argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
+					argv[0] = new Ink_String(engine, name);
+					
+					if (missing_base_context)
+						missing->getValue()->setBase(missing_base_context->context);
+					else missing->getValue()->setBase(NULL);
 
-				ret = missing->getValue()->call(engine, context_chain, 1, argv);
-				free(argv);
-				goto END;
-			} else {
-				ret = UNDEFINED;
+					ret = missing->getValue()->call(engine, context_chain, 1, argv);
+					free(argv);
+					goto END;
+				} else {
+					ret = UNDEFINED;
+				}
+				hash = dest_context->context->setSlot(name, NULL);
 			}
-			hash = dest_context->context->setSlot(name, NULL);
 		}
 	} else {
 		ret = hash->getValue(); /* get value */
@@ -709,7 +714,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	ret->setDebugName(name);
 
 	/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
-	if (!flags.is_left_value && hash->getter) {
+	if (!flags.is_left_value && hash && hash->getter) {
 		if (base_context)
 			// hash->getter->setSlot_c("base", base_context->context);
 			hash->getter->setBase(base_context->context);
@@ -725,6 +730,8 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	// hash->value->setSlot_c("this", hash->value);
 
 END:
+
+	free(tmp_wstr);
 
 	return ret;
 }

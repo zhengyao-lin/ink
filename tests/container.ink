@@ -30,8 +30,8 @@ ExArray = fn (args...) {
 
 	this.`*` = fn (a) {
 		let ret = new Array();
-		base.each() { | elem1 |
-			a.each() { | elem2 |
+		base.each { | elem1 |
+			a.each { | elem2 |
 				let tmp = new Array(elem1, elem2);
 				if (ret.indexOf(tmp) == -1) {
 					ret.push(tmp);
@@ -40,6 +40,7 @@ ExArray = fn (args...) {
 		}
 		ret;
 	}
+	
 	this.p = fn (args...) {
 		prefix = ""
 		if (args.size()) {

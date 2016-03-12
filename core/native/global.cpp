@@ -344,6 +344,58 @@ Ink_Object *InkNative_Auto_Missing_i(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return Ink_Auto_Missing(engine, context, argc, argv, this_p);
 }
 
+static Ink_Object *Ink_Fix_Assign(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *ret;
+
+	if (!checkArgument(engine, argc, argv, 2, INK_STRING)) {
+		return UNDEFINED;
+	}
+
+	wstring wname = as<Ink_String>(argv[0])->getWValue();
+	
+	if ((ret = engine->findConstant(wname)) != NULL) {
+		char *tmp = Ink_wcstombs_alloc(wname.c_str());
+		InkWarn_Assign_Fixed(engine, tmp);
+		free(tmp);
+	} else {
+		engine->setConstant(wname, ret = argv[1]);
+	}
+
+	return ret;
+}
+
+static Ink_Object *Ink_Fix_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	wstring tmp_wstr;
+	Ink_Object *ret;
+	Ink_FunctionObject *tmp_func;
+
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
+		return UNDEFINED;
+	}
+
+	tmp_wstr = as<Ink_String>(argv[0])->getWValue();
+
+	if ((ret = engine->findConstant(tmp_wstr)) != NULL) {
+		ret->address = NULL;
+	} else {
+		ret = UNDEFINED;
+		ret->setSlot_c("=", tmp_func = new Ink_FunctionObject(engine, Ink_Fix_Assign));
+		tmp_func->pa_argc = 2;
+		tmp_func->pa_argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 2);
+		tmp_func->pa_argv[0] = new Ink_String(engine, tmp_wstr);
+		tmp_func->pa_argv[1] = new Ink_Unknown(engine);
+	}
+
+	return ret;
+}
+
+Ink_Object *InkNative_Fix_Missing_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	return Ink_Fix_Missing(engine, context, argc, argv, this_p);
+}
+
 static Ink_Object *Ink_Abort(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_disposeEnv();

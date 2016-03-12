@@ -3,6 +3,7 @@ REQUIRE=\
 	message.o \
 	type.o \
 	thread.o \
+	constant.o \
 	engine.o \
 	setting.o
 

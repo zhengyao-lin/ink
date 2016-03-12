@@ -7,9 +7,11 @@
 #include <algorithm>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "setting.h"
 #include "../general.h"
 #include "../debug.h"
+#include "../constant.h"
 #include "../protocol.h"
 #include "../object.h"
 #include "../error.h"
@@ -129,11 +131,17 @@ public:
 	Ink_CustomDestructorQueue custom_destructor_queue;
 	Ink_CustomEngineComMap custom_engine_com_map;
 
+	Ink_ConstantTable const_table;
+
 	Ink_InterpreteEngine();
 
 	Ink_ContextChain *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
+
+	Ink_Object *findConstant(wstring name);
+	Ink_Constant *setConstant(wstring name, Ink_Object *obj);
+	void disposeConstant();
 
 	inline void setMaxTrace(Ink_SizeType c)
 	{

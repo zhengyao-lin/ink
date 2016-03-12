@@ -456,6 +456,21 @@ InkWarn_Wrong_Ret_Val_For_Compare(Ink_InterpreteEngine *engine, Ink_TypeTag type
 }
 
 inline void
+InkWarn_Assign_Fixed(Ink_InterpreteEngine *engine, const char *name)
+{
+	InkErro_doPrintWarning(engine, "Assigning fixed value '$(name)'", name);
+	return;
+}
+
+inline void
+InkWarn_Failed_Get_Constant(Ink_InterpreteEngine *engine, Ink_TypeTag type)
+{
+	InkErro_doPrintWarning(engine, "Failed to get constant value of object of type <$(type)>",
+						   getTypeName(engine, type));
+	return;
+}
+
+inline void
 InkNote_Method_Fallthrough(Ink_InterpreteEngine *engine, const char *name, Ink_TypeTag origin, Ink_TypeTag to_type)
 {
 #ifdef INK_DEBUG_FLAG

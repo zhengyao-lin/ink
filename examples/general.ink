@@ -30,19 +30,20 @@ a.`<<` = func.`<<`;
 a << 0;
 
 st = new Stack();
-input = "2 3 + 3 + 7 / 9 * 9 1 ++";
+input = "2.0 3 + 3 + 7 / 9 * 9 1 + + 2 * 10 *";
 
 for (let i = 0, i < input.length(), i++) {
 	let c = input[i];
 	let tmp_num = "";
 
-	while (c >= "0" && c <= "9") {
+	while ((c >= "0" && c <= "9") || c == ".") {
 		tmp_num = tmp_num + c;
 		i++;
 		c = input[i];
 	}
 	if (tmp_num != "") {
-		st.push(numval(tmp_num));
+		st.push(numval(tmp_num))
+		continue
 	}
 
 	if (c == "+") {
@@ -50,39 +51,36 @@ for (let i = 0, i < input.length(), i++) {
 		v2 = st.pop();
 		if (!v1 || !v2) {
 			p("Error: no enough stack for operator `+`");
-		} {
+		} else {
 			st.push(v1 + v2);
 		}
-	} {
-		if (c == "-") {
-			v1 = st.pop();
-			v2 = st.pop();
-			if (!v1 || !v2) {
-				p("Error: no enough stack for operator `-`");
-			} {
-				st.push(v1 - v2);
-			}
-		} {
-			if (c == "*") {
-				v1 = st.pop();
-				v2 = st.pop();
-				if (!v1 || !v2) {
-					p("Error: no enough stack for operator `*`");
-				} {
-					st.push(v1 * v2);
-				}
-			} {
-				if (c == "/") {
-					v1 = st.pop();
-					v2 = st.pop();
-					if (!v1 || !v2) {
-						p("Error: no enough stack for operator `/`");
-					} {
-						st.push(v1 / v2);
-					}
-				}
-			}
+	} else if (c == "-") {
+		v1 = st.pop();
+		v2 = st.pop();
+		if (!v1 || !v2) {
+			p("Error: no enough stack for operator `-`");
+		} else {
+			st.push(v1 - v2);
 		}
+	} else if (c == "*") {
+		v1 = st.pop();
+		v2 = st.pop();
+		if (!v1 || !v2) {
+			p("Error: no enough stack for operator `*`");
+		} else {
+			st.push(v1 * v2);
+		}
+	} else if (c == "/") {
+		v1 = st.pop();
+		v2 = st.pop();
+		if (!v1 || !v2) {
+			p("Error: no enough stack for operator `/`");
+		} else {
+			st.push(v1 / v2);
+		}
+	} else if (c == " " || c == "\t") {
+	} else {
+		p("Error: illegal character " + c)
 	}
 }
 

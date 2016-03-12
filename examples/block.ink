@@ -1042,7 +1042,7 @@ c.prototype = a;
 
 p(a.what?)
 
-actor1 = actor () {
+actor1 = actor (a) {
 	import multink
 
 	// 1 = 2;
@@ -1050,7 +1050,7 @@ actor1 = actor () {
 	// 1 = 2;
 }
 
-// actor1(_)("he");
+// actor1(_)("he", "hi");
 
 let msg
 // msg = receive() for(800)
@@ -1730,3 +1730,17 @@ default_arg(undefined, "yes!!")
 ((new Array(10))[0, -1]).each(p(_))
 ([1, 2, 3, 4][1, 0]).each(p(_))
 ([1, 2, 3, 4][-1, 0]).each(p(_))
+
+fix FIXED_NUM = 10
+fix FIXED_STR = "I'm fixed string, and this is fixed num: "
+
+fix FIXED_NUM = 20
+
+fix INVALID_FIXED = { a: 1 }
+
+p(FIXED_STR + FIXED_NUM)
+p(fix INVALID_FIXED)
+
+fix INVALID_FIXED = 10
+
+p(fix INVALID_FIXED)

@@ -17,4 +17,13 @@ void IGC_addObject(Ink_InterpreteEngine *current_engine, Ink_Object *obj)
 	return;
 }
 
+void IGC_addObject(IGC_CollectEngine *engine, Ink_Object *obj)
+{
+	if (engine) {
+		engine->addUnit(new IGC_CollectUnit(obj));
+	}
+
+	return;
+}
+
 }

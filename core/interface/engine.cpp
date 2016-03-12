@@ -94,6 +94,8 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	initPrototypeSearch();
 	initGCCollect();
 
+	const_table = Ink_ConstantTable();
+
 	gc_engine = new IGC_CollectEngine(this);
 	setCurrentGC(gc_engine);
 	global_context = new Ink_ContextChain(new Ink_ContextObject(this));
@@ -134,6 +136,8 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	global_context->context->setSlot_c("let", global_context->context);
 	global_context->context->setSlot_c("auto", tmp = new Ink_Object(this));
 	tmp->setSlot_c("missing", new Ink_FunctionObject(this, InkNative_Auto_Missing_i));
+	global_context->context->setSlot_c("fix", tmp = new Ink_Object(this));
+	tmp->setSlot_c("missing", new Ink_FunctionObject(this, InkNative_Fix_Missing_i));
 	Ink_GlobalMethodInit(this, global_context);
 
 	global_context->context->setDebugName("__global_context__");
@@ -439,6 +443,8 @@ Ink_InterpreteEngine::~Ink_InterpreteEngine()
 
 	gc_engine->collectGarbage(true);
 	delete gc_engine;
+
+	disposeConstant();
 
 	cleanExpressionList(top_level);
 	cleanContext(global_context);

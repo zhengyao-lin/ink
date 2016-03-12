@@ -67,6 +67,7 @@ public:
 
 void IGC_checkGC();
 void IGC_addObject(Ink_InterpreteEngine *current_engine, Ink_Object *obj);
+void IGC_addObject(IGC_CollectEngine *engine, Ink_Object *obj);
 
 }
 
