@@ -3,6 +3,7 @@
 
 #include "core/interface/engine.h"
 #include "core/object.h"
+#include "core/constant.h"
 #include "bignum.h"
 
 #define BIGNUMERIC_TYPE (getBigNumericType(engine))
@@ -41,6 +42,18 @@ public:
 	{
 		return value != 0.0;
 	}
+
+	virtual Ink_Constant *toConstant(Ink_InterpreteEngine *engine);
+};
+
+struct Ink_BigNumericConstant: public Ink_Constant {
+	Ink_Bignum_NumericValue value;
+
+	Ink_BigNumericConstant(Ink_Bignum_NumericValue value)
+	: value(value)
+	{ }
+
+	virtual Ink_Object *toObject(Ink_InterpreteEngine *engine);
 };
 
 inline void

@@ -309,6 +309,16 @@ void Ink_BigNumeric::Ink_BigNumericMethodInit(Ink_InterpreteEngine *engine)
 	return;
 }
 
+Ink_Constant *Ink_BigNumeric::toConstant(Ink_InterpreteEngine *engine)
+{
+	return new Ink_BigNumericConstant(value);
+}
+
+Ink_Object *Ink_BigNumericConstant::toObject(Ink_InterpreteEngine *engine)
+{
+	return new Ink_BigNumeric(engine, value);
+}
+
 Ink_Object *InkMod_Bignum_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret = NULL_OBJ;
