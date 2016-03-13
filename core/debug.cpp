@@ -154,7 +154,7 @@ void Ink_InterpreteEngine::printDebugInfo(FILE *fp, Ink_Object *obj, string pref
 
 	if (obj) {
 		if (find(dbg_traced_stack.begin(), dbg_traced_stack.end(), obj) != dbg_traced_stack.end()) {
-			fprintf(fp, "traced\n");
+			fprintf(fp, "object@%p traced\n", (void *)obj);
 			return;
 		}
 		dbg_traced_stack.push_back(obj);
