@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <assert.h>
 #include "type.h"
 #include "general.h"
 
@@ -12,27 +13,35 @@ class Ink_Object;
 class Ink_InterpreteEngine;
 
 struct Ink_Constant {
-	Ink_TypeTag type;
-	union {
-		std::wstring *str;
-		Ink_NumericValue num;
-	};
+	virtual Ink_Object *toObject(Ink_InterpreteEngine *engine)
+	{ assert(0); }
 
-	Ink_Constant(std::wstring str)
-	: str(new std::wstring(str))
-	{ type = INK_STRING; }
+	virtual ~Ink_Constant()
+	{ }
+};
 
-	Ink_Constant(Ink_NumericValue num)
-	: num(num)
-	{ type = INK_NUMERIC; }
+struct Ink_NumericConstant: public Ink_Constant {
+	Ink_NumericValue value;
 
-	Ink_Object *toObject(Ink_InterpreteEngine *engine);
-	static Ink_Constant *fromObject(Ink_Object *obj);
+	Ink_NumericConstant(Ink_NumericValue value)
+	: value(value)
+	{ }
 
-	~Ink_Constant()
+	virtual Ink_Object *toObject(Ink_InterpreteEngine *engine);
+};
+
+struct Ink_StringConstant: public Ink_Constant {
+	std::wstring *value;
+
+	Ink_StringConstant(std::wstring value)
+	: value(new std::wstring(value))
+	{ }
+
+	virtual Ink_Object *toObject(Ink_InterpreteEngine *engine);
+
+	virtual ~Ink_StringConstant()
 	{
-		if (type == INK_STRING)
-			delete str;
+		delete value;
 	}
 };
 

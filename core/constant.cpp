@@ -5,34 +5,14 @@
 
 namespace ink {
 
-Ink_Object *Ink_Constant::toObject(Ink_InterpreteEngine *engine)
+Ink_Object *Ink_NumericConstant::toObject(Ink_InterpreteEngine *engine)
 {
-	switch (type) {
-		case INK_STRING:
-			return new Ink_String(engine, *str);
-		case INK_NUMERIC:
-			return new Ink_Numeric(engine, num);
-		default:
-			// shouldn't be here
-			assert(0);
-	}
-
-	return NULL;
+	return new Ink_Numeric(engine, value);
 }
 
-Ink_Constant *Ink_Constant::fromObject(Ink_Object *obj)
+Ink_Object *Ink_StringConstant::toObject(Ink_InterpreteEngine *engine)
 {
-	if (!obj) return NULL;
-
-	switch (obj->type) {
-		case INK_STRING:
-			return new Ink_Constant(as<Ink_String>(obj)->getWValue());
-		case INK_NUMERIC:
-			return new Ink_Constant(as<Ink_Numeric>(obj)->value);
-		default:;
-	}
-
-	return NULL;
+	return new Ink_String(engine, *value);
 }
 
 }

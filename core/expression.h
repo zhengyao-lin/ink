@@ -346,23 +346,23 @@ public:
 	}
 };
 
-class Ink_NullConstant: public Ink_Expression {
+class Ink_NullExpression: public Ink_Expression {
 public:
-	Ink_NullConstant() { }
+	Ink_NullExpression() { }
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 };
 
-class Ink_UndefinedConstant: public Ink_Expression {
+class Ink_UndefinedExpression: public Ink_Expression {
 public:
-	Ink_UndefinedConstant() { }
+	Ink_UndefinedExpression() { }
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 };
 
-class Ink_NumericConstant: public Ink_Expression {
+class Ink_NumericExpression: public Ink_Expression {
 public:
 	Ink_NumericValue value;
 
-	Ink_NumericConstant(Ink_NumericValue value)
+	Ink_NumericExpression(Ink_NumericValue value)
 	: value(value)
 	{ }
 
@@ -370,20 +370,20 @@ public:
 
 	static Ink_NumericValue parseNumeric(std::string code, bool *is_success = NULL);
 	static Ink_Expression *parse(std::string code);
-	virtual ~Ink_NumericConstant() { }
+	virtual ~Ink_NumericExpression() { }
 };
 
-class Ink_StringConstant: public Ink_Expression {
+class Ink_StringExpression: public Ink_Expression {
 public:
 	std::string *value;
 
-	Ink_StringConstant(std::string *value)
+	Ink_StringExpression(std::string *value)
 	: value(value)
 	{ }
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
-	virtual ~Ink_StringConstant()
+	virtual ~Ink_StringExpression()
 	{
 		delete value;
 	}

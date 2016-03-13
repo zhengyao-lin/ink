@@ -7,6 +7,8 @@
 #include "type.h"
 #include "hash.h"
 #include "general.h"
+#include "constant.h"
+#include "error.h"
 #include "utf8.h"
 #include "coroutine/coroutine.h"
 
@@ -156,6 +158,11 @@ public:
 	virtual void doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
 	{
 		return;
+	}
+
+	virtual Ink_Constant *toConstant(Ink_InterpreteEngine *engine)
+	{
+		return NULL;
 	}
 
 	virtual ~Ink_Object()
@@ -436,6 +443,11 @@ public:
 	{
 		return value != 0.0;
 	}
+
+	virtual Ink_Constant *toConstant(Ink_InterpreteEngine *engine)
+	{
+		return new Ink_NumericConstant(value);
+	}
 };
 
 class Ink_String: public Ink_Object {
@@ -502,6 +514,11 @@ public:
 	virtual bool isTrue()
 	{
 		return true;
+	}
+
+	virtual Ink_Constant *toConstant(Ink_InterpreteEngine *engine)
+	{
+		return new Ink_StringConstant(getWValue());
 	}
 
 	virtual ~Ink_String()

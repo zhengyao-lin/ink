@@ -16,7 +16,7 @@ Ink_Object *Ink_InterpreteEngine::findConstant(wstring name)
 
 Ink_Constant *Ink_InterpreteEngine::setConstant(wstring name, Ink_Object *obj)
 {
-	Ink_Constant *ret = Ink_Constant::fromObject(obj);
+	Ink_Constant *ret = obj ? obj->toConstant(this) : NULL;
 
 	if (!ret) {
 		assert(obj);

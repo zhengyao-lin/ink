@@ -947,7 +947,7 @@ unary_expression
 	| TDADD nllo unary_expression
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();
-		arg.push_back(new Ink_Argument(new Ink_NumericConstant(1)));
+		arg.push_back(new Ink_Argument(new Ink_NumericExpression(1)));
 		$$ = new Ink_AssignmentExpression($3, new Ink_CallExpression(
 												  new Ink_HashExpression($3, new string("+")),
 												  arg), false, false);
@@ -956,7 +956,7 @@ unary_expression
 	| TDSUB nllo unary_expression
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();
-		arg.push_back(new Ink_Argument(new Ink_NumericConstant(1)));
+		arg.push_back(new Ink_Argument(new Ink_NumericExpression(1)));
 		$$ = new Ink_AssignmentExpression($3, new Ink_CallExpression(
 												  new Ink_HashExpression($3, new string("-")),
 												  arg), false, false);
@@ -973,7 +973,7 @@ argument_attachment
 	| TIDENTIFIER nllo TLPAREN element_list_opt TRPAREN
 	{
 		$$ = new Ink_ArgumentList();
-		$$->push_back(new Ink_Argument(new Ink_StringConstant($1)));
+		$$->push_back(new Ink_Argument(new Ink_StringExpression($1)));
 		$$->push_back(new Ink_Argument(new Ink_ListExpression(*$4)));
 		delete $4;
 	}
@@ -992,14 +992,14 @@ argument_attachment
 	| TIDENTIFIER nllo argument_attachment
 	{
 		$$ = new Ink_ArgumentList();
-		$$->push_back(new Ink_Argument(new Ink_StringConstant($1)));
+		$$->push_back(new Ink_Argument(new Ink_StringExpression($1)));
 		$$->insert($$->end(), $3->begin(), $3->end());
 		delete $3;
 	}
 	| TIDENTIFIER nllo TLPAREN element_list_opt TRPAREN argument_attachment
 	{
 		$$ = new Ink_ArgumentList();
-		$$->push_back(new Ink_Argument(new Ink_StringConstant($1)));
+		$$->push_back(new Ink_Argument(new Ink_StringExpression($1)));
 		$$->push_back(new Ink_Argument(new Ink_ListExpression(*$4)));
 		$$->insert($$->end(), $6->begin(), $6->end());
 		delete $4;
@@ -1091,7 +1091,7 @@ postfix_expression
 	| postfix_expression TDADD
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();
-		arg.push_back(new Ink_Argument(new Ink_NumericConstant(1)));
+		arg.push_back(new Ink_Argument(new Ink_NumericExpression(1)));
 		$$ = new Ink_AssignmentExpression($1, new Ink_CallExpression(
 												  new Ink_HashExpression($1, new string("+")),
 												  arg), true, false);
@@ -1100,7 +1100,7 @@ postfix_expression
 	| postfix_expression TDSUB
 	{
 		Ink_ArgumentList arg = Ink_ArgumentList();
-		arg.push_back(new Ink_Argument(new Ink_NumericConstant(1)));
+		arg.push_back(new Ink_Argument(new Ink_NumericExpression(1)));
 		$$ = new Ink_AssignmentExpression($1, new Ink_CallExpression(
 												  new Ink_HashExpression($1, new string("-")),
 												  arg), true, false);
@@ -1400,13 +1400,13 @@ single_element_expression
 	: TNUMERIC
 	{
 		// printf("numeric: %s\n", $1->c_str());
-		$$ = Ink_NumericConstant::parse(*$1);
+		$$ = Ink_NumericExpression::parse(*$1);
 		delete $1;
 		SET_LINE_NO($$);
 	}
 	| TSTRING
 	{
-		$$ = new Ink_StringConstant($1);
+		$$ = new Ink_StringExpression($1);
 		SET_LINE_NO($$);
 	}
 	| TIDENTIFIER

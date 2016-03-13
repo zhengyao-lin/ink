@@ -268,7 +268,7 @@ static Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 		return NULL_OBJ;
 	}
 
-	if (!(tmp = Ink_NumericConstant::parse(as<Ink_String>(argv[0])->getValue())))
+	if (!(tmp = Ink_NumericExpression::parse(as<Ink_String>(argv[0])->getValue())))
 		return NULL_OBJ;
 
 	Ink_addNativeExpression(tmp);

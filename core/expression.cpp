@@ -47,7 +47,7 @@ namespace ink {
 
 using namespace std;
 
-Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success)
+Ink_NumericValue Ink_NumericExpression::parseNumeric(string code, bool *is_success)
 {
 	Ink_NumericValue ret = 0.0;
 	Ink_NumericValue ret_back = 0.0;
@@ -136,13 +136,13 @@ Ink_NumericValue Ink_NumericConstant::parseNumeric(string code, bool *is_success
 	return use_e ? ret_back * flag_back * pow(10, ret * flag) : ret * flag;
 }
 
-Ink_Expression *Ink_NumericConstant::parse(string code)
+Ink_Expression *Ink_NumericExpression::parse(string code)
 {
 	bool is_success = false;
-	Ink_NumericValue val = Ink_NumericConstant::parseNumeric(code, &is_success);
+	Ink_NumericValue val = Ink_NumericExpression::parseNumeric(code, &is_success);
 
 	if (is_success)
-		return new Ink_NumericConstant(val);
+		return new Ink_NumericExpression(val);
 	else
 	
 	return NULL;
@@ -757,22 +757,22 @@ Ink_Object *Ink_ArrayLiteral::eval(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return new Ink_Array(engine, val);
 }
 
-Ink_Object *Ink_NullConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_NullExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	return NULL_OBJ;
 }
 
-Ink_Object *Ink_UndefinedConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_UndefinedExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	return UNDEFINED;
 }
 
-Ink_Object *Ink_NumericConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_NumericExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	return new Ink_Numeric(engine, value);
 }
 
-Ink_Object *Ink_StringConstant::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
+Ink_Object *Ink_StringExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)
 {
 	return new Ink_String(engine, *value);
 }
