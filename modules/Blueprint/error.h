@@ -2,6 +2,7 @@
 #define _BP_ERROR_H_
 
 #include "core/error.h"
+#include "core/general.h"
 
 /* if errors */
 inline void

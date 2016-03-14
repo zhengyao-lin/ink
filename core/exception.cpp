@@ -6,6 +6,17 @@ namespace ink {
 
 using namespace std;
 
+Ink_ExceptionMessage::Ink_ExceptionMessage(Ink_InterpreteEngine *engine,
+										   Ink_ExceptionCode ex_code, const char *file_name,
+										   Ink_LineNoType lineno, std::string msg)
+: Ink_Object(engine)
+{
+	setSlot_c("ex_code", new Ink_Numeric(engine, ex_code));
+	setSlot_c("file_name", new Ink_String(engine, std::string(file_name)));
+	setSlot_c("lineno", new Ink_Numeric(engine, lineno));
+	setSlot_c("msg", new Ink_String(engine, msg));
+}
+
 Ink_ExceptionRaw *Ink_ExceptionRaw::toRaw(Ink_Object *ex)
 {
 	if (!ex) return NULL;

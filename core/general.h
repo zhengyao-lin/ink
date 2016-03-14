@@ -167,13 +167,16 @@ typedef Ink_SInt64 Ink_LineNoType;
 typedef double Ink_NumericValue;
 typedef std::vector<Ink_HashTable *> Ink_ArrayValue;
 
-typedef Ink_SInt32 Ink_ExceptionCode;
+typedef Ink_UInt32 InkMod_ModuleID;
+
+typedef Ink_UInt64 Ink_ExceptionCode;
 enum Ink_ExceptionCode_tag {
 	INK_EXCODE_UNDEFINED = 0,
 	INK_EXCODE_ERROR_CALLING_NON_FUNCTION_OBJECT,
 	INK_EXCODE_ERROR_CALLING_UNDEFINED_OBJECT,
 	INK_EXCODE_ERROR_YIELD_WITHOUT_COROUTINE,
 	INK_EXCODE_ERROR_FAILED_OPEN_FILE,
+
 	INK_EXCODE_WARN_ASSIGNING_UNASSIGNABLE_EXPRESSION,
 	INK_EXCODE_WARN_HASH_NOT_FOUND,
 	INK_EXCODE_WARN_GET_SLOT_OF_UNDEFINED,
@@ -185,6 +188,7 @@ enum Ink_ExceptionCode_tag {
 	INK_EXCODE_WARN_FUNCTION_RANGE_CALL_ARGUMENT_ERROR,
 	INK_EXCODE_WARN_FUNCTION_NON_RANGE_CALL,
 	INK_EXCODE_WARN_INCORRECT_RANGE_TYPE,
+
 	INK_EXCODE_WARN_GET_NON_FUNCTION_EXP,
 	INK_EXCODE_WARN_REBUILD_NON_ARRAY,
 	INK_EXCODE_WARN_INVALID_ELEMENT_FOR_REBUILD,
@@ -229,8 +233,14 @@ enum Ink_ExceptionCode_tag {
 	INK_EXCODE_WARN_COCALL_ARGUMENT_REQUIRE,
 	INK_EXCODE_WARN_WRONG_RET_VAL_FOR_COMPARE,
 	INK_EXCODE_WARN_ASSIGN_FIXED,
-	INK_EXCODE_WARN_FAILED_GET_CONSTANT
+	INK_EXCODE_WARN_FAILED_GET_CONSTANT,
+	INK_EXCODE_LAST
 };
+
+inline Ink_ExceptionCode getExCode(InkMod_ModuleID mod_id, Ink_ExceptionCode_tag ex_code)
+{
+	return (mod_id << sizeof(InkMod_ModuleID)) + ex_code;
+}
 
 typedef void (*IGC_Marker)(Ink_InterpreteEngine *engine, Ink_Object *obj);
 typedef std::pair<Ink_HashTable *, Ink_HashTable *> IGC_Bonding;

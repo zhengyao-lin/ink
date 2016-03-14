@@ -33,21 +33,21 @@ InkWarn_Unknown_Version(Ink_InterpreteEngine *engine, const char *name)
 inline void
 InkError_Unknown_Version(Ink_InterpreteEngine *engine, const char *path)
 {
-	InkErro_doPrintError(engine, -1, "Ink Packer: Cannot detect module version of file $(path), please specify one", path);
+	InkErro_doPrintError(engine, INK_EXCODE_UNDEFINED, "Ink Packer: Cannot detect module version of file $(path), please specify one", path);
 	return;
 }
 
 inline void
 InkError_No_Lib_Given(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintError(engine, -1, "Ink Packer: No library file given");
+	InkErro_doPrintError(engine, INK_EXCODE_UNDEFINED, "Ink Packer: No library file given");
 	return;
 }
 
 inline void
 InkError_No_Dest_Given(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintError(engine, -1, "Ink Packer: No output file given");
+	InkErro_doPrintError(engine, INK_EXCODE_UNDEFINED, "Ink Packer: No output file given");
 	return;
 }
 
@@ -56,7 +56,7 @@ InkError_Could_Not_Create_File(Ink_InterpreteEngine *engine, const char *path)
 {
 	stringstream strm;
 	strm << "Ink Packer: Couldn't create file " << path;
-	InkErro_doPrintError(engine, -1, strm.str().c_str());
+	InkErro_doPrintError(engine, INK_EXCODE_UNDEFINED, strm.str().c_str());
 	return;
 }
 

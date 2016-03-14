@@ -12,10 +12,9 @@ namespace ink {
 class Ink_InterpreteEngine;
 class Ink_ContextChain;
 
-typedef long InkMod_ModuleID;
 typedef void (*InkMod_Loader_t)(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
 typedef int (*InkMod_Init_t)(InkMod_ModuleID id);
-typedef size_t InkPack_Size;
+typedef Ink_SizeType InkPack_Size;
 typedef Ink_Byte byte;
 
 #define INKPACK_SIZE_INVALID ((InkPack_Size)-1)
