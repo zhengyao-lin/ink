@@ -15,7 +15,8 @@ class Ink_ContextChain;
 class Ink_InterpreteEngine;
 
 void InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, const char *msg, ...);
-void InkErro_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, ...);
+void InkErro_doPrintWarning_e(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, const char *msg, ...);
+#define InkErro_doPrintWarning(e, ...) InkErro_doPrintWarning_e(e, INK_EXCODE_UNDEFINED, __VA_ARGS__)
 void InkErro_doPrintNote(Ink_InterpreteEngine *engine, const char *msg, ...);
 
 const char *getTypeName(Ink_InterpreteEngine *engine, Ink_TypeTag type);
@@ -23,7 +24,8 @@ const char *getTypeName(Ink_InterpreteEngine *engine, Ink_TypeTag type);
 inline void
 InkError_Calling_Non_Function_Object(Ink_InterpreteEngine *engine, Ink_TypeTag type, const char *slot)
 {
-	InkErro_doPrintError(engine, -1, "Calling non-function object of type <$(type)> in $(slot)",
+	InkErro_doPrintError(engine, INK_EXCODE_ERROR_CALLING_NON_FUNCTION_OBJECT,
+						 "Calling non-function object of type <$(type)> in $(slot)",
 						 getTypeName(engine, type),
 						 (slot ? std::string("slot '") + slot + "'" : "anonymous slot").c_str());
 	return;
@@ -32,7 +34,8 @@ InkError_Calling_Non_Function_Object(Ink_InterpreteEngine *engine, Ink_TypeTag t
 inline void
 InkError_Calling_Undefined_Object(Ink_InterpreteEngine *engine, const char *slot)
 {
-	InkErro_doPrintError(engine, -2, "Calling undefined object in $(slot)",
+	InkErro_doPrintError(engine, INK_EXCODE_ERROR_CALLING_UNDEFINED_OBJECT,
+						 "Calling undefined object in $(slot)",
 						 (slot ? std::string("slot '") + slot + "'" : "anonymous slot").c_str());
 	return;
 }
@@ -40,14 +43,16 @@ InkError_Calling_Undefined_Object(Ink_InterpreteEngine *engine, const char *slot
 inline void
 InkError_Yield_Without_Coroutine(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintError(engine, -3, "Function yield, but no coroutine is created");
+	InkErro_doPrintError(engine, INK_EXCODE_ERROR_YIELD_WITHOUT_COROUTINE,
+						 "Function yield, but no coroutine is created");
 	return;
 }
 
 inline void
 InkError_Failed_Open_File(Ink_InterpreteEngine *engine, const char *path)
 {
-	InkErro_doPrintError(engine, -4, "Failed to open file $(path)", path);
+	InkErro_doPrintError(engine, INK_EXCODE_ERROR_FAILED_OPEN_FILE,
+						 "Failed to open file $(path)", path);
 	return;
 }
 

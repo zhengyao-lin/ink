@@ -16,7 +16,7 @@ $(TARGET): $(REQUIRE)
 %.o: %.cpp
 	$(CC) -c $^ $(CPPFLAGS) $(INCLUDES)
 
+endif
+
 clean:
 	$(RM) -r *.o *.$(GLOBAL_LIB_SUFFIX) build
-
-endif
