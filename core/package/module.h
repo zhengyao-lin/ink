@@ -13,7 +13,7 @@ class Ink_InterpreteEngine;
 class Ink_ContextChain;
 
 typedef void (*InkMod_Loader_t)(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
-typedef int (*InkMod_Init_t)(InkMod_ModuleID id);
+typedef int (*InkMod_Init_t)(Ink_ModuleID id);
 typedef Ink_SizeType InkPack_Size;
 typedef Ink_Byte byte;
 

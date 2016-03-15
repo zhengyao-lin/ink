@@ -14,7 +14,7 @@ static pthread_mutex_t dl_handler_pool_lock = PTHREAD_MUTEX_INITIALIZER;
 static DLHandlerPool dl_handler_pool;
 static char *tmp_prog_path = NULL;
 static char *tmp_module_path = NULL;
-static InkMod_ModuleID current_module_id = 0;
+static Ink_ModuleID current_module_id = 0;
 
 static const char *dl_fixed_mod_load_dir[] = {
 	INK_MODULE_DIR,
@@ -82,7 +82,7 @@ void Ink_applyAllModules(Ink_InterpreteEngine *engine, Ink_ContextChain *context
 	return;
 }
 
-InkMod_ModuleID registerModule()
+Ink_ModuleID registerModule()
 {
 	return ++current_module_id;
 }

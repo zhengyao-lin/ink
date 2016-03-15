@@ -10,9 +10,8 @@
 namespace ink {
 
 void
-InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, const char *msg, ...)
+InkErro_doPrintError_c(Ink_InterpreteEngine *engine, Ink_ModuleID mod_id, Ink_ExceptionCode ex_code, const char *msg, va_list args)
 {
-	va_list args;
 	const char *tmp;
 	bool if_exit = (engine == NULL);
 	const char *file_name = engine && (tmp = engine->current_file_name) ? tmp : "<unknown input>";
@@ -22,38 +21,120 @@ InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, co
 		Ink_disposeEnv();
 	}
 	
-	va_start(args, msg);
 	Ink_ErrorMessage err_msg = Ink_ErrorMessage(file_name, line_number, msg, args);
 	err_msg.popWith(Ink_ErrorMessage::INK_ERR_LEVEL_ERROR,
 					if_exit ? Ink_ErrorMessage::INK_ERR_ACTION_EXIT1
 					  		: Ink_ErrorMessage::INK_ERR_ACTION_NONE);
-	va_end(args);
 
 	if (engine) {
 		engine->printTrace(stderr, engine->getTrace(), "***INK EXCEPTION*** ");
-		engine->setInterrupt(INTER_THROW, new Ink_ExceptionMessage(engine, ex_code, file_name, line_number, *(err_msg.message)));
+		engine->setInterrupt(INTER_THROW, new Ink_ExceptionMessage(engine, mod_id, ex_code, file_name,
+																   line_number, *(err_msg.message)));
 	}
 
 	return;
 }
 
 void
-InkErro_doPrintWarning_e(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, const char *msg, ...)
+InkErro_doPrintWarning_c(Ink_InterpreteEngine *engine, Ink_ModuleID mod_id, Ink_ExceptionCode ex_code, const char *msg, va_list args)
 {
-	va_list args;
 	const char *tmp;
 	const char *file_name = engine && (tmp = engine->current_file_name) ? tmp : "<unknown input>";
 	Ink_LineNoType line_number = engine ? engine->current_line_number : -1;
 	
-	va_start(args, msg);
 	Ink_ErrorMessage err_msg(file_name, line_number, msg, args);
 	err_msg.popWith(Ink_ErrorMessage::INK_ERR_LEVEL_WARNING);
-	va_end(args);
 
 	if (engine && engine->getErrorMode() == INK_ERRMODE_STRICT) {
 		engine->printTrace(stderr, engine->getTrace(), "***INK EXCEPTION(strict mode)*** ");
-		engine->setInterrupt(INTER_THROW, new Ink_ExceptionMessage(engine, ex_code, file_name, line_number, *(err_msg.message)));
+		engine->setInterrupt(INTER_THROW, new Ink_ExceptionMessage(engine, mod_id, ex_code, file_name,
+																   line_number, *(err_msg.message)));
 	}
+
+	return;
+}
+
+void
+InkErro_doPrintNote_c(Ink_InterpreteEngine *engine, const char *msg, va_list args)
+{
+	const char *tmp;
+	const char *file_name = engine && (tmp = engine->current_file_name) ? tmp : "<unknown input>";
+	Ink_LineNoType line_number = engine ? engine->current_line_number : -1;
+	
+	Ink_ErrorMessage err_msg(file_name, line_number, msg, args);
+	err_msg.popWith(Ink_ErrorMessage::INK_ERR_LEVEL_NOTE);
+
+	return;
+}
+
+void
+InkErro_doPrintError(Ink_InterpreteEngine *engine, const char *msg, ...)
+{
+	va_list args;
+	
+	va_start(args, msg);
+	InkErro_doPrintError_c(engine, INK_CORE_MOD_ID, INK_EXCODE_UNDEFINED, msg, args);
+	va_end(args);
+
+	return;
+}
+
+void
+InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, const char *msg, ...)
+{
+	va_list args;
+	
+	va_start(args, msg);
+	InkErro_doPrintError_c(engine, INK_CORE_MOD_ID, ex_code, msg, args);
+	va_end(args);
+
+	return;
+}
+
+void
+InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ModuleID mod_id, Ink_ExceptionCode ex_code, const char *msg, ...)
+{
+	va_list args;
+	
+	va_start(args, msg);
+	InkErro_doPrintError_c(engine, mod_id, ex_code, msg, args);
+	va_end(args);
+
+	return;
+}
+
+void
+InkErro_doPrintWarning(Ink_InterpreteEngine *engine, const char *msg, ...)
+{
+	va_list args;
+	
+	va_start(args, msg);
+	InkErro_doPrintWarning_c(engine, INK_CORE_MOD_ID, INK_EXCODE_UNDEFINED, msg, args);
+	va_end(args);
+
+	return;
+}
+
+void
+InkErro_doPrintWarning(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, const char *msg, ...)
+{
+	va_list args;
+	
+	va_start(args, msg);
+	InkErro_doPrintWarning_c(engine, INK_CORE_MOD_ID, ex_code, msg, args);
+	va_end(args);
+
+	return;
+}
+
+void
+InkErro_doPrintWarning(Ink_InterpreteEngine *engine, Ink_ModuleID mod_id, Ink_ExceptionCode ex_code, const char *msg, ...)
+{
+	va_list args;
+	
+	va_start(args, msg);
+	InkErro_doPrintWarning_c(engine, mod_id, ex_code, msg, args);
+	va_end(args);
 
 	return;
 }
@@ -62,13 +143,9 @@ void
 InkErro_doPrintNote(Ink_InterpreteEngine *engine, const char *msg, ...)
 {
 	va_list args;
-	const char *tmp;
-	const char *file_name = engine && (tmp = engine->current_file_name) ? tmp : "<unknown input>";
-	Ink_LineNoType line_number = engine ? engine->current_line_number : -1;
 	
 	va_start(args, msg);
-	Ink_ErrorMessage err_msg(file_name, line_number, msg, args);
-	err_msg.popWith(Ink_ErrorMessage::INK_ERR_LEVEL_NOTE);
+	InkErro_doPrintNote_c(engine, msg, args);
 	va_end(args);
 
 	return;

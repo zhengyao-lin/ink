@@ -133,9 +133,9 @@ Ink_Object *InkMod_JSON_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *c
 	return NULL_OBJ;
 }
 
-extern "C" {
-	static InkMod_ModuleID ink_native_json_mod_id;
+Ink_ModuleID ink_native_json_mod_id;
 
+extern "C" {
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
 		addPackage(engine, context, "json", new Ink_FunctionObject(engine, InkMod_JSON_Loader));
@@ -143,7 +143,7 @@ extern "C" {
 		return;
 	}
 
-	int InkMod_Init(InkMod_ModuleID id)
+	int InkMod_Init(Ink_ModuleID id)
 	{
 		ink_native_json_mod_id = id;
 		return 0;

@@ -14,7 +14,7 @@
 using namespace ink;
 using namespace std;
 
-static InkMod_ModuleID ink_native_actor_mod_id;
+Ink_ModuleID ink_native_multink_mod_id;
 
 Ink_Object *InkNative_Actor_Send_Sub(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
@@ -441,9 +441,9 @@ extern "C" {
 		return;
 	}
 
-	int InkMod_Init(InkMod_ModuleID id)
+	int InkMod_Init(Ink_ModuleID id)
 	{
-		ink_native_actor_mod_id = id;
+		ink_native_multink_mod_id = id;
 		return 0;
 	}
 }

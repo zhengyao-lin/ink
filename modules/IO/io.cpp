@@ -10,7 +10,7 @@
 using namespace ink;
 using namespace std;
 
-InkMod_ModuleID ink_native_io_mod_id;
+Ink_ModuleID ink_native_io_mod_id;
 
 void InkMod_IO_EngineComCleaner(Ink_InterpreteEngine *engine, void *arg)
 {
@@ -83,7 +83,7 @@ extern "C" {
 		return;
 	}
 
-	int InkMod_Init(InkMod_ModuleID id)
+	int InkMod_Init(Ink_ModuleID id)
 	{
 		ink_native_io_mod_id = id;
 		return 0;

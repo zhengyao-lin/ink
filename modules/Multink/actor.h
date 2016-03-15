@@ -40,59 +40,88 @@ public:
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 };
 
+extern Ink_ModuleID ink_native_multink_mod_id;
+
+enum InkMod_Multink_ExceptionCode {
+	INK_EXCODE_WARN_MULTINK_ACTOR_NOT_FOUND = INK_EXCODE_CUSTOM_START,
+	INK_EXCODE_WARN_MULTINK_MESSAGE_IS_NOT_A_STRING,
+	INK_EXCODE_WARN_MULTINK_NOT_STRING_ARGUMENT,
+	INK_EXCODE_WARN_MULTINK_INSTRUCTION_ARGUMENT_REQUIRE,
+	INK_EXCODE_WARN_MULTINK_WRONG_ARGUMENT_TYPE,
+	INK_EXCODE_WARN_MULTINK_UNKNOWN_INSTRUCTION,
+	INK_EXCODE_WARN_MULTINK_EXPECT_INSTRUCTION,
+	INK_EXCODE_WARN_MULTINK_REQUIRE_REGISTERED_ACTOR
+};
+
 inline void
 InkWarn_Multink_Actor_Not_Found(Ink_InterpreteEngine *engine, const char *name)
 {
-	InkErro_doPrintWarning(engine, "Cannot find actor \'$(name)\'", name);
+	InkErro_doPrintWarning(engine, ink_native_multink_mod_id,
+						   INK_EXCODE_WARN_MULTINK_ACTOR_NOT_FOUND,
+						   "Cannot find actor \'$(name)\'", name);
 	return;
 }
 
 inline void
 InkWarn_Multink_Message_is_not_a_String(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintWarning(engine, "Message is not a string");
+	InkErro_doPrintWarning(engine, ink_native_multink_mod_id,
+						   INK_EXCODE_WARN_MULTINK_MESSAGE_IS_NOT_A_STRING,
+						   "Message is not a string");
 	return;
 }
 
 inline void
 InkWarn_Multink_Not_String_Argument(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintWarning(engine, "Argument is not a string(may cause crash)");
+	InkErro_doPrintWarning(engine, ink_native_multink_mod_id,
+						   INK_EXCODE_WARN_MULTINK_NOT_STRING_ARGUMENT,
+						   "Argument is not a string(may cause crash)");
 	return;
 }
 
 inline void
 InkWarn_Multink_Instruction_Argument_Require(Ink_InterpreteEngine *engine, const char *instr)
 {
-	InkErro_doPrintWarning(engine, "\'$(instr)\' instruction is given, but no argument given", instr);
+	InkErro_doPrintWarning(engine, ink_native_multink_mod_id,
+						   INK_EXCODE_WARN_MULTINK_INSTRUCTION_ARGUMENT_REQUIRE,
+						   "\'$(instr)\' instruction is given, but no argument given", instr);
 	return;
 }
 
 inline void
 InkWarn_Multink_Wrong_Argument_Type(Ink_InterpreteEngine *engine, const char *instr)
 {
-	InkErro_doPrintWarning(engine, "Wrong argument type for instruction \'$(instr)\'", instr);
+	InkErro_doPrintWarning(engine, ink_native_multink_mod_id,
+						   INK_EXCODE_WARN_MULTINK_WRONG_ARGUMENT_TYPE,
+						   "Wrong argument type for instruction \'$(instr)\'", instr);
 	return;
 }
 
 inline void
 InkWarn_Multink_Unknown_Instruction(Ink_InterpreteEngine *engine, const char *instr)
 {
-	InkErro_doPrintWarning(engine, "Unknown instruction \'$(instr)\'", instr);
+	InkErro_doPrintWarning(engine, ink_native_multink_mod_id,
+						   INK_EXCODE_WARN_MULTINK_UNKNOWN_INSTRUCTION,
+						   "Unknown instruction \'$(instr)\'", instr);
 	return;
 }
 
 inline void
 InkWarn_Multink_Expect_Instruction(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintWarning(engine, "Expecting instruction");
+	InkErro_doPrintWarning(engine, ink_native_multink_mod_id,
+						   INK_EXCODE_WARN_MULTINK_EXPECT_INSTRUCTION,
+						   "Expecting instruction");
 	return;
 }
 
 inline void
 InkWarn_Multink_Require_Registered_Actor(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintWarning(engine, "Only actors can watch or get self name");
+	InkErro_doPrintWarning(engine, ink_native_multink_mod_id,
+						   INK_EXCODE_WARN_MULTINK_REQUIRE_REGISTERED_ACTOR,
+						   "Only actors can watch or get self name");
 	return;
 }
 

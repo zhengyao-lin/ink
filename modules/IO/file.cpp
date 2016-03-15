@@ -10,7 +10,7 @@
 using namespace ink;
 using namespace std;
 
-extern InkMod_ModuleID ink_native_io_mod_id;
+extern Ink_ModuleID ink_native_io_mod_id;
 
 Ink_TypeTag getFilePointerType(Ink_InterpreteEngine *engine)
 {

@@ -7,7 +7,7 @@
 
 using namespace ink;
 
-InkMod_ModuleID ink_native_bignum_mod_id;
+Ink_ModuleID ink_native_bignum_mod_id;
 
 Ink_TypeTag getBigNumericType(Ink_InterpreteEngine *engine)
 {
@@ -101,7 +101,7 @@ Ink_Object *InkNative_BigNumeric_Div(Ink_InterpreteEngine *engine, Ink_ContextCh
 	Ink_Bignum_NumericValue ret = 0;
 
 	if (val == 0) {
-		InkWarn_Divided_By_Zero(engine);
+		InkWarn_Bignum_Divided_By_Zero(engine);
 		return NULL_OBJ;
 	}
 
@@ -348,8 +348,8 @@ END:
 }
 
 struct com_cleaner_arg {
-	InkMod_ModuleID id;
-	com_cleaner_arg(InkMod_ModuleID id)
+	Ink_ModuleID id;
+	com_cleaner_arg(Ink_ModuleID id)
 	: id(id)
 	{ }
 };
@@ -421,7 +421,7 @@ extern "C" {
 		return;
 	}
 
-	int InkMod_Init(InkMod_ModuleID id)
+	int InkMod_Init(Ink_ModuleID id)
 	{
 		ink_native_bignum_mod_id = id;
 		return 0;

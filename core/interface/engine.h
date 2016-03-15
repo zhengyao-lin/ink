@@ -48,7 +48,7 @@ public:
 };
 typedef vector<Ink_EngineDestructor> Ink_CustomDestructorQueue;
 typedef void *Ink_CustomEngineCom;
-typedef map<InkMod_ModuleID, Ink_CustomEngineCom> Ink_CustomEngineComMap;
+typedef map<Ink_ModuleID, Ink_CustomEngineCom> Ink_CustomEngineComMap;
 typedef vector<string *> Ink_CustomInterruptSignal;
 typedef vector<Ink_Object *> Ink_PardonList;
 typedef vector<InkCoro_Scheduler *> Ink_SchedulerStack;
@@ -318,7 +318,7 @@ public:
 
 	void breakUnreachableBonding(Ink_HashTable *to);
 
-	inline int addEngineCom(InkMod_ModuleID id, Ink_CustomEngineCom com)
+	inline int addEngineCom(Ink_ModuleID id, Ink_CustomEngineCom com)
 	{
 		if (custom_engine_com_map.find(id) != custom_engine_com_map.end()) {
 			return 1; // com exist
@@ -329,7 +329,7 @@ public:
 	}
 
 	template <typename AS_TYPE>
-	inline AS_TYPE *getEngineComAs(InkMod_ModuleID id)
+	inline AS_TYPE *getEngineComAs(Ink_ModuleID id)
 	{
 		if (custom_engine_com_map.find(id) == custom_engine_com_map.end()) {
 			return NULL;

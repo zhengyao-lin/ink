@@ -5,7 +5,7 @@
 
 using namespace ink;
 
-InkMod_ModuleID ink_native_blueprint_mod_id;
+Ink_ModuleID ink_native_blueprint_mod_id;
 
 void setMathCalMode(Ink_InterpreteEngine *engine, InkMod_Blueprint_Math_CalMode mode)
 {
@@ -52,8 +52,8 @@ Ink_Object *InkMod_Blueprint_Loader(Ink_InterpreteEngine *engine, Ink_ContextCha
 }
 
 struct com_cleaner_arg {
-	InkMod_ModuleID id;
-	com_cleaner_arg(InkMod_ModuleID id)
+	Ink_ModuleID id;
+	com_cleaner_arg(Ink_ModuleID id)
 	: id(id)
 	{ }
 };
@@ -79,7 +79,7 @@ extern "C" {
 		return;
 	}
 
-	int InkMod_Init(InkMod_ModuleID id)
+	int InkMod_Init(Ink_ModuleID id)
 	{
 		ink_native_blueprint_mod_id = id;
 		return 0;

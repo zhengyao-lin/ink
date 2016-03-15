@@ -9,7 +9,7 @@
 
 using namespace ink;
 
-InkMod_ModuleID ink_native_ev3dev_mod_id;
+Ink_ModuleID ink_native_ev3dev_mod_id;
 
 inline string intToString(iev3_SensorID id)
 {
@@ -114,7 +114,7 @@ extern "C" {
 		return;
 	}
 
-	int InkMod_Init(InkMod_ModuleID id)
+	int InkMod_Init(Ink_ModuleID id)
 	{
 		ink_native_ev3dev_mod_id = id;
 		return 0;

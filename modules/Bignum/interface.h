@@ -56,10 +56,28 @@ struct Ink_BigNumericConstant: public Ink_Constant {
 	virtual Ink_Object *toObject(Ink_InterpreteEngine *engine);
 };
 
+extern Ink_ModuleID ink_native_bignum_mod_id;
+
+enum InkMod_Bignum_ExceptionCode {
+	INK_EXCODE_WARN_BIGNUM_DIVIDED_BY_ZERO = INK_EXCODE_CUSTOM_START,
+	INK_EXCODE_WARN_BIGNUM_FAILED_PARSE_BIGNUM
+};
+
+inline void
+InkWarn_Bignum_Divided_By_Zero(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, ink_native_bignum_mod_id,
+						   INK_EXCODE_WARN_BIGNUM_DIVIDED_BY_ZERO,
+						   "Divided by zero");
+	return;
+}
+
 inline void
 InkWarn_Bignum_Failed_Parse_Bignum(Ink_InterpreteEngine *engine, const char *str)
 {
-	InkErro_doPrintWarning(engine, "Failed to parse big numeric by string '$(str)'", str);
+	InkErro_doPrintWarning(engine, ink_native_bignum_mod_id,
+						   INK_EXCODE_WARN_BIGNUM_FAILED_PARSE_BIGNUM,
+						   "Failed to parse big numeric by string '$(str)'", str);
 	return;
 }
 

@@ -23,8 +23,8 @@
 using namespace ink;
 
 struct com_cleaner_arg {
-	InkMod_ModuleID id;
-	com_cleaner_arg(InkMod_ModuleID id)
+	Ink_ModuleID id;
+	com_cleaner_arg(Ink_ModuleID id)
 	: id(id)
 	{ }
 };
@@ -138,31 +138,48 @@ public:
 	}
 #endif
 
+extern Ink_ModuleID ink_native_io_mod_id;
+
+enum InkMod_IO_ExceptionCode {
+	INK_EXCODE_WARN_IO_UNINITIALIZED_FILE_POINTER = INK_EXCODE_CUSTOM_START,
+	INK_EXCODE_WARN_IO_UNINITIALIZED_DIRECT_POINTER,
+	INK_EXCODE_WARN_DIRECT_NOT_EXIST,
+	INK_EXCODE_WARN_FILE_FAILED_READ_FILE
+};
+
 inline void
 InkWarn_IO_Uninitialized_File_Pointer(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintWarning(engine, "Operating uninitialized file pointer(has closed or destructed)");
+	InkErro_doPrintWarning(engine, ink_native_io_mod_id,
+						   INK_EXCODE_WARN_IO_UNINITIALIZED_FILE_POINTER,
+						   "Operating uninitialized file pointer(has closed or destructed)");
 	return;
 }
 
 inline void
 InkWarn_IO_Uninitialized_Direct_Pointer(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintWarning(engine, "Operating uninitialized directory pointer(is it a prototype?)");
+	InkErro_doPrintWarning(engine, ink_native_io_mod_id,
+						   INK_EXCODE_WARN_IO_UNINITIALIZED_DIRECT_POINTER,
+						   "Operating uninitialized directory pointer(is it a prototype?)");
 	return;
 }
 
 inline void
 InkWarn_Direct_Not_Exist(Ink_InterpreteEngine *engine, const char *path)
 {
-	InkErro_doPrintWarning(engine, "Directory $(path) does not exist", path);
+	InkErro_doPrintWarning(engine, ink_native_io_mod_id,
+						   INK_EXCODE_WARN_DIRECT_NOT_EXIST,
+						   "Directory $(path) does not exist", path);
 	return;
 }
 
 inline void
 InkWarn_File_Failed_Read_File(Ink_InterpreteEngine *engine)
 {
-	InkErro_doPrintWarning(engine, "Failed to read file");
+	InkErro_doPrintWarning(engine, ink_native_io_mod_id,
+						   INK_EXCODE_WARN_FILE_FAILED_READ_FILE,
+						   "Failed to read file");
 	return;
 }
 

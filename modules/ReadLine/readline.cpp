@@ -55,7 +55,7 @@ Ink_Object *InkMod_ReadLine_Loader(Ink_InterpreteEngine *engine, Ink_ContextChai
 }
 
 extern "C" {
-	static InkMod_ModuleID ink_native_readline_mod_id;
+	static Ink_ModuleID ink_native_readline_mod_id;
 
 	void InkMod_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 	{
@@ -64,7 +64,7 @@ extern "C" {
 		return;
 	}
 
-	int InkMod_Init(InkMod_ModuleID id)
+	int InkMod_Init(Ink_ModuleID id)
 	{
 		ink_native_readline_mod_id = id;
 		return 0;
