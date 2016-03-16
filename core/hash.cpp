@@ -1,5 +1,6 @@
 #include "hash.h"
 #include "object.h"
+#include "constant.h"
 
 namespace ink {
 
@@ -14,7 +15,12 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, string *key_p)
 
 	setter = NULL;
 	getter = NULL;
-	if (val) val->setDebugName(k);
+	if (val) {
+		val->setDebugName(k);
+		type = HASH_OBJ;
+	} else {
+		type = HASH_UNDEFINED;
+	}
 }
 
 Ink_HashTable::Ink_HashTable(Ink_Object *val)
@@ -26,7 +32,12 @@ Ink_HashTable::Ink_HashTable(Ink_Object *val)
 
 	setter = NULL;
 	getter = NULL;
-	if (val) val->setDebugName(key);
+	if (val) {
+		val->setDebugName(key);
+		type = HASH_OBJ;
+	} else {
+		type = HASH_UNDEFINED;
+	}
 }
 
 Ink_HashTable *Ink_HashTable::getEnd()
@@ -36,10 +47,28 @@ Ink_HashTable *Ink_HashTable::getEnd()
 	return i;
 }
 
+Ink_Object *Ink_HashTable::getValue()
+{
+	if (type != HASH_CONST)
+		return value;
+	else {
+		assert(const_value.engine);
+		return const_value.value
+			   ? const_value.value->toObject(const_value.engine)
+			   : NULL;
+	}
+}
+
 Ink_Object *Ink_HashTable::setValue(Ink_Object *val)
 {
-	value = val;
-	if (val) val->setDebugName(key);
+	if (type != HASH_CONST) {
+		value = val;
+		if (val) val->setDebugName(key);
+	} else {
+		const_value.value = val ? val->toConstant(NULL) : NULL;
+		const_value.engine = val ? val->engine : NULL;
+	}
+
 	return val;
 }
 

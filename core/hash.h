@@ -3,13 +3,28 @@
 
 #include <string>
 #include <stdio.h>
+#include "constant.h"
 
 namespace ink {
 
 class Ink_Object;
+class Ink_InterpreteEngine;
 
 class Ink_HashTable {
-	Ink_Object *value;
+	enum {
+		HASH_UNDEFINED,
+		HASH_OBJ,
+		HASH_CONST
+	} type;
+	
+	union {
+		Ink_Object *value;
+		struct {
+			Ink_Constant *value;
+			Ink_InterpreteEngine *engine;
+		} const_value;
+	};
+
 public:
 	const char *key;
 
@@ -29,10 +44,7 @@ public:
 
 	Ink_HashTable *getEnd();
 	// Ink_HashTable *getMapping(const char *key);
-	inline Ink_Object *getValue()
-	{
-		return value;
-	}
+	Ink_Object *getValue();
 	Ink_Object *setValue(Ink_Object *val);
 
 	~Ink_HashTable();
