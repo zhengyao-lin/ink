@@ -52,9 +52,26 @@ public:
 		return type == HASH_CONST;
 	}
 
-	inline void setConstant()
+	inline void initValue()
 	{
-		type = HASH_CONST;
+		const_value.value = NULL;
+		const_value.engine = NULL;
+		return;
+	}
+
+	inline void cleanConst()
+	{
+		if (type == HASH_CONST)
+			delete const_value.value;
+		return;
+	}
+
+	void setConstant();
+	inline void setUndefined()
+	{
+		cleanConst();
+		type = HASH_UNDEFINED;
+		initValue();
 		return;
 	}
 

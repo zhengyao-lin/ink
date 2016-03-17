@@ -68,20 +68,33 @@ Ink_Object *Ink_HashTable::setValue(Ink_Object *val)
 			type = HASH_OBJ;
 		}
 	} else {
-		if (const_value.value) {
-			InkWarn_Assign_Fixed(const_value.engine, key);
-		} else {
-			if (val) {
+		if (val) {
+			if (const_value.value) {
+				InkWarn_Assign_Fixed(const_value.engine, key);
+			} else {
+				cleanConst();
 				const_value.value = val->toConstant(val->engine);
 				const_value.engine = val->engine;
 				if (!const_value.value) {
 					InkWarn_Failed_Get_Constant(val->engine, val->type);
 				}
 			}
+		} else {
+			setUndefined();
 		}
 	}
 
 	return val;
+}
+
+void Ink_HashTable::setConstant()
+{
+	if (type == HASH_OBJ && value) {
+		const_value.value = value->toConstant(const_value.engine = value->engine);
+	}
+	type = HASH_CONST;
+
+	return;
 }
 
 Ink_HashTable::~Ink_HashTable()
