@@ -37,4 +37,8 @@ void InkMod_Blueprint_System_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bo
 Ink_Object *InkMod_Blueprint_Math_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
 void InkMod_Blueprint_Math_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee);
 
+/* blueprint.time */
+Ink_Object *InkMod_Blueprint_Time_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+void InkMod_Blueprint_Time_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee);
+
 #endif

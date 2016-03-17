@@ -75,6 +75,7 @@ extern "C" {
 		addPackage(engine, blueprint_pkg, "base", new Ink_FunctionObject(engine, InkMod_Blueprint_Base_Loader));
 		addPackage(engine, blueprint_pkg, "sys", new Ink_FunctionObject(engine, InkMod_Blueprint_System_Loader));
 		addPackage(engine, blueprint_pkg, "math", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Loader));
+		addPackage(engine, blueprint_pkg, "time", new Ink_FunctionObject(engine, InkMod_Blueprint_Time_Loader));
 
 		return;
 	}
