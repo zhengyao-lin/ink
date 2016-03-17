@@ -153,6 +153,7 @@ void yyerror(const char *msg);
 <INITIAL>"new"						return TOKEN(TNEW);
 <INITIAL>"delete"					return TOKEN(TDELETE);
 <INITIAL>"clone"					return TOKEN(TCLONE);
+<INITIAL>"fix"						return TOKEN(TFIX);
 
 <INITIAL>"fn"						return TOKEN(TFUNC);
 <INITIAL>"inl"						return TOKEN(TINLINE);

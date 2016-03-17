@@ -95,6 +95,13 @@ Ink_Object *InkNative_Object_New(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return new_obj;
 }
 
+Ink_Object *InkNative_Object_Clone(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	return base->clone(engine);
+}
+
 Ink_Object *InkNative_Object_Delete(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -108,11 +115,17 @@ Ink_Object *InkNative_Object_Delete(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return base;
 }
 
-Ink_Object *InkNative_Object_Clone(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Object_Fix(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
 
-	return base->clone(engine);
+	if (!base->address) {
+		InkWarn_Fix_Require_Assignable_Argument(engine);
+		return NULL_OBJ;
+	}
+	base->address->setConstant();
+
+	return base;
 }
 
 Ink_Object *InkNative_Object_SetGetter(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -221,8 +234,9 @@ void Ink_Object::Ink_ObjectMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("!=", new Ink_FunctionObject(engine, InkNative_Object_NotEqual));
 	setSlot_c("[]", new Ink_FunctionObject(engine, InkNative_Object_Index));
 	setSlot_c("new", new Ink_FunctionObject(engine, InkNative_Object_New));
-	setSlot_c("delete", new Ink_FunctionObject(engine, InkNative_Object_Delete));
 	setSlot_c("clone", new Ink_FunctionObject(engine, InkNative_Object_Clone));
+	setSlot_c("delete", new Ink_FunctionObject(engine, InkNative_Object_Delete));
+	setSlot_c("fix", new Ink_FunctionObject(engine, InkNative_Object_Fix));
 	setSlot_c("getter", new Ink_FunctionObject(engine, InkNative_Object_SetGetter));
 	setSlot_c("setter", new Ink_FunctionObject(engine, InkNative_Object_SetSetter));
 	setSlot_c("each", new Ink_FunctionObject(engine, InkNative_Object_Each, true));

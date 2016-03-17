@@ -52,7 +52,7 @@ Ink_Object *Ink_HashTable::getValue()
 	if (type != HASH_CONST)
 		return value;
 	else {
-		assert(const_value.engine);
+		assert(const_value.engine || !const_value.value);
 		return const_value.value
 			   ? const_value.value->toObject(const_value.engine)
 			   : NULL;
@@ -63,10 +63,17 @@ Ink_Object *Ink_HashTable::setValue(Ink_Object *val)
 {
 	if (type != HASH_CONST) {
 		value = val;
-		if (val) val->setDebugName(key);
+		if (val) {
+			val->setDebugName(key);
+			type = HASH_OBJ;
+		}
 	} else {
-		const_value.value = val ? val->toConstant(NULL) : NULL;
-		const_value.engine = val ? val->engine : NULL;
+		if (const_value.value)
+			InkWarn_Assign_Fixed(const_value.engine, key);
+		else {
+			const_value.value = val ? val->toConstant(NULL) : NULL;
+			const_value.engine = val ? val->engine : NULL;
+		}
 	}
 
 	return val;
@@ -76,6 +83,7 @@ Ink_HashTable::~Ink_HashTable()
 {
 	// if (value) value->address = NULL;
 	if (key_p) delete key_p;
+	if (isConstant()) delete const_value.value;
 }
 
 }

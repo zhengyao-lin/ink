@@ -47,7 +47,7 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 
 	doMark(engine, obj->getBase());
 
-	if (obj->proto_hash) {
+	if (obj->proto_hash && !obj->proto_hash->isConstant()) {
 		doMark(engine, obj->proto_hash->getValue());
 		if (obj->proto_hash->setter) {
 			doMark(engine, obj->proto_hash->setter);
@@ -61,13 +61,15 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 	}
 
 	for (i = obj->hash_table; i; i = i->next) {
-		doMark(engine, i->getValue());
-		if (i->setter)
-			doMark(engine, i->setter);
-		if (i->getter)
-			doMark(engine, i->getter);
-		if (i->bonding) {
-			engine->addGCBonding(i, i->bonding);
+		if (!i->isConstant()) {
+			doMark(engine, i->getValue());
+			if (i->setter)
+				doMark(engine, i->setter);
+			if (i->getter)
+				doMark(engine, i->getter);
+			if (i->bonding) {
+				engine->addGCBonding(i, i->bonding);
+			}
 		}
 	}
 

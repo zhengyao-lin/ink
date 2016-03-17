@@ -537,6 +537,14 @@ InkWarn_Failed_Get_Constant(Ink_InterpreteEngine *engine, Ink_TypeTag type)
 }
 
 inline void
+InkWarn_Fix_Require_Assignable_Argument(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, INK_EXCODE_WARN_FIX_REQUIRE_ASSIGNABLE_ARGUMENT,
+						   "fix function require assignable argument");
+	return;
+}
+
+inline void
 InkNote_Method_Fallthrough(Ink_InterpreteEngine *engine, const char *name, Ink_TypeTag origin, Ink_TypeTag to_type)
 {
 #ifdef INK_DEBUG_FLAG

@@ -52,6 +52,7 @@
 	TNEW				// new
 	TDELETE				// delete
 	TCLONE				// clone
+	TFIX				// fix
 
 	TFUNC				// fn
 	TINLINE				// inline
@@ -905,6 +906,13 @@ unary_expression
 	| TDELETE nllo unary_expression
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("delete")),
+									Ink_ArgumentList());
+		SET_LINE_NO($$);
+		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
+	}
+	| TFIX nllo unary_expression
+	{
+		$$ = new Ink_CallExpression(new Ink_HashExpression($3, new string("fix")),
 									Ink_ArgumentList());
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);

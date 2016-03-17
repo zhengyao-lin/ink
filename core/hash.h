@@ -47,6 +47,17 @@ public:
 	Ink_Object *getValue();
 	Ink_Object *setValue(Ink_Object *val);
 
+	inline bool isConstant()
+	{
+		return type == HASH_CONST;
+	}
+
+	inline void setConstant()
+	{
+		type = HASH_CONST;
+		return;
+	}
+
 	~Ink_HashTable();
 };
 
