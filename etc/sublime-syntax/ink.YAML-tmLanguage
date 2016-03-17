@@ -90,7 +90,7 @@ patterns:
 
 - comment: Operators
   name: keyword.operator.ink
-  match: \>|\<|\<=|\>=|==|!=|=|!|\+|-|\*|/|\b(new|delete|clone)\b
+  match: \>|\<|\<=|\>=|==|!=|=|!|\+|-|\*|/|\b(new|delete|clone|fix)\b
 
 - comment: Parameters in inline block
   name: none

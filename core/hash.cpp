@@ -68,11 +68,16 @@ Ink_Object *Ink_HashTable::setValue(Ink_Object *val)
 			type = HASH_OBJ;
 		}
 	} else {
-		if (const_value.value)
+		if (const_value.value) {
 			InkWarn_Assign_Fixed(const_value.engine, key);
-		else {
-			const_value.value = val ? val->toConstant(NULL) : NULL;
-			const_value.engine = val ? val->engine : NULL;
+		} else {
+			if (val) {
+				const_value.value = val->toConstant(val->engine);
+				const_value.engine = val->engine;
+				if (!const_value.value) {
+					InkWarn_Failed_Get_Constant(val->engine, val->type);
+				}
+			}
 		}
 	}
 
