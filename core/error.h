@@ -351,7 +351,7 @@ inline void
 InkWarn_Delete_Function_Argument_Require(Ink_InterpreteEngine *engine)
 {
 	InkErro_doPrintWarning(engine, INK_EXCODE_WARN_DELETE_FUNCTION_ARGUMENT_REQUIRE,
-						   "Delete function require at least one argument");
+						   "Delete function requires assignable object");
 	return;
 }
 
