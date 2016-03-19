@@ -10,6 +10,9 @@ namespace ink {
 
 using namespace std;
 
+static Ink_Object *Ink_Errno_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+static Ink_Object *Ink_Errno_NotEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+
 Ink_ExceptionMessage::Ink_ExceptionMessage(Ink_InterpreteEngine *engine, Ink_ModuleID mod_id,
 										   Ink_ExceptionCode ex_code, const char *file_name,
 										   Ink_LineNoType lineno, std::string msg)
@@ -20,6 +23,9 @@ Ink_ExceptionMessage::Ink_ExceptionMessage(Ink_InterpreteEngine *engine, Ink_Mod
 	setSlot_c("file_name", new Ink_String(engine, std::string(file_name)));
 	setSlot_c("lineno", new Ink_Numeric(engine, lineno));
 	setSlot_c("msg", new Ink_String(engine, msg));
+
+	setSlot_c("==", new Ink_FunctionObject(engine, Ink_Errno_Equal));
+	setSlot_c("!=", new Ink_FunctionObject(engine, Ink_Errno_NotEqual));
 }
 
 Ink_ExceptionRaw *Ink_ExceptionRaw::toRaw(Ink_Object *ex)
