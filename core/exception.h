@@ -3,6 +3,7 @@
 
 #include <string>
 #include "object.h"
+#include "constant.h"
 #include "general.h"
 
 namespace ink {
@@ -43,6 +44,33 @@ struct Ink_ExceptionRaw {
 		delete file_name;
 		delete msg;
 	}
+};
+
+struct Ink_ErrnoMap {
+	const char *name;
+	Ink_ModuleID mod_id;
+	Ink_ExceptionCode ex_code;
+};
+
+class Ink_ErrnoObject: public Ink_Object {
+public:
+	Ink_SizeType errno_map_size;
+	Ink_ErrnoMap *errno_map;
+
+	Ink_ErrnoObject(Ink_InterpreteEngine *engine, Ink_SizeType size, Ink_ErrnoMap *map);
+
+	virtual Ink_Constant *toConstant(Ink_InterpreteEngine *engine);
+};
+
+struct Ink_ErrnoConstant: public Ink_Constant {
+	Ink_SizeType errno_map_size;
+	Ink_ErrnoMap *errno_map;
+
+	Ink_ErrnoConstant(Ink_SizeType size, Ink_ErrnoMap *map)
+	: errno_map_size(size), errno_map(map)
+	{ }
+
+	virtual Ink_Object *toObject(Ink_InterpreteEngine *engine);
 };
 
 }

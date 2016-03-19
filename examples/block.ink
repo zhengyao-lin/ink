@@ -1753,3 +1753,9 @@ p(delete a)
 a = 30
 
 p(a)
+
+try {
+	a.b.css = 10
+} catch { | e |
+	p(errno.GET_SLOT_OF_UNDEFINED == e)
+}

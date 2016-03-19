@@ -117,13 +117,7 @@ public:
 		Ink_ObjectMethodInit(engine);
 	}
 	void Ink_ObjectMethodInit(Ink_InterpreteEngine *engine);
-	/*
-	void initMethod()
-	{
-		// Ink_ObjectMethodInit();
-		// derivedMethodInit();
-	}
-	*/
+
 	Ink_Object *getSlot(Ink_InterpreteEngine *engine, const char *key);
 	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto = NULL, bool search_prototype = true);
 	inline Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool search_prototype) {
