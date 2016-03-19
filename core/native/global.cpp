@@ -40,11 +40,22 @@ static Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_Contex
 	Ink_Object *ret;
 
 	if (argc) {
-		if (argv[0]->type == INK_NUMERIC && argc == 1) {
-			ret = new Ink_Array(engine, Ink_ArrayValue(as<Ink_Numeric>(argv[0])->value, NULL));
+		if (argv[0]->type == INK_NUMERIC && (argc == 1 || argc == 2)) {
+			if (argc == 1) {
+				ret = new Ink_Array(engine, Ink_ArrayValue(as<Ink_Numeric>(argv[0])->value, NULL));
+			} else {
+				Ink_ArrayValue val = Ink_ArrayValue(as<Ink_Numeric>(argv[0])->value, NULL);
+				Ink_ArrayValue::iterator val_iter;
+				for (val_iter = val.begin();
+					 val_iter != val.end();
+					 val_iter++) {
+					*val_iter = new Ink_HashTable(argv[1]);
+				}
+				ret = new Ink_Array(engine, val);
+			}
 		} else if (argv[0]->type == INK_ARRAY && argc == 1) {
 			ret = new Ink_Array(engine, cloneArrayValue(as<Ink_Array>(argv[0])->value));
-		}else {
+		} else {
 			Ink_ArrayValue val = Ink_ArrayValue();
 			Ink_ArrayValue::size_type i;
 			for (i = 0; i < argc; i++) {

@@ -524,7 +524,7 @@ inline Ink_ArgumentList expandArgument(Ink_InterpreteEngine *engine, Ink_Object 
 	arr_val = as<Ink_Array>(obj)->value;
 
 	for (i = 0; i < arr_val.size(); i++) {
-		ret.push_back(new Ink_Argument(new Ink_ShellExpression(arr_val[i]->getValue())));
+		ret.push_back(new Ink_Argument(new Ink_ShellExpression(arr_val[i] ? arr_val[i]->getValue() : UNDEFINED)));
 	}
 	return ret;
 }
