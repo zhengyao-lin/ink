@@ -1759,3 +1759,11 @@ try {
 } catch { | e |
 	p(e == errno.GET_SLOT_OF_UNDEFINED)
 }
+
+import blueprint.math
+
+$array.choose = fn () {
+	base[math.random(0, base.size()).floor()]
+}
+
+p((100.times { | v | math.pow(v, 0.5) }).choose())

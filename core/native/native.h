@@ -61,6 +61,7 @@ Ink_Object *InkNative_Numeric_Round(Ink_InterpreteEngine *engine, Ink_ContextCha
 Ink_Object *InkNative_Numeric_Abs(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_Numeric_IsNan(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_Numeric_IsInf(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p = NULL);
+Ink_Object *InkNative_Numeric_Times(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 
 Ink_Object *InkNative_Object_Bond(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p = NULL);
 Ink_Object *InkNative_Object_Debond(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p = NULL);

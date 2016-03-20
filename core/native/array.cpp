@@ -117,7 +117,6 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_Array *array = as<Ink_Array>(base);
 	Ink_Object **args;
-	Ink_Object *ret_tmp;
 	Ink_Array *ret = NULL;
 	Ink_ArrayValue::size_type i;
 	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
@@ -136,7 +135,7 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 		gc_engine->checkGC();
 
 		args[0] = array->value[i] ? array->value[i]->getValue() : UNDEFINED;
-		ret->value.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, 1, args)));
+		ret->value.push_back(new Ink_HashTable(argv[0]->call(engine, context, 1, args)));
 		if (engine->getSignal() != INTER_NONE) {
 			switch (engine->getSignal()) {
 				case INTER_RETURN:

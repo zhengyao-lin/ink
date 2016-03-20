@@ -1,6 +1,8 @@
 #include <math.h>
 #include "../object.h"
 #include "../context.h"
+#include "../interface/engine.h"
+#include "../gc/collect.h"
 #include "native.h"
 
 namespace ink {
@@ -343,6 +345,62 @@ Ink_Object *InkNative_Numeric_IsInf(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return new Ink_Numeric(engine, isinf((long double)as<Ink_Numeric>(base)->value));
 }
 
+Ink_Object *InkNative_Numeric_Times(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+	Ink_NumericValue i, to;
+	Ink_Object *block = NULL;
+	Ink_Object **args;
+	Ink_Array *ret = NULL;
+	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
+
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
+
+	if (argc > 0 && argv[0]->type == INK_FUNCTION) {
+		block = argv[0];
+	}
+
+	to = as<Ink_Numeric>(base)->value;
+	ret = new Ink_Array(engine);
+	engine->addPardonObject(ret);
+
+	args = (Ink_Object **)malloc(sizeof(Ink_Object *));
+	for (i = 0; i < to; i++) {
+		gc_engine->checkGC();
+		if (block) {
+			args[0] = new Ink_Numeric(engine, i);
+			ret->value.push_back(new Ink_HashTable(argv[0]->call(engine, context, 1, args)));
+			if (engine->getSignal() != INTER_NONE) {
+				switch (engine->getSignal()) {
+					case INTER_RETURN:
+						free(args);
+						engine->removePardonObject(ret);
+						return engine->getInterruptValue(); // signal penetrated
+					case INTER_DROP:
+					case INTER_BREAK:
+						free(args);
+						engine->removePardonObject(ret);
+						return engine->trapSignal(); // trap the signal
+					case INTER_CONTINUE:
+						engine->trapSignal(); // trap the signal, but do not return
+						continue;
+					default:
+						free(args);
+						engine->removePardonObject(ret);
+						return NULL_OBJ;
+				}
+			}
+		} else {
+			ret->value.push_back(new Ink_HashTable(new Ink_Numeric(engine, i)));
+		}
+	}
+
+	free(args);
+	engine->removePardonObject(ret);
+
+	return ret;
+}
+
 void Ink_Numeric::Ink_NumericMethodInit(Ink_InterpreteEngine *engine)
 {
 	setSlot_c("+", new Ink_FunctionObject(engine, InkNative_Numeric_Add));
@@ -373,6 +431,8 @@ void Ink_Numeric::Ink_NumericMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("abs", new Ink_FunctionObject(engine, InkNative_Numeric_Abs));
 	setSlot_c("isnan", new Ink_FunctionObject(engine, InkNative_Numeric_IsNan));
 	setSlot_c("isinf", new Ink_FunctionObject(engine, InkNative_Numeric_IsInf));
+
+	setSlot_c("times", new Ink_FunctionObject(engine, InkNative_Numeric_Times));
 	
 	return;
 }
