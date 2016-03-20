@@ -14,7 +14,10 @@ class Ink_InterpreteEngine;
 
 struct Ink_Constant {
 	virtual Ink_Object *toObject(Ink_InterpreteEngine *engine)
-	{ assert(0); }
+	{
+		assert(0);
+		return NULL;
+	}
 
 	virtual ~Ink_Constant()
 	{ }

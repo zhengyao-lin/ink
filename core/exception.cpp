@@ -132,15 +132,15 @@ static Ink_Object *Ink_Errno_Missing(Ink_InterpreteEngine *engine, Ink_ContextCh
 	string err_name = as<Ink_String>(argv[0])->getValue();
 	char *tmp_str = Ink_mbstoupper_alloc(err_name.c_str());
 
-	Ink_ErrnoObject *errno = as<Ink_ErrnoObject>(base);
+	Ink_ErrnoObject *errno_obj = as<Ink_ErrnoObject>(base);
 	Ink_SizeType i;
 	Ink_Object *ret;
 
-	for (i = 0; i < errno->errno_map_size; i++) {
-		if (!strcmp(tmp_str, errno->errno_map[i].name)) {
+	for (i = 0; i < errno_obj->errno_map_size; i++) {
+		if (!strcmp(tmp_str, errno_obj->errno_map[i].name)) {
 			ret = new Ink_Object(engine);
-			ret->setSlot_c("mod_id", new Ink_Numeric(engine, errno->errno_map[i].mod_id));
-			ret->setSlot_c("ex_code", new Ink_Numeric(engine, errno->errno_map[i].ex_code));
+			ret->setSlot_c("mod_id", new Ink_Numeric(engine, errno_obj->errno_map[i].mod_id));
+			ret->setSlot_c("ex_code", new Ink_Numeric(engine, errno_obj->errno_map[i].ex_code));
 			ret->setSlot_c("==", new Ink_FunctionObject(engine, Ink_Errno_Equal));
 			ret->setSlot_c("!=", new Ink_FunctionObject(engine, Ink_Errno_NotEqual));
 

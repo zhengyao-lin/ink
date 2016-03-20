@@ -1,9 +1,14 @@
 TARGET = build/inki
 REQUIRE = interface.o
 
-CPPFLAGS=-c -fPIC $(GLOBAL_CPPFLAGS)
 LDFLAGS=-L$(GLOBAL_LIB_PATH) -l$(GLOBAL_CORE_LIB_NAME) -static-libgcc -static-libstdc++
 INCLUDES=-I$(GLOBAL_ROOT_PATH)
+
+ifeq ($(GLOBAL_PLATFORM), windows)
+	CPPFLAGS=-c $(GLOBAL_CPPFLAGS)
+else
+	CPPFLAGS=-c -fPIC $(GLOBAL_CPPFLAGS)
+endif
 
 $(TARGET): $(REQUIRE)
 	-mkdir build
