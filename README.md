@@ -1,4 +1,4 @@
-![image](https://raw.githubusercontent.com/Rod-Lin/ink/master/etc/logo/ink-all.png)
+![image](https://raw.githubusercontent.com/Rod-Lin/ink/master/etc/logo/ink-title.png)
 
 ####What is Ink?
 
