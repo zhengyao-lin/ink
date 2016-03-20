@@ -1,7 +1,9 @@
 #include <math.h>
+#include <stdlib.h>
 #include "blueprint.h"
 #include "error.h"
 #include "core/object.h"
+#include "core/time.h"
 #include "core/native/general.h"
 #include "core/gc/collect.h"
 
@@ -255,6 +257,32 @@ Ink_Object *InkMod_Blueprint_Math_Log10(Ink_InterpreteEngine *engine, Ink_Contex
 	return new Ink_Numeric(engine, log10(as<Ink_Numeric>(argv[0])->value));
 }
 
+Ink_Object *InkMod_Blueprint_Math_Random(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_NumericValue start = 0, end = 1;
+	Ink_NumericValue rand_num;
+
+	if (argc >= 2
+		&& argv[0]->type == INK_NUMERIC
+		&& argv[1]->type == INK_NUMERIC) {
+		start = as<Ink_Numeric>(argv[0])->value;
+		end = as<Ink_Numeric>(argv[1])->value;
+	} else if (argc == 1 && argv[0]->type == INK_NUMERIC) {
+		end =  as<Ink_Numeric>(argv[0])->value;
+	}
+
+	srand(Ink_getCurrentMS());
+
+	if (!(end - start)) {
+		InkNote_Blueprint_Math_Random_Empty_Range(engine, start, end);
+		return new Ink_Numeric(engine, start);
+	}
+
+	rand_num = ((Ink_NumericValue)rand()) / (RAND_MAX / (end - start)) + start;
+
+	return new Ink_Numeric(engine, rand_num);
+}
+
 void InkMod_Blueprint_Math_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 {
 	bondee->setSlot_c("setmode", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_SetMode));
@@ -282,6 +310,8 @@ void InkMod_Blueprint_Math_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bond
 	bondee->setSlot_c("exp", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Exp));
 	bondee->setSlot_c("log", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Log));
 	bondee->setSlot_c("log10", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Log10));
+
+	bondee->setSlot_c("random", new Ink_FunctionObject(engine, InkMod_Blueprint_Math_Random));
 
 	bondee->setSlot_c("pi", new Ink_Numeric(engine, INK_M_PI));
 	bondee->setSlot_c("e", new Ink_Numeric(engine, INK_M_E));

@@ -251,4 +251,17 @@ InkWarn_Blueprint_Math_Get_Unknown_Mode(Ink_InterpreteEngine *engine, InkMod_Blu
 	return;
 }
 
+inline void
+InkNote_Blueprint_Math_Random_Empty_Range(Ink_InterpreteEngine *engine,
+										  Ink_NumericValue start,
+										  Ink_NumericValue end)
+{
+	std::stringstream strm;
+	strm << "Empty range is given for random function(from "
+		 << start << " to "
+		 << end << ")";
+	InkErro_doPrintNote(engine, strm.str().c_str());
+	return;
+}
+
 #endif
