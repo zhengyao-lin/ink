@@ -1,5 +1,4 @@
-ink Tutorial
-===
+![image](https://raw.githubusercontent.com/Rod-Lin/ink/master/etc/logo/ink-all.png)
 
 ####What is Ink?
 
