@@ -74,6 +74,7 @@
 	TYIELD				// yield
 	
 	TWITH				// with
+	TEXPAND				// expand
 
 /* tokens */
 %token <token>
@@ -191,6 +192,7 @@
 
 /* argument */
 %type <argument>
+	argument_single
 	direct_argument_attachment_expression_prefix
 
 %type <argument_list>
@@ -812,28 +814,38 @@ multiplicative_expression
 	}
 	;
 
-argument_list
+argument_single
 	: nestable_expression
 	{
-		$$ = new Ink_ArgumentList();
-		$$->push_back(new Ink_Argument($1));
+		$$ = new Ink_Argument($1);
 	}
-	| argument_list nllo TCOMMA nllo nestable_expression
+	| TEXPAND nllo nestable_expression
 	{
-		$1->push_back(new Ink_Argument($5));
+		$$ = new Ink_Argument(true, $3);
+	}
+
+argument_list
+	: argument_single
+	{
+		$$ = new Ink_ArgumentList();
+		$$->push_back($1);
+	}
+	| argument_list nllo TCOMMA nllo argument_single
+	{
+		$1->push_back($5);
 		$$ = $1;
 	}
 	;
 
 argument_list_without_paren
-	: nestable_expression
+	: argument_single
 	{
 		$$ = new Ink_ArgumentList();
-		$$->push_back(new Ink_Argument($1));
+		$$->push_back($1);
 	}
-	| argument_list_without_paren TCOMMA nllo nestable_expression
+	| argument_list_without_paren TCOMMA nllo argument_single
 	{
-		$1->push_back(new Ink_Argument($4));
+		$1->push_back($4);
 		$$ = $1;
 	}
 	;

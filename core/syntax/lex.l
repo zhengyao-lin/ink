@@ -173,6 +173,7 @@ void yyerror(const char *msg);
 
 <INITIAL>"yield"					return TOKEN(TYIELD);
 <INITIAL>"with"						return TOKEN(TWITH);
+<INITIAL>"expand"					return TOKEN(TEXPAND);
 
 <INITIAL>"&&"						return TOKEN(TLAND);
 <INITIAL>"||"						return TOKEN(TLOR);

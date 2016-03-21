@@ -41,7 +41,7 @@ patterns:
 
 - comment: Keywords in argument attachment
   name: keyword.other.ink
-  match: \b(with)\b
+  match: \b(with|expand)\b
 
 - comment: Not keywords but slot names with special functions
   name: keyword.other.ink

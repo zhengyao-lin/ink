@@ -89,6 +89,7 @@ Ink_Object *InkMod_Blueprint_Base_While(Ink_InterpreteEngine *engine, Ink_Contex
 	Ink_Object *block;
 	Ink_Object *ret;
 	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
+	char trig = 0;
 
 	if (argc < 1) {
 		InkWarn_Blueprint_While_Argument_Require(engine);
@@ -107,7 +108,10 @@ Ink_Object *InkMod_Blueprint_Base_While(Ink_InterpreteEngine *engine, Ink_Contex
 
 	ret = NULL;
 	while (isTrue(cond->call(engine, context))) {
-		gc_engine->checkGC();
+		trig++;
+		if (!(trig % 5))
+			gc_engine->checkGC();
+		
 		if (block) {
 			ret = block->call(engine, context);
 			if (engine->getSignal() != INTER_NONE) {
@@ -137,6 +141,7 @@ Ink_Object *InkMod_Blueprint_Base_For(Ink_InterpreteEngine *engine, Ink_ContextC
 	Ink_Object *block;
 	Ink_Object *ret;
 	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
+	char trig;
 
 	if (argc < 3) {
 		InkWarn_Blueprint_For_Argument_Require(engine);
@@ -158,8 +163,10 @@ Ink_Object *InkMod_Blueprint_Base_For(Ink_InterpreteEngine *engine, Ink_ContextC
 	}
 
 	ret = NULL;
-	for (; isTrue(cond->call(engine, context)); incr->call(engine, context)) {
-		gc_engine->checkGC();
+	for (trig = 1; isTrue(cond->call(engine, context)); incr->call(engine, context), trig++) {
+		if (!(trig % 5))
+			gc_engine->checkGC();
+
 		if (block) {
 			ret = block->call(engine, context);
 			if (engine->getSignal() != INTER_NONE) {

@@ -82,11 +82,11 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 	ret = new Ink_Array(engine);
 	engine->addPardonObject(ret);
 	engine->addPardonObject(range);
-	range_val = as<Ink_Array>(range)->value;
 
-	for (i = 0; i < range_val.size(); i++) {
-		// gc_engine->doMark(range);
+	for (i = 0; i < as<Ink_Array>(range)->value.size(); i++) {
 		gc_engine->checkGC();
+
+		range_val = as<Ink_Array>(range)->value;
 		if (range_val[i]
 			&& range_val[i]->getValue()->type == INK_ARRAY) {
 			tmp_arr_val = as<Ink_Array>(range_val[i]->getValue())->value;

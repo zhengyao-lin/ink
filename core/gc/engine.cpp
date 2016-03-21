@@ -195,8 +195,9 @@ void IGC_CollectEngine::checkGC()
 	if (oc >= t) { /* increase */
 		t += upper((oc - t) / (double)tu) * tu;
 		// printf("t increase to: %ld\n", t);
-	} else { /* reduce */
-		t -= lower((t - oc) / (double)tu) * tu;
+	} else {
+		// t -= lower((t - oc) / (double)tu) * tu;
+		// t -= tu;
 		// printf("t recuce to: %ld\n", t);
 	}
 

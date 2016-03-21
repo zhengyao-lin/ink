@@ -1767,3 +1767,31 @@ $array.choose = fn () {
 }
 
 p((100.times { | v | math.pow(v, 0.5) }).choose())
+
+let dat = [
+	[1, 2],
+	["s", "no!!"],
+	[123, 2]
+]
+
+let range = {
+	range: fn () {
+		dat
+	}
+}
+
+let range_call = fn (a, b) {
+	p(a.to_str() + ", " + b)
+	if (dat.size() == 3) {
+		dat[1][1] = "yes!!"
+		dat.push(["wow!!", "yeah!"])
+	}
+}
+
+range_call[range]
+
+let expand_test = fn (a, b, c) {
+	p(a.to_str() + b + c)
+}
+
+expand_test(expand ["it works!", " "], expand ["wow!"])
