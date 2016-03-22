@@ -30,11 +30,8 @@ func(0);
 
 func = fn (bool) {
 	if (bool) {
-		if (bool + 1) {
-			retn 1;
-		} {
-			retn 2;
-		};
+		if (bool + 1) : retn 1
+		else : retn 2
 		p(1111);
 	};
 	retn 0;
@@ -43,9 +40,7 @@ func = fn (bool) {
 p("result: " + func(-1));
 p("hello, world");
 
-func = fn (a, b) {
-	a + b;
-};
+func = fn (a, b) : a + b
 
 range = fn () {
 	this.range = fn () {

@@ -210,7 +210,7 @@
 %type <hash_table_mapping_single> hash_table_mapping_single
 
 /* line number offset */
-%type <split> split split_opt
+%type <split> split split_single split_opt
 
 /* interrupt signal */
 %type <signal>
@@ -252,6 +252,17 @@ split
 	| TSEMICOLON nll
 	{
 		$$ = 0;
+	}
+	| TSEMICOLON
+	{
+		$$ = 0;
+	}
+	;
+
+split_single
+	: TNL
+	{
+		$$ = -1;
 	}
 	| TSEMICOLON
 	{
@@ -888,6 +899,21 @@ block
 		delete $6;
 		SET_LINE_NO($$);
 	}
+	| TCOLON nllo expression split_single
+	{
+		Ink_ExpressionList exp_list = Ink_ExpressionList();
+		exp_list.push_back($3);
+		$$ = new Ink_FunctionExpression(Ink_ParamList(), exp_list, true);
+		SET_LINE_NO($$);
+	}
+	| TCOLON nllo TBOR param_opt TBOR nllo expression split_single
+	{
+		Ink_ExpressionList exp_list = Ink_ExpressionList();
+		exp_list.push_back($7);
+		$$ = new Ink_FunctionExpression(*$4, exp_list, true);
+		delete $4;
+		SET_LINE_NO($$);
+	}
 	;
 
 unary_expression
@@ -1287,6 +1313,11 @@ function_body
 	| TDO expression_list_opt TEND
 	{
 		$$ = $2;
+	}
+	| TCOLON nllo expression split_single
+	{
+		$$ = new Ink_ExpressionList();
+		$$->push_back($3);
 	}
 	;
 
