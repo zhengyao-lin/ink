@@ -189,6 +189,7 @@
 	param_list
 	param_opt
 	param_list_sub
+	param_decl_opt
 
 /* argument */
 %type <argument>
@@ -1321,62 +1322,73 @@ function_body
 	}
 	;
 
+param_decl_opt
+	: /* empty */
+	{
+		$$ = new Ink_ParamList();
+	}
+	| TLPAREN param_opt TRPAREN nllo
+	{
+		$$ = $2;
+	}
+	;
+
 function_expression
 	: primary_expression
-	| TFUNC nllo TLPAREN param_opt TRPAREN nllo function_body
+	| TFUNC nllo param_decl_opt function_body
 	{
-		$$ = new Ink_FunctionExpression(*$4, *$7);
+		$$ = new Ink_FunctionExpression(*$3, *$4);
+		delete $3;
 		delete $4;
-		delete $7;
 		SET_LINE_NO($$);
 	}
-	| TFUNC nllo TCOLON nllo function_attr TLPAREN param_opt TRPAREN nllo function_body
+	| TFUNC nllo function_attr param_decl_opt function_body
 	{
-		$$ = new Ink_FunctionExpression(*$7, *$10, $5);
-		delete $7;
-		delete $10;
-		SET_LINE_NO($$);
-	}
-	| TINLINE nllo TLPAREN param_opt TRPAREN nllo function_body
-	{
-		$$ = new Ink_FunctionExpression(*$4, *$7, true);
+		$$ = new Ink_FunctionExpression(*$4, *$5, $3);
 		delete $4;
-		delete $7;
+		delete $5;
 		SET_LINE_NO($$);
 	}
-	| TINLINE nllo TCOLON nllo function_attr TLPAREN param_opt TRPAREN nllo function_body
+	| TINLINE nllo param_decl_opt function_body
 	{
-		$$ = new Ink_FunctionExpression(*$7, *$10, $5, true);
-		delete $7;
-		delete $10;
-		SET_LINE_NO($$);
-	}
-	| TMACRO nllo TLPAREN param_opt TRPAREN nllo function_body
-	{
-		$$ = new Ink_FunctionExpression(*$4, *$7, false, true);
+		$$ = new Ink_FunctionExpression(*$3, *$4, true);
+		delete $3;
 		delete $4;
-		delete $7;
 		SET_LINE_NO($$);
 	}
-	| TMACRO nllo TCOLON nllo function_attr TLPAREN param_opt TRPAREN nllo function_body
+	| TINLINE nllo function_attr param_decl_opt function_body
 	{
-		$$ = new Ink_FunctionExpression(*$7, *$10, $5, false, true);
-		delete $7;
-		delete $10;
-		SET_LINE_NO($$);
-	}
-	| TPROTOCOL nllo TLPAREN param_opt TRPAREN nllo function_body
-	{
-		$$ = new Ink_FunctionExpression(*$4, *$7, $1);
+		$$ = new Ink_FunctionExpression(*$4, *$5, $3, true);
 		delete $4;
-		delete $7;
+		delete $5;
 		SET_LINE_NO($$);
 	}
-	| TPROTOCOL nllo TCOLON nllo function_attr TLPAREN param_opt TRPAREN nllo function_body
+	| TMACRO nllo param_decl_opt function_body
 	{
-		$$ = new Ink_FunctionExpression(*$7, *$10, $5, $1);
-		delete $7;
-		delete $10;
+		$$ = new Ink_FunctionExpression(*$3, *$4, false, true);
+		delete $3;
+		delete $4;
+		SET_LINE_NO($$);
+	}
+	| TMACRO nllo function_attr param_decl_opt function_body
+	{
+		$$ = new Ink_FunctionExpression(*$4, *$5, $3, false, true);
+		delete $4;
+		delete $5;
+		SET_LINE_NO($$);
+	}
+	| TPROTOCOL nllo param_decl_opt function_body
+	{
+		$$ = new Ink_FunctionExpression(*$3, *$4, $1);
+		delete $3;
+		delete $4;
+		SET_LINE_NO($$);
+	}
+	| TPROTOCOL nllo function_attr param_decl_opt function_body
+	{
+		$$ = new Ink_FunctionExpression(*$4, *$5, $3, $1);
+		delete $4;
+		delete $5;
 		SET_LINE_NO($$);
 	}
 	;

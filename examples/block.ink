@@ -1573,7 +1573,6 @@ a = 10
 p(a);
 
 f = inl
-	:
 	^[all]
 	&[default]
 	&[throw]
@@ -1790,3 +1789,7 @@ let expand_test = fn (a, b, c) {
 }
 
 expand_test(expand ["it works!", " "], expand ["wow!"])
+
+a = fn { "I'm shorter" }
+if (1) : p("ha") ;
+p(a())
