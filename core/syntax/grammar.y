@@ -43,7 +43,8 @@
 /* constants & identifiers */
 %token <string>
 	TIDENTIFIER
-	TNUMERIC
+	TINTEGER
+	TFLOAT
 	TSTRING
 	TPROTOCOL
 
@@ -1460,11 +1461,28 @@ hash_table_mapping_opt
 	;
 
 single_element_expression
-	: TNUMERIC
+	: TINTEGER
 	{
-		// printf("numeric: %s\n", $1->c_str());
-		$$ = Ink_NumericExpression::parse(*$1);
+		$$ = Ink_NumericExpression::parseIntExp(*$1);
 		delete $1;
+
+		if (!$$) {
+			yyerror("Failed to parse integer");
+			return -1;
+		}
+
+		SET_LINE_NO($$);
+	}
+	| TFLOAT
+	{
+		$$ = Ink_NumericExpression::parseFloatExp(*$1);
+		delete $1;
+
+		if (!$$) {
+			yyerror("Failed to parse float");
+			return -1;
+		}
+
 		SET_LINE_NO($$);
 	}
 	| TSTRING

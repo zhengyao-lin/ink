@@ -14,6 +14,7 @@ OCT				[0-7]
 POWER_MARK		[eE]
 LETTER			[a-zA-Z_?$]
 FIRST_LETTER	({LETTER}|[@])
+EXP				(({POWER_MARK}[-+]?{DEC}+))
 EXP_OPT			(({POWER_MARK}[-+]?{DEC}+)?)
 
 DIGITS			({DIGIT})+
@@ -250,41 +251,43 @@ void yyerror(const char *msg);
 	}
 	return TIDENTIFIER;
 }
-<INITIAL>{BIN_PRE}{BIN}+\.{BIN}+{EXP_OPT} { // bin
+
+ /* Integer with different radixes */
+<INITIAL>{BIN_PRE}{BIN}+ { // bin
 	SAVE_TOKEN();
-	return TNUMERIC;
+	return TINTEGER;
 }
-<INITIAL>{BIN_PRE}{BIN}+{EXP_OPT} { // bin
+<INITIAL>{OCT_PRE}{OCT}+ { // oct
 	SAVE_TOKEN();
-	return TNUMERIC;
+	return TINTEGER;
 }
-<INITIAL>{OCT_PRE}{OCT}+\.{OCT}+{EXP_OPT} { // oct
+<INITIAL>{HEX_PRE}{HEX}+ { // hex
 	SAVE_TOKEN();
-	return TNUMERIC;
+	return TINTEGER;
 }
-<INITIAL>{OCT_PRE}{OCT}+{EXP_OPT} { // oct
-	SAVE_TOKEN();
-	return TNUMERIC;
-}
-<INITIAL>{HEX_PRE}{HEX}+\.{HEX}+{EXP_OPT} { // hex
-	SAVE_TOKEN();
-	return TNUMERIC;
-}
-<INITIAL>{HEX_PRE}{HEX}+{EXP_OPT} { // hex
-	SAVE_TOKEN();
-	return TNUMERIC;
-}
+
+ /* Float */
 <INITIAL>{DEC}*\.{DEC}+{EXP_OPT} { // dec
 	SAVE_TOKEN();
-	return TNUMERIC;
+	return TFLOAT;
 }
-<INITIAL>0{EXP_OPT} { // dec
+<INITIAL>0{EXP} { // dec
 	SAVE_TOKEN();
-	return TNUMERIC;
+	return TFLOAT;
 }
-<INITIAL>[1-9]{DEC}*{EXP_OPT} { // dec
+<INITIAL>[1-9]{DEC}*{EXP} { // dec
 	SAVE_TOKEN();
-	return TNUMERIC;
+	return TFLOAT;
+}
+
+ /* Integer */
+<INITIAL>0 { // dec
+	SAVE_TOKEN();
+	return TINTEGER;
+}
+<INITIAL>[1-9]{DEC}* { // dec
+	SAVE_TOKEN();
+	return TINTEGER;
 }
 
  /* Comments */
@@ -320,7 +323,7 @@ void yyerror(const char *msg);
 	BEGIN INITIAL;
 	return TIDENTIFIER;
 }
-<ID_LITERAL>\\{OCT}{1,3} {
+<ID_LITERAL>\\[oO]{OCT}{1,3} {
 	unsigned int letter;
 	sscanf(&yytext[1], "%o", &letter);
     *id_literal += letter;
@@ -356,7 +359,7 @@ void yyerror(const char *msg);
 	BEGIN INITIAL;
 	return TSTRING;
 }
-<DOUBLE_STRING_LITERAL>\\{OCT}{1,3} {
+<DOUBLE_STRING_LITERAL>\\[oO]{OCT}{1,3} {
 	unsigned int letter;
 	sscanf(&yytext[1], "%o", &letter);
     *string_literal += letter;
@@ -393,7 +396,7 @@ void yyerror(const char *msg);
 	BEGIN INITIAL;
 	return TSTRING;
 }
-<SINGLE_STRING_LITERAL>\\{OCT}{1,3} {
+<SINGLE_STRING_LITERAL>\\[oO]{OCT}{1,3} {
 	unsigned int letter;
 	sscanf(&yytext[1], "%o", &letter);
     *string_literal += letter;

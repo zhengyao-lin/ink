@@ -270,19 +270,42 @@ static Ink_Object *Ink_TypeName(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	return new Ink_String(engine, engine->getTypeName(argv[0]->type));
 }
 
-static Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_IntVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Expression *tmp;
+	Ink_NumericValue tmp;
+	bool is_success = false;
 
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING) || as<Ink_String>(argv[0])->getValue() == "") {
 		return NULL_OBJ;
 	}
 
-	if (!(tmp = Ink_NumericExpression::parse(as<Ink_String>(argv[0])->getValue())))
+	tmp = Ink_NumericExpression::parseInt(as<Ink_String>(argv[0])->getValue(), false, &is_success);
+
+	if (!is_success)
 		return NULL_OBJ;
 
-	Ink_addNativeExpression(tmp);
-	return tmp->eval(engine, context);
+	return new Ink_Numeric(engine, tmp);
+}
+
+static Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_NumericValue tmp;
+	bool is_success = false;
+
+	if (!checkArgument(engine, argc, argv, 1, INK_STRING) || as<Ink_String>(argv[0])->getValue() == "") {
+		return NULL_OBJ;
+	}
+
+	tmp = Ink_NumericExpression::parseInt(as<Ink_String>(argv[0])->getValue(), true, &is_success);
+	
+	if (!is_success) {
+		tmp = Ink_NumericExpression::parseFloat(as<Ink_String>(argv[0])->getValue(), false, &is_success);
+		if (!is_success) {
+			return NULL_OBJ;
+		}
+	}
+
+	return new Ink_Numeric(engine, tmp);
 }
 
 static Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -539,6 +562,7 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 	context->context->setSlot_c("eval", new Ink_FunctionObject(engine, Ink_Eval));
 	context->context->setSlot_c("import", new Ink_FunctionObject(engine, Ink_Import));
 	context->context->setSlot_c("typename", new Ink_FunctionObject(engine, Ink_TypeName));
+	context->context->setSlot_c("intval", new Ink_FunctionObject(engine, Ink_IntVal));
 	context->context->setSlot_c("numval", new Ink_FunctionObject(engine, Ink_NumVal));
 	context->context->setSlot_c("cocall", new Ink_FunctionObject(engine, Ink_CoroutineCall));
 

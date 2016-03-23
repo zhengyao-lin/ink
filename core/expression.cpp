@@ -47,13 +47,12 @@ namespace ink {
 
 using namespace std;
 
-Ink_NumericValue Ink_NumericExpression::parseNumeric(string code, bool *is_success)
+Ink_NumericValue Ink_NumericExpression::parseInt(string code, bool is_quite, bool *is_success)
 {
-	double ret = 0.0;
-	double ret_back = 0.0;
-	bool use_e = false;
+	Ink_SInt64 ret = 0;
 	string::size_type i;
-	int flag = 1, flag_back = 1, decimal = 0;
+	int sign = 1;
+
 	enum {
 		BIN = 2,
 		OCT = 8,
@@ -66,10 +65,10 @@ Ink_NumericValue Ink_NumericExpression::parseNumeric(string code, bool *is_succe
 
 	if (code.length()) {
 		if (code[0] == '-') {
-			flag = -1;
+			sign = -1;
 			code = code.substr(1);
 		} else if (code[0] == '+') {
-			flag = 1;
+			sign = 1;
 			code = code.substr(1);
 		}
 	}
@@ -91,62 +90,106 @@ Ink_NumericValue Ink_NumericExpression::parseNumeric(string code, bool *is_succe
 	}
 
 	for (i = 0; i < code.length(); i++) {
-		if (code[i] == '.') {
-			decimal++;
-			continue;
-		} else if (code[i] == 'e'
-				   || code[i] == 'E') {
-			ret_back = ret;
-			flag_back = flag;
-			ret = 0.0;
-			flag = 1;
-			decimal = 0;
-			use_e = true;
-			i++;
-			if (i < code.length()) {
-				if (code[i] == '-') {
-					flag = -1;
-				} else if (code[i] == '+') {
-					flag = 1;
-				} else {
-					i--;
-				}
-				continue;
-			}
-
-			fprintf(stderr, "No exponent given\n");
-			break;
-		}
-
 		if (IS_LEGAL(mode, code[i])) {
-			if (decimal > 0) {
-				ret += TO_NUM(mode, code[i]) / pow((int)mode, decimal);
-				decimal++;
-			} else {
-				ret = ret * mode + TO_NUM(mode, code[i]);
-			}
+			ret = ret * mode + TO_NUM(mode, code[i]);
 		} else {
-			fprintf(stderr, "Illegal character \'%c\'\n", code[i]);
+			if (!is_quite)
+				fprintf(stderr, "Illegal character for integer parsing \'%c\'\n", code[i]);
 			if (is_success)
 				*is_success = false;
 			break;
 		}
 	}
 
-	ret = use_e ? ret_back * flag_back * pow(10, ret * flag) : ret * flag;
-
-	return ret == (Ink_SInt64)ret ? Ink_NumericValue((Ink_SInt64)ret) : Ink_NumericValue(ret);
+	return Ink_NumericValue(ret * sign);
 }
 
-Ink_Expression *Ink_NumericExpression::parse(string code)
+Ink_NumericValue Ink_NumericExpression::parseFloat(string code, bool is_quite, bool *is_success)
+{
+	double ret = 0.0;
+	double ret_back = 0.0;
+	bool use_e = false;
+	string::size_type i;
+	int sign = 1, sign_back = 1, decimal = 0;
+
+	if (is_success)
+		*is_success = true;
+
+	if (code.length()) {
+		if (code[0] == '-') {
+			sign = -1;
+			code = code.substr(1);
+		} else if (code[0] == '+') {
+			sign = 1;
+			code = code.substr(1);
+		}
+	}
+
+	for (i = 0; i < code.length(); i++) {
+		if (code[i] == '.') {
+			decimal++;
+		} else if (code[i] == 'e'
+				   || code[i] == 'E') {
+			ret_back = ret;
+			sign_back = sign;
+			ret = 0.0;
+			sign = 1;
+			decimal = 0;
+			use_e = true;
+			i++;
+			if (i < code.length()) {
+				if (code[i] == '-') {
+					sign = -1;
+				} else if (code[i] == '+') {
+					sign = 1;
+				} else {
+					i--;
+				}
+			} else {
+				if (!is_quite)
+					fprintf(stderr, "No exponent given\n");
+				break;
+			}
+		} else if (IS_DEC(code[i])) {
+			if (decimal > 0) {
+				ret += DEC_TO_NUM(code[i]) / pow(10, decimal);
+				decimal++;
+			} else {
+				ret = ret * 10 + DEC_TO_NUM(code[i]);
+			}
+		} else {
+			if (!is_quite)
+				fprintf(stderr, "Illegal character for float parsing \'%c\'\n", code[i]);
+			if (is_success)
+				*is_success = false;
+			break;
+		}
+	}
+
+	ret = use_e ? ret_back * sign_back * pow(10, ret * sign) : ret * sign;
+
+	return Ink_NumericValue(ret);
+}
+
+Ink_Expression *Ink_NumericExpression::parseIntExp(string code)
 {
 	bool is_success = false;
-	Ink_NumericValue val = Ink_NumericExpression::parseNumeric(code, &is_success);
+	Ink_NumericValue val = Ink_NumericExpression::parseInt(code, false, &is_success);
 
 	if (is_success)
 		return new Ink_NumericExpression(val);
-	else
-	
+
+	return NULL;
+}
+
+Ink_Expression *Ink_NumericExpression::parseFloatExp(string code)
+{
+	bool is_success = false;
+	Ink_NumericValue val = Ink_NumericExpression::parseFloat(code, false, &is_success);
+
+	if (is_success)
+		return new Ink_NumericExpression(val);
+
 	return NULL;
 }
 

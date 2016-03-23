@@ -284,7 +284,7 @@ inline void
 InkWarn_With_Attachment_Require(Ink_InterpreteEngine *engine)
 {
 	InkErro_doPrintWarning(engine, INK_EXCODE_WARN_WITH_ATTACHMENT_REQUIRE,
-						   "with attachment needs array as argument");
+						   "with/expand attachment needs array as argument");
 	return;
 }
 

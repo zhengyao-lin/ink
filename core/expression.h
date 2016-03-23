@@ -368,8 +368,12 @@ public:
 
 	virtual Ink_Object *eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags);
 
-	static Ink_NumericValue parseNumeric(std::string code, bool *is_success = NULL);
-	static Ink_Expression *parse(std::string code);
+	static Ink_NumericValue parseInt(std::string code, bool is_quite = false, bool *is_success = NULL);
+	static Ink_NumericValue parseFloat(std::string code, bool is_quite = false, bool *is_success = NULL);
+
+	static Ink_Expression *parseIntExp(std::string code);
+	static Ink_Expression *parseFloatExp(std::string code);
+
 	virtual ~Ink_NumericExpression() { }
 };
 
