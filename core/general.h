@@ -5,6 +5,7 @@
 #include <string>
 #include <stdlib.h>
 #include "inttype.h"
+#include "numeric.h"
 #include "../includes/universal.h"
 
 #define UNDEFINED (new Ink_Undefined(engine))
@@ -165,8 +166,23 @@ typedef Ink_UInt32 Ink_ArgcType;
 typedef Ink_SInt32 IGC_MarkType;
 typedef Ink_UInt64 IGC_ObjectCountType;
 typedef Ink_SInt64 Ink_LineNoType;
-typedef double Ink_NumericValue;
+// typedef double Ink_NumericValue;
 typedef std::vector<Ink_HashTable *> Ink_ArrayValue;
+
+inline Ink_SInt64 getInt(Ink_NumericValue val)
+{
+	return val.toInt();
+}
+
+inline double getFloat(Ink_NumericValue val)
+{
+	return val.toFloat();
+}
+
+inline bool getBool(Ink_NumericValue val)
+{
+	return val.toBool();
+}
 
 typedef Ink_UInt64 Ink_ModuleID;
 #define INK_CORE_MOD_ID (0)

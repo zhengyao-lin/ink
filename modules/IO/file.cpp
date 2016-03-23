@@ -17,10 +17,10 @@ Ink_TypeTag getFilePointerType(Ink_InterpreteEngine *engine)
 	return engine->getEngineComAs<com_struct>(ink_native_io_mod_id)->file_type;
 }
 
-inline Ink_NumericValue getNumVal(Ink_Object *num)
+inline Ink_SInt64 getNumVal(Ink_Object *num)
 {
 	if (num->type == INK_NUMERIC) {
-		return as<Ink_Numeric>(num)->value;
+		return getInt(as<Ink_Numeric>(num)->getValue());
 	}
 	return 0;
 }

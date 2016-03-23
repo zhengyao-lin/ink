@@ -7,8 +7,15 @@ namespace ink {
 
 using namespace std;
 
-inline wstring::size_type getRealIndex(long index, wstring::size_type size)
+inline wstring::size_type getRealIndex(Ink_SInt64 index, wstring::size_type size)
 {
+	while (index < 0) index += size;
+	return index;
+}
+
+inline wstring::size_type getRealIndex(Ink_NumericValue val, wstring::size_type size)
+{
+	Ink_SInt64 index = getInt(val);
 	while (index < 0) index += size;
 	return index;
 }
@@ -45,7 +52,7 @@ Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
 	base_str = as<Ink_String>(base)->getWValue();
-	index = getRealIndex(as<Ink_Numeric>(argv[0])->value, base_str.length());
+	index = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), base_str.length());
 
 	return new Ink_String(engine, base_str.substr(index, 1));
 }
@@ -56,7 +63,7 @@ Ink_Object *InkNative_String_Length(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 	ASSUME_BASE_TYPE(engine, INK_STRING);
 
-	return new Ink_Numeric(engine, as<Ink_String>(base)->getWValue().length());
+	return new Ink_Numeric(engine, (Ink_SInt64)as<Ink_String>(base)->getWValue().length());
 }
 
 Ink_Object *InkNative_String_SubStr(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -73,10 +80,10 @@ Ink_Object *InkNative_String_SubStr(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 	wstring origin = as<Ink_String>(base)->getWValue();
 	if (argc > 1 && argv[1]->type == INK_NUMERIC) {
-		offset = getRealIndex(as<Ink_Numeric>(argv[0])->value, origin.length());
-		length = as<Ink_Numeric>(argv[1])->value;
+		offset = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), origin.length());
+		length = getInt(as<Ink_Numeric>(argv[1])->getValue());
 	} else {
-		offset = getRealIndex(as<Ink_Numeric>(argv[0])->value, origin.length());
+		offset = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), origin.length());
 		length = string::npos;
 	}
 

@@ -190,7 +190,7 @@ inline Ink_String *getStringVal(Ink_InterpreteEngine *engine, Ink_ContextChain *
 		return as<Ink_String>(obj);
 	} else if (obj->type == INK_NUMERIC) {
 		std::stringstream ss;
-		ss << as<Ink_Numeric>(obj)->value;
+		ss << as<Ink_Numeric>(obj)->getValue();
 		return new Ink_String(engine, std::string(ss.str()));
 	} else if ((tmp = getSlotWithProto(engine, context, obj, "to_str"))
 			   ->type == INK_FUNCTION) {

@@ -1790,6 +1790,6 @@ let expand_test = fn (a, b, c) {
 
 expand_test(expand ["it works!", " "], expand ["wow!"])
 
-a = fn { "I'm shorter" }
+a = fn : "I'm shorter" ;
 if (1) : p("ha") ;
 p(a())

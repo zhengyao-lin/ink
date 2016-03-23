@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <typeinfo>
 #include "core/general.h"
+#include "core/numeric.h"
 #include "core/interface/engine.h"
 #include "core/interface/setting.h"
 

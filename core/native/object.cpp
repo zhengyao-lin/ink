@@ -46,7 +46,7 @@ bool isEqual(Ink_Object *a, Ink_Object *b)
 {
 	if (!(a && b) || a->type != b->type) return false;
 	if (a->type == INK_NUMERIC) {
-		return as<Ink_Numeric>(a)->value == as<Ink_Numeric>(b)->value;
+		return as<Ink_Numeric>(a)->getValue() == as<Ink_Numeric>(b)->getValue();
 	}
 	if (a->type == INK_STRING) {
 		return as<Ink_String>(a)->getValue() == as<Ink_String>(b)->getValue();

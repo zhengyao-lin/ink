@@ -26,7 +26,8 @@ REQUIRE=\
 	protocol.o \
 	utf8.o \
 	exception.o \
-	constant.o
+	constant.o \
+	numeric.o
 
 LDFLAGS=-shared -static-libgcc -static-libstdc++ -lm
 STATIC_LDFLAGS=

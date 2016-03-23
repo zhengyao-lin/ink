@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <vector>
 #include "native.h"
 #include "../object.h"
 #include "../context.h"
@@ -42,9 +41,9 @@ static Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_Contex
 	if (argc) {
 		if (argv[0]->type == INK_NUMERIC && (argc == 1 || argc == 2)) {
 			if (argc == 1) {
-				ret = new Ink_Array(engine, Ink_ArrayValue(as<Ink_Numeric>(argv[0])->value, NULL));
+				ret = new Ink_Array(engine, Ink_ArrayValue((Ink_SizeType)getInt(as<Ink_Numeric>(argv[0])->getValue()), NULL));
 			} else {
-				Ink_ArrayValue val = Ink_ArrayValue(as<Ink_Numeric>(argv[0])->value, NULL);
+				Ink_ArrayValue val = Ink_ArrayValue((Ink_SizeType)getInt(as<Ink_Numeric>(argv[0])->getValue()), NULL);
 				Ink_ArrayValue::iterator val_iter;
 				for (val_iter = val.begin();
 					 val_iter != val.end();
@@ -122,7 +121,7 @@ static Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 	string tmp_str;
 
 	if (argv[0]->type == INK_NUMERIC)
-		printf("print(numeric): %f\n", as<Ink_Numeric>(argv[0])->value);
+		printf("print(numeric): %s\n", as<Ink_Numeric>(argv[0])->getValue().toString().c_str());
 	else if (argv[0]->type == INK_STRING) {
 		tmp_str = as<Ink_String>(argv[0])->getValue();
 		printf("%s\n", tmp_str.c_str());

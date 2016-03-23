@@ -167,7 +167,7 @@ JSON_lexer(string str)
 				}
 				i = j - 1;
 
-				val = Ink_NumericExpression::parseNumeric(numeric_literal, &is_success);
+				val = getFloat(Ink_NumericExpression::parseNumeric(numeric_literal, &is_success));
 				if (is_success) {
 					tmp_val.num = val;
 					ret.push_back(InkJSON_Token(JT_NUMERIC, tmp_val));

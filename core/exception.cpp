@@ -40,13 +40,13 @@ Ink_ExceptionRaw *Ink_ExceptionRaw::toRaw(Ink_Object *ex)
 	Ink_Object *tmp_obj;
 
 	if ((tmp_obj = ex->getSlot(ex->engine, "mod_id"))->type == INK_NUMERIC) {
-		mod_id = as<Ink_Numeric>(tmp_obj)->value;
+		mod_id = getInt(as<Ink_Numeric>(tmp_obj)->getValue());
 	} else {
 		return NULL;
 	}
 
 	if ((tmp_obj = ex->getSlot(ex->engine, "ex_code"))->type == INK_NUMERIC) {
-		ex_code = as<Ink_Numeric>(tmp_obj)->value;
+		ex_code = getInt(as<Ink_Numeric>(tmp_obj)->getValue());
 	} else {
 		return NULL;
 	}
@@ -58,7 +58,7 @@ Ink_ExceptionRaw *Ink_ExceptionRaw::toRaw(Ink_Object *ex)
 	}
 
 	if ((tmp_obj = ex->getSlot(ex->engine, "lineno"))->type == INK_NUMERIC) {
-		lineno = as<Ink_Numeric>(tmp_obj)->value;
+		lineno = getInt(as<Ink_Numeric>(tmp_obj)->getValue());
 	} else {
 		return NULL;
 	}
@@ -78,8 +78,8 @@ inline bool isErrnoEqual(Ink_InterpreteEngine *engine, Ink_Object *base, Ink_Obj
 
 	if ((tmp_obj1 = ex->getSlot(engine, "mod_id"))->type == INK_NUMERIC
 		&& (tmp_obj2 = base->getSlot(engine, "mod_id"))->type == INK_NUMERIC) {
-		if (as<Ink_Numeric>(tmp_obj1)->value
-			!= as<Ink_Numeric>(tmp_obj2)->value) {
+		if (as<Ink_Numeric>(tmp_obj1)->getValue()
+			!= as<Ink_Numeric>(tmp_obj2)->getValue()) {
 			return false;
 		}
 	} else {
@@ -88,8 +88,8 @@ inline bool isErrnoEqual(Ink_InterpreteEngine *engine, Ink_Object *base, Ink_Obj
 
 	if ((tmp_obj1 = ex->getSlot(engine, "ex_code"))->type == INK_NUMERIC
 		&& (tmp_obj2 = base->getSlot(engine, "ex_code"))->type == INK_NUMERIC) {
-		if (as<Ink_Numeric>(tmp_obj1)->value
-			!= as<Ink_Numeric>(tmp_obj2)->value) {
+		if (as<Ink_Numeric>(tmp_obj1)->getValue()
+			!= as<Ink_Numeric>(tmp_obj2)->getValue()) {
 			return false;
 		}
 	} else {

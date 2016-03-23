@@ -9,8 +9,10 @@
 #include <algorithm>
 #include <math.h>
 #include <float.h>
+#include "core/object.h"
 
 using namespace std;
+using namespace ink;
 
 #define INVALID_INT (Ink_Bignum_Integer(Ink_Bignum_Integer_Digit()))
 #define INVALID_NUM (Ink_Bignum_NumericValue(INVALID_INT))
@@ -35,6 +37,10 @@ public:
 	
 	Ink_Bignum_Integer();
 	Ink_Bignum_Integer(const Ink_Bignum_Integer &);
+	Ink_Bignum_Integer(const Ink_NumericValue v)
+	{
+		*this = Ink_Bignum_Integer(getFloat(v));
+	}
 	Ink_Bignum_Integer operator = (const Ink_Bignum_Integer &op2);
 
 	Ink_Bignum_Integer abs() const;

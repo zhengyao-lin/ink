@@ -49,8 +49,8 @@ using namespace std;
 
 Ink_NumericValue Ink_NumericExpression::parseNumeric(string code, bool *is_success)
 {
-	Ink_NumericValue ret = 0.0;
-	Ink_NumericValue ret_back = 0.0;
+	double ret = 0.0;
+	double ret_back = 0.0;
 	bool use_e = false;
 	string::size_type i;
 	int flag = 1, flag_back = 1, decimal = 0;
@@ -133,7 +133,9 @@ Ink_NumericValue Ink_NumericExpression::parseNumeric(string code, bool *is_succe
 		}
 	}
 
-	return use_e ? ret_back * flag_back * pow(10, ret * flag) : ret * flag;
+	ret = use_e ? ret_back * flag_back * pow(10, ret * flag) : ret * flag;
+
+	return ret == (Ink_SInt64)ret ? Ink_NumericValue((Ink_SInt64)ret) : Ink_NumericValue(ret);
 }
 
 Ink_Expression *Ink_NumericExpression::parse(string code)

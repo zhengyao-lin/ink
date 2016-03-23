@@ -44,8 +44,8 @@ Ink_Object *InkNative_BigNumeric_Add(Ink_InterpreteEngine *engine, Ink_ContextCh
 		return NULL_OBJ;
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value + val);
 }
@@ -61,8 +61,8 @@ Ink_Object *InkNative_BigNumeric_Sub(Ink_InterpreteEngine *engine, Ink_ContextCh
 		return NULL_OBJ;
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value - val);
 }
@@ -78,8 +78,8 @@ Ink_Object *InkNative_BigNumeric_Mul(Ink_InterpreteEngine *engine, Ink_ContextCh
 		return NULL_OBJ;
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value * val);
 }
@@ -96,8 +96,8 @@ Ink_Object *InkNative_BigNumeric_Div(Ink_InterpreteEngine *engine, Ink_ContextCh
 	}
 
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 	Ink_Bignum_NumericValue ret = 0;
 
 	if (val == 0) {
@@ -106,7 +106,7 @@ Ink_Object *InkNative_BigNumeric_Div(Ink_InterpreteEngine *engine, Ink_ContextCh
 	}
 
 	if (argc > 1 && argv[1]->type == INK_NUMERIC) {
-		ret = as<Ink_BigNumeric>(base)->value.dividedBy(val, as<Ink_Numeric>(argv[1])->value);
+		ret = as<Ink_BigNumeric>(base)->value.dividedBy(val, getFloat(as<Ink_Numeric>(argv[1])->getValue()));
 	} else {
 		ret = as<Ink_BigNumeric>(base)->value / val;
 	}
@@ -125,8 +125,8 @@ Ink_Object *InkNative_BigNumeric_Mod(Ink_InterpreteEngine *engine, Ink_ContextCh
 		return NULL_OBJ;
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value % val);
 }
@@ -142,8 +142,8 @@ Ink_Object *InkNative_BigNumeric_Spaceship(Ink_InterpreteEngine *engine, Ink_Con
 		return NULL_OBJ;
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value - val);
 }
@@ -160,8 +160,8 @@ Ink_Object *InkNative_BigNumeric_Equal(Ink_InterpreteEngine *engine, Ink_Context
 		return InkNative_Object_Equal(engine, context, argc, argv, this_p);
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value == val);
 }
@@ -178,8 +178,8 @@ Ink_Object *InkNative_BigNumeric_NotEqual(Ink_InterpreteEngine *engine, Ink_Cont
 		return InkNative_Object_NotEqual(engine, context, argc, argv, this_p);
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value != val);
 }
@@ -195,8 +195,8 @@ Ink_Object *InkNative_BigNumeric_Greater(Ink_InterpreteEngine *engine, Ink_Conte
 		return NULL_OBJ;
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value > val);
 }
@@ -212,8 +212,8 @@ Ink_Object *InkNative_BigNumeric_Less(Ink_InterpreteEngine *engine, Ink_ContextC
 		return NULL_OBJ;
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value < val);
 }
@@ -229,8 +229,8 @@ Ink_Object *InkNative_BigNumeric_GreaterOrEqual(Ink_InterpreteEngine *engine, In
 		return NULL_OBJ;
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value >= val);
 }
@@ -246,8 +246,8 @@ Ink_Object *InkNative_BigNumeric_LessOrEqual(Ink_InterpreteEngine *engine, Ink_C
 		return NULL_OBJ;
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
-							  ? as<Ink_Numeric>(argv[0])->value
-							  : as<Ink_BigNumeric>(argv[0])->value;
+								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
+								  : as<Ink_BigNumeric>(argv[0])->value;
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value <= val);
 }
@@ -334,7 +334,7 @@ Ink_Object *InkMod_Bignum_Constructor(Ink_InterpreteEngine *engine, Ink_ContextC
 			goto END;
 		}
 	} else if (checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
-		ret_val = Ink_Bignum_NumericValue(as<Ink_Numeric>(argv[0])->value);
+		ret_val = Ink_Bignum_NumericValue(as<Ink_Numeric>(argv[0])->getValue());
 	} else {
 		return NULL_OBJ;
 	}

@@ -75,7 +75,7 @@ Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextCha
 				if (argv[i + 1]->type == INK_ARRAY
 					&& (arr_val = as<Ink_Array>(argv[i + 1])->value).size()) {
 					if ((tmp_obj = arr_val[0]->getValue())->type == INK_NUMERIC) {
-						delay = as<Ink_Numeric>(tmp_obj)->value;
+						delay = getInt(as<Ink_Numeric>(tmp_obj)->getValue());
 						i++;
 					} else {
 						InkWarn_Multink_Wrong_Argument_Type(engine, "every");
@@ -89,7 +89,7 @@ Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextCha
 				if (argv[i + 1]->type == INK_ARRAY
 					&& (arr_val = as<Ink_Array>(argv[i + 1])->value).size()) {
 					if ((tmp_obj = arr_val[0]->getValue())->type == INK_NUMERIC) {
-						max_time = as<Ink_Numeric>(tmp_obj)->value;
+						max_time = getInt(as<Ink_Numeric>(tmp_obj)->getValue());
 						i++;
 					} else {
 						InkWarn_Multink_Wrong_Argument_Type(engine, "for");

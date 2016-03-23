@@ -415,10 +415,10 @@ public:
 };
 
 class Ink_Numeric: public Ink_Object {
-public:
 	Ink_NumericValue value;
+public:
 
-	Ink_Numeric(Ink_InterpreteEngine *engine, Ink_NumericValue value = 0)
+	Ink_Numeric(Ink_InterpreteEngine *engine, Ink_NumericValue value)
 	: Ink_Object(engine), value(value)
 	{
 		type = INK_NUMERIC;
@@ -431,11 +431,16 @@ public:
 	}
 	void Ink_NumericMethodInit(Ink_InterpreteEngine *engine);
 
+	inline Ink_NumericValue getValue()
+	{
+		return value;
+	}
+
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);
 	virtual bool isTrue()
 	{
-		return value != 0.0;
+		return getBool(value);
 	}
 
 	virtual Ink_Constant *toConstant(Ink_InterpreteEngine *engine)

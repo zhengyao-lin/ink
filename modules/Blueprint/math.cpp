@@ -41,7 +41,7 @@ Ink_Object *InkMod_Blueprint_Math_GetMode(Ink_InterpreteEngine *engine, Ink_Cont
 	InkMod_Blueprint_Math_CalMode mode_e = getMathCalMode(engine);
 	bool is_abbr = false;
 
-	if (argc && argv[0]->type == INK_NUMERIC && as<Ink_Numeric>(argv[0])->value) {
+	if (argc && argv[0]->type == INK_NUMERIC && getBool(as<Ink_Numeric>(argv[0])->getValue())) {
 		is_abbr = true;
 	}
 
@@ -91,7 +91,7 @@ _getOutputValue(Ink_InterpreteEngine *engine, double val /* input value */)
 inline double
 _getInputValue(Ink_InterpreteEngine *engine, Ink_Object *num /* assume numeric */)
 {
-	return castValueByMode(engine, as<Ink_Numeric>(num)->value);
+	return castValueByMode(engine, getFloat(as<Ink_Numeric>(num)->getValue()));
 }
 
 #define getInputValue(num) (_getInputValue(engine, (num)))
@@ -103,7 +103,7 @@ Ink_Object *InkMod_Blueprint_Math_ToDegree(Ink_InterpreteEngine *engine, Ink_Con
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, 180 / INK_M_PI * as<Ink_Numeric>(argv[0])->value);
+	return new Ink_Numeric(engine, 180 / INK_M_PI * as<Ink_Numeric>(argv[0])->getValue());
 }
 
 Ink_Object *InkMod_Blueprint_Math_ToRadian(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -112,7 +112,7 @@ Ink_Object *InkMod_Blueprint_Math_ToRadian(Ink_InterpreteEngine *engine, Ink_Con
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, INK_M_PI / 180 * as<Ink_Numeric>(argv[0])->value);
+	return new Ink_Numeric(engine, INK_M_PI / 180 * as<Ink_Numeric>(argv[0])->getValue());
 }
 
 Ink_Object *InkMod_Blueprint_Math_Sine(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -148,7 +148,7 @@ Ink_Object *InkMod_Blueprint_Math_ASine(Ink_InterpreteEngine *engine, Ink_Contex
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, getOutputValue(asin(as<Ink_Numeric>(argv[0])->value)));
+	return new Ink_Numeric(engine, getOutputValue(asin(getFloat(as<Ink_Numeric>(argv[0])->getValue()))));
 }
 
 Ink_Object *InkMod_Blueprint_Math_ACosine(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -157,7 +157,7 @@ Ink_Object *InkMod_Blueprint_Math_ACosine(Ink_InterpreteEngine *engine, Ink_Cont
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, getOutputValue(acos(as<Ink_Numeric>(argv[0])->value)));
+	return new Ink_Numeric(engine, getOutputValue(acos(getFloat(as<Ink_Numeric>(argv[0])->getValue()))));
 }
 
 Ink_Object *InkMod_Blueprint_Math_ATangent(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -167,11 +167,11 @@ Ink_Object *InkMod_Blueprint_Math_ATangent(Ink_InterpreteEngine *engine, Ink_Con
 	}
 
 	if (argc > 1 && argv[1]->type == INK_NUMERIC) {
-		return new Ink_Numeric(engine, getOutputValue(atan2(as<Ink_Numeric>(argv[0])->value,
-															as<Ink_Numeric>(argv[1])->value)));
+		return new Ink_Numeric(engine, getOutputValue(atan2(getFloat(as<Ink_Numeric>(argv[0])->getValue()),
+															getFloat(as<Ink_Numeric>(argv[1])->getValue()))));
 	}
 
-	return new Ink_Numeric(engine, getOutputValue(atan(as<Ink_Numeric>(argv[0])->value)));
+	return new Ink_Numeric(engine, getOutputValue(atan(getFloat(as<Ink_Numeric>(argv[0])->getValue()))));
 }
 
 Ink_Object *InkMod_Blueprint_Math_SineH(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -207,8 +207,8 @@ Ink_Object *InkMod_Blueprint_Math_Hypotenuse(Ink_InterpreteEngine *engine, Ink_C
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, hypot(as<Ink_Numeric>(argv[0])->value,
-										 as<Ink_Numeric>(argv[1])->value));
+	return new Ink_Numeric(engine, hypot(getFloat(as<Ink_Numeric>(argv[0])->getValue()),
+										 getFloat(as<Ink_Numeric>(argv[1])->getValue())));
 }
 
 Ink_Object *InkMod_Blueprint_Math_SquareRoot(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -217,7 +217,7 @@ Ink_Object *InkMod_Blueprint_Math_SquareRoot(Ink_InterpreteEngine *engine, Ink_C
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, sqrt(as<Ink_Numeric>(argv[0])->value));
+	return new Ink_Numeric(engine, sqrt(getFloat(as<Ink_Numeric>(argv[0])->getValue())));
 }
 
 Ink_Object *InkMod_Blueprint_Math_Pow(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -226,8 +226,8 @@ Ink_Object *InkMod_Blueprint_Math_Pow(Ink_InterpreteEngine *engine, Ink_ContextC
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, pow(as<Ink_Numeric>(argv[0])->value,
-									   as<Ink_Numeric>(argv[1])->value));
+	return new Ink_Numeric(engine, pow(getFloat(as<Ink_Numeric>(argv[0])->getValue()),
+									   getFloat(as<Ink_Numeric>(argv[1])->getValue())));
 }
 
 Ink_Object *InkMod_Blueprint_Math_Exp(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -236,7 +236,7 @@ Ink_Object *InkMod_Blueprint_Math_Exp(Ink_InterpreteEngine *engine, Ink_ContextC
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, exp(as<Ink_Numeric>(argv[0])->value));
+	return new Ink_Numeric(engine, exp(getFloat(as<Ink_Numeric>(argv[0])->getValue())));
 }
 
 Ink_Object *InkMod_Blueprint_Math_Log(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -245,7 +245,7 @@ Ink_Object *InkMod_Blueprint_Math_Log(Ink_InterpreteEngine *engine, Ink_ContextC
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, log(as<Ink_Numeric>(argv[0])->value));
+	return new Ink_Numeric(engine, log(getFloat(as<Ink_Numeric>(argv[0])->getValue())));
 }
 
 Ink_Object *InkMod_Blueprint_Math_Log10(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -254,7 +254,7 @@ Ink_Object *InkMod_Blueprint_Math_Log10(Ink_InterpreteEngine *engine, Ink_Contex
 		return NULL_OBJ;
 	}
 
-	return new Ink_Numeric(engine, log10(as<Ink_Numeric>(argv[0])->value));
+	return new Ink_Numeric(engine, log10(getFloat(as<Ink_Numeric>(argv[0])->getValue())));
 }
 
 Ink_Object *InkMod_Blueprint_Math_Random(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -265,10 +265,10 @@ Ink_Object *InkMod_Blueprint_Math_Random(Ink_InterpreteEngine *engine, Ink_Conte
 	if (argc >= 2
 		&& argv[0]->type == INK_NUMERIC
 		&& argv[1]->type == INK_NUMERIC) {
-		start = as<Ink_Numeric>(argv[0])->value;
-		end = as<Ink_Numeric>(argv[1])->value;
+		start = as<Ink_Numeric>(argv[0])->getValue();
+		end = as<Ink_Numeric>(argv[1])->getValue();
 	} else if (argc == 1 && argv[0]->type == INK_NUMERIC) {
-		end =  as<Ink_Numeric>(argv[0])->value;
+		end =  as<Ink_Numeric>(argv[0])->getValue();
 	}
 
 	srand(Ink_getCurrentMS());

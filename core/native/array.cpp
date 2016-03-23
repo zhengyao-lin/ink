@@ -6,9 +6,16 @@
 #include "../gc/collect.h"
 
 namespace ink {
-
-inline Ink_ArrayValue::size_type getRealIndex(long index, Ink_ArrayValue::size_type size)
+	
+inline Ink_ArrayValue::size_type getRealIndex(Ink_SInt64 index, Ink_ArrayValue::size_type size)
 {
+	while (index < 0) index += size;
+	return index;
+}
+
+inline Ink_ArrayValue::size_type getRealIndex(Ink_NumericValue val, Ink_ArrayValue::size_type size)
+{
+	Ink_SInt64 index = getInt(val);
 	while (index < 0) index += size;
 	return index;
 }
@@ -62,7 +69,7 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 		/* two argument -- slice */
 		return InkNative_Array_Slice(engine, context, argc, argv, this_p);
 	} else {
-		index = getRealIndex(as<Ink_Numeric>(argv[0])->value, obj->value.size());
+		index = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), obj->value.size());
 		if (index < obj->value.size()) {
 			if (!obj->value[index]) obj->value[index] = new Ink_HashTable(UNDEFINED);
 			hash = Ink_Object::traceHashBond(obj->value[index]);
@@ -199,11 +206,11 @@ Ink_Object *InkNative_Array_Remove(Ink_InterpreteEngine *engine, Ink_ContextChai
 	}
 
 	tmp = as<Ink_Array>(base);
-	index_begin = getRealIndex(as<Ink_Numeric>(argv[0])->value,
+	index_begin = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(),
 							   tmp->value.size());
 
 	if (argc > 1 && argv[1]->type == INK_NUMERIC) {
-		index_end = getRealIndex(as<Ink_Numeric>(argv[1])->value,
+		index_end = getRealIndex(as<Ink_Numeric>(argv[1])->getValue(),
 								 tmp->value.size());
 	} else index_end = index_begin;
 
@@ -242,8 +249,8 @@ Ink_Object *InkNative_Array_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain
 	}
 
 	Ink_ArrayValue base_val = as<Ink_Array>(base)->value;
-	Ink_ArrayValue::size_type start = getRealIndex(as<Ink_Numeric>(argv[0])->value, base_val.size()),
-							  end = getRealIndex(as<Ink_Numeric>(argv[1])->value, base_val.size()), tmp, i;
+	Ink_ArrayValue::size_type start = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), base_val.size()),
+							  end = getRealIndex(as<Ink_Numeric>(argv[1])->getValue(), base_val.size()), tmp, i;
 
 	if (start > end) {
 		InkNote_Array_Slice_Start_Greater(engine, start, end);

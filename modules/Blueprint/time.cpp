@@ -11,8 +11,8 @@ Ink_Object *InkMod_Blueprint_Time_MSleep(Ink_InterpreteEngine *engine, Ink_Conte
 		return NULL_OBJ;
 	}
 
-	Ink_NumericValue val = as<Ink_Numeric>(argv[0])->value;
-	Ink_msleep(val);
+	Ink_NumericValue val = as<Ink_Numeric>(argv[0])->getValue();
+	Ink_msleep(getInt(val));
 
 	return NULL_OBJ;
 }

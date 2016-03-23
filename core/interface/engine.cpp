@@ -116,7 +116,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 
-	global_context->context->setSlot_c("$numeric", tmp = new Ink_Numeric(this));
+	global_context->context->setSlot_c("$numeric", tmp = new Ink_Numeric(this, Ink_NumericValue()));
 	setTypePrototype(INK_NUMERIC, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);

@@ -6,9 +6,14 @@ namespace ink {
 
 using namespace std;
 
-Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, string *key_p)
-: value(val), key(k), key_p(key_p)
+Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, string *k_p)
 {
+	initValue();
+
+	value = val;
+	key = k;
+	key_p = k_p;
+
 	next = NULL;
 	bonding = NULL;
 	bondee = NULL;
@@ -24,8 +29,13 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, string *key_p)
 }
 
 Ink_HashTable::Ink_HashTable(Ink_Object *val)
-: value(val), key(""), key_p(NULL)
 {
+	initValue();
+
+	value = val;
+	key = "";
+	key_p = NULL;
+
 	next = NULL;
 	bonding = NULL;
 	bondee = NULL;
@@ -89,8 +99,10 @@ Ink_Object *Ink_HashTable::setValue(Ink_Object *val)
 
 void Ink_HashTable::setConstant()
 {
-	if (type == HASH_OBJ && value) {
-		const_value.value = value->toConstant(const_value.engine = value->engine);
+	if (type == HASH_OBJ) {
+		if (value) {
+			const_value.value = value->toConstant(const_value.engine = value->engine);
+		}
 	}
 	type = HASH_CONST;
 

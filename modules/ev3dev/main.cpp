@@ -73,9 +73,9 @@ Ink_Object *InkMod_ev3dev_Motor_RunRelat(Ink_InterpreteEngine *engine, Ink_Conte
 		return NULL_OBJ;
 	}
 
-	iev3_MotorID id = as<Ink_Numeric>(argv[0])->value;
-	iev3_Motor_Speed sp = as<Ink_Numeric>(argv[1])->value;
-	iev3_Motor_Position pos = as<Ink_Numeric>(argv[2])->value;
+	iev3_MotorID id = as<Ink_Numeric>(argv[0])->getValue();
+	iev3_Motor_Speed sp = as<Ink_Numeric>(argv[1])->getValue();
+	iev3_Motor_Position pos = as<Ink_Numeric>(argv[2])->getValue();
 
 	string tmp_sp = intToString(sp);
 	string tmp_pos = intToString(pos);
