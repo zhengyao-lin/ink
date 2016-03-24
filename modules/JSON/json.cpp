@@ -17,14 +17,32 @@ inline string JSON_escapeString(string str)
 
 	for (i = 0; i < str.length(); i++) {
 		switch (str[i]) {
-			case '\\':
-				ret += "\\\\";
-				break;
-			case '\t':
-				ret += "\\\t";
-				break;
 			case '\"':
 				ret += "\\\"";
+				break;
+			case '\a':
+				ret += "\\a";
+				break;
+			case '\b':
+				ret += "\\b";
+				break;
+			case '\f':
+				ret += "\\f";
+				break;
+			case '\n':
+				ret += "\\n";
+				break;
+			case '\r':
+				ret += "\\r";
+				break;
+			case '\t':
+				ret += "\\t";
+				break;
+			case '\v':
+				ret += "\\v";
+				break;
+			case '\\':
+				ret += "\\\\";
 				break;
 			default:
 				ret += str.substr(i, 1);
@@ -70,16 +88,16 @@ string *JSON_stringifyObject(Ink_InterpreteEngine *engine, vector<Ink_Object *> 
 		} case INK_NULL: {
 			ret += "null";
 			break;
-		} case INK_UNDEFINED: {
+		}
+
+		case INK_UNDEFINED:
+		case INK_FUNCTION:
 			break;
-		} default: {
+		
+		default: {
 			ret += "{";
 			for (hash_i = obj->hash_table; hash_i;
 				 hash_i = hash_i->next) {
-				if (string(hash_i->key) == "prototype"
-					|| string(hash_i->key) == "base") {
-					continue;
-				}
 				if (hash_i->getValue() && hash_i->getValue()->type != INK_UNDEFINED
 					&& (tmp_str = JSON_stringifyObject(engine, trace, hash_i->getValue())) != NULL) {
 					if (ret != "{") ret += ", ";

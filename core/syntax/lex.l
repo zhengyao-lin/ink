@@ -147,7 +147,10 @@ void yyerror(const char *msg);
 %}
 
 %option noyywrap
-%start C_COMMENT CC_COMMENT ID_LITERAL DOUBLE_STRING_LITERAL SINGLE_STRING_LITERAL
+%start C_COMMENT CC_COMMENT
+%start ID_LITERAL
+%start DOUBLE_STRING_LITERAL SINGLE_STRING_LITERAL
+%start RAW_SINGLE_STRING_LITERAL RAW_DOUBLE_STRING_LITERAL
 
 %%
 
@@ -323,9 +326,9 @@ void yyerror(const char *msg);
 	BEGIN INITIAL;
 	return TIDENTIFIER;
 }
-<ID_LITERAL>\\[oO]{OCT}{1,3} {
+<ID_LITERAL>\\[oO]{OCT}{1,2} {
 	unsigned int letter;
-	sscanf(&yytext[1], "%o", &letter);
+	sscanf(&yytext[2], "%o", &letter);
     *id_literal += letter;
 }
 <ID_LITERAL>\\[xX]{HEX}{1,2} {
@@ -333,18 +336,25 @@ void yyerror(const char *msg);
 	sscanf(&yytext[2], "%x", &letter);
     *id_literal += letter;
 }
-<ID_LITERAL>{NEWLINE}        {
+<ID_LITERAL>{NEWLINE} {
 	*id_literal += yytext[0];
     LINE_NUMBER_INC();
 }
-<ID_LITERAL>\\n       *id_literal += '\n';
-<ID_LITERAL>\\t       *id_literal += '\t';
-<ID_LITERAL>\\\\      *id_literal += '\\';
-<ID_LITERAL><<EOF>>   {
+<ID_LITERAL>\\`		*id_literal += '`';
+<ID_LITERAL>\\a		*id_literal += '\a';
+<ID_LITERAL>\\b		*id_literal += '\b';
+<ID_LITERAL>\\f		*id_literal += '\f';
+<ID_LITERAL>\\n		*id_literal += '\n';
+<ID_LITERAL>\\r		*id_literal += '\r';
+<ID_LITERAL>\\t		*id_literal += '\t';
+<ID_LITERAL>\\v		*id_literal += '\v';
+<ID_LITERAL>\\\\	*id_literal += '\\';
+<ID_LITERAL>\\.		*id_literal += yytext[1];
+<ID_LITERAL><<EOF>> {
 	yyerror("EOF in id literal");
 	yyterminate();
 }
-<ID_LITERAL>.         {
+<ID_LITERAL>. {
     *id_literal += yytext[0];
 }
 
@@ -359,9 +369,9 @@ void yyerror(const char *msg);
 	BEGIN INITIAL;
 	return TSTRING;
 }
-<DOUBLE_STRING_LITERAL>\\[oO]{OCT}{1,3} {
+<DOUBLE_STRING_LITERAL>\\[oO]{OCT}{1,2} {
 	unsigned int letter;
-	sscanf(&yytext[1], "%o", &letter);
+	sscanf(&yytext[2], "%o", &letter);
     *string_literal += letter;
 }
 <DOUBLE_STRING_LITERAL>\\[xX]{HEX}{1,2} {
@@ -369,15 +379,21 @@ void yyerror(const char *msg);
 	sscanf(&yytext[2], "%x", &letter);
     *string_literal += letter;
 }
-<DOUBLE_STRING_LITERAL>{NEWLINE}        {
+<DOUBLE_STRING_LITERAL>{NEWLINE} {
 	*string_literal += yytext[0];
     LINE_NUMBER_INC();
 }
-<DOUBLE_STRING_LITERAL>\\\"      *string_literal += '"';
-<DOUBLE_STRING_LITERAL>\\n       *string_literal += '\n';
-<DOUBLE_STRING_LITERAL>\\t       *string_literal += '\t';
-<DOUBLE_STRING_LITERAL>\\\\      *string_literal += '\\';
-<DOUBLE_STRING_LITERAL><<EOF>>   {
+<DOUBLE_STRING_LITERAL>\\\"		*string_literal += '"';
+<DOUBLE_STRING_LITERAL>\\a		*string_literal += '\a';
+<DOUBLE_STRING_LITERAL>\\b		*string_literal += '\b';
+<DOUBLE_STRING_LITERAL>\\f		*string_literal += '\f';
+<DOUBLE_STRING_LITERAL>\\n		*string_literal += '\n';
+<DOUBLE_STRING_LITERAL>\\r		*string_literal += '\r';
+<DOUBLE_STRING_LITERAL>\\t		*string_literal += '\t';
+<DOUBLE_STRING_LITERAL>\\v		*string_literal += '\v';
+<DOUBLE_STRING_LITERAL>\\\\		*string_literal += '\\';
+<DOUBLE_STRING_LITERAL>\\.		*string_literal += yytext[1];
+<DOUBLE_STRING_LITERAL><<EOF>> {
 	yyerror("EOF in string literal");
 	yyterminate();
 }
@@ -396,7 +412,7 @@ void yyerror(const char *msg);
 	BEGIN INITIAL;
 	return TSTRING;
 }
-<SINGLE_STRING_LITERAL>\\[oO]{OCT}{1,3} {
+<SINGLE_STRING_LITERAL>\\[oO]{OCT}{1,2} {
 	unsigned int letter;
 	sscanf(&yytext[1], "%o", &letter);
     *string_literal += letter;
@@ -406,19 +422,57 @@ void yyerror(const char *msg);
 	sscanf(&yytext[2], "%x", &letter);
     *string_literal += letter;
 }
-<SINGLE_STRING_LITERAL>{NEWLINE}        {
+<SINGLE_STRING_LITERAL>{NEWLINE} {
 	*string_literal += yytext[0];
     LINE_NUMBER_INC();
 };
-<SINGLE_STRING_LITERAL>\\'       *string_literal += '\'';
-<SINGLE_STRING_LITERAL>\\n       *string_literal += '\n';
-<SINGLE_STRING_LITERAL>\\t       *string_literal += '\t';
-<SINGLE_STRING_LITERAL>\\\\      *string_literal += '\\';
+<SINGLE_STRING_LITERAL>\\'		*string_literal += '\'';
+<SINGLE_STRING_LITERAL>\\a		*string_literal += '\a';
+<SINGLE_STRING_LITERAL>\\b		*string_literal += '\b';
+<SINGLE_STRING_LITERAL>\\f		*string_literal += '\f';
+<SINGLE_STRING_LITERAL>\\n		*string_literal += '\n';
+<SINGLE_STRING_LITERAL>\\r		*string_literal += '\r';
+<SINGLE_STRING_LITERAL>\\t		*string_literal += '\t';
+<SINGLE_STRING_LITERAL>\\v		*string_literal += '\v';
+<SINGLE_STRING_LITERAL>\\\\		*string_literal += '\\';
+<SINGLE_STRING_LITERAL>\\.		*string_literal += yytext[1];
 <SINGLE_STRING_LITERAL><<EOF>>   {
 	yyerror("EOF in string literal");
 	yyterminate();
 }
-<SINGLE_STRING_LITERAL>.         {
+<SINGLE_STRING_LITERAL>. {
+    *string_literal += yytext[0];
+}
+
+ /* Raw String Literal */
+<INITIAL>[rR]\" {
+	string_literal = new std::string("", 0);
+    BEGIN RAW_DOUBLE_STRING_LITERAL;
+}
+<INITIAL>[rR]' {
+	string_literal = new std::string("", 0);
+    BEGIN RAW_SINGLE_STRING_LITERAL;
+}
+
+<RAW_DOUBLE_STRING_LITERAL>\" {
+	yylval.string = string_literal;
+	string_literal = NULL;
+	BEGIN INITIAL;
+	return TSTRING;
+}
+<RAW_DOUBLE_STRING_LITERAL>\\"       *string_literal += '"';
+<RAW_DOUBLE_STRING_LITERAL>.         {
+    *string_literal += yytext[0];
+}
+
+<RAW_SINGLE_STRING_LITERAL>' {
+	yylval.string = string_literal;
+	string_literal = NULL;
+	BEGIN INITIAL;
+	return TSTRING;
+}
+<RAW_SINGLE_STRING_LITERAL>\\'       *string_literal += '\'';
+<RAW_SINGLE_STRING_LITERAL>. {
     *string_literal += yytext[0];
 }
 
