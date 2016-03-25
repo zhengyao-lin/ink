@@ -1793,3 +1793,10 @@ expand_test(expand ["it works!", " "], expand ["wow!"])
 a = fn : "I'm shorter" ;
 if (1) : p("ha") ;
 p(a())
+
+10.times(1 + _).slice(?, ?, 1).each(p(_))
+10.times(1 + _).slice(?, ?, 2).each(p(_))
+10.times(1 + _).slice(?, ?, -1).each(p(_))
+10.times(1 + _).slice(?, ?, -2).each(p(_))
+10.times(1 + _).slice(?, ?, -100).each(p(_))
+10.times(1 + _).slice(?, ?, 100).each(p(_))

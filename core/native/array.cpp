@@ -244,13 +244,33 @@ Ink_Object *InkNative_Array_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
-	if (!checkArgument(engine, argc, argv, 2, INK_NUMERIC)) {
-		return NULL_OBJ;
-	}
-
 	Ink_ArrayValue base_val = as<Ink_Array>(base)->value;
-	Ink_ArrayValue::size_type start = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), base_val.size()),
-							  end = getRealIndex(as<Ink_Numeric>(argv[1])->getValue(), base_val.size()), tmp, i;
+	Ink_ArrayValue::size_type start = 0, end = base_val.size() - 1, tmp, i;
+	Ink_SInt64 range = 1;
+
+	if (argc > 0) {
+		if (argv[0]->type == INK_NUMERIC) {
+			start = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), base_val.size());
+		} else if (argv[0]->type != INK_UNDEFINED) {
+			InkWarn_Slice_Require_Numeric(engine, 1);
+		}
+
+		if (argc > 1) {
+			if (argv[1]->type == INK_NUMERIC) {
+				end = getRealIndex(as<Ink_Numeric>(argv[1])->getValue(), base_val.size());
+			} else if (argv[1]->type != INK_UNDEFINED) {
+				InkWarn_Slice_Require_Numeric(engine, 2);
+			}
+
+			if (argc > 2) {
+				if (argv[2]->type == INK_NUMERIC) {
+					range = getInt(as<Ink_Numeric>(argv[2])->getValue());
+				} else if (argv[2]->type != INK_UNDEFINED) {
+					InkWarn_Slice_Require_Numeric(engine, 3);
+				}
+			}
+		}
+	}
 
 	if (start > end) {
 		InkNote_Array_Slice_Start_Greater(engine, start, end);
@@ -259,15 +279,38 @@ Ink_Object *InkNative_Array_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain
 		end = tmp;
 	}
 
+	if (!range) {
+		InkWarn_Slice_Require_Non_Zero_Range(engine);
+		range = 1;
+	}
+
 	if (end >= base_val.size()) {
 		InkWarn_Index_Exceed(engine, end, base_val.size());
 		return NULL_OBJ;
 	}
 
-	Ink_ArrayValue ret_val = Ink_ArrayValue(end - start + 1, NULL);
-	for (i = start; i <= end; i++) {
-		if (base_val[i]) 
-			ret_val[i - start] = new Ink_HashTable(base_val[i]->getValue());
+	Ink_ArrayValue ret_val = Ink_ArrayValue();
+	if (range > 0) {
+		for (i = start; i <= end; i += range) {
+			if (base_val[i]) {
+				ret_val.push_back(new Ink_HashTable(base_val[i]->getValue()));
+			} else {
+				ret_val.push_back(NULL);
+			}
+		}
+	} else {
+		for (i = end; i >= start;) {
+			if (base_val[i]) {
+				ret_val.push_back(new Ink_HashTable(base_val[i]->getValue()));
+			} else {
+				ret_val.push_back(NULL);
+			}
+
+			if ((Ink_UInt64)-range > i) {
+				break;
+			}
+			i += range;
+		}
 	}
 
 	return new Ink_Array(engine, ret_val);

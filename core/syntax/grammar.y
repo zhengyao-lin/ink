@@ -836,6 +836,7 @@ argument_single
 	{
 		$$ = new Ink_Argument(true, $3);
 	}
+	;
 
 argument_list
 	: argument_single

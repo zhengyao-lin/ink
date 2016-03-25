@@ -581,6 +581,7 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	SET_LINE_NUM;
 
 	Ink_ArgumentList::size_type i;
+	Ink_Argument *tmp_arg;
 	Ink_Object **argv = NULL;
 	Ink_Object *ret_val, *expandee;
 	/* eval callee to get parameter declaration */
@@ -603,6 +604,10 @@ Ink_Object *Ink_CallExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	tmp_arg_list = Ink_ArgumentList();
 	for (Ink_ArgumentList::iterator arg_list_iter = arg_list.begin();
 		 arg_list_iter != arg_list.end(); arg_list_iter++) {
+		if (!(*arg_list_iter)) {
+			tmp_arg_list.push_back(tmp_arg = new Ink_Argument(new Ink_ShellExpression(UNDEFINED)));
+			dispose_list.push_back(tmp_arg);
+		}
 		if ((*arg_list_iter)->is_expand) {
 			/* if the argument is 'with' argument attachment */
 

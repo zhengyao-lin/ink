@@ -545,6 +545,29 @@ InkWarn_Fix_Require_Assignable_Argument(Ink_InterpreteEngine *engine)
 }
 
 inline void
+InkWarn_Slice_Require_Numeric(Ink_InterpreteEngine *engine, Ink_ArgcType argno)
+{
+	std::stringstream strm;
+	strm << "slice method require numeric argument(while the ";
+	if (argno <= 3) {
+		strm << (argno == 1 ? "first" : (argno == 2 ? "second" : "third"));
+	} else {
+		strm << argno << "th";
+	}
+	InkErro_doPrintWarning(engine, INK_EXCODE_WRAN_SLICE_REQUIRE_NUMERIC,
+						   strm.str().c_str());
+	return;
+}
+
+inline void
+InkWarn_Slice_Require_Non_Zero_Range(Ink_InterpreteEngine *engine)
+{
+	InkErro_doPrintWarning(engine, INK_EXCODE_WRAN_SLICE_REQUIRE_NON_ZERO_RANGE,
+						   "slice method require non-zero range(the third argument), set back to 1");
+	return;
+}
+
+inline void
 InkNote_Method_Fallthrough(Ink_InterpreteEngine *engine, const char *name, Ink_TypeTag origin, Ink_TypeTag to_type)
 {
 #ifdef INK_DEBUG_FLAG
