@@ -60,27 +60,28 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
+	if (argc > 1) {
+		/* two or more arguments -- slice */
+		InkNote_Method_Fallthrough(engine, "[]", "slice", INK_ARRAY);
+		return InkNative_Array_Slice(engine, context, argc, argv, this_p);
+	}
+
 	if (!checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
 		InkNote_Method_Fallthrough(engine, "[]", INK_ARRAY, INK_OBJECT);
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
 
-	if (argc > 1 && argv[1]->type == INK_NUMERIC) {
-		/* two argument -- slice */
-		return InkNative_Array_Slice(engine, context, argc, argv, this_p);
+	index = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), obj->value.size());
+	if (index < obj->value.size()) {
+		if (!obj->value[index]) obj->value[index] = new Ink_HashTable(UNDEFINED);
+		hash = Ink_Object::traceHashBond(obj->value[index]);
+		ret = hash->getValue();
+		ret->address = hash;
+		// ret->setSlot_c("base", base);
+		ret->setBase(base);
 	} else {
-		index = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), obj->value.size());
-		if (index < obj->value.size()) {
-			if (!obj->value[index]) obj->value[index] = new Ink_HashTable(UNDEFINED);
-			hash = Ink_Object::traceHashBond(obj->value[index]);
-			ret = hash->getValue();
-			ret->address = hash;
-			// ret->setSlot_c("base", base);
-			ret->setBase(base);
-		} else {
-			InkWarn_Index_Exceed(engine, index, obj->value.size());
-			return UNDEFINED;
-		}
+		InkWarn_Index_Exceed(engine, index, obj->value.size());
+		return UNDEFINED;
 	}
 
 	return ret;

@@ -876,7 +876,13 @@ argument_list_sub
 	;
 
 argument_list
-	: nllo argument_list_sub nllo
+	: nllo empty_argument_list nllo
+	{
+		$2->push_back(NULL);
+		$2->push_back(NULL);
+		$$ = $2;
+	}
+	| nllo argument_list_sub nllo
 	{
 		$$ = $2;
 	}

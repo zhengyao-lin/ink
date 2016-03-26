@@ -1800,6 +1800,9 @@ p(a())
 10.times(1 + _).slice(,, -2).each(p(_))
 10.times(1 + _).slice(,, -100).each(p(_))
 10.times(1 + _).slice(,, 100).each(p(_))
+p("ha")
+10.times(1 + _)[,, -1].each(p(_))
+10.times(1 + _)[0,, -1].each(p(_))
 
 a = fn (a,b,c,d,e,f) { p(a); p(b); p(c); p(d); p(e); p(f) }
 a(,
@@ -1809,3 +1812,5 @@ a(,
 4,
 	,
 	)
+
+a.`[]` = a

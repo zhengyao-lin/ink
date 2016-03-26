@@ -580,6 +580,16 @@ InkNote_Method_Fallthrough(Ink_InterpreteEngine *engine, const char *name, Ink_T
 }
 
 inline void
+InkNote_Method_Fallthrough(Ink_InterpreteEngine *engine, const char *from, const char *to,Ink_TypeTag type)
+{
+#ifdef INK_DEBUG_FLAG
+	InkErro_doPrintNote(engine, "Method \'$(from)\' of object of type <$(type)> fallthrough to method \'$(to)\'",
+						from, getTypeName(engine, type), to);
+#endif
+	return;
+}
+
+inline void
 InkNote_Exceed_Argument(Ink_InterpreteEngine *engine)
 {
 	InkErro_doPrintNote(engine, "Argument(s) exceed");
