@@ -59,6 +59,26 @@ let PolyNom = fn (coefs...) { // A() = sigma(i = 0 to n - 1)(ai * x ^ i)
 		}.sum()
 	}
 
+	this.area_in = fn (x1, x2) {
+		let i = 1
+		pn = new PolyNom() with ([0] + ((base).each { | v | 
+			v / i++
+		}))
+
+		(pn(x1) - pn(x2)).abs()
+	}
+
+	this.derive = fn () {
+		let i = 1
+		new PolyNom() with (base.slice(1).each { | v |
+			v * i++
+		})
+	}
+
+	this.grad_at = fn (x) {
+		base.derive()(x)
+	}
+
 	this.p = fn () {
 		let ret = ""
 		let i = 0
@@ -98,3 +118,7 @@ poly4.p()
 p(poly1(10))
 p(poly2(10))
 p(poly5(12))
+
+p((new PolyNom(0, 1, 2, 3)).grad_at(30))
+
+p((new PolyNom(0, 1, 4, 5, 7)).area_in(1, 10))

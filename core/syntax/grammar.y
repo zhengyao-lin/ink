@@ -203,6 +203,7 @@
 	argument_attachment
 	argument_attachment_opt
 	argument_list_without_paren
+	empty_argument_list
 
 /* hash table */
 %type <hash_table_mapping>
@@ -838,16 +839,38 @@ argument_single
 	}
 	;
 
+empty_argument_list
+	: TCOMMA
+	{
+		$$ = new Ink_ArgumentList();
+	}
+	| empty_argument_list nllo TCOMMA
+	{
+		$1->push_back(NULL);
+		$$ = $1;
+	}
+	;
+
 argument_list
 	: argument_single
 	{
 		$$ = new Ink_ArgumentList();
 		$$->push_back($1);
 	}
-	| argument_list nllo TCOMMA nllo argument_single
+	| empty_argument_list nllo argument_single
 	{
+		$$ = new Ink_ArgumentList();
+		$$->push_back(NULL);
+		$$->insert($$->end(), $1->begin(), $1->end());
+		$$->push_back($3);
+		delete $1;
+	}
+	| argument_list nllo empty_argument_list nllo argument_single
+	{
+		$1->insert($1->end(), $3->begin(), $3->end());
 		$1->push_back($5);
 		$$ = $1;
+		delete $3;
 	}
 	;
 
@@ -865,13 +888,20 @@ argument_list_without_paren
 	;
 
 argument_list_opt
-	: nllo
+	: /* empty */ 
 	{
 		$$ = new Ink_ArgumentList();
 	}
 	| nllo argument_list nllo
 	{
 		$$ = $2;
+	}
+	| nllo argument_list nllo empty_argument_list nllo
+	{
+		$2->insert($2->end(), $4->begin(), $4->end());
+		$2->push_back(NULL);
+		$$ = $2;
+		delete $4;
 	}
 	;
 
@@ -1130,10 +1160,10 @@ postfix_expression
 		delete $3;
 		SET_LINE_NO($$);
 	}
-	| postfix_expression TLBRAKT nllo argument_list nllo TRBRAKT
+	| postfix_expression TLBRAKT argument_list TRBRAKT
 	{
-		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("[]")), *$4);
-		delete $4;
+		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("[]")), *$3);
+		delete $3;
 		SET_LINE_NO($$);
 		SET_LINE_NO(as<Ink_CallExpression>($$)->callee);
 	}

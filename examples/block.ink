@@ -1794,9 +1794,18 @@ a = fn : "I'm shorter" ;
 if (1) : p("ha") ;
 p(a())
 
-10.times(1 + _).slice(?, ?, 1).each(p(_))
-10.times(1 + _).slice(?, ?, 2).each(p(_))
-10.times(1 + _).slice(?, ?, -1).each(p(_))
-10.times(1 + _).slice(?, ?, -2).each(p(_))
-10.times(1 + _).slice(?, ?, -100).each(p(_))
-10.times(1 + _).slice(?, ?, 100).each(p(_))
+10.times(1 + _).slice(,, 1).each(p(_))
+10.times(1 + _).slice(,, 2).each(p(_))
+10.times(1 + _).slice(,, -1).each(p(_))
+10.times(1 + _).slice(,, -2).each(p(_))
+10.times(1 + _).slice(,, -100).each(p(_))
+10.times(1 + _).slice(,, 100).each(p(_))
+
+a = fn (a,b,c,d,e,f) { p(a); p(b); p(c); p(d); p(e); p(f) }
+a(,
+	,
+2
+,
+4,
+	,
+	)

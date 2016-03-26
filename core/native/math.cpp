@@ -285,12 +285,10 @@ Ink_Object *InkNative_Numeric_Not_Postfix(Ink_InterpreteEngine *engine, Ink_Cont
 Ink_Object *InkNative_Numeric_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
-	stringstream ss;
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
-	ss << as<Ink_Numeric>(base)->getValue();
 
-	return new Ink_String(engine, string(ss.str()));
+	return new Ink_String(engine, as<Ink_Numeric>(base)->getValue().toString());
 }
 
 Ink_Object *InkNative_Numeric_Ceil(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -299,7 +297,7 @@ Ink_Object *InkNative_Numeric_Ceil(Ink_InterpreteEngine *engine, Ink_ContextChai
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	return new Ink_Numeric(engine, ceil(getFloat(as<Ink_Numeric>(base)->getValue())));
+	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue().ceil());
 }
 
 Ink_Object *InkNative_Numeric_Floor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -308,7 +306,7 @@ Ink_Object *InkNative_Numeric_Floor(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	return new Ink_Numeric(engine, floor(getFloat(as<Ink_Numeric>(base)->getValue())));
+	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue().floor());
 }
 
 Ink_Object *InkNative_Numeric_Round(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -317,7 +315,7 @@ Ink_Object *InkNative_Numeric_Round(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	return new Ink_Numeric(engine, round(getFloat(as<Ink_Numeric>(base)->getValue())));
+	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue().round());
 }
 
 Ink_Object *InkNative_Numeric_Trunc(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -335,7 +333,7 @@ Ink_Object *InkNative_Numeric_Abs(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
-	return new Ink_Numeric(engine, fabs(getFloat(as<Ink_Numeric>(base)->getValue())));
+	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue().abs());
 }
 
 Ink_Object *InkNative_Numeric_IsNan(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -354,6 +352,24 @@ Ink_Object *InkNative_Numeric_IsInf(Ink_InterpreteEngine *engine, Ink_ContextCha
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, isinf((long double)getFloat(as<Ink_Numeric>(base)->getValue())));
+}
+
+Ink_Object *InkNative_Numeric_IsInt(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
+
+	return new Ink_Numeric(engine, (int)as<Ink_Numeric>(base)->getValue().isInt());
+}
+
+Ink_Object *InkNative_Numeric_IsFloat(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
+
+	return new Ink_Numeric(engine, (int)as<Ink_Numeric>(base)->getValue().isFloat());
 }
 
 Ink_Object *InkNative_Numeric_Times(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -443,6 +459,8 @@ void Ink_Numeric::Ink_NumericMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("abs", new Ink_FunctionObject(engine, InkNative_Numeric_Abs));
 	setSlot_c("isnan", new Ink_FunctionObject(engine, InkNative_Numeric_IsNan));
 	setSlot_c("isinf", new Ink_FunctionObject(engine, InkNative_Numeric_IsInf));
+	setSlot_c("isint", new Ink_FunctionObject(engine, InkNative_Numeric_IsInt));
+	setSlot_c("isfloat", new Ink_FunctionObject(engine, InkNative_Numeric_IsFloat));
 
 	setSlot_c("times", new Ink_FunctionObject(engine, InkNative_Numeric_Times));
 	

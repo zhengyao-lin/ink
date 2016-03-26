@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <math.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "inttype.h"
 
@@ -79,6 +80,60 @@ public:
 				return fval;
 		}
 		assert(0);
+	}
+
+	inline Ink_NumericValue abs()
+	{
+		switch (type) {
+			case NUM_INT:
+				return Ink_NumericValue(::abs(ival));
+			case NUM_FLOAT:
+				return Ink_NumericValue(::fabs(fval));
+		}
+		assert(0);
+	}
+
+	inline Ink_NumericValue ceil()
+	{
+		switch (type) {
+			case NUM_INT:
+				return Ink_NumericValue(ival);
+			case NUM_FLOAT:
+				return Ink_NumericValue(::ceil(fval));
+		}
+		assert(0);
+	}
+
+	inline Ink_NumericValue floor()
+	{
+		switch (type) {
+			case NUM_INT:
+				return Ink_NumericValue(ival);
+			case NUM_FLOAT:
+				return Ink_NumericValue(::floor(fval));
+		}
+		assert(0);
+	}
+
+	inline Ink_NumericValue round()
+	{
+		switch (type) {
+			case NUM_INT:
+				return Ink_NumericValue(ival);
+			case NUM_FLOAT:
+				return Ink_NumericValue(::round(fval));
+		}
+		assert(0);
+	}
+
+	inline bool isInt()
+	{
+		return type == NUM_INT;
+	}
+
+	inline bool isFloat()
+	{
+		return type == NUM_FLOAT;
 	}
 
 	Ink_NumericValue toType(Ink_NumericValue_NumType t) const;
