@@ -199,6 +199,7 @@
 
 %type <argument_list>
 	argument_list
+	argument_list_sub
 	argument_list_opt
 	argument_attachment
 	argument_attachment_opt
@@ -851,7 +852,7 @@ empty_argument_list
 	}
 	;
 
-argument_list
+argument_list_sub
 	: argument_single
 	{
 		$$ = new Ink_ArgumentList();
@@ -865,12 +866,26 @@ argument_list
 		$$->push_back($3);
 		delete $1;
 	}
-	| argument_list nllo empty_argument_list nllo argument_single
+	| argument_list_sub nllo empty_argument_list nllo argument_single
 	{
 		$1->insert($1->end(), $3->begin(), $3->end());
 		$1->push_back($5);
 		$$ = $1;
 		delete $3;
+	}
+	;
+
+argument_list
+	: nllo argument_list_sub nllo
+	{
+		$$ = $2;
+	}
+	| nllo argument_list_sub nllo empty_argument_list nllo
+	{
+		$2->insert($2->end(), $4->begin(), $4->end());
+		$2->push_back(NULL);
+		$$ = $2;
+		delete $4;
 	}
 	;
 
@@ -892,17 +907,7 @@ argument_list_opt
 	{
 		$$ = new Ink_ArgumentList();
 	}
-	| nllo argument_list nllo
-	{
-		$$ = $2;
-	}
-	| nllo argument_list nllo empty_argument_list nllo
-	{
-		$2->insert($2->end(), $4->begin(), $4->end());
-		$2->push_back(NULL);
-		$$ = $2;
-		delete $4;
-	}
+	| argument_list
 	;
 
 block
@@ -1160,7 +1165,7 @@ postfix_expression
 		delete $3;
 		SET_LINE_NO($$);
 	}
-	| postfix_expression TLBRAKT argument_list TRBRAKT
+	| postfix_expression TLBRAKT argument_list_opt TRBRAKT
 	{
 		$$ = new Ink_CallExpression(new Ink_HashExpression($1, new string("[]")), *$3);
 		delete $3;
