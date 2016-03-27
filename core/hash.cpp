@@ -126,13 +126,10 @@ Ink_Object *Ink_HashTable::setValue(Ink_InterpreteEngine *engine, Ink_Constant *
 	}
 
 	if (val) {
-		if (const_value.value) {
-			InkWarn_Assign_Fixed(const_value.engine, key);
-		} else {
-			cleanConst();
-			const_value.value = val;
-			const_value.engine = engine;
-		}
+		/* this function can only be called by native method, so no need to warn */
+		cleanConst();
+		const_value.value = val;
+		const_value.engine = engine;
 	} else {
 		setUndefined();
 	}
