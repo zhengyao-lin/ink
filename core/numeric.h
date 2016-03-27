@@ -80,6 +80,7 @@ public:
 				return fval;
 		}
 		assert(0);
+		return false;
 	}
 
 	inline Ink_NumericValue abs()
@@ -91,6 +92,7 @@ public:
 				return Ink_NumericValue(::fabs(fval));
 		}
 		assert(0);
+		return Ink_NumericValue(0);
 	}
 
 	inline Ink_NumericValue ceil()
@@ -102,6 +104,7 @@ public:
 				return Ink_NumericValue(::ceil(fval));
 		}
 		assert(0);
+		return Ink_NumericValue(0);
 	}
 
 	inline Ink_NumericValue floor()
@@ -113,6 +116,7 @@ public:
 				return Ink_NumericValue(::floor(fval));
 		}
 		assert(0);
+		return Ink_NumericValue(0);
 	}
 
 	inline Ink_NumericValue round()
@@ -124,6 +128,7 @@ public:
 				return Ink_NumericValue(::round(fval));
 		}
 		assert(0);
+		return Ink_NumericValue(0);
 	}
 
 	inline bool isInt()
