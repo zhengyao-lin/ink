@@ -92,7 +92,7 @@ let init = fn () {
 				if (code) else {
 					retn no_print
 				},
-				eval(delete code)
+				eval((delete code) + "\n")
 			)
 		}
 
