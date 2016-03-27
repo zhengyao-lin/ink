@@ -1,4 +1,5 @@
 #include <time.h>
+#include <math.h>
 #include "collect.h"
 #include "core/context.h"
 #include "core/object.h"
@@ -189,10 +190,12 @@ void IGC_CollectEngine::checkGC()
 
 	// printf("after collect: oc: %ld, t: %ld; ", oc, t);
 	if (oc >= t) { /* increase */
+		// tu *= pow(oc / t, 2);
 		t += upper((oc - t) / (double)tu) * tu;
 		// printf("t increase to: %ld\n", t);
 	} else {
-		// t -= lower((t - oc) / (double)tu) * tu;
+		// tu *= pow(oc / t, 2);
+		t -= lower((t - oc) / (double)tu) * tu;
 		// t -= tu;
 		// printf("t recuce to: %ld\n", t);
 	}

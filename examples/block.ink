@@ -1814,3 +1814,12 @@ a(,
 	)
 
 a.`[]` = a
+
+a = {}
+a.setter("b") {
+	p("ha")
+}
+
+fix a.b
+delete a.b
+a.b

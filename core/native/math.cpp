@@ -388,7 +388,7 @@ Ink_Object *InkNative_Numeric_Times(Ink_InterpreteEngine *engine, Ink_ContextCha
 	}
 
 	to = as<Ink_Numeric>(base)->getValue();
-	ret = new Ink_Array(engine);
+	ret = new Ink_Array(engine, Ink_ArrayValue((Ink_UInt64)getInt(to), NULL));
 	engine->addPardonObject(ret);
 
 	args = (Ink_Object **)malloc(sizeof(Ink_Object *));
@@ -396,7 +396,7 @@ Ink_Object *InkNative_Numeric_Times(Ink_InterpreteEngine *engine, Ink_ContextCha
 		gc_engine->checkGC();
 		if (block) {
 			args[0] = new Ink_Numeric(engine, i);
-			ret->value.push_back(new Ink_HashTable(argv[0]->call(engine, context, 1, args)));
+			ret->value[getInt(i)] = new Ink_HashTable(argv[0]->call(engine, context, 1, args));
 			if (engine->getSignal() != INTER_NONE) {
 				switch (engine->getSignal()) {
 					case INTER_RETURN:
@@ -418,7 +418,7 @@ Ink_Object *InkNative_Numeric_Times(Ink_InterpreteEngine *engine, Ink_ContextCha
 				}
 			}
 		} else {
-			ret->value.push_back(new Ink_HashTable(new Ink_Numeric(engine, i)));
+			ret->value[getInt(i)] = new Ink_HashTable(new Ink_Numeric(engine, i));
 		}
 	}
 

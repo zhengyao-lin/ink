@@ -104,6 +104,12 @@ void Ink_HashTable::setConstant()
 			const_value.value = value->toConstant(const_value.engine = value->engine);
 		}
 	}
+	
+	bondee = NULL;
+	bonding = NULL;
+	setter = NULL;
+	getter = NULL;
+
 	type = HASH_CONST;
 
 	return;
