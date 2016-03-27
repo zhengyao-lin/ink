@@ -278,7 +278,7 @@ Ink_Object *InkMod_Blueprint_Math_Random(Ink_InterpreteEngine *engine, Ink_Conte
 		return new Ink_Numeric(engine, start);
 	}
 
-	rand_num = ((Ink_NumericValue)rand()) / (RAND_MAX / (end - start)) + start;
+	rand_num = Ink_NumericValue((double)rand() / (RAND_MAX / (end - start)) + start);
 
 	return new Ink_Numeric(engine, rand_num);
 }

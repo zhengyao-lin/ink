@@ -3,13 +3,14 @@
 
 #include <sstream>
 #include <math.h>
-#include <stdlib.h>
 #include <assert.h>
 #include "inttype.h"
 
 namespace ink {
 
 using namespace std;
+
+#define ABS(i) ((i) < 0 ? -i : i)
 
 class Ink_NumericValue {
 public:
@@ -35,13 +36,19 @@ public:
 		ival = val;
 	}
 
-	explicit Ink_NumericValue(Ink_SInt64 val)
+	Ink_NumericValue(Ink_SInt64 val)
 	{
 		type = NUM_INT;
 		ival = val;
 	}
 
-	explicit Ink_NumericValue(double val)
+	Ink_NumericValue(Ink_UInt64 val)
+	{
+		type = NUM_INT;
+		ival = val;
+	}
+
+	Ink_NumericValue(double val)
 	{
 		type = NUM_FLOAT;
 		fval = val;
@@ -87,12 +94,12 @@ public:
 	{
 		switch (type) {
 			case NUM_INT:
-				return Ink_NumericValue(::abs(ival));
+				return Ink_NumericValue(ABS(ival));
 			case NUM_FLOAT:
 				return Ink_NumericValue(::fabs(fval));
 		}
 		assert(0);
-		return Ink_NumericValue(0);
+		return 0;
 	}
 
 	inline Ink_NumericValue ceil()
@@ -104,7 +111,7 @@ public:
 				return Ink_NumericValue(::ceil(fval));
 		}
 		assert(0);
-		return Ink_NumericValue(0);
+		return 0;
 	}
 
 	inline Ink_NumericValue floor()
@@ -116,7 +123,7 @@ public:
 				return Ink_NumericValue(::floor(fval));
 		}
 		assert(0);
-		return Ink_NumericValue(0);
+		return 0;
 	}
 
 	inline Ink_NumericValue round()
@@ -128,7 +135,7 @@ public:
 				return Ink_NumericValue(::round(fval));
 		}
 		assert(0);
-		return Ink_NumericValue(0);
+		return 0;
 	}
 
 	inline bool isInt()
