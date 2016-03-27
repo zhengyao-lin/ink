@@ -39,6 +39,7 @@ public:
 	std::string *key_p;
 
 	Ink_HashTable(const char *key, Ink_Object *value, std::string *key_p = NULL);
+	Ink_HashTable(const char *key, Ink_InterpreteEngine *engine, Ink_Constant *value, std::string *key_p = NULL);
 
 	Ink_HashTable(Ink_Object *value);
 
@@ -46,6 +47,7 @@ public:
 	// Ink_HashTable *getMapping(const char *key);
 	Ink_Object *getValue();
 	Ink_Object *setValue(Ink_Object *val);
+	Ink_Object *setValue(Ink_InterpreteEngine *engine, Ink_Constant *val);
 
 	inline bool isConstant()
 	{

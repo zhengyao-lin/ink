@@ -121,6 +121,37 @@ Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_c
 	return slot;
 }
 
+Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_InterpreteEngine *engine, Ink_Constant *value, bool if_check_exist, bool if_alloc_key)
+{
+	Ink_HashTable *i, *slot = NULL, *last = NULL;
+	
+	for (i = hash_table; i; i = i->next) {
+		if (if_check_exist) {
+			if (!strcmp(i->key, key)) {
+				slot = traceHashBond(i);
+			}
+		}
+		last = i;
+	}
+
+	if (slot) {
+		slot->setValue(engine, value);
+	} else {
+		if (if_alloc_key) {
+			string *key_p = new string(key);
+			slot = new Ink_HashTable(key_p->c_str(), engine, value, key_p);
+		} else {
+			slot = new Ink_HashTable(key, engine, value);
+		}
+		if (hash_table)
+			last->next = slot;
+		else
+			hash_table = slot;
+	}
+
+	return slot;
+}
+
 void Ink_Object::deleteSlot(const char *key)
 {
 	Ink_HashTable *i;

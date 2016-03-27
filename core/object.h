@@ -125,10 +125,16 @@ public:
 	}
 
 	Ink_HashTable *setSlot(const char *key, Ink_Object *value, bool if_check_exist = true, bool if_alloc_key = true);
+	Ink_HashTable *setSlot(const char *key, Ink_InterpreteEngine *engine, Ink_Constant *value, bool if_check_exist = true, bool if_alloc_key = true);
 
 	inline Ink_HashTable *setSlot_c(const char *key, Ink_Object *value, bool if_check_exist = true)
 	{
 		return setSlot(key, value, if_check_exist, false);
+	}
+
+	inline Ink_HashTable *setSlot_c(const char *key, Ink_InterpreteEngine *engine, Ink_Constant *value, bool if_check_exist = true)
+	{
+		return setSlot(key, engine, value, if_check_exist, false);
 	}
 
 	void deleteSlot(const char *key);

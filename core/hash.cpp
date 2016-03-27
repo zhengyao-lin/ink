@@ -28,6 +28,28 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, string *k_p)
 	}
 }
 
+Ink_HashTable::Ink_HashTable(const char *k, Ink_InterpreteEngine *engine, Ink_Constant *val, string *k_p)
+{
+	const_value.value = val;
+	const_value.engine = engine;
+
+	key = k;
+	key_p = k_p;
+
+	next = NULL;
+	bonding = NULL;
+	bondee = NULL;
+
+	setter = NULL;
+	getter = NULL;
+
+	if (val) {
+		type = HASH_CONST;
+	} else {
+		type = HASH_UNDEFINED;
+	}
+}
+
 Ink_HashTable::Ink_HashTable(Ink_Object *val)
 {
 	initValue();
@@ -95,6 +117,27 @@ Ink_Object *Ink_HashTable::setValue(Ink_Object *val)
 	}
 
 	return val;
+}
+
+Ink_Object *Ink_HashTable::setValue(Ink_InterpreteEngine *engine, Ink_Constant *val)
+{
+	if (type != HASH_CONST) {
+		setConstant();
+	}
+
+	if (val) {
+		if (const_value.value) {
+			InkWarn_Assign_Fixed(const_value.engine, key);
+		} else {
+			cleanConst();
+			const_value.value = val;
+			const_value.engine = engine;
+		}
+	} else {
+		setUndefined();
+	}
+
+	return NULL;
 }
 
 void Ink_HashTable::setConstant()

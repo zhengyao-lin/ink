@@ -198,6 +198,29 @@ Ink_Object *InkNative_File_GetCh(Ink_InterpreteEngine *engine, Ink_ContextChain 
 
 #endif
 
+Ink_Object *InkNative_File_Seek(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+	FILE *tmp;
+
+	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
+
+	if (!checkArgument(engine, argc, argv, 2, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	tmp = as<Ink_FilePointer>(base)->fp;
+
+	if (tmp) {
+		return new Ink_Numeric(engine, fseek(tmp, getInt(as<Ink_Numeric>(argv[0])->getValue()),
+												  getInt(as<Ink_Numeric>(argv[1])->getValue())) == 0);
+	}
+
+	InkWarn_IO_Uninitialized_File_Pointer(engine);
+
+	return NULL_OBJ;
+}
+
 Ink_Object *InkNative_File_ReadAll(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -279,6 +302,7 @@ void Ink_FilePointer::Ink_FilePointerMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("putc", new Ink_FunctionObject(engine, InkNative_File_PutC));
 	setSlot_c("gets", new Ink_FunctionObject(engine, InkNative_File_GetString));
 	setSlot_c("getc", new Ink_FunctionObject(engine, InkNative_File_GetC));
+	setSlot_c("seek", new Ink_FunctionObject(engine, InkNative_File_Seek));
 	setSlot_c("read", new Ink_FunctionObject(engine, InkNative_File_ReadAll));
 	setSlot_c("flush", new Ink_FunctionObject(engine, InkNative_File_Flush));
 	setSlot_c("reopen", new Ink_FunctionObject(engine, InkNative_File_Reopen));
@@ -317,6 +341,9 @@ void InkMod_File_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 #if defined(INK_PLATFORM_LINUX)
 	bondee->setSlot_c("getch", new Ink_FunctionObject(engine, InkNative_File_GetCh)); // no buffering getc
 #endif
+	bondee->setSlot_c("SEEK_SET", engine, new Ink_NumericConstant((Ink_SInt64)SEEK_SET));
+	bondee->setSlot_c("SEEK_CUR", engine, new Ink_NumericConstant((Ink_SInt64)SEEK_CUR));
+	bondee->setSlot_c("SEEK_END", engine, new Ink_NumericConstant((Ink_SInt64)SEEK_END));
 
 	return;
 }
