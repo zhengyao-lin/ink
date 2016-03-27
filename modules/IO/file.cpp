@@ -205,15 +205,21 @@ Ink_Object *InkNative_File_Seek(Ink_InterpreteEngine *engine, Ink_ContextChain *
 
 	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
 
-	if (!checkArgument(engine, argc, argv, 2, INK_NUMERIC)) {
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
+	}
+
+	Ink_SInt64 offset = getInt(as<Ink_Numeric>(argv[0])->getValue());
+	int pos = SEEK_CUR;
+
+	if (argc > 1 && argv[1]->type == INK_NUMERIC) {
+		pos = getInt(as<Ink_Numeric>(argv[1])->getValue());
 	}
 
 	tmp = as<Ink_FilePointer>(base)->fp;
 
 	if (tmp) {
-		return new Ink_Numeric(engine, fseek(tmp, getInt(as<Ink_Numeric>(argv[0])->getValue()),
-												  getInt(as<Ink_Numeric>(argv[1])->getValue())) == 0);
+		return new Ink_Numeric(engine, fseek(tmp, offset, pos) == 0);
 	}
 
 	InkWarn_IO_Uninitialized_File_Pointer(engine);
