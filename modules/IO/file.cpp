@@ -70,7 +70,7 @@ Ink_Object *InkNative_File_Constructor(Ink_InterpreteEngine *engine, Ink_Context
 		fp = as<Ink_FilePointer>(argv[0])->fp;
 	}
 
-	context->getLocal()->context->setSlot_c("this", ret = new Ink_FilePointer(engine, fp));
+	context->getLocal()->setSlot_c("this", ret = new Ink_FilePointer(engine, fp));
 	
 	return ret;
 }
@@ -301,7 +301,7 @@ void InkMod_File_bondType(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 	} else if (com->file_type != (Ink_TypeTag)-1) /* has registered */ return;
 
 	com->file_type = engine->registerType("file");
-	context->getGlobal()->context->setSlot_c("$file", tmp = new Ink_FilePointer(engine));
+	context->getGlobal()->setSlot_c("$file", tmp = new Ink_FilePointer(engine));
 	engine->setTypePrototype(com->file_type, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(engine);

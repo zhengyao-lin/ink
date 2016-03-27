@@ -53,6 +53,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 {
 	// gc_lock.init();
 	Ink_Object *tmp, *obj_proto;
+	Ink_ContextObject *global;
 
 	igc_collect_threshold = igc_collect_threshold_unit = IGC_COLLECT_THRESHOLD_UNIT;
 	igc_mark_period = 1;
@@ -99,54 +100,55 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	gc_engine = new IGC_CollectEngine(this);
 	setCurrentGC(gc_engine);
 	global_context = new Ink_ContextChain(new Ink_ContextObject(this));
+	global = global_context->getGlobal();
 	// gc_engine->initContext(global_context);
 
-	global_context->context->setSlot_c("$object", obj_proto = new Ink_Object(this));
+	global->setSlot_c("$object", obj_proto = new Ink_Object(this));
 	setTypePrototype(INK_OBJECT, obj_proto);
-	global_context->context->setProto(obj_proto);
+	global->setProto(obj_proto);
 
-	global_context->context->setSlot_c("$function", tmp = new Ink_FunctionObject(this));
+	global->setSlot_c("$function", tmp = new Ink_FunctionObject(this));
 	setTypePrototype(INK_FUNCTION, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 	obj_proto->derivedMethodInit(this);
 
-	global_context->context->setSlot_c("$exp_list", tmp = new Ink_ExpListObject(this));
+	global->setSlot_c("$exp_list", tmp = new Ink_ExpListObject(this));
 	setTypePrototype(INK_EXPLIST, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 
-	global_context->context->setSlot_c("$numeric", tmp = new Ink_Numeric(this, Ink_NumericValue()));
+	global->setSlot_c("$numeric", tmp = new Ink_Numeric(this, Ink_NumericValue()));
 	setTypePrototype(INK_NUMERIC, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 
-	global_context->context->setSlot_c("$string", tmp = new Ink_String(this, ""));
+	global->setSlot_c("$string", tmp = new Ink_String(this, ""));
 	setTypePrototype(INK_STRING, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 
-	global_context->context->setSlot_c("$array", tmp = new Ink_Array(this));
+	global->setSlot_c("$array", tmp = new Ink_Array(this));
 	setTypePrototype(INK_ARRAY, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(this);
 
-	global_context->context->setSlot_c("self", global_context->context);
-	global_context->context->setSlot_c("top", global_context->context);
-	global_context->context->setSlot_c("let", global_context->context);
-	global_context->context->setSlot_c("auto", tmp = new Ink_Object(this));
+	global->setSlot_c("self", global);
+	global->setSlot_c("top", global);
+	global->setSlot_c("let", global);
+	global->setSlot_c("auto", tmp = new Ink_Object(this));
 	tmp->setSlot_c("missing", new Ink_FunctionObject(this, InkNative_Auto_Missing_i));
-	// global_context->context->setSlot_c("fix", tmp = new Ink_Object(this));
+	// global->setSlot_c("fix", tmp = new Ink_Object(this));
 	// tmp->setSlot_c("missing", new Ink_FunctionObject(this, InkNative_Fix_Missing_i));
 	Ink_GlobalMethodInit(this, global_context);
 
-	global_context->context->setDebugName("__global_context__");
-	addTrace(global_context->context)->setDebug("<root engine>", -1, global_context->context);
+	global->setDebugName("__global_context__");
+	addTrace(global)->setDebug("<root engine>", -1, global);
 }
 
-Ink_ContextChain *Ink_InterpreteEngine::addTrace(Ink_ContextObject *context)
+Ink_ContextChain_sub *Ink_InterpreteEngine::addTrace(Ink_ContextObject *context)
 {
-	if (!trace) return trace = new Ink_ContextChain(context);
+	if (!trace) return (trace = new Ink_ContextChain(context))->head;
 	return trace->addContext(context);
 }
 
@@ -159,18 +161,7 @@ void Ink_InterpreteEngine::removeLastTrace()
 
 void Ink_InterpreteEngine::removeTrace(Ink_ContextObject *context)
 {
-	Ink_ContextChain *i;
-
-	for (i = trace->getLocal(); i && i->context != context; i = i->outer) ;
-	if (i) {
-		if (i->inner) {
-			i->inner->outer = i->outer;
-		}
-		if (i->outer) {
-			i->outer->inner = i->inner;
-		}
-		delete i;
-	}
+	trace->removeContext(context);
 	return;
 }
 
@@ -183,9 +174,8 @@ inline void setArgv(Ink_InterpreteEngine *engine, vector<char *> argv)
 		arr_val.push_back(new Ink_HashTable(new Ink_String(engine, string(argv[i]))));
 	}
 
-	engine->global_context
-	->getGlobal()->context
-	->setSlot(INK_ARGV_NAME, new Ink_Array(engine, arr_val));
+	engine->global_context->getGlobal()->setSlot(INK_ARGV_NAME, new Ink_Array(engine, arr_val));
+	
 	return;
 }
 
@@ -283,7 +273,7 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context, bool if_tra
 	Ink_ExceptionRaw *tmp_ex = NULL;
 
 	if (!context) context = global_context;
-	local = context->getLocal()->context;
+	local = context->getLocal();
 	for (i = 0; i < top_level.size(); i++) {
 		getCurrentGC()->checkGC();
 		ret = top_level[i]->eval(this, context);
@@ -354,13 +344,7 @@ void Ink_InterpreteEngine::cleanExpressionList(Ink_ExpressionList exp_list)
 
 void Ink_InterpreteEngine::cleanContext(Ink_ContextChain *context)
 {
-	Ink_ContextChain *i, *tmp;
-	for (i = context->getGlobal(); i;) {
-		tmp = i;
-		i = i->inner;
-		delete tmp;
-	}
-
+	delete context;
 	return;
 }
 

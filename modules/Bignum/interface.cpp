@@ -342,7 +342,7 @@ Ink_Object *InkMod_Bignum_Constructor(Ink_InterpreteEngine *engine, Ink_ContextC
 	ret = new Ink_BigNumeric(engine, ret_val);
 
 END:
-	context->getLocal()->context->setSlot_c("this", ret);
+	context->getLocal()->setSlot_c("this", ret);
 
 	return ret;
 }
@@ -385,7 +385,7 @@ void InkMod_Bignum_bondType(Ink_InterpreteEngine *engine, Ink_ContextChain *cont
 	} else if (com->bignum_type != (Ink_TypeTag)-1) /* has registered */ return;
 
 	com->bignum_type = engine->registerType("bignum");
-	context->getGlobal()->context->setSlot_c("$bignum", tmp = new Ink_BigNumeric(engine, "0"));
+	context->getGlobal()->setSlot_c("$bignum", tmp = new Ink_BigNumeric(engine, "0"));
 	engine->setTypePrototype(com->bignum_type, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(engine);

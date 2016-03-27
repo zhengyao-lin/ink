@@ -135,7 +135,7 @@ public:
 
 	Ink_InterpreteEngine();
 
-	Ink_ContextChain *addTrace(Ink_ContextObject *context);
+	Ink_ContextChain_sub *addTrace(Ink_ContextObject *context);
 	void removeLastTrace();
 	void removeTrace(Ink_ContextObject *context);
 

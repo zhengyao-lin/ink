@@ -145,15 +145,11 @@ void IGC_CollectEngine::link(IGC_CollectEngine *engine)
 
 void IGC_CollectEngine::collectGarbage(bool delete_all)
 {
-	Ink_ContextChain *i;
 	Ink_PardonList::iterator pardon_iter;
 	vector<DBG_TypeMapping *>::iterator type_iter;
 
 	if (!delete_all) {
-		for (i = engine->trace->getGlobal();
-			 i; i = i->inner) {
-			doMark(i->context);
-		}
+		engine->trace->doSelfMark(engine, doMark);
 		for (pardon_iter = engine->igc_pardon_list.begin();
 			 pardon_iter != engine->igc_pardon_list.end(); pardon_iter++) {
 			doMark(*pardon_iter);

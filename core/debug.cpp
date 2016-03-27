@@ -179,12 +179,11 @@ void Ink_InterpreteEngine::printDebugInfo(FILE *fp, Ink_Object *obj, string pref
 
 void Ink_InterpreteEngine::printTrace(FILE *fp, Ink_ContextChain *context, string prefix)
 {
-	Ink_ContextChain *i;
-	Ink_ContextChain *inner_most = context->getLocal();
+	Ink_ContextChain_sub *i;
 	Ink_SizeType c = 0;
 
 	fprintf(fp, "%srising from:\n", prefix.c_str());
-	for (i = inner_most; i; i = i->outer, c++) {
+	for (i = context->getTail(); i; i = i->outer, c++) {
 		if (c >= getMaxTrace() && getMaxTrace() >= 0) {
 			fprintf(fp, DBG_TAB "... (set --max-trace=<value greater than %ld>)\n", getMaxTrace());
 			break;

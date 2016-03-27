@@ -710,10 +710,10 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 {
 	/* Variables */
 	Ink_HashTable *hash, *missing;
-	Ink_ContextChain *local = context_chain->getLocal();
+	Ink_ContextObject *local = context_chain->getLocal();
 	// Ink_ContextChain *global = context_chain->getGlobal();
-	Ink_ContextChain *dest_context = local,
-					 *base_context = NULL, *missing_base_context = NULL;
+	Ink_ContextObject *dest_context = local,
+					  *base_context = NULL, *missing_base_context = NULL;
 	Ink_Object *ret;
 	Ink_Object **argv;
 	wchar_t *tmp_wstr = NULL;
@@ -728,14 +728,14 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 			== NULL) {
 			if (if_create_slot) { /* if has the "var" keyword */
 				ret = new Ink_Object(engine);
-				hash = dest_context->context->setSlot(name, ret);
+				hash = dest_context->setSlot(name, ret);
 			} else { /* generate a undefined value */
 				if (missing && missing->getValue()->type == INK_FUNCTION) {
 					argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 					argv[0] = new Ink_String(engine, name);
 					
 					if (missing_base_context)
-						missing->getValue()->setBase(missing_base_context->context);
+						missing->getValue()->setBase(missing_base_context);
 					else missing->getValue()->setBase(NULL);
 
 					ret = missing->getValue()->call(engine, context_chain, 1, argv);
@@ -744,7 +744,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 				} else {
 					ret = UNDEFINED;
 				}
-				hash = dest_context->context->setSlot(name, NULL);
+				hash = dest_context->setSlot(name, NULL);
 			}
 		}
 	} else {
@@ -757,7 +757,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 
 #if 0
 	if (base_context)
-		ret->setBase(base_context->context);
+		ret->setBase(base_context);
 	else
 #endif
 	ret->setBase(NULL);
@@ -767,8 +767,8 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
 	if (!flags.is_left_value && hash && hash->getter) {
 		if (base_context)
-			// hash->getter->setSlot_c("base", base_context->context);
-			hash->getter->setBase(base_context->context);
+			// hash->getter->setSlot_c("base", base_context);
+			hash->getter->setBase(base_context);
 		ret = hash->getter->call(engine, context_chain, 0, NULL);
 
 		// /* trap all interrupt signal */

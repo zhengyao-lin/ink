@@ -171,7 +171,7 @@ inline Ink_Object *addPackage(Ink_InterpreteEngine *engine, Ink_Object *obj, con
 
 inline Ink_Object *addPackage(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *name, Ink_Object *loader)
 {
-	return addPackage(engine, context->context, name, loader);
+	return addPackage(engine, context->getGlobal(), name, loader);
 }
 
 inline void cleanArrayHashTable(Ink_ArrayValue val)

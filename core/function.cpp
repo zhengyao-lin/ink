@@ -210,7 +210,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	ret_val = triggerCallEvent(engine, context, argc, argv);
 	if (engine->getSignal() != INTER_NONE) {
 		/* interrupt event triggered */
-		triggerInterruptEvent(engine, context, context->getLocal()->context, this);
+		triggerInterruptEvent(engine, context, context->getLocal(), this);
 
 		if (engine->getSignal() != INTER_NONE) {
 			/* whether trap the signal */
@@ -248,7 +248,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 
 	/* create new local context */
 	if (is_ref) {
-		local = context->getLocal()->context;
+		local = context->getLocal();
 	} else {
 		local = new Ink_ContextObject(engine);
 		context->addContext(local);
@@ -452,14 +452,10 @@ Ink_Object *Ink_FunctionObject::cloneDeep(Ink_InterpreteEngine *engine)
 
 void Ink_FunctionObject::doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
 {
-	Ink_ContextChain *global = closure_context ?
-							   closure_context->getGlobal() :
-							   NULL;
-	Ink_ContextChain *j;
 	Ink_ArgcType argi;
 
-	for (j = global; j; j = j->inner) {
-		marker(engine, j->context);
+	if (closure_context) {
+		closure_context->doSelfMark(engine, marker);
 	}
 
 	if (pa_argv) {

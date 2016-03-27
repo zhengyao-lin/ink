@@ -27,7 +27,7 @@ Ink_Object *InkNative_Direct_Constructor(Ink_InterpreteEngine *engine, Ink_Conte
 	}
 
 	context->getLocal()
-	->context->setSlot_c("this", ret = new Ink_DirectPointer(engine, as<Ink_String>(argv[0])->getValue()));
+	->setSlot_c("this", ret = new Ink_DirectPointer(engine, as<Ink_String>(argv[0])->getValue()));
 
 	return ret;
 }
@@ -255,7 +255,7 @@ void InkMod_Direct_bondType(Ink_InterpreteEngine *engine, Ink_ContextChain *cont
 	} else if (com->direct_type != (Ink_TypeTag)-1) /* has registered */ return;
 
 	com->direct_type = engine->registerType("direct");
-	context->getGlobal()->context->setSlot_c("$direct", tmp = new Ink_DirectPointer(engine));
+	context->getGlobal()->setSlot_c("$direct", tmp = new Ink_DirectPointer(engine));
 	engine->setTypePrototype(com->direct_type, tmp);
 	tmp->setProto(obj_proto);
 	tmp->derivedMethodInit(engine);

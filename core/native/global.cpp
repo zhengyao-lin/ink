@@ -35,7 +35,7 @@ Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val)
 
 static Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_ContextChain *local = context->getLocal();
+	Ink_ContextObject *local = context->getLocal();
 	Ink_Object *ret;
 
 	if (argc) {
@@ -66,7 +66,7 @@ static Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_Contex
 		ret = new Ink_Array(engine);
 	}
 
-	local->context->setSlot_c("this", ret);
+	local->setSlot_c("this", ret);
 
 	return ret;
 }
@@ -242,7 +242,7 @@ static Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 				context->removeLast();
 				tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 2);
 				tmp_argv[0] = argv[i];
-				tmp_argv[1] = context->getLocal()->context;
+				tmp_argv[1] = context->getLocal();
 				load->call(engine, context, 2, tmp_argv);
 				free(tmp_argv);
 				context->addContext(new Ink_ContextObject(engine));
@@ -560,40 +560,42 @@ static Ink_ErrnoMap ink_errno_map[] = {
 
 void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context)
 {
-	context->context->setSlot_c("p", new Ink_FunctionObject(engine, Ink_Print));
-	context->context->setSlot_c("eval", new Ink_FunctionObject(engine, Ink_Eval));
-	context->context->setSlot_c("import", new Ink_FunctionObject(engine, Ink_Import));
-	context->context->setSlot_c("typename", new Ink_FunctionObject(engine, Ink_TypeName));
-	context->context->setSlot_c("intval", new Ink_FunctionObject(engine, Ink_IntVal));
-	context->context->setSlot_c("numval", new Ink_FunctionObject(engine, Ink_NumVal));
-	context->context->setSlot_c("cocall", new Ink_FunctionObject(engine, Ink_CoroutineCall));
+	Ink_ContextObject *global = context->getGlobal();
 
-	context->context->setSlot_c("abort", new Ink_FunctionObject(engine, Ink_Abort));
-	context->context->setSlot_c("regsig", new Ink_FunctionObject(engine, Ink_RegisterSignal));
-	context->context->setSlot_c("delsig", new Ink_FunctionObject(engine, Ink_DeleteSignal));
+	global->setSlot_c("p", new Ink_FunctionObject(engine, Ink_Print));
+	global->setSlot_c("eval", new Ink_FunctionObject(engine, Ink_Eval));
+	global->setSlot_c("import", new Ink_FunctionObject(engine, Ink_Import));
+	global->setSlot_c("typename", new Ink_FunctionObject(engine, Ink_TypeName));
+	global->setSlot_c("intval", new Ink_FunctionObject(engine, Ink_IntVal));
+	global->setSlot_c("numval", new Ink_FunctionObject(engine, Ink_NumVal));
+	global->setSlot_c("cocall", new Ink_FunctionObject(engine, Ink_CoroutineCall));
 
-	context->context->setSlot_c("debug", new Ink_FunctionObject(engine, Ink_Debug));
-	context->context->setSlot_c("where", new Ink_FunctionObject(engine, Ink_Where));
+	global->setSlot_c("abort", new Ink_FunctionObject(engine, Ink_Abort));
+	global->setSlot_c("regsig", new Ink_FunctionObject(engine, Ink_RegisterSignal));
+	global->setSlot_c("delsig", new Ink_FunctionObject(engine, Ink_DeleteSignal));
+
+	global->setSlot_c("debug", new Ink_FunctionObject(engine, Ink_Debug));
+	global->setSlot_c("where", new Ink_FunctionObject(engine, Ink_Where));
 
 	Ink_Object *engine_obj = new Ink_Object(engine);
 
 	Ink_HashTable *errmode_hash = engine_obj->setSlot_c("errmode", new Ink_String(engine, ""));
 	errmode_hash->getter = new Ink_FunctionObject(engine, Ink_GetErrorMode);
 	errmode_hash->setter = new Ink_FunctionObject(engine, Ink_SetErrorMode);
-	context->context->setSlot_c("engine", engine_obj);
+	global->setSlot_c("engine", engine_obj);
 
 	Ink_Object *array_cons = new Ink_FunctionObject(engine, Ink_ArrayConstructor);
-	context->context->setSlot_c("Array", array_cons);
+	global->setSlot_c("Array", array_cons);
 
-	context->context->setSlot_c("undefined", UNDEFINED);
-	context->context->setSlot_c("?", UNDEFINED);
-	context->context->setSlot_c("null", NULL_OBJ);
-	context->context->setSlot_c("_", new Ink_Unknown(engine));
-	context->context->setSlot_c("false", FALSE_OBJ);
+	global->setSlot_c("undefined", UNDEFINED);
+	global->setSlot_c("?", UNDEFINED);
+	global->setSlot_c("null", NULL_OBJ);
+	global->setSlot_c("_", new Ink_Unknown(engine));
+	global->setSlot_c("false", FALSE_OBJ);
 
-	context->context->setSlot_c("errno", new Ink_ErrnoObject(engine, sizeof(ink_errno_map) /
-																	 sizeof(Ink_ErrnoMap),
-															 ink_errno_map));
+	global->setSlot_c("errno", new Ink_ErrnoObject(engine, sizeof(ink_errno_map) /
+														   sizeof(Ink_ErrnoMap),
+												   ink_errno_map));
 
 	Ink_applyAllModules(engine, context);
 

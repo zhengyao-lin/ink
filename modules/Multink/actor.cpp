@@ -245,7 +245,7 @@ void *Ink_ActorFunction_sub(void *arg)
 	Ink_ArgcType argi;
 	Ink_ParamList::size_type j;
 	Ink_Array *var_arg = NULL;
-	Ink_ContextObject *local = tmp->engine->global_context->context;
+	Ink_ContextObject *local = tmp->engine->global_context->getLocal();
 
 	Ink_initCoroutine();
 
