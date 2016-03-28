@@ -1823,3 +1823,7 @@ a.setter("b") {
 fix a.b
 delete a.b
 a.b
+
+p("abcdefghijklmn"[,,-1])
+p("abcdefghijklmn"[0,10,-1])
+p("abcdefghijklmn"[,,])

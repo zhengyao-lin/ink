@@ -80,7 +80,7 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 		// ret->setSlot_c("base", base);
 		ret->setBase(base);
 	} else {
-		InkWarn_Index_Exceed(engine, index, obj->value.size());
+		InkWarn_Array_Index_Exceed(engine, index, obj->value.size());
 		return UNDEFINED;
 	}
 
@@ -274,7 +274,7 @@ Ink_Object *InkNative_Array_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain
 	}
 
 	if (start > end) {
-		InkNote_Array_Slice_Start_Greater(engine, start, end);
+		InkNote_Slice_Start_Greater(engine, start, end);
 		tmp = start;
 		start = end;
 		end = tmp;
@@ -286,7 +286,7 @@ Ink_Object *InkNative_Array_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain
 	}
 
 	if (end >= base_val.size()) {
-		InkWarn_Index_Exceed(engine, end, base_val.size());
+		InkWarn_Array_Index_Exceed(engine, end, base_val.size());
 		return NULL_OBJ;
 	}
 

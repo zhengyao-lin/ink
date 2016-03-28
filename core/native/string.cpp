@@ -47,12 +47,24 @@ Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 
 	ASSUME_BASE_TYPE(engine, INK_STRING);
 
+	if (argc > 1) {
+		/* two or more arguments -- slice */
+		InkNote_Method_Fallthrough(engine, "[]", "slice", INK_STRING);
+		return InkNative_String_Slice(engine, context, argc, argv, this_p);
+	}
+
 	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		InkNote_Method_Fallthrough(engine, "[]", INK_STRING, INK_OBJECT);
 		return InkNative_Object_Index(engine, context, argc, argv, this_p);
 	}
+
 	base_str = as<Ink_String>(base)->getWValue();
 	index = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), base_str.length());
+
+	if (index >= base_str.length()) {
+		InkWarn_String_Index_Exceed(engine, index, base_str.length());
+		return NULL_OBJ;
+	}
 
 	return new Ink_String(engine, base_str.substr(index, 1));
 }
@@ -88,7 +100,7 @@ Ink_Object *InkNative_String_SubStr(Ink_InterpreteEngine *engine, Ink_ContextCha
 	}
 
 	if (offset >= origin.length()) {
-		InkWarn_String_Index_Exceed(engine);
+		InkWarn_String_Index_Exceed(engine, offset, origin.length());
 		return NULL_OBJ;
 	} else if (!(length == string::npos || offset + length <= origin.length())) {
 		InkWarn_Sub_String_Exceed(engine);
@@ -128,6 +140,81 @@ Ink_Object *InkNative_String_Split(Ink_InterpreteEngine *engine, Ink_ContextChai
 															   : L"")));
 
 	return new Ink_Array(engine, ret_val);
+}
+
+Ink_Object *InkNative_String_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_STRING);
+
+	wstring base_val = as<Ink_String>(base)->getWValue();
+	wstring::size_type start = 0, end = base_val.length() - 1, tmp, i;
+	Ink_SInt64 range = 1;
+
+	if (argc > 0) {
+		if (argv[0]->type == INK_NUMERIC) {
+			start = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), base_val.length());
+		} else if (argv[0]->type != INK_UNDEFINED) {
+			InkWarn_Slice_Require_Numeric(engine, 1);
+		}
+
+		if (argc > 1) {
+			if (argv[1]->type == INK_NUMERIC) {
+				end = getRealIndex(as<Ink_Numeric>(argv[1])->getValue(), base_val.size());
+			} else if (argv[1]->type != INK_UNDEFINED) {
+				InkWarn_Slice_Require_Numeric(engine, 2);
+			}
+
+			if (argc > 2) {
+				if (argv[2]->type == INK_NUMERIC) {
+					range = getInt(as<Ink_Numeric>(argv[2])->getValue());
+				} else if (argv[2]->type != INK_UNDEFINED) {
+					InkWarn_Slice_Require_Numeric(engine, 3);
+				}
+			}
+		}
+	}
+
+	if (start > end) {
+		InkNote_Slice_Start_Greater(engine, start, end);
+		tmp = start;
+		start = end;
+		end = tmp;
+	}
+
+	if (!range) {
+		InkWarn_Slice_Require_Non_Zero_Range(engine);
+		range = 1;
+	}
+
+	if (end >= base_val.size()) {
+		InkWarn_String_Index_Exceed(engine, end, base_val.size());
+		return NULL_OBJ;
+	}
+
+	wchar_t *buf = (wchar_t *)malloc(sizeof(wchar_t) * (base_val.length() + 1));
+	wstring::size_type buf_i;
+
+	if (range > 0) {
+		for (i = start, buf_i = 0; i <= end; i += range) {
+			buf[buf_i++] = base_val[i];
+		}
+	} else {
+		for (i = end, buf_i = 0; i >= start; i += range) {
+			buf[buf_i++] = base_val[i];
+
+			if ((Ink_UInt64)-range > i) {
+				break;
+			}
+		}
+	}
+
+	wstring ret_val = wstring(buf, buf_i);
+	Ink_String *ret = new Ink_String(engine, ret_val);
+	free(buf);
+
+	return ret;
 }
 
 Ink_Object *InkNative_String_Greater(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -204,6 +291,7 @@ void Ink_String::Ink_StringMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("length", new Ink_FunctionObject(engine, InkNative_String_Length));
 	setSlot_c("substr", new Ink_FunctionObject(engine, InkNative_String_SubStr));
 	setSlot_c("split", new Ink_FunctionObject(engine, InkNative_String_Split));
+	setSlot_c("slice", new Ink_FunctionObject(engine, InkNative_String_Slice));
 	setSlot_c("to_str", new Ink_FunctionObject(engine, InkNative_String_ToString));
 
 	return;
