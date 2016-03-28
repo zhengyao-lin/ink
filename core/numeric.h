@@ -4,6 +4,7 @@
 #include <sstream>
 #include <math.h>
 #include <assert.h>
+#include <wchar.h>
 #include "inttype.h"
 
 namespace ink {
@@ -31,6 +32,12 @@ public:
 	}
 
 	Ink_NumericValue(int val)
+	{
+		type = NUM_INT;
+		ival = val;
+	}
+
+	Ink_NumericValue(wchar_t val)
 	{
 		type = NUM_INT;
 		ival = val;

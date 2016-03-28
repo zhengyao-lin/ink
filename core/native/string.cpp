@@ -69,6 +69,27 @@ Ink_Object *InkNative_String_Index(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return new Ink_String(engine, base_str.substr(index, 1));
 }
 
+Ink_Object *InkNative_String_Char(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_STRING);
+
+	wstring base_val = as<Ink_String>(base)->getWValue();
+	wstring::size_type i = 0;
+
+	if (argc && argv[0]->type == INK_NUMERIC) {
+		i = getInt(as<Ink_Numeric>(argv[0])->getValue());
+	}
+
+	if (i >= base_val.length()) {
+		InkWarn_String_Index_Exceed(engine, i, base_val.length());
+		return NULL_OBJ;
+	}
+
+	return new Ink_Numeric(engine, base_val[i]);
+}
+
 Ink_Object *InkNative_String_Length(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -288,6 +309,7 @@ void Ink_String::Ink_StringMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c(">=", new Ink_FunctionObject(engine, InkNative_String_GreaterOrEqual));
 	setSlot_c("<=", new Ink_FunctionObject(engine, InkNative_String_LessOrEqual));
 	setSlot_c("[]", new Ink_FunctionObject(engine, InkNative_String_Index));
+	setSlot_c("char", new Ink_FunctionObject(engine, InkNative_String_Char));
 	setSlot_c("length", new Ink_FunctionObject(engine, InkNative_String_Length));
 	setSlot_c("substr", new Ink_FunctionObject(engine, InkNative_String_SubStr));
 	setSlot_c("split", new Ink_FunctionObject(engine, InkNative_String_Split));
