@@ -184,6 +184,10 @@ inline bool getBool(Ink_NumericValue val)
 	return val.toBool();
 }
 
+Ink_SInt64 getInt(Ink_Object *obj);
+double getFloat(Ink_Object *obj);
+bool getBool(Ink_Object *val);
+
 typedef Ink_UInt64 Ink_ModuleID;
 #define INK_CORE_MOD_ID (0)
 

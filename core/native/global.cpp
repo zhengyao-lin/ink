@@ -275,11 +275,22 @@ static Ink_Object *Ink_IntVal(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 	Ink_NumericValue tmp;
 	bool is_success = false;
 
-	if (!checkArgument(engine, argc, argv, 1, INK_STRING) || as<Ink_String>(argv[0])->getValue() == "") {
+	if (!checkArgument(false, argc, argv, 1, INK_NUMERIC)
+		&& !checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
 
-	tmp = Ink_NumericExpression::parseInt(as<Ink_String>(argv[0])->getValue(), false, &is_success);
+	if (argv[0]->type == INK_NUMERIC) {
+		return new Ink_Numeric(engine, getFloat(as<Ink_Numeric>(argv[0])->getValue()));
+	}
+
+	string tmp_str = as<Ink_String>(argv[0])->getValue();
+
+	if (tmp_str == "") {
+		return NULL_OBJ;
+	}
+
+	tmp = Ink_NumericExpression::parseInt(tmp_str, false, &is_success);
 
 	if (!is_success)
 		return NULL_OBJ;
@@ -292,20 +303,42 @@ static Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 	Ink_NumericValue tmp;
 	bool is_success = false;
 
-	if (!checkArgument(engine, argc, argv, 1, INK_STRING) || as<Ink_String>(argv[0])->getValue() == "") {
+	if (!checkArgument(false, argc, argv, 1, INK_NUMERIC)
+		&& !checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
 	}
 
-	tmp = Ink_NumericExpression::parseInt(as<Ink_String>(argv[0])->getValue(), true, &is_success);
+	if (argv[0]->type == INK_NUMERIC) {
+		return new Ink_Numeric(engine, as<Ink_Numeric>(argv[0])->getValue());
+	}
+
+	string tmp_str = as<Ink_String>(argv[0])->getValue();
+
+	if (tmp_str == "") {
+		return NULL_OBJ;
+	}
+
+	tmp = Ink_NumericExpression::parseInt(tmp_str, true, &is_success);
 	
 	if (!is_success) {
-		tmp = Ink_NumericExpression::parseFloat(as<Ink_String>(argv[0])->getValue(), false, &is_success);
+		tmp = Ink_NumericExpression::parseFloat(tmp_str, false, &is_success);
 		if (!is_success) {
 			return NULL_OBJ;
 		}
 	}
 
 	return new Ink_Numeric(engine, tmp);
+}
+
+static Ink_Object *Ink_UnicodeToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
+		return NULL_OBJ;
+	}
+
+	wchar_t chr = getInt(argv[0]);
+
+	return new Ink_String(engine, wstring(&chr, 1));
 }
 
 static Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -568,6 +601,7 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 	global->setSlot_c("typename", new Ink_FunctionObject(engine, Ink_TypeName));
 	global->setSlot_c("intval", new Ink_FunctionObject(engine, Ink_IntVal));
 	global->setSlot_c("numval", new Ink_FunctionObject(engine, Ink_NumVal));
+	global->setSlot_c("unicode", new Ink_FunctionObject(engine, Ink_UnicodeToString));
 	global->setSlot_c("cocall", new Ink_FunctionObject(engine, Ink_CoroutineCall));
 
 	global->setSlot_c("abort", new Ink_FunctionObject(engine, Ink_Abort));

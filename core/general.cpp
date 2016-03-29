@@ -43,4 +43,19 @@ Ink_Argument::~Ink_Argument()
 		delete expandee;
 }
 
+Ink_SInt64 getInt(Ink_Object *obj)
+{
+	return as<Ink_Numeric>(obj)->getValue().toInt();
+}
+
+double getFloat(Ink_Object *obj)
+{
+	return as<Ink_Numeric>(obj)->getValue().toFloat();
+}
+
+bool getBool(Ink_Object *obj)
+{
+	return as<Ink_Numeric>(obj)->getValue().toBool();
+}
+
 }
