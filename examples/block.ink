@@ -1827,3 +1827,6 @@ a.b
 p("abcdefghijklmn"[,,-1])
 p("abcdefghijklmn"[0,10,-1])
 p("abcdefghijklmn"[,,])
+
+([1, 2, 3].zip([1, 2, 3]) { | v1, v2 | v1 * v2  }).each { | v | p(v) }
+([1, 2, 3].zip([1, 2]) { | v1, v2 | v1 && v2 && v1 * v2 || "nop"  }).each { | v | p(v) }

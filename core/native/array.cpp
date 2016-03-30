@@ -123,7 +123,7 @@ void cleanArrayHashTable(Ink_ArrayValue val,
 Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
-	Ink_Array *array = as<Ink_Array>(base);
+	Ink_Array *base_arr;
 	Ink_Object **args;
 	Ink_Array *ret = NULL;
 	Ink_ArrayValue::size_type i;
@@ -135,14 +135,16 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 		return NULL_OBJ;
 	}
 
+	base_arr = as<Ink_Array>(base);
+
 	ret = new Ink_Array(engine);
 	engine->addPardonObject(ret);
 
 	args = (Ink_Object **)malloc(sizeof(Ink_Object *));
-	for (i = 0; i < array->value.size(); i++) {
+	for (i = 0; i < base_arr->value.size(); i++) {
 		gc_engine->checkGC();
 
-		args[0] = array->value[i] ? array->value[i]->getValue() : UNDEFINED;
+		args[0] = base_arr->value[i] ? base_arr->value[i]->getValue() : UNDEFINED;
 		ret->value.push_back(new Ink_HashTable(argv[0]->call(engine, context, 1, args)));
 		if (engine->getSignal() != INTER_NONE) {
 			switch (engine->getSignal()) {
@@ -167,6 +169,80 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	}
 	free(args);
 	engine->removePardonObject(ret);
+
+	return ret;
+}
+
+Ink_Object *InkNative_Array_Zip(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+	Ink_Object **args;
+	Ink_Object *block = NULL;
+
+	Ink_Array *base_arr = NULL;
+	Ink_Array *zipee = NULL;
+	Ink_Array *ret = NULL, *tmp = NULL;
+
+	Ink_ArrayValue::size_type i;
+	IGC_CollectEngine *gc_engine = engine->getCurrentGC();
+
+	ASSUME_BASE_TYPE(engine, INK_ARRAY);
+
+	if (!checkArgument(engine, argc, argv, 1, INK_ARRAY)) {
+		return NULL_OBJ;
+	}
+
+	if (argc > 1 && argv[1]->type == INK_FUNCTION) {
+		block = argv[1];
+	}
+
+	base_arr = as<Ink_Array>(base);
+	zipee = as<Ink_Array>(argv[0]);
+
+	ret = new Ink_Array(engine);
+	engine->addPardonObject(ret);
+	engine->addPardonObject(zipee);
+	// note: block doesn't need to be added to pardon list cause it can only be created in outer GC engine
+
+	args = (Ink_Object **)malloc(sizeof(Ink_Object *) * 2);
+	for (i = 0; i < base_arr->value.size(); i++) {
+		gc_engine->checkGC();
+
+		args[0] = base_arr->value[i] ? base_arr->value[i]->getValue() : UNDEFINED;
+		args[1] = (i < zipee->value.size() && zipee->value[i])
+				  ? zipee->value[i]->getValue() : UNDEFINED;
+
+		if (block) {
+			ret->value.push_back(new Ink_HashTable(argv[1]->call(engine, context, 2, args)));
+			if (engine->getSignal() != INTER_NONE) {
+				switch (engine->getSignal()) {
+					case INTER_RETURN:
+						free(args);
+						engine->removePardonObject(ret);
+						return engine->getInterruptValue(); // signal penetrated
+					case INTER_DROP:
+					case INTER_BREAK:
+						free(args);
+						engine->removePardonObject(ret);
+						return engine->trapSignal(); // trap the signal
+					case INTER_CONTINUE:
+						engine->trapSignal(); // trap the signal, but do not return
+						continue;
+					default:
+						free(args);
+						engine->removePardonObject(ret);
+						return NULL_OBJ;
+				}
+			}
+		} else {
+			ret->value.push_back(new Ink_HashTable(tmp = new Ink_Array(engine)));
+			tmp->value.push_back(new Ink_HashTable(args[0]));
+			tmp->value.push_back(new Ink_HashTable(args[1]));
+		}
+	}
+	free(args);
+	engine->removePardonObject(ret);
+	engine->removePardonObject(zipee);
 
 	return ret;
 }
@@ -360,6 +436,7 @@ void Ink_Array::Ink_ArrayMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("push", new Ink_FunctionObject(engine, InkNative_Array_Push));
 	setSlot_c("size", new Ink_FunctionObject(engine, InkNative_Array_Size));
 	setSlot_c("each", new Ink_FunctionObject(engine, InkNative_Array_Each, true));
+	setSlot_c("zip", new Ink_FunctionObject(engine, InkNative_Array_Zip, true));
 	setSlot_c("last", new Ink_FunctionObject(engine, InkNative_Array_Last));
 	setSlot_c("remove", new Ink_FunctionObject(engine, InkNative_Array_Remove));
 	setSlot_c("slice", new Ink_FunctionObject(engine, InkNative_Array_Slice));
