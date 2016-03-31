@@ -290,6 +290,24 @@ Ink_Object *InkNative_String_LessOrEqual(Ink_InterpreteEngine *engine, Ink_Conte
 								   <= as<Ink_String>(argv[0])->getWValue()[0]);
 }
 
+Ink_Object *InkNative_String_ToArray(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	Ink_Object *base = context->searchSlot(engine, "base");
+
+	ASSUME_BASE_TYPE(engine, INK_STRING);
+
+	wstring base_val = as<Ink_String>(base)->getWValue();
+	wstring::size_type len = base_val.length();
+	Ink_SizeType i;
+	Ink_ArrayValue ret_val = Ink_ArrayValue(len, NULL);
+
+	for (i = 0; i < len; i++) {
+		ret_val[i] = new Ink_HashTable(new Ink_Numeric(engine, base_val[i]));
+	}
+
+	return new Ink_Array(engine, ret_val);
+}
+
 Ink_Object *InkNative_String_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *base = context->searchSlot(engine, "base");
@@ -314,6 +332,7 @@ void Ink_String::Ink_StringMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("substr", new Ink_FunctionObject(engine, InkNative_String_SubStr));
 	setSlot_c("split", new Ink_FunctionObject(engine, InkNative_String_Split));
 	setSlot_c("slice", new Ink_FunctionObject(engine, InkNative_String_Slice));
+	setSlot_c("to_array", new Ink_FunctionObject(engine, InkNative_String_ToArray));
 	setSlot_c("to_str", new Ink_FunctionObject(engine, InkNative_String_ToString));
 
 	return;

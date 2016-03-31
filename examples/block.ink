@@ -1830,3 +1830,25 @@ p("abcdefghijklmn"[,,])
 
 ([1, 2, 3].zip([1, 2, 3]) { | v1, v2 | v1 * v2  }).each { | v | p(v) }
 ([1, 2, 3].zip([1, 2]) { | v1, v2 | v1 && v2 && v1 * v2 || "nop"  }).each { | v | p(v) }
+
+let str = ""
+
+26.times { | i |
+	i + 'a'.char()
+}.each { | val |
+	str += unicode(val)
+}
+
+26.times { | i |
+	i + 'A'.char()
+}.each { | val |
+	str += unicode(val)
+}
+
+10.times { | i |
+	i + '0'.char()
+}.each { | val |
+	str += unicode(val)
+}
+
+p(str)
