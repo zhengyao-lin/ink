@@ -10,6 +10,15 @@
 namespace ink {
 
 void
+InkErro_doPrintError_emg(const char *msg, va_list args)
+{	
+	Ink_ErrorMessage err_msg = Ink_ErrorMessage("<signal proc>", -1, msg, args);
+	err_msg.popWith(Ink_ErrorMessage::INK_ERR_LEVEL_ERROR, Ink_ErrorMessage::INK_ERR_ACTION_NONE);
+
+	return;
+}
+
+void
 InkErro_doPrintError_c(Ink_InterpreteEngine *engine, Ink_ModuleID mod_id, Ink_ExceptionCode ex_code, const char *msg, va_list args)
 {
 	const char *tmp;
@@ -63,6 +72,18 @@ InkErro_doPrintNote_c(Ink_InterpreteEngine *engine, const char *msg, va_list arg
 	
 	Ink_ErrorMessage err_msg(file_name, line_number, msg, args);
 	err_msg.popWith(Ink_ErrorMessage::INK_ERR_LEVEL_NOTE);
+
+	return;
+}
+
+void
+InkErro_doPrintError(const char *msg, ...)
+{
+	va_list args;
+	
+	va_start(args, msg);
+	InkErro_doPrintError_emg(msg, args);
+	va_end(args);
 
 	return;
 }

@@ -14,6 +14,7 @@ namespace ink {
 class Ink_ContextChain;
 class Ink_InterpreteEngine;
 
+void InkErro_doPrintError(const char *msg, ...);
 void InkErro_doPrintError(Ink_InterpreteEngine *engine, const char *msg, ...);
 void InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ExceptionCode ex_code, const char *msg, ...);
 void InkErro_doPrintError(Ink_InterpreteEngine *engine, Ink_ModuleID mod_id, Ink_ExceptionCode ex_code, const char *msg, ...);
@@ -25,6 +26,13 @@ void InkErro_doPrintWarning(Ink_InterpreteEngine *engine, Ink_ModuleID mod_id, I
 void InkErro_doPrintNote(Ink_InterpreteEngine *engine, const char *msg, ...);
 
 const char *getTypeName(Ink_InterpreteEngine *engine, Ink_TypeTag type);
+
+inline void
+InkError_Segment_Fault()
+{
+	InkErro_doPrintError("SEGV signal received");
+	return;
+}
 
 inline void
 InkError_Calling_Non_Function_Object(Ink_InterpreteEngine *engine, Ink_TypeTag type, const char *slot)

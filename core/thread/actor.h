@@ -74,6 +74,7 @@ Ink_ActorCountType InkActor_getActorCount();
 std::string *InkActor_getActorName(Ink_InterpreteEngine *engine);
 std::string *InkActor_getActorName_nolock(Ink_InterpreteEngine *engine);
 bool InkActor_isRootActor(Ink_InterpreteEngine *engine);
+void InkActor_printAllTrace();
 
 }
 

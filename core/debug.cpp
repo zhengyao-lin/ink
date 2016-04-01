@@ -50,7 +50,7 @@ struct DBG_NativeSignalMapping dbg_native_signal_mapping[] =
 	{ INTER_EXIT,		"exit" }
 };
 
-const char *getNativeSignalName(Ink_InterruptSignal sig)
+const char *Ink_InterpreteEngine::getNativeSignalName(Ink_InterruptSignal sig)
 {
 	int i;
 	for (i = 0; sig > 1 << 1; sig = sig >> 1, i++) ;
@@ -195,5 +195,27 @@ void Ink_InterpreteEngine::printTrace(FILE *fp, Ink_ContextChain *context, strin
 
 	return;
 }
+
+#ifdef INK_PLATFORM_LINUX
+
+#include "error.h"
+#include "thread/actor.h"
+
+static void DBG_SignalProc_SEGV(int sig)
+{
+	InkError_Segment_Fault();
+	fprintf(stderr, "ACTORS INFO:\n");
+	InkActor_printAllTrace();
+	Ink_disposeEnv();
+	exit(1);
+}
+
+void DBG_initSignalProc()
+{
+	signal(SIGSEGV, DBG_SignalProc_SEGV);
+	return;
+}
+
+#endif
 
 }

@@ -463,6 +463,7 @@ public:
 		return;
 	}
 	void printTrace(FILE *fp, Ink_ContextChain *context, string prefix = DBG_DEFAULT_PREFIX);
+	static const char *getNativeSignalName(Ink_InterruptSignal sig);
 
 	void startParse(Ink_InputSetting setting);
 	void startParse(FILE *input = stdin, bool close_fp = false);

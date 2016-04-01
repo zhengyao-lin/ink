@@ -45,7 +45,7 @@ struct DBG_NativeSignalMapping {
 	const char *name;
 };
 
-const char *getNativeSignalName(Ink_InterruptSignal sig);
+void DBG_initSignalProc();
 
 }
 

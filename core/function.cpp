@@ -81,7 +81,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 	tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 	engine->setInterrupt(INTER_NONE, NULL);
 	if (signal_backup < INTER_LAST) {
-		if ((tmp = receiver->getSlot(engine, (string("@") + getNativeSignalName(signal_backup)).c_str()))
+		if ((tmp = receiver->getSlot(engine, (string("@") + Ink_InterpreteEngine::getNativeSignalName(signal_backup)).c_str()))
 			->type == INK_FUNCTION) {
 			tmp_argv[0] = value_backup;
 			event_found = true;

@@ -200,4 +200,25 @@ bool InkActor_isRootActor(Ink_InterpreteEngine *engine)
 	return is_root;
 }
 
+void InkActor_printAllTrace()
+{
+	Ink_InterpreteEngine *engine;
+	Ink_ActorMap::iterator actor_it;
+	Ink_ActorMap::size_type i;
+
+	InkActor_lockActorLock();
+	for (actor_it = ink_global_actor_map.begin(), i = 0;
+		 actor_it != ink_global_actor_map.end(); actor_it++) {
+		if ((engine = actor_it->second->engine) != NULL) {
+			fprintf(stderr, "actor %ld: %s%s:\n", i, actor_it->first.c_str(),
+					(actor_it->second->is_root ? "(root)" : ""));
+			engine->printTrace(stderr, engine->getTrace(), "TRACE: ");
+			i++;
+		}
+	}
+	InkActor_unlockActorLock();
+
+	return;
+}
+
 }

@@ -16,6 +16,7 @@ void Ink_initEnv()
 {
 	Ink_loadAllModules();
 	InkActor_initActorMap();
+	DBG_initSignalProc();
 	Ink_initNativeExpression();
 	Ink_initCoroutine();
 	return;
