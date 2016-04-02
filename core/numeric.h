@@ -37,11 +37,13 @@ public:
 		ival = val;
 	}
 
+#ifdef INK_PLATFORM_WIN32
 	Ink_NumericValue(long int val)
 	{
 		type = NUM_INT;
 		ival = val;
 	}
+#endif
 
 	Ink_NumericValue(wchar_t val)
 	{
