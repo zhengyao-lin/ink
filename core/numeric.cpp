@@ -24,6 +24,7 @@ Ink_NumericValue Ink_NumericValue::toType(Ink_NumericValue::Ink_NumericValue_Num
 			break;
 	}
 	assert(0);
+	return 0;
 }
 
 Ink_NumericValue Ink_NumericValue::operator = (const Ink_NumericValue v1)
@@ -52,6 +53,7 @@ Ink_NumericValue operator + (const Ink_NumericValue v1, const Ink_NumericValue v
 	}
 
 	assert(0);
+	return 0;
 }
 
 Ink_NumericValue operator - (const Ink_NumericValue v1, const Ink_NumericValue v2)
@@ -66,6 +68,7 @@ Ink_NumericValue operator - (const Ink_NumericValue v1, const Ink_NumericValue v
 	}
 
 	assert(0);
+	return 0;
 }
 
 Ink_NumericValue operator * (const Ink_NumericValue v1, const Ink_NumericValue v2)
@@ -80,6 +83,7 @@ Ink_NumericValue operator * (const Ink_NumericValue v1, const Ink_NumericValue v
 	}
 
 	assert(0);
+	return 0;
 }
 
 Ink_NumericValue operator / (const Ink_NumericValue v1, const Ink_NumericValue v2)
@@ -99,6 +103,7 @@ Ink_NumericValue operator % (const Ink_NumericValue v1, const Ink_NumericValue v
 	}
 
 	assert(0);
+	return 0;
 }
 
 Ink_NumericValue operator << (const Ink_NumericValue v1, const Ink_NumericValue v2)
@@ -141,6 +146,7 @@ bool operator ! (const Ink_NumericValue v1)
 	}
 
 	assert(0);
+	return false;
 }
 
 Ink_NumericValue operator - (const Ink_NumericValue v1)
@@ -155,6 +161,7 @@ Ink_NumericValue operator - (const Ink_NumericValue v1)
 	}
 
 	assert(0);
+	return 0;
 }
 
 Ink_NumericValue operator + (Ink_NumericValue v1)
@@ -228,6 +235,7 @@ bool operator > (const Ink_NumericValue v1, const Ink_NumericValue v2)
 	}
 
 	assert(0);
+	return false;
 }
 
 bool operator < (const Ink_NumericValue v1, const Ink_NumericValue v2)
@@ -242,6 +250,7 @@ bool operator < (const Ink_NumericValue v1, const Ink_NumericValue v2)
 	}
 
 	assert(0);
+	return false;
 }
 
 bool operator == (const Ink_NumericValue v1, const Ink_NumericValue v2)
@@ -256,6 +265,7 @@ bool operator == (const Ink_NumericValue v1, const Ink_NumericValue v2)
 	}
 
 	assert(0);
+	return false;
 }
 
 bool operator != (const Ink_NumericValue v1, const Ink_NumericValue v2)
@@ -270,6 +280,7 @@ bool operator != (const Ink_NumericValue v1, const Ink_NumericValue v2)
 	}
 
 	assert(0);
+	return false;
 }
 
 bool operator >= (const Ink_NumericValue v1, const Ink_NumericValue v2)
@@ -284,6 +295,7 @@ bool operator >= (const Ink_NumericValue v1, const Ink_NumericValue v2)
 	}
 
 	assert(0);
+	return false;
 }
 
 bool operator <= (const Ink_NumericValue v1, const Ink_NumericValue v2)
@@ -298,6 +310,7 @@ bool operator <= (const Ink_NumericValue v1, const Ink_NumericValue v2)
 	}
 
 	assert(0);
+	return false;
 }
 
 ostream &operator << (ostream &strm, const Ink_NumericValue v1)

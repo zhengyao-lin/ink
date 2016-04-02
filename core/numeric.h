@@ -37,6 +37,12 @@ public:
 		ival = val;
 	}
 
+	Ink_NumericValue(long int val)
+	{
+		type = NUM_INT;
+		ival = val;
+	}
+
 	Ink_NumericValue(wchar_t val)
 	{
 		type = NUM_INT;
@@ -56,6 +62,12 @@ public:
 	}
 
 	Ink_NumericValue(double val)
+	{
+		type = NUM_FLOAT;
+		fval = val;
+	}
+
+	Ink_NumericValue(long double val)
 	{
 		type = NUM_FLOAT;
 		fval = val;

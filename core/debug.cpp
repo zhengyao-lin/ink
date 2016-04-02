@@ -228,6 +228,13 @@ void DBG_initSignalProc()
 	return;
 }
 
+#else
+
+void DBG_initSignalProc()
+{
+	return;
+}
+
 #endif
 
 }
