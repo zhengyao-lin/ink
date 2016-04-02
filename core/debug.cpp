@@ -208,11 +208,23 @@ static void DBG_SignalProc_SEGV(int sig)
 	InkActor_printAllTrace();
 	Ink_disposeEnv();
 	exit(1);
+	return;
+}
+
+static void DBG_SignalProc_INT(int sig)
+{
+	InkError_Interrupt();
+	fprintf(stderr, "ACTORS INFO:\n");
+	InkActor_printAllTrace();
+	Ink_disposeEnv();
+	exit(1);
+	return;
 }
 
 void DBG_initSignalProc()
 {
 	signal(SIGSEGV, DBG_SignalProc_SEGV);
+	signal(SIGINT, DBG_SignalProc_INT);
 	return;
 }
 

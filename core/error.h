@@ -28,6 +28,13 @@ void InkErro_doPrintNote(Ink_InterpreteEngine *engine, const char *msg, ...);
 const char *getTypeName(Ink_InterpreteEngine *engine, Ink_TypeTag type);
 
 inline void
+InkError_Interrupt()
+{
+	InkErro_doPrintError("INT signal received");
+	return;
+}
+
+inline void
 InkError_Segment_Fault()
 {
 	InkErro_doPrintError("SEGV signal received");

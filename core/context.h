@@ -11,19 +11,11 @@ struct Ink_ContextChain_sub {
 	Ink_ContextObject *context;
 	Ink_ContextChain_sub *inner;
 
-	const char *debug_file_name;
-	Ink_LineNoType debug_lineno;
-	Ink_Object *debug_creater;
-
 	Ink_ContextChain_sub(Ink_ContextObject *context)
 	: context(context)
 	{
 		outer = NULL;
 		inner = NULL;
-
-		debug_file_name = NULL;
-		debug_lineno = -1;
-		debug_creater = NULL;
 	}
 
 	inline Ink_ContextObject *getContext()
@@ -33,18 +25,26 @@ struct Ink_ContextChain_sub {
 
 	inline void setDebug(const char *file_name, Ink_LineNoType lineno, Ink_Object *creater)
 	{
-		debug_file_name = file_name;
-		debug_lineno = lineno;
-		debug_creater = creater;
+		if (context) {
+			context->setDebug(file_name, lineno, creater);
+		}
 		return;
 	}
 
 	inline const char *getFileName()
-	{ return debug_file_name ? debug_file_name : "<unknown input>"; }
+	{
+		return context ? context->getFileName() : "<unknown input>";
+	}
+
 	inline Ink_LineNoType getLineno()
-	{ return debug_lineno; }
+	{
+		return context ? context->getLineno() : -1;
+	}
+
 	inline Ink_Object *getCreater()
-	{ return debug_creater; }
+	{
+		return context ? context->getCreater() : NULL;
+	}
 };
 
 class Ink_ContextChain {
