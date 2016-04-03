@@ -289,7 +289,7 @@ Ink_Object *Ink_InterpreteEngine::execute(Ink_ContextChain *context, bool if_tra
 				if ((tmp_str = getCustomInterruptSignalName(interrupt_signal)) != NULL) {
 					tmp_sig_name = tmp_str->c_str();
 				} else {
-					tmp_sig_name = "<unregisterred>";
+					tmp_sig_name = "<unregistered>";
 				}
 			}
 
