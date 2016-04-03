@@ -8,6 +8,8 @@
 #include "general.h"
 #include "type.h"
 #include "context.h"
+#include "error.h"
+#include "thread/actor.h"
 #include "interface/engine.h"
 
 #define INTER_NONE			((Ink_InterruptSignal)INTER_NONE_tag)
@@ -196,17 +198,12 @@ void Ink_InterpreteEngine::printTrace(FILE *fp, Ink_ContextChain *context, strin
 	return;
 }
 
-#ifdef INK_PLATFORM_LINUX
-
-#include "error.h"
-#include "thread/actor.h"
-
 static void DBG_SignalProc_SEGV(int sig)
 {
 	InkError_Segment_Fault();
-	fprintf(stderr, "ACTORS INFO:\n");
+	fprintf(stderr, "ACTORS INFO:\n\n");
 	InkActor_printAllTrace();
-	Ink_disposeEnv();
+	// Ink_disposeEnv();
 	exit(1);
 	return;
 }
@@ -214,27 +211,18 @@ static void DBG_SignalProc_SEGV(int sig)
 static void DBG_SignalProc_INT(int sig)
 {
 	InkError_Interrupt();
-	fprintf(stderr, "ACTORS INFO:\n");
+	fprintf(stderr, "ACTORS INFO:\n\n");
 	InkActor_printAllTrace();
-	Ink_disposeEnv();
+	// Ink_disposeEnv();
 	exit(1);
 	return;
 }
 
 void DBG_initSignalProc()
 {
-	signal(SIGSEGV, DBG_SignalProc_SEGV);
+	// signal(SIGSEGV, DBG_SignalProc_SEGV);
 	signal(SIGINT, DBG_SignalProc_INT);
 	return;
 }
-
-#else
-
-void DBG_initSignalProc()
-{
-	return;
-}
-
-#endif
 
 }

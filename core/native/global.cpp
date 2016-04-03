@@ -636,14 +636,4 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 	return;
 }
 
-Ink_Undefined *ink_global_constant_undefined;
-Ink_NullObject *ink_global_constant_null;
-
-void Ink_GlobalConstantInit()
-{
-	ink_global_constant_undefined = new Ink_Undefined(NULL);
-	ink_global_constant_null = new Ink_NullObject(NULL);
-	return;
-}
-
 }

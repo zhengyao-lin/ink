@@ -266,9 +266,6 @@ typedef void (*IGC_Marker)(Ink_InterpreteEngine *engine, Ink_Object *obj);
 typedef std::pair<Ink_HashTable *, Ink_HashTable *> IGC_Bonding;
 typedef std::vector<IGC_Bonding> IGC_BondingList;
 
-extern Ink_Undefined *ink_global_constant_undefined;
-extern Ink_NullObject *ink_global_constant_null;
-
 template <typename T1, typename T2, typename T3>
 class triple {
 public:

@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <wchar.h>
 #include "inttype.h"
+#include "../includes/universal.h"
 
 namespace ink {
 

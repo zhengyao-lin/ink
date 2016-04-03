@@ -98,8 +98,9 @@ Ink_Object *InkNative_Fix_Missing_i(Ink_InterpreteEngine *engine, Ink_ContextCha
 
 Ink_Object **arrayValueToObjects(Ink_ArrayValue val);
 
-void Ink_GlobalConstantInit();
 void Ink_addImportPath(const char *path);
+
+void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
 
 }
 

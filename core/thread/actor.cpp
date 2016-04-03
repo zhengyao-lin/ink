@@ -207,12 +207,13 @@ void InkActor_printAllTrace()
 	Ink_ActorMap::size_type i;
 
 	InkActor_lockActorLock();
-	for (actor_it = ink_global_actor_map.begin(), i = 0;
+	for (actor_it = ink_global_actor_map.begin(), i = 1;
 		 actor_it != ink_global_actor_map.end(); actor_it++) {
 		if ((engine = actor_it->second->engine) != NULL) {
 			fprintf(stderr, "actor %ld: %s%s:\n", i, actor_it->first.c_str(),
 					(actor_it->second->is_root ? "(root)" : ""));
 			engine->printTrace(stderr, engine->getTrace(), "TRACE: ");
+			fprintf(stderr, "\n");
 			i++;
 		}
 	}
