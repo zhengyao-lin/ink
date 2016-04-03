@@ -118,7 +118,7 @@ public:
 	}
 	void Ink_ObjectMethodInit(Ink_InterpreteEngine *engine);
 
-	Ink_Object *getSlot(Ink_InterpreteEngine *engine, const char *key);
+	Ink_Object *getSlot(Ink_InterpreteEngine *engine, const char *key, bool search_prototype = true);
 	Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool *is_from_proto = NULL, bool search_prototype = true);
 	inline Ink_HashTable *getSlotMapping(Ink_InterpreteEngine *engine, const char *key, bool search_prototype) {
 		return getSlotMapping(engine, key, NULL, search_prototype);

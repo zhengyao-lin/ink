@@ -326,7 +326,7 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 	/* left hand side next */
 	CATCH_SIGNAL_RET;
 
-	if ((assign_event = lval_ret->getSlot(engine, "@assign"))->type == INK_FUNCTION) {
+	if ((assign_event = lval_ret->getSlot(engine, "@assign", false))->type == INK_FUNCTION) {
 		tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 		tmp[0] = rval_ret;
 		// assign_method->setSlot_c("base", lval_ret);

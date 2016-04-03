@@ -20,9 +20,9 @@ Ink_Object *getMethod(Ink_InterpreteEngine *engine,
 	return NULL;
 }
 
-Ink_Object *Ink_Object::getSlot(Ink_InterpreteEngine *engine, const char *key)
+Ink_Object *Ink_Object::getSlot(Ink_InterpreteEngine *engine, const char *key, bool search_prototype)
 {
-	Ink_HashTable *ret = getSlotMapping(engine, key);
+	Ink_HashTable *ret = getSlotMapping(engine, key, search_prototype);
 
 	return ret ? ret->getValue() : UNDEFINED;
 }

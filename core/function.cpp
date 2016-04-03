@@ -40,7 +40,7 @@ Ink_Object *Ink_Object::triggerCallEvent(Ink_InterpreteEngine *engine, Ink_Conte
 	Ink_Object *at_call;
 	Ink_Object *ret = NULL;
 
-	if ((at_call = getSlot(engine, "@call"))->type == INK_FUNCTION) {
+	if ((at_call = getSlot(engine, "@call", false))->type == INK_FUNCTION) {
 		// at_call->setSlot_c("base", this);
 		at_call->setBase(this);
 		ret = at_call->call(engine, context, argc, argv);
@@ -81,7 +81,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 	tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *));
 	engine->setInterrupt(INTER_NONE, NULL);
 	if (signal_backup < INTER_LAST) {
-		if ((tmp = receiver->getSlot(engine, (string("@") + Ink_InterpreteEngine::getNativeSignalName(signal_backup)).c_str()))
+		if ((tmp = receiver->getSlot(engine, (string("@") + Ink_InterpreteEngine::getNativeSignalName(signal_backup)).c_str(), false))
 			->type == INK_FUNCTION) {
 			tmp_argv[0] = value_backup;
 			event_found = true;
@@ -93,7 +93,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 		// custom signal
 		tmp_str = engine->getCustomInterruptSignalName(signal_backup);
 		if (tmp_str) {
-			if ((tmp = receiver->getSlot(engine, (string("@") + *tmp_str).c_str()))
+			if ((tmp = receiver->getSlot(engine, (string("@") + *tmp_str).c_str(), false))
 				->type == INK_FUNCTION) {
 				tmp_argv[0] = value_backup;
 				event_found = true;
@@ -359,7 +359,7 @@ SIGINT_END:
 	 */
 
 	if (this_p && if_return_this && !force_return) {
-		ret_val = local->getSlot(engine, "this");
+		ret_val = local->getSlot(engine, "this", false);
 	}
 
 	if (if_delete_argv)
