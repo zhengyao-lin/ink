@@ -113,7 +113,7 @@ string *JSON_stringifyObject(Ink_InterpreteEngine *engine, vector<Ink_Object *> 
 	return (ret != "") ? new string(ret) : NULL;
 }
 
-Ink_Object *InkNative_JSON_Encode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_JSON_Encode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 1)) {
 		return NULL_OBJ;
@@ -137,7 +137,7 @@ void InkMod_JSON_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 	return;
 }
 
-Ink_Object *InkMod_JSON_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_JSON_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;

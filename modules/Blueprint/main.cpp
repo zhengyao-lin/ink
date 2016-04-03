@@ -18,7 +18,7 @@ InkMod_Blueprint_Math_CalMode getMathCalMode(Ink_InterpreteEngine *engine)
 	return engine->getEngineComAs<InkMod_Blueprint_EngineCom>(ink_native_blueprint_mod_id)->math_cal_mode;
 }
 
-Ink_Object *InkMod_Blueprint_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;
@@ -36,7 +36,7 @@ Ink_Object *InkMod_Blueprint_Loader(Ink_InterpreteEngine *engine, Ink_ContextCha
 	tmp_argv[1] = apply_to;
 
 	if (base_loader->type == INK_FUNCTION) {
-		base_loader->call(engine, context, 2, tmp_argv);
+		base_loader->call(engine, context, base_pkg, 2, tmp_argv);
 	} else {
 		InkWarn_Package_Broken(engine, "blueprint.base");
 	}

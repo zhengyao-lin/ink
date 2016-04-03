@@ -6,7 +6,7 @@
 
 using namespace ink;
 
-Ink_Object *InkMod_Blueprint_Base_If(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_Base_If(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *cond;
 	Ink_Object *ret;
@@ -83,7 +83,7 @@ Ink_Object *InkMod_Blueprint_Base_If(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return ret;
 }
 
-Ink_Object *InkMod_Blueprint_Base_While(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_Base_While(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *cond;
 	Ink_Object *block;
@@ -134,7 +134,7 @@ Ink_Object *InkMod_Blueprint_Base_While(Ink_InterpreteEngine *engine, Ink_Contex
 	return ret ? ret : NULL_OBJ;
 }
 
-Ink_Object *InkMod_Blueprint_Base_For(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_Base_For(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *cond;
 	Ink_Object *incr;
@@ -189,7 +189,7 @@ Ink_Object *InkMod_Blueprint_Base_For(Ink_InterpreteEngine *engine, Ink_ContextC
 	return ret ? ret : NULL_OBJ;
 }
 
-Ink_Object *InkMod_Blueprint_Base_Try(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_Base_Try(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *test_block = NULL;
 	Ink_Object *catch_block = NULL;
@@ -254,7 +254,7 @@ RETRY:
 			tmp_argv[0] = engine->getInterruptValue();
 
 			engine->setInterrupt(INTER_NONE, NULL);
-			ret = catch_block->call(engine, context, 1, tmp_argv);
+			ret = catch_block->call(engine, context, NULL, 1, tmp_argv);
 
 			free(tmp_argv);
 			if (engine->getSignal() == INTER_RETRY) {
@@ -311,7 +311,7 @@ void InkMod_Blueprint_Base_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bond
 	return;
 }
 
-Ink_Object *InkMod_Blueprint_Base_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_Base_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;

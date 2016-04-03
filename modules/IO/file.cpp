@@ -25,7 +25,7 @@ inline Ink_SInt64 getNumVal(Ink_Object *num)
 	return 0;
 }
 
-Ink_Object *InkNative_File_Exist(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_Exist(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -35,7 +35,7 @@ Ink_Object *InkNative_File_Exist(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return new Ink_Numeric(engine, !access(tmp.c_str(), 0));
 }
 
-Ink_Object *InkNative_File_Remove(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_Remove(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -45,7 +45,7 @@ Ink_Object *InkNative_File_Remove(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return new Ink_Numeric(engine, !remove(tmp.c_str()));
 }
 
-Ink_Object *InkNative_File_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret;
 	FILE *fp = NULL;
@@ -75,9 +75,8 @@ Ink_Object *InkNative_File_Constructor(Ink_InterpreteEngine *engine, Ink_Context
 	return ret;
 }
 
-Ink_Object *InkNative_File_Close(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_Close(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 
 	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
@@ -94,9 +93,8 @@ Ink_Object *InkNative_File_Close(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_File_PutString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_PutString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 
 	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
@@ -114,9 +112,8 @@ Ink_Object *InkNative_File_PutString(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_File_PutC(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_PutC(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 	char ch;
 	string tmp_str;
@@ -140,9 +137,8 @@ Ink_Object *InkNative_File_PutC(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_File_GetString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_GetString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 	char buffer[FILE_GETS_BUFFER_SIZE] = { '\0' };
 	char *tmp_str;
@@ -162,9 +158,8 @@ Ink_Object *InkNative_File_GetString(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_File_GetC(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_GetC(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 
 	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
@@ -181,7 +176,7 @@ Ink_Object *InkNative_File_GetC(Ink_InterpreteEngine *engine, Ink_ContextChain *
 
 #if defined(INK_PLATFORM_LINUX)
 
-Ink_Object *InkNative_File_GetCh(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_GetCh(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	char ch;
 	ttyMode mode_back = getttyMode(); // back up tty mode
@@ -198,9 +193,8 @@ Ink_Object *InkNative_File_GetCh(Ink_InterpreteEngine *engine, Ink_ContextChain 
 
 #endif
 
-Ink_Object *InkNative_File_Seek(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_Seek(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 
 	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
@@ -227,9 +221,8 @@ Ink_Object *InkNative_File_Seek(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_File_Tell(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_Tell(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 
 	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
@@ -245,9 +238,8 @@ Ink_Object *InkNative_File_Tell(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_File_ReadAll(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_ReadAll(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 	size_t len;
 	char *buffer;
@@ -280,9 +272,8 @@ Ink_Object *InkNative_File_ReadAll(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_File_Flush(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_Flush(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp;
 
 	ASSUME_BASE_TYPE(engine, FILE_POINTER_TYPE);
@@ -296,9 +287,8 @@ Ink_Object *InkNative_File_Flush(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_File_Reopen(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_File_Reopen(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	FILE *tmp = NULL;
 	string path, mode;
 
@@ -373,7 +363,7 @@ void InkMod_File_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 	return;
 }
 
-Ink_Object *InkMod_File_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_File_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;

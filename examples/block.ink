@@ -1378,13 +1378,13 @@ p("##################### children of core dir #####################");
 _.missing = fn (name) {
 	fn (args...) {
 		let ret = fn (b) {
-			b[name]() with args
+			b[name](expand args)
 		}
 		ret.missing = fn (name) {
 			let tmp_base = base
 			fn (args...) {
 				let ret = fn (b) {
-					tmp_base(b)[name]() with args;
+					tmp_base(b)[name](expand args)
 				}
 				ret.missing = tmp_base.missing
 				ret
@@ -1408,7 +1408,7 @@ p_for_each([1, 2, 3]);
 
 x = _
 
-formular1 = _ * 2 + 1
+formular1 = (_ * 2).`+`(1)
 
 for (let i = 0, i < 10, i++) {
 	p("when x = " + i + ", formular1 = " + formular1(i));

@@ -10,7 +10,7 @@
 using namespace ink;
 using namespace std;
 
-Ink_Object *InkNative_ReadLine_Read(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_ReadLine_Read(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -40,7 +40,7 @@ void InkMod_ReadLine_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 	return;
 }
 
-Ink_Object *InkMod_ReadLine_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_ReadLine_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;

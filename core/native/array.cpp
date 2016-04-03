@@ -20,9 +20,8 @@ inline Ink_ArrayValue::size_type getRealIndex(Ink_NumericValue val, Ink_ArrayVal
 	return index;
 }
 
-Ink_Object *InkNative_Array_Link(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Array_Link(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_ArrayValue::size_type i, size;
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
@@ -50,9 +49,8 @@ Ink_Object *InkNative_Array_Link(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return new Ink_Array(engine, ret_val);
 }
 
-Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_Array *obj = as<Ink_Array>(base);
 	Ink_Object *ret;
 	Ink_HashTable *hash;
@@ -63,12 +61,12 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 	if (argc > 1) {
 		/* two or more arguments -- slice */
 		InkNote_Method_Fallthrough(engine, "[]", "slice", INK_ARRAY);
-		return InkNative_Array_Slice(engine, context, argc, argv, this_p);
+		return InkNative_Array_Slice(engine, context, base, argc, argv, this_p);
 	}
 
 	if (!checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
 		InkNote_Method_Fallthrough(engine, "[]", INK_ARRAY, INK_OBJECT);
-		return InkNative_Object_Index(engine, context, argc, argv, this_p);
+		return InkNative_Object_Index(engine, context, base, argc, argv, this_p);
 	}
 
 	index = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), obj->value.size());
@@ -87,9 +85,8 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return ret;
 }
 
-Ink_Object *InkNative_Array_Push(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Array_Push(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
@@ -102,9 +99,8 @@ Ink_Object *InkNative_Array_Push(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_Array_Size(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Array_Size(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 	return new Ink_Numeric(engine, as<Ink_Array>(base)->value.size());
 }
@@ -120,9 +116,8 @@ void cleanArrayHashTable(Ink_ArrayValue val,
 	return;
 }
 
-Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_Array *base_arr;
 	Ink_Object **args;
 	Ink_Array *ret = NULL;
@@ -145,7 +140,7 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 		gc_engine->checkGC();
 
 		args[0] = base_arr->value[i] ? base_arr->value[i]->getValue() : UNDEFINED;
-		ret->value.push_back(new Ink_HashTable(argv[0]->call(engine, context, 1, args)));
+		ret->value.push_back(new Ink_HashTable(argv[0]->call(engine, context, base, 1, args)));
 		if (engine->getSignal() != INTER_NONE) {
 			switch (engine->getSignal()) {
 				case INTER_RETURN:
@@ -173,9 +168,8 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return ret;
 }
 
-Ink_Object *InkNative_Array_Zip(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Array_Zip(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_Object **args;
 	Ink_Object *block = NULL;
 
@@ -213,7 +207,7 @@ Ink_Object *InkNative_Array_Zip(Ink_InterpreteEngine *engine, Ink_ContextChain *
 				  ? zipee->value[i]->getValue() : UNDEFINED;
 
 		if (block) {
-			ret->value.push_back(new Ink_HashTable(argv[1]->call(engine, context, 2, args)));
+			ret->value.push_back(new Ink_HashTable(argv[1]->call(engine, context, base, 2, args)));
 			if (engine->getSignal() != INTER_NONE) {
 				switch (engine->getSignal()) {
 					case INTER_RETURN:
@@ -247,9 +241,8 @@ Ink_Object *InkNative_Array_Zip(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	return ret;
 }
 
-Ink_Object *InkNative_Array_Last(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Array_Last(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
@@ -268,9 +261,8 @@ Ink_Object *InkNative_Array_Last(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return ret;
 }
 
-Ink_Object *InkNative_Array_Remove(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Array_Remove(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	// Ink_Object *ret;
 	Ink_Array *tmp;
 	Ink_Object *ret = NULL_OBJ;
@@ -315,9 +307,8 @@ Ink_Object *InkNative_Array_Remove(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return ret;
 }
 
-Ink_Object *InkNative_Array_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Array_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
@@ -393,9 +384,8 @@ Ink_Object *InkNative_Array_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return new Ink_Array(engine, ret_val);
 }
 
-Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_Array *tmp;
 	Ink_Object *tmp_obj;
 	Ink_FunctionObject *tmp_func;

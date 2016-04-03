@@ -33,9 +33,8 @@ Ink_Object *Ink_BigNumeric::cloneDeep(Ink_InterpreteEngine *engine)
 	return new_obj;
 }
 
-Ink_Object *InkNative_BigNumeric_Add(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_Add(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
@@ -50,9 +49,8 @@ Ink_Object *InkNative_BigNumeric_Add(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value + val);
 }
 
-Ink_Object *InkNative_BigNumeric_Sub(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_Sub(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
@@ -67,9 +65,8 @@ Ink_Object *InkNative_BigNumeric_Sub(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value - val);
 }
 
-Ink_Object *InkNative_BigNumeric_Mul(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_Mul(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
@@ -84,9 +81,8 @@ Ink_Object *InkNative_BigNumeric_Mul(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value * val);
 }
 
-Ink_Object *InkNative_BigNumeric_Div(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_Div(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
@@ -114,9 +110,8 @@ Ink_Object *InkNative_BigNumeric_Div(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return new Ink_BigNumeric(engine, ret);
 }
 
-Ink_Object *InkNative_BigNumeric_Mod(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_Mod(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
@@ -131,9 +126,8 @@ Ink_Object *InkNative_BigNumeric_Mod(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value % val);
 }
 
-Ink_Object *InkNative_BigNumeric_Spaceship(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_Spaceship(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
@@ -148,16 +142,15 @@ Ink_Object *InkNative_BigNumeric_Spaceship(Ink_InterpreteEngine *engine, Ink_Con
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value - val);
 }
 
-Ink_Object *InkNative_BigNumeric_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
 	if (!checkArgument(false, argc, argv, 1, BIGNUMERIC_TYPE)
 		&& !checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
 		InkNote_Method_Fallthrough(engine, "!=", BIGNUMERIC_TYPE, INK_OBJECT);
-		return InkNative_Object_Equal(engine, context, argc, argv, this_p);
+		return InkNative_Object_Equal(engine, context, base, argc, argv, this_p);
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
 								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
@@ -166,16 +159,15 @@ Ink_Object *InkNative_BigNumeric_Equal(Ink_InterpreteEngine *engine, Ink_Context
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value == val);
 }
 
-Ink_Object *InkNative_BigNumeric_NotEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_NotEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
 	if (!checkArgument(false, argc, argv, 1, BIGNUMERIC_TYPE)
 		&& !checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
 		InkNote_Method_Fallthrough(engine, "==", BIGNUMERIC_TYPE, INK_OBJECT);
-		return InkNative_Object_NotEqual(engine, context, argc, argv, this_p);
+		return InkNative_Object_NotEqual(engine, context, base, argc, argv, this_p);
 	}
 	Ink_Bignum_NumericValue val = argv[0]->type == INK_NUMERIC
 								  ? getFloat(as<Ink_Numeric>(argv[0])->getValue())
@@ -184,9 +176,8 @@ Ink_Object *InkNative_BigNumeric_NotEqual(Ink_InterpreteEngine *engine, Ink_Cont
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value != val);
 }
 
-Ink_Object *InkNative_BigNumeric_Greater(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_Greater(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
@@ -201,9 +192,8 @@ Ink_Object *InkNative_BigNumeric_Greater(Ink_InterpreteEngine *engine, Ink_Conte
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value > val);
 }
 
-Ink_Object *InkNative_BigNumeric_Less(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_Less(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
@@ -218,9 +208,8 @@ Ink_Object *InkNative_BigNumeric_Less(Ink_InterpreteEngine *engine, Ink_ContextC
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value < val);
 }
 
-Ink_Object *InkNative_BigNumeric_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
@@ -235,9 +224,8 @@ Ink_Object *InkNative_BigNumeric_GreaterOrEqual(Ink_InterpreteEngine *engine, In
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value >= val);
 }
 
-Ink_Object *InkNative_BigNumeric_LessOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_LessOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
@@ -252,27 +240,24 @@ Ink_Object *InkNative_BigNumeric_LessOrEqual(Ink_InterpreteEngine *engine, Ink_C
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value <= val);
 }
 
-Ink_Object *InkNative_BigNumeric_Add_Unary(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_Add_Unary(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
 	return new Ink_BigNumeric(engine, as<Ink_BigNumeric>(base)->value);
 }
 
-Ink_Object *InkNative_BigNumeric_Sub_Unary(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_Sub_Unary(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
 	return new Ink_BigNumeric(engine, -as<Ink_BigNumeric>(base)->value);
 }
 
-Ink_Object *InkNative_BigNumeric_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_BigNumeric_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, BIGNUMERIC_TYPE);
 
@@ -319,7 +304,7 @@ Ink_Object *Ink_BigNumericConstant::toObject(Ink_InterpreteEngine *engine)
 	return new Ink_BigNumeric(engine, value);
 }
 
-Ink_Object *InkMod_Bignum_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Bignum_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret = NULL_OBJ;
 	Ink_Bignum_NumericValue ret_val;
@@ -399,7 +384,7 @@ void InkMod_Bignum_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 	return;
 }
 
-Ink_Object *InkMod_Bignum_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Bignum_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;

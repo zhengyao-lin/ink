@@ -16,9 +16,8 @@ using namespace std;
 
 Ink_ModuleID ink_native_multink_mod_id;
 
-Ink_Object *InkNative_Actor_Send_Sub(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Actor_Send_Sub(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -46,7 +45,7 @@ Ink_Object *InkNative_Actor_Send_Sub(Ink_InterpreteEngine *engine, Ink_ContextCh
 	return TRUE_OBJ;
 }
 
-Ink_Object *InkNative_Actor_Send(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Actor_Send(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -59,7 +58,7 @@ Ink_Object *InkNative_Actor_Send(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return sender;
 }
 
-Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	bool if_wait_forever = false;
 	Ink_MilliSec time_begin = -1, max_time = -1, delay = -1;
@@ -131,13 +130,13 @@ Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return msg;
 }
 
-Ink_Object *InkNative_Actor_JoinAll(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Actor_JoinAll(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	InkActor_joinAllActor(engine);
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_Actor_JoinAllBut(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Actor_JoinAllBut(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -155,12 +154,12 @@ Ink_Object *InkNative_Actor_JoinAllBut(Ink_InterpreteEngine *engine, Ink_Context
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_Actor_ActorCount(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Actor_ActorCount(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	return new Ink_Numeric(engine, InkActor_getActorCount());
 }
 
-Ink_Object *InkNative_Actor_ActorSelf(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Actor_ActorSelf(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	string *tmp = InkActor_getActorName(engine);
 	if (!tmp) {
@@ -170,7 +169,7 @@ Ink_Object *InkNative_Actor_ActorSelf(Ink_InterpreteEngine *engine, Ink_ContextC
 	return new Ink_String(engine, tmp);
 }
 
-Ink_Object *InkNative_Actor_ActorExist(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Actor_ActorExist(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -180,7 +179,7 @@ Ink_Object *InkNative_Actor_ActorExist(Ink_InterpreteEngine *engine, Ink_Context
 	return new Ink_Numeric(engine, dest != NULL);
 }
 
-Ink_Object *InkNative_Actor_ActorWatch(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Actor_ActorWatch(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -286,7 +285,8 @@ void *Ink_ActorFunction_sub(void *arg)
 	return NULL;
 }
 
-Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
+Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
+									Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv,
 									Ink_Object *this_p, bool if_return_this)
 {
 	Ink_InterpreteEngine *new_engine;
@@ -296,7 +296,7 @@ Ink_Object *Ink_ActorFunction::call(Ink_InterpreteEngine *engine, Ink_ContextCha
 	Ink_Object **tmp_argv, *pa_ret;
 	bool if_delete_argv = false;
 
-	if ((pa_ret = checkUnkownArgument(argc, argv, this_p,
+	if ((pa_ret = checkUnkownArgument(base, argc, argv, this_p,
 									  if_return_this, if_delete_argv))
 		!= NULL) {
 		if (if_delete_argv)
@@ -419,7 +419,7 @@ void InkMod_Actor_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 	return;
 }
 
-Ink_Object *InkMod_Actor_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Actor_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;

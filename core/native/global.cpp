@@ -33,7 +33,7 @@ Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val)
 	return ret;
 }
 
-static Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_ContextObject *local = context->getLocal();
 	Ink_Object *ret;
@@ -71,7 +71,7 @@ static Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_Contex
 	return ret;
 }
 
-static Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret = NULL_OBJ;
 	Ink_ExpressionList top_level_backup;
@@ -113,7 +113,7 @@ bool defined(Ink_Object *obj)
 	return obj->type != INK_UNDEFINED;
 }
 
-static Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Print(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 1)) {
 		return NULL_OBJ;
@@ -146,7 +146,7 @@ void Ink_addImportPath(const char *path)
 	return;
 }
 
-static Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_ArgcType i;
 	Ink_SizeType j;
@@ -243,7 +243,7 @@ static Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 				tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 2);
 				tmp_argv[0] = argv[i];
 				tmp_argv[1] = context->getLocal();
-				load->call(engine, context, 2, tmp_argv);
+				load->call(engine, context, argv[i], 2, tmp_argv);
 				free(tmp_argv);
 				context->addContext(new Ink_ContextObject(engine));
 			} else {
@@ -255,12 +255,12 @@ static Ink_Object *Ink_Import(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_Import_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Import_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	return Ink_Import(engine, context, argc, argv, this_p);
+	return Ink_Import(engine, context, base, argc, argv, this_p);
 }
 
-static Ink_Object *Ink_TypeName(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_TypeName(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (argc < 1) {
 		InkWarn_Type_Name_Argument_Require(engine);
@@ -270,7 +270,7 @@ static Ink_Object *Ink_TypeName(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	return new Ink_String(engine, engine->getTypeName(argv[0]->type));
 }
 
-static Ink_Object *Ink_IntVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_IntVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_NumericValue tmp;
 	bool is_success = false;
@@ -298,7 +298,7 @@ static Ink_Object *Ink_IntVal(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 	return new Ink_Numeric(engine, tmp);
 }
 
-static Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_NumericValue tmp;
 	bool is_success = false;
@@ -330,7 +330,7 @@ static Ink_Object *Ink_NumVal(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 	return new Ink_Numeric(engine, tmp);
 }
 
-static Ink_Object *Ink_UnicodeToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_UnicodeToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
@@ -341,7 +341,7 @@ static Ink_Object *Ink_UnicodeToString(Ink_InterpreteEngine *engine, Ink_Context
 	return new Ink_String(engine, wstring(&chr, 1));
 }
 
-static Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_ArgcType i;
 	if (!checkArgument(engine, argc, 1))
@@ -355,13 +355,13 @@ static Ink_Object *Ink_Debug(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 	return NULL_OBJ;
 }
 
-static Ink_Object *Ink_Where(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Where(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	engine->printTrace(stderr, engine->getTrace());
 	return NULL_OBJ;
 }
 
-static Ink_Object *Ink_CoroutineCall(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_CoroutineCall(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_CoCallList co_call_list = Ink_CoCallList();
 	Ink_ArgcType i;
@@ -391,7 +391,7 @@ END:
 	return ret_val;
 }
 
-static Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	string tmp_str;
 
@@ -405,12 +405,12 @@ static Ink_Object *Ink_Auto_Missing(Ink_InterpreteEngine *engine, Ink_ContextCha
 													Ink_EvalFlag(), false);
 }
 
-Ink_Object *InkNative_Auto_Missing_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Auto_Missing_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	return Ink_Auto_Missing(engine, context, argc, argv, this_p);
+	return Ink_Auto_Missing(engine, context, base, argc, argv, this_p);
 }
 
-static Ink_Object *Ink_Fix_Assign(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Fix_Assign(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret;
 
@@ -431,7 +431,7 @@ static Ink_Object *Ink_Fix_Assign(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return ret;
 }
 
-static Ink_Object *Ink_Fix_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Fix_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	wstring tmp_wstr;
 	Ink_Object *ret;
@@ -457,19 +457,19 @@ static Ink_Object *Ink_Fix_Missing(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return ret;
 }
 
-Ink_Object *InkNative_Fix_Missing_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Fix_Missing_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	return Ink_Fix_Missing(engine, context, argc, argv, this_p);
+	return Ink_Fix_Missing(engine, context, base, argc, argv, this_p);
 }
 
-static Ink_Object *Ink_Abort(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Abort(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_disposeEnv();
 	abort();
 	return NULL_OBJ;
 }
 
-static Ink_Object *Ink_RegisterSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_RegisterSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -480,7 +480,7 @@ static Ink_Object *Ink_RegisterSignal(Ink_InterpreteEngine *engine, Ink_ContextC
 	return NULL_OBJ;
 }
 
-static Ink_Object *Ink_DeleteSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_DeleteSignal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -489,7 +489,7 @@ static Ink_Object *Ink_DeleteSignal(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return new Ink_Numeric(engine, engine->deleteCustomInterruptSignal(as<Ink_String>(argv[0])->getValue()));
 }
 
-static Ink_Object *Ink_SetErrorMode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_SetErrorMode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -508,7 +508,7 @@ static Ink_Object *Ink_SetErrorMode(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return TRUE_OBJ;
 }
 
-static Ink_Object *Ink_GetErrorMode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_GetErrorMode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_ErrorMode mode = engine->getErrorMode();
 

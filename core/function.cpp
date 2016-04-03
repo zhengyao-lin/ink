@@ -20,7 +20,7 @@ inline void setFuncAttr(Ink_Object *obj, Ink_FunctionAttribution attr)
 
 inline Ink_Object *callWithAttr(Ink_Object *obj, Ink_FunctionAttribution attr,
 								Ink_InterpreteEngine *engine, Ink_ContextChain *context,
-								Ink_ArgcType argc = 0, Ink_Object **argv = NULL)
+								Ink_Object *base = NULL, Ink_ArgcType argc = 0, Ink_Object **argv = NULL)
 {
 	Ink_FunctionAttribution attr_back;
 	Ink_Object *ret = NULL_OBJ;
@@ -28,7 +28,7 @@ inline Ink_Object *callWithAttr(Ink_Object *obj, Ink_FunctionAttribution attr,
 	if (obj->type == INK_FUNCTION) {
 		attr_back = getFuncAttr(obj);
 		setFuncAttr(obj, attr);
-		ret = obj->call(engine, context, argc, argv);
+		ret = obj->call(engine, context, base, argc, argv);
 		setFuncAttr(obj, attr_back);
 	}
 	return ret;
@@ -42,8 +42,7 @@ Ink_Object *Ink_Object::triggerCallEvent(Ink_InterpreteEngine *engine, Ink_Conte
 
 	if ((at_call = getSlot(engine, "@call", false))->type == INK_FUNCTION) {
 		// at_call->setSlot_c("base", this);
-		at_call->setBase(this);
-		ret = at_call->call(engine, context, argc, argv);
+		ret = at_call->call(engine, context, this, argc, argv);
 	}
 
 	return ret;
@@ -86,8 +85,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 			tmp_argv[0] = value_backup;
 			event_found = true;
 			// tmp->setSlot_c("base", receiver);
-			tmp->setBase(receiver);
-			callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
+			callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, receiver, 1, tmp_argv);
 		}
 	} else if (signal_backup > INTER_LAST) {
 		// custom signal
@@ -98,8 +96,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 				tmp_argv[0] = value_backup;
 				event_found = true;
 				// tmp->setSlot_c("base", receiver);
-				tmp->setBase(receiver);
-				callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, 1, tmp_argv);
+				callWithAttr(tmp, Ink_FunctionAttribution(INTER_NONE), engine, context, receiver, 1, tmp_argv);
 			}
 		} else {
 			InkWarn_Unregistered_Interrupt_Signal(engine, signal_backup);
@@ -117,7 +114,7 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 	return;
 }
 
-Ink_Object *Ink_FunctionObject::checkUnkownArgument(Ink_ArgcType &argc, Ink_Object **&argv,
+Ink_Object *Ink_FunctionObject::checkUnkownArgument(Ink_Object *&base, Ink_ArgcType &argc, Ink_Object **&argv,
 													Ink_Object *&this_p, bool &if_return_this,
 													bool &if_delete_argv)
 {
@@ -156,7 +153,7 @@ Ink_Object *Ink_FunctionObject::checkUnkownArgument(Ink_ArgcType &argc, Ink_Obje
 				tmp_argc = argc;
 				tmp_argv = argv;
 			}
-			ret_val = cloneWithPA(engine, tmp_argc, tmp_argv,
+			ret_val = cloneWithPA(engine, base, tmp_argc, tmp_argv,
 								  this_p, if_return_this, true);
 			goto RETURN;
 		}
@@ -172,7 +169,7 @@ Ink_Object *Ink_FunctionObject::checkUnkownArgument(Ink_ArgcType &argc, Ink_Obje
 
 	for (argi = 0; argi < argc; argi++) {
 		if (isUnknown(argv[argi])) { /* find unknown argument */
-			ret_val = cloneWithPA(engine, argc, copyArgv(argc, argv),
+			ret_val = cloneWithPA(engine, base, argc, copyArgv(argc, argv),
 								  this_p, if_return_this, true);
 			goto RETURN;
 		}
@@ -180,7 +177,8 @@ Ink_Object *Ink_FunctionObject::checkUnkownArgument(Ink_ArgcType &argc, Ink_Obje
 
 RETURN:
 
-	if (!ret_val && pa_argv) {
+	if (!ret_val && is_pa) {
+		base = pa_info_base_p;
 		this_p = pa_info_this_p;
 		if_return_this = pa_info_if_return_this;
 	}
@@ -188,8 +186,8 @@ RETURN:
 	return ret_val;
 }
 
-Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
-									 Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
+Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
+									 Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv,
 									 Ink_Object *this_p, bool if_return_this)
 {
 	Ink_ExpressionList::size_type i;
@@ -226,7 +224,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 
 	ret_val = NULL;
 
-	if ((pa_ret = checkUnkownArgument(argc, argv, this_p,
+	if ((pa_ret = checkUnkownArgument(base, argc, argv, this_p,
 									  if_return_this, if_delete_argv))
 		!= NULL) {
 		if (if_delete_argv)
@@ -257,10 +255,10 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 	if (!is_ref) {
 		if (if_set_sp_ptr) {
 			// local->setSlot_c("base", getSlot(engine, "base"));
-			local->setSlot_c("base", pa_info_base_p ? pa_info_base_p : getBase());
+			local->setSlot_c("base", base);
 			local->setSlot_c("this", this);
 		} else if (is_native) {
-			local->setSlot_c("base", pa_info_base_p ? pa_info_base_p : getBase());
+			local->setSlot_c("base", base);
 		}
 
 		local->setSlot_c("self", this);
@@ -285,7 +283,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine,
 
 	if (is_native) {
 		/* if it's a native function, call the function pointer */
-		ret_val = native(engine, context, argc, argv, this_p);
+		ret_val = native(engine, context, base, argc, argv, this_p);
 		/* interrupt signal received */
 		if (engine->getSignal() != INTER_NONE) {
 			/* interrupt event triggered */
@@ -412,6 +410,8 @@ Ink_Object *Ink_FunctionObject::clone(Ink_InterpreteEngine *engine)
 	if (closure_context)
 		new_obj->closure_context = closure_context->copyContextChain();
 	new_obj->attr = attr;
+
+	new_obj->is_pa = is_pa;
 	new_obj->pa_argc = pa_argc;
 	new_obj->pa_argv = copyArgv(pa_argc, pa_argv);
 	new_obj->pa_info_base_p = pa_info_base_p;
@@ -439,6 +439,8 @@ Ink_Object *Ink_FunctionObject::cloneDeep(Ink_InterpreteEngine *engine)
 		new_obj->closure_context = closure_context->copyDeepContextChain(engine);
 	}
 	new_obj->attr = attr;
+
+	new_obj->is_pa = is_pa;
 	new_obj->pa_argc = pa_argc;
 	new_obj->pa_argv = copyDeepArgv(engine, pa_argc, pa_argv);
 	new_obj->pa_info_base_p = pa_info_base_p ? pa_info_base_p->cloneDeep(engine) : NULL;
@@ -473,8 +475,8 @@ void Ink_FunctionObject::doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker mar
 	return;
 }
 
-Ink_Object *Ink_Object::call(Ink_InterpreteEngine *engine,
-							 Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
+Ink_Object *Ink_Object::call(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
+							 Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv,
 							 Ink_Object *this_p, bool if_return_this)
 {
 	Ink_Object *ret;
@@ -487,8 +489,8 @@ Ink_Object *Ink_Object::call(Ink_InterpreteEngine *engine,
 	return ret;
 }
 
-Ink_Object *Ink_Undefined::call(Ink_InterpreteEngine *engine,
-								Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
+Ink_Object *Ink_Undefined::call(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
+								Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv,
 								Ink_Object *this_p, bool if_return_this)
 {
 	InkError_Calling_Undefined_Object(engine, getDebugName());

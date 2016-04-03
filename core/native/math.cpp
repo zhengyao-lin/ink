@@ -11,9 +11,8 @@ using namespace std;
 
 class Ink_Numeric;
 
-Ink_Object *InkNative_Numeric_Add(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Add(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -24,9 +23,8 @@ Ink_Object *InkNative_Numeric_Add(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() + as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Sub(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Sub(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -37,9 +35,8 @@ Ink_Object *InkNative_Numeric_Sub(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() - as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Mul(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Mul(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -50,9 +47,8 @@ Ink_Object *InkNative_Numeric_Mul(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() * as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Div(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Div(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -63,9 +59,8 @@ Ink_Object *InkNative_Numeric_Div(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() / as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Mod(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Mod(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -84,9 +79,8 @@ getIntegerVal(Ink_Object *num)
 }
 */
 
-Ink_Object *InkNative_Numeric_And(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_And(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -97,9 +91,8 @@ Ink_Object *InkNative_Numeric_And(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() & as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Or(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Or(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -110,9 +103,8 @@ Ink_Object *InkNative_Numeric_Or(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() | as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Xor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Xor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -123,9 +115,8 @@ Ink_Object *InkNative_Numeric_Xor(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() ^ as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_ShiftLeft(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_ShiftLeft(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -136,9 +127,8 @@ Ink_Object *InkNative_Numeric_ShiftLeft(Ink_InterpreteEngine *engine, Ink_Contex
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() << as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_ShiftRight(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_ShiftRight(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -149,18 +139,16 @@ Ink_Object *InkNative_Numeric_ShiftRight(Ink_InterpreteEngine *engine, Ink_Conte
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() >> as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Inverse(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Inverse(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, ~(as<Ink_Numeric>(base)->getValue()));
 }
 
-Ink_Object *InkNative_Numeric_Spaceship(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Spaceship(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -171,37 +159,34 @@ Ink_Object *InkNative_Numeric_Spaceship(Ink_InterpreteEngine *engine, Ink_Contex
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() - as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	if (!checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
 		InkNote_Method_Fallthrough(engine, "==", INK_NUMERIC, INK_OBJECT);
-		return InkNative_Object_Equal(engine, context, argc, argv, this_p);
+		return InkNative_Object_Equal(engine, context, base, argc, argv, this_p);
 	}
 
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() == as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_NotEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_NotEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	if (!argc) return NULL_OBJ;
 
 	if (!checkArgument(false, argc, argv, 1, INK_NUMERIC)) {
 		InkNote_Method_Fallthrough(engine, "!=", INK_NUMERIC, INK_OBJECT);
-		return InkNative_Object_NotEqual(engine, context, argc, argv, this_p);
+		return InkNative_Object_NotEqual(engine, context, base, argc, argv, this_p);
 	}
 
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() != as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Greater(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Greater(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -212,9 +197,8 @@ Ink_Object *InkNative_Numeric_Greater(Ink_InterpreteEngine *engine, Ink_ContextC
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() > as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Less(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Less(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -225,9 +209,8 @@ Ink_Object *InkNative_Numeric_Less(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() < as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -238,9 +221,8 @@ Ink_Object *InkNative_Numeric_GreaterOrEqual(Ink_InterpreteEngine *engine, Ink_C
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() >= as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_LessOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_LessOrEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -251,27 +233,24 @@ Ink_Object *InkNative_Numeric_LessOrEqual(Ink_InterpreteEngine *engine, Ink_Cont
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue() <= as<Ink_Numeric>(argv[0])->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Add_Unary(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Add_Unary(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Sub_Unary(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Sub_Unary(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, -as<Ink_Numeric>(base)->getValue());
 }
 
-Ink_Object *InkNative_Numeric_Not_Postfix(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Not_Postfix(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
@@ -282,99 +261,88 @@ Ink_Object *InkNative_Numeric_Not_Postfix(Ink_InterpreteEngine *engine, Ink_Cont
 	return new Ink_Numeric(engine, ret);
 }
 
-Ink_Object *InkNative_Numeric_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_String(engine, as<Ink_Numeric>(base)->getValue().toString());
 }
 
-Ink_Object *InkNative_Numeric_Ceil(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Ceil(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue().ceil());
 }
 
-Ink_Object *InkNative_Numeric_Floor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Floor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue().floor());
 }
 
-Ink_Object *InkNative_Numeric_Round(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Round(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue().round());
 }
 
-Ink_Object *InkNative_Numeric_Trunc(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Trunc(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, getInt(as<Ink_Numeric>(base)->getValue()));
 }
 
-Ink_Object *InkNative_Numeric_Abs(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Abs(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, as<Ink_Numeric>(base)->getValue().abs());
 }
 
-Ink_Object *InkNative_Numeric_IsNan(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_IsNan(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, isnan((long double)getFloat(as<Ink_Numeric>(base)->getValue())));
 }
 
-Ink_Object *InkNative_Numeric_IsInf(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_IsInf(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, isinf((long double)getFloat(as<Ink_Numeric>(base)->getValue())));
 }
 
-Ink_Object *InkNative_Numeric_IsInt(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_IsInt(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, (int)as<Ink_Numeric>(base)->getValue().isInt());
 }
 
-Ink_Object *InkNative_Numeric_IsFloat(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_IsFloat(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_NUMERIC);
 
 	return new Ink_Numeric(engine, (int)as<Ink_Numeric>(base)->getValue().isFloat());
 }
 
-Ink_Object *InkNative_Numeric_Times(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Numeric_Times(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_NumericValue i, to;
 	Ink_Object *block = NULL;
 	Ink_Object **args;
@@ -396,7 +364,7 @@ Ink_Object *InkNative_Numeric_Times(Ink_InterpreteEngine *engine, Ink_ContextCha
 		gc_engine->checkGC();
 		if (block) {
 			args[0] = new Ink_Numeric(engine, i);
-			ret->value[getInt(i)] = new Ink_HashTable(argv[0]->call(engine, context, 1, args));
+			ret->value[getInt(i)] = new Ink_HashTable(argv[0]->call(engine, context, base, 1, args));
 			if (engine->getSignal() != INTER_NONE) {
 				switch (engine->getSignal()) {
 					case INTER_RETURN:

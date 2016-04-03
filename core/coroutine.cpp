@@ -6,8 +6,7 @@
 
 namespace ink {
 
-class InkCoCall_Argument {
-public:
+struct InkCoCall_Argument {
 	Ink_InterpreteEngine *engine;
 	Ink_ContextChain *context;
 	Ink_CoCall sync_call;

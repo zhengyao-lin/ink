@@ -10,8 +10,8 @@ namespace ink {
 
 using namespace std;
 
-static Ink_Object *Ink_Errno_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
-static Ink_Object *Ink_Errno_NotEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+static Ink_Object *Ink_Errno_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+static Ink_Object *Ink_Errno_NotEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
 
 Ink_ExceptionMessage::Ink_ExceptionMessage(Ink_InterpreteEngine *engine, Ink_ModuleID mod_id,
 										   Ink_ExceptionCode ex_code, const char *file_name,
@@ -99,9 +99,8 @@ inline bool isErrnoEqual(Ink_InterpreteEngine *engine, Ink_Object *base, Ink_Obj
 	return true;
 }
 
-static Ink_Object *Ink_Errno_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Errno_Equal(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	if (!checkArgument(engine, argc, 1)) {
 		return NULL_OBJ;
@@ -110,9 +109,8 @@ static Ink_Object *Ink_Errno_Equal(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return new Ink_Numeric(engine, isErrnoEqual(engine, base, argv[0]));
 }
 
-static Ink_Object *Ink_Errno_NotEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Errno_NotEqual(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	if (!checkArgument(engine, argc, 1)) {
 		return NULL_OBJ;
@@ -121,9 +119,8 @@ static Ink_Object *Ink_Errno_NotEqual(Ink_InterpreteEngine *engine, Ink_ContextC
 	return new Ink_Numeric(engine, !isErrnoEqual(engine, base, argv[0]));
 }
 
-static Ink_Object *Ink_Errno_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+static Ink_Object *Ink_Errno_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;

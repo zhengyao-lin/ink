@@ -344,7 +344,7 @@ Ink_Object *JSON_parse(Ink_InterpreteEngine *engine, string str)
 	return NULL_OBJ;
 }
 
-Ink_Object *InkNative_JSON_Decode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_JSON_Decode(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return UNDEFINED;

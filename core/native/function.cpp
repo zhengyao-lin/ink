@@ -8,9 +8,8 @@
 
 namespace ink {
 
-Ink_Object *InkNative_Function_Insert(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Function_Insert(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_ArgcType i;
 
 	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
@@ -50,9 +49,8 @@ Ink_Object **arrayValueToObjects(Ink_ArrayValue val)
 	return ret;
 }
 
-Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_Object *range;
 	Ink_ArrayValue range_val, tmp_arr_val;
 	Ink_Array *ret = NULL;
@@ -70,10 +68,10 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 	range = getSlotWithProto(engine, context, argv[0], "range");
 	if (range->type != INK_FUNCTION) {
 		InkNote_Method_Fallthrough(engine, "[]", INK_FUNCTION, INK_OBJECT);
-		return InkNative_Object_Index(engine, context, argc, argv, this_p);
+		return InkNative_Object_Index(engine, context, base, argc, argv, this_p);
 	}
 
-	range = range->call(engine, context);
+	range = range->call(engine, context, argv[0]);
 	if (range->type != INK_ARRAY) {
 		InkWarn_Incorrect_Range_Type(engine);
 		return NULL_OBJ;
@@ -104,18 +102,16 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 	return ret;
 }
 
-Ink_Object *InkNative_Function_GetExp(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Function_GetExp(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 
 	return new Ink_ExpListObject(engine, as<Ink_FunctionObject>(base)->exp_list);
 }
 
-Ink_Object *InkNative_Function_GetScope(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Function_GetScope(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_FunctionObject *func, *expr;
 	Ink_Object *ret = NULL_OBJ;
 
@@ -139,9 +135,8 @@ Ink_Object *InkNative_Function_GetScope(Ink_InterpreteEngine *engine, Ink_Contex
 
 /* exp list */
 
-Ink_Object *InkNative_ExpList_ToArray(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_ExpList_ToArray(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_ExpListObject *tmp;
 	Ink_ExpressionList tmp_exp;
 	Ink_ArrayValue ret_val;
@@ -159,9 +154,8 @@ Ink_Object *InkNative_ExpList_ToArray(Ink_InterpreteEngine *engine, Ink_ContextC
 	return new Ink_Array(engine, ret_val);
 }
 
-Ink_Object *InkNative_ExpList_Insert(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_ExpList_Insert(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	Ink_ArgcType i;
 
 	ASSUME_BASE_TYPE(engine, INK_EXPLIST);

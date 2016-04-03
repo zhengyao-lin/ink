@@ -26,19 +26,19 @@ void setMathCalMode(Ink_InterpreteEngine *engine, InkMod_Blueprint_Math_CalMode 
 InkMod_Blueprint_Math_CalMode getMathCalMode(Ink_InterpreteEngine *engine);
 
 /* blueprint.base */
-Ink_Object *InkMod_Blueprint_Base_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+Ink_Object *InkMod_Blueprint_Base_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
 void InkMod_Blueprint_Base_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee);
 
 /* blueprint.sys */
-Ink_Object *InkMod_Blueprint_System_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+Ink_Object *InkMod_Blueprint_System_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
 void InkMod_Blueprint_System_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee);
 
 /* blueprint.math */
-Ink_Object *InkMod_Blueprint_Math_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+Ink_Object *InkMod_Blueprint_Math_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
 void InkMod_Blueprint_Math_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee);
 
 /* blueprint.time */
-Ink_Object *InkMod_Blueprint_Time_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+Ink_Object *InkMod_Blueprint_Time_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
 void InkMod_Blueprint_Time_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee);
 
 #endif

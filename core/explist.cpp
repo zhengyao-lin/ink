@@ -5,8 +5,8 @@
 
 namespace ink {
 
-Ink_Object *Ink_ExpListObject::call(Ink_InterpreteEngine *engine,
-									Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv,
+Ink_Object *Ink_ExpListObject::call(Ink_InterpreteEngine *engine, Ink_ContextChain *context,
+									Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv,
 									Ink_Object *this_p, bool if_return_this)
 {
 	Ink_ExpressionList::size_type i;

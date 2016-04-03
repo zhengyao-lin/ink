@@ -31,7 +31,7 @@ void InkMod_IO_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 	return;
 }
 
-Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;
@@ -51,7 +51,7 @@ Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 	tmp_argv[1] = apply_to;
 
 	if (file_loader->type == INK_FUNCTION) {
-		file_loader->call(engine, context, 2, tmp_argv);
+		file_loader->call(engine, context, file_pkg, 2, tmp_argv);
 	} else {
 		InkWarn_Package_Broken(engine, "io.file");
 		return NULL_OBJ;
@@ -60,7 +60,7 @@ Ink_Object *InkMod_IO_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *con
 	tmp_argv[0] = direct_pkg;
 
 	if (direct_loader->type == INK_FUNCTION) {
-		direct_loader->call(engine, context, 2, tmp_argv);
+		direct_loader->call(engine, context, direct_pkg, 2, tmp_argv);
 	} else {
 		InkWarn_Package_Broken(engine, "io.direct");
 		return NULL_OBJ;

@@ -35,9 +35,8 @@ _setenv(const char *name, const char *val)
 #endif
 }
 
-Ink_Object *InkMod_Blueprint_System_Env_AtAssign(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_System_Env_AtAssign(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	if (!checkArgument(engine, argc, 1)) {
 		return NULL_OBJ;
@@ -63,9 +62,8 @@ Ink_Object *InkMod_Blueprint_System_Env_AtAssign(Ink_InterpreteEngine *engine, I
 	return NULL_OBJ;
 }
 
-Ink_Object *InkMod_Blueprint_System_Env_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_System_Env_Missing(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -106,7 +104,7 @@ Ink_Object *parseEnv(Ink_InterpreteEngine *engine)
 	return ret;
 }
 
-Ink_Object *InkMod_Blueprint_System_SetEnv(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_System_SetEnv(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 2, INK_STRING)) {
 		return NULL_OBJ;
@@ -118,7 +116,7 @@ Ink_Object *InkMod_Blueprint_System_SetEnv(Ink_InterpreteEngine *engine, Ink_Con
 	return new Ink_Numeric(engine, _setenv(name.c_str(), val.c_str()) == 0);
 }
 
-Ink_Object *InkMod_Blueprint_System_GetEnv(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_System_GetEnv(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -130,7 +128,7 @@ Ink_Object *InkMod_Blueprint_System_GetEnv(Ink_InterpreteEngine *engine, Ink_Con
 	return val ? (Ink_Object *)new Ink_String(engine, string(val)) : (Ink_Object *)NULL_OBJ;
 }
 
-Ink_Object *InkMod_Blueprint_System_Command(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_System_Command(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -148,7 +146,7 @@ void InkMod_Blueprint_System_Path_bondTo(Ink_InterpreteEngine *engine, Ink_Objec
 	return;
 }
 
-Ink_Object *InkMod_Blueprint_System_Path_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_System_Path_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;
@@ -177,7 +175,7 @@ void InkMod_Blueprint_System_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bo
 	return;
 }
 
-Ink_Object *InkMod_Blueprint_System_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_System_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;

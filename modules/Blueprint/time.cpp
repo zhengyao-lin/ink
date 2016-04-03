@@ -5,7 +5,7 @@
 #include "core/time.h"
 #include "core/native/general.h"
 
-Ink_Object *InkMod_Blueprint_Time_MSleep(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_Time_MSleep(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_NUMERIC)) {
 		return NULL_OBJ;
@@ -23,7 +23,7 @@ void InkMod_Blueprint_Time_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bond
 	return;
 }
 
-Ink_Object *InkMod_Blueprint_Time_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Blueprint_Time_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;

@@ -18,7 +18,7 @@ Ink_TypeTag getDirectType(Ink_InterpreteEngine *engine)
 	return engine->getEngineComAs<com_struct>(ink_native_io_mod_id)->direct_type;
 }
 
-Ink_Object *InkNative_Direct_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Direct_Constructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_Object *ret;
 
@@ -32,9 +32,8 @@ Ink_Object *InkNative_Direct_Constructor(Ink_InterpreteEngine *engine, Ink_Conte
 	return ret;
 }
 
-Ink_Object *InkNative_Direct_Exist(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Direct_Exist(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	string *tmp_path;
 
 	ASSUME_BASE_TYPE(engine, DIRECT_TYPE);
@@ -47,9 +46,8 @@ Ink_Object *InkNative_Direct_Exist(Ink_InterpreteEngine *engine, Ink_ContextChai
 	return new Ink_Numeric(engine, isDirExist(tmp_path->c_str()));
 }
 
-Ink_Object *InkNative_Direct_Create(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Direct_Create(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	string *tmp_path;
 
 	ASSUME_BASE_TYPE(engine, DIRECT_TYPE);
@@ -62,9 +60,8 @@ Ink_Object *InkNative_Direct_Create(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return new Ink_Numeric(engine, makeDir(tmp_path->c_str()));
 }
 
-Ink_Object *InkNative_Direct_Remove(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Direct_Remove(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	string *tmp_path;
 
 	ASSUME_BASE_TYPE(engine, DIRECT_TYPE);
@@ -77,9 +74,8 @@ Ink_Object *InkNative_Direct_Remove(Ink_InterpreteEngine *engine, Ink_ContextCha
 	return new Ink_Numeric(engine, removeDir(tmp_path->c_str()) == 0);
 }
 
-Ink_Object *InkNative_Direct_Path(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Direct_Path(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	string *tmp_path;
 
 	ASSUME_BASE_TYPE(engine, DIRECT_TYPE);
@@ -92,9 +88,8 @@ Ink_Object *InkNative_Direct_Path(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return new Ink_String(engine, *tmp_path);
 }
 
-Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_Object *base = context->searchSlot(engine, "base");
 	string *tmp_path;
 	Ink_Object **args = NULL;
 	Ink_Object *ret_tmp;
@@ -146,7 +141,7 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 	gc_engine->checkGC();
 	if (block) {
 		args[0] = new Ink_String(engine, string(CHILD_NAME));
-		ret->value.push_back(new Ink_HashTable(ret_tmp = block->call(engine, context, 1, args)));
+		ret->value.push_back(new Ink_HashTable(ret_tmp = block->call(engine, context, base, 1, args)));
 		if (engine->getSignal() != INTER_NONE) {
 			switch (engine->getSignal()) {
 				case INTER_RETURN:
@@ -196,7 +191,7 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 	return ret;
 }
 
-Ink_Object *InkNative_Direct_Exist_Static(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Direct_Exist_Static(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -206,7 +201,7 @@ Ink_Object *InkNative_Direct_Exist_Static(Ink_InterpreteEngine *engine, Ink_Cont
 	return new Ink_Numeric(engine, isDirExist(tmp.c_str()));
 }
 
-Ink_Object *InkNative_Direct_Create_Static(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Direct_Create_Static(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -216,7 +211,7 @@ Ink_Object *InkNative_Direct_Create_Static(Ink_InterpreteEngine *engine, Ink_Con
 	return new Ink_Numeric(engine, makeDir(tmp.c_str()));
 }
 
-Ink_Object *InkNative_Direct_Remove_Static(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Direct_Remove_Static(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, argv, 1, INK_STRING)) {
 		return NULL_OBJ;
@@ -273,7 +268,7 @@ void InkMod_Direct_bondTo(Ink_InterpreteEngine *engine, Ink_Object *bondee)
 	return;
 }
 
-Ink_Object *InkMod_Direct_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkMod_Direct_Loader(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	if (!checkArgument(engine, argc, 2)) {
 		return NULL_OBJ;

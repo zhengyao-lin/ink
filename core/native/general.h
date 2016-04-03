@@ -16,7 +16,7 @@
 
 namespace ink {
 
-Ink_Object *InkNative_Import_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
+Ink_Object *InkNative_Import_i(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p);
 
 inline Ink_Object *importFile(Ink_InterpreteEngine *engine, Ink_ContextChain *context, const char *path)
 {
@@ -24,7 +24,7 @@ inline Ink_Object *importFile(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 	Ink_Object *ret;
 
 	argv[0] = new Ink_String(engine, path);
-	ret = InkNative_Import_i(engine, context, 1, argv, NULL);
+	ret = InkNative_Import_i(engine, context, NULL, 1, argv, NULL);
 	free(argv);
 
 	return ret;
@@ -38,7 +38,7 @@ inline Ink_Object *importFile(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 	argv[0] = new Ink_String(engine, path1);
 	argv[1] = new Ink_String(engine, path2);
 
-	ret = InkNative_Import_i(engine, context, 2, argv, NULL);
+	ret = InkNative_Import_i(engine, context, NULL, 2, argv, NULL);
 	free(argv);
 
 	return ret;
@@ -62,7 +62,7 @@ inline Ink_Object *callMethod(Ink_InterpreteEngine *engine, Ink_ContextChain *co
 		InkWarn_Failed_Finding_Method(engine, method_name);
 		return NULL;
 	}
-	return base->call(engine, context, argc, argv, this_p);
+	return base->call(engine, context, base, argc, argv, this_p);
 }
 
 inline bool assumeBaseType(Ink_InterpreteEngine *engine, Ink_Object *base, Ink_TypeTag type_tag)
@@ -194,7 +194,7 @@ inline Ink_String *getStringVal(Ink_InterpreteEngine *engine, Ink_ContextChain *
 		return new Ink_String(engine, std::string(ss.str()));
 	} else if ((tmp = getSlotWithProto(engine, context, obj, "to_str"))
 			   ->type == INK_FUNCTION) {
-		if ((tmp = tmp->call(engine, context))->type != INK_STRING) {
+		if ((tmp = tmp->call(engine, context, obj))->type != INK_STRING) {
 			InkWarn_Invalid_Return_Value_Of_To_String(engine, tmp->type);
 			return NULL;
 		}
