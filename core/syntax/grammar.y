@@ -181,6 +181,8 @@
 	top_level_expression_list_opt
 	expression_list
 	expression_list_opt
+	empty_element_list
+	element_list_sub
 	element_list
 	element_list_opt
 	function_body
@@ -198,13 +200,13 @@
 	direct_argument_attachment_expression_prefix
 
 %type <argument_list>
-	argument_list
+	empty_argument_list
 	argument_list_sub
+	argument_list
 	argument_list_opt
 	argument_attachment
 	argument_attachment_opt
 	argument_list_without_paren
-	empty_argument_list
 
 /* hash table */
 %type <hash_table_mapping>
@@ -1436,28 +1438,67 @@ function_expression
 	}
 	;
 
-element_list
+empty_element_list
+	: TCOMMA
+	{
+		$$ = new Ink_ExpressionList();
+	}
+	| empty_element_list nllo TCOMMA
+	{
+		$1->push_back(NULL);
+		$$ = $1;
+	}
+	;
+
+element_list_sub
 	: nestable_expression
 	{
 		$$ = new Ink_ExpressionList();
 		$$->push_back($1);
 	}
-	| element_list nllo TCOMMA nllo nestable_expression
+	| empty_element_list nllo nestable_expression
 	{
+		$$ = new Ink_ExpressionList();
+		$$->push_back(NULL);
+		$$->insert($$->end(), $1->begin(), $1->end());
+		$$->push_back($3);
+		delete $1;
+	}
+	| element_list_sub nllo empty_element_list nllo nestable_expression
+	{
+		$1->insert($1->end(), $3->begin(), $3->end());
 		$1->push_back($5);
 		$$ = $1;
+		delete $3;
+	}
+	;
+
+element_list
+	: nllo empty_element_list nllo
+	{
+		$2->push_back(NULL);
+		$2->push_back(NULL);
+		$$ = $2;
+	}
+	| nllo element_list_sub nllo
+	{
+		$$ = $2;
+	}
+	| nllo element_list_sub nllo empty_element_list nllo
+	{
+		$2->insert($2->end(), $4->begin(), $4->end());
+		$2->push_back(NULL);
+		$$ = $2;
+		delete $4;
 	}
 	;
 
 element_list_opt
-	: nllo
+	: /* empty */ 
 	{
 		$$ = new Ink_ExpressionList();
 	}
-	| nllo element_list nllo
-	{
-		$$ = $2;
-	}
+	| element_list
 	;
 
 hash_table_mapping_single

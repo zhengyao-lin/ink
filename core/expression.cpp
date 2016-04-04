@@ -424,7 +424,10 @@ Ink_Object *Ink_ListExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	Ink_Object *ret = NULL;
 
 	for (i = 0; i < elem_list.size(); i++) {
-		val.push_back(new Ink_HashTable("", elem_list[i]->eval(engine, context_chain)));
+		if (elem_list[i])
+			val.push_back(new Ink_HashTable(elem_list[i]->eval(engine, context_chain)));
+		else
+			val.push_back(new Ink_HashTable(UNDEFINED));
 		if (INTER_SIGNAL_RECEIVED) {
 			RESTORE_LINE_NUM;
 			Ink_Array::disposeArrayValue(val);
