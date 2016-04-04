@@ -8,12 +8,24 @@
 
 namespace ink {
 
-Ink_Object *InkNative_Function_Insert(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+Ink_Object *InkNative_Function_Invoke(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-	Ink_ArgcType i;
-
 	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
 
+	if (!checkArgument(engine, argc, 1)) {
+		return NULL_OBJ;
+	}
+
+	Ink_Object *base_p = argv[0];
+
+	return base->call(engine, context, base_p, argc - 1,  argc > 1 ? &argv[1] : NULL, this_p);
+}
+
+Ink_Object *InkNative_Function_Insert(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	ASSUME_BASE_TYPE(engine, INK_FUNCTION);
+
+	Ink_ArgcType i;
 	Ink_FunctionObject *func = as<Ink_FunctionObject>(base);
 	Ink_FunctionObject *tmp_func;
 	Ink_ExpListObject *tmp_exp_obj;
@@ -192,6 +204,11 @@ void Ink_FunctionObject::Ink_FunctionMethodInit(Ink_InterpreteEngine *engine)
 {
 	Ink_ParamList scope_param = Ink_ParamList();
 	scope_param.push_back(Ink_Parameter(NULL, true));
+	Ink_FunctionObject *tmp_func;
+
+	setSlot_c("invoke", tmp_func = new Ink_FunctionObject(engine, InkNative_Function_Invoke), true);
+	tmp_func->is_ref = true;
+	tmp_func->setAttr(Ink_FunctionAttribution(INTER_NONE));
 
 	setSlot_c("<<", new Ink_FunctionObject(engine, InkNative_Function_Insert));
 	setSlot_c("exp", new Ink_FunctionObject(engine, InkNative_Function_GetExp));
