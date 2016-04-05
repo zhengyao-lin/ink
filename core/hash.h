@@ -25,6 +25,9 @@ class Ink_HashTable {
 		} const_value;
 	};
 
+	Ink_Object *setter;
+	Ink_Object *getter;
+
 public:
 	const char *key;
 
@@ -33,21 +36,38 @@ public:
 	Ink_HashTable *bonding;
 	Ink_HashTable *bondee;
 
-	Ink_Object *setter;
-	Ink_Object *getter;
+	Ink_Object *parent;
 
 	std::string *key_p;
 
-	Ink_HashTable(const char *key, Ink_Object *value, std::string *key_p = NULL);
-	Ink_HashTable(const char *key, Ink_InterpreteEngine *engine, Ink_Constant *value, std::string *key_p = NULL);
+	Ink_HashTable(const char *key, Ink_Object *value, Ink_Object *p, string *k_p = NULL);
 
-	Ink_HashTable(Ink_Object *value);
+	Ink_HashTable(const char *key, Ink_InterpreteEngine *engine, Ink_Constant *value, Ink_Object *p, std::string *key_p = NULL);
+
+	Ink_HashTable(Ink_Object *value, Ink_Object *p);
 
 	Ink_HashTable *getEnd();
 	// Ink_HashTable *getMapping(const char *key);
 	Ink_Object *getValue();
 	Ink_Object *setValue(Ink_Object *val);
 	Ink_Object *setValue(Ink_InterpreteEngine *engine, Ink_Constant *val);
+
+	void setSetter(Ink_Object *obj);
+	Ink_Object *getSetter();
+
+	void setGetter(Ink_Object *obj);
+	Ink_Object *getGetter();
+
+	inline void setParent(Ink_Object *p)
+	{
+		parent = p;
+		return;
+	}
+
+	inline Ink_Object *getParent()
+	{
+		return parent;
+	}
 
 	inline bool isConstant()
 	{

@@ -56,9 +56,10 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	Ink_ContextObject *global;
 
 	igc_collect_threshold = igc_collect_threshold_unit = IGC_COLLECT_THRESHOLD_UNIT;
-	igc_mark_period = 1;
+	// igc_mark_period = 1;
 	igc_global_ret_val = NULL;
 	igc_pardon_list = Ink_PardonList();
+	igc_grey_list = IGC_GreyList();
 
 	error_mode = INK_ERRMODE_DEFAULT;
 
@@ -168,13 +169,13 @@ void Ink_InterpreteEngine::removeTrace(Ink_ContextObject *context)
 inline void setArgv(Ink_InterpreteEngine *engine, vector<char *> argv)
 {
 	unsigned int i;
-	Ink_ArrayValue arr_val;
+	Ink_Array *val = new Ink_Array(engine);
 
 	for (i = 0; i < argv.size(); i++) {
-		arr_val.push_back(new Ink_HashTable(new Ink_String(engine, string(argv[i]))));
+		val->value.push_back(new Ink_HashTable(new Ink_String(engine, string(argv[i])), val));
 	}
 
-	engine->global_context->getGlobal()->setSlot(INK_ARGV_NAME, new Ink_Array(engine, arr_val));
+	engine->global_context->getGlobal()->setSlot(INK_ARGV_NAME, val);
 	
 	return;
 }

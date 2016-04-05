@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 #include <algorithm>
 #include <stdio.h>
@@ -19,6 +20,14 @@
 #include "../thread/actor.h"
 #include "../thread/thread.h"
 #include "../package/load.h"
+
+#define IS_WHITE(obj) ((obj) && (obj)->mark == IGC_Mark_White)
+#define IS_GREY(obj) ((obj) && (obj)->mark == IGC_Mark_Grey)
+#define IS_BLACK(obj) ((obj) && (obj)->mark == IGC_Mark_Black)
+
+#define SET_WHITE(obj) (engine->removeIfIsGrey(obj), (obj)->mark = IGC_Mark_White)
+#define SET_GREY(obj) ((obj)->mark = IGC_Mark_Grey, engine->addGrey(obj))
+#define SET_BLACK(obj) (engine->removeIfIsGrey(obj), (obj)->mark = IGC_Mark_Black)
 
 extern FILE *yyin;
 int yyparse();
@@ -51,6 +60,7 @@ typedef void *Ink_CustomEngineCom;
 typedef map<Ink_ModuleID, Ink_CustomEngineCom> Ink_CustomEngineComMap;
 typedef vector<string *> Ink_CustomInterruptSignal;
 typedef vector<Ink_Object *> Ink_PardonList;
+typedef set<Ink_Object *> IGC_GreyList;
 typedef vector<InkCoro_Scheduler *> Ink_SchedulerStack;
 
 extern pthread_mutex_t ink_native_exp_list_lock;
@@ -95,10 +105,11 @@ public:
 	IGC_ObjectCountType igc_collect_threshold_unit;
 
 	IGC_CollectEngine *current_gc_engine;
-	IGC_MarkType igc_mark_period;
+	// IGC_MarkType igc_mark_period;
 	IGC_BondingList igc_bonding_list;
 	Ink_Object *igc_global_ret_val;
 	Ink_PardonList igc_pardon_list;
+	IGC_GreyList igc_grey_list;
 
 	Ink_InterruptSignal interrupt_signal;
 	Ink_Object *interrupt_value;
@@ -142,6 +153,27 @@ public:
 	Ink_Object *findConstant(wstring name);
 	Ink_Constant *setConstant(wstring name, Ink_Object *obj);
 	void disposeConstant();
+
+	inline void addGrey(Ink_Object *obj)
+	{
+		igc_grey_list.insert(obj);
+		return;
+	}
+
+	inline IGC_GreyList getGreyList()
+	{
+		return igc_grey_list;
+	}
+
+	inline void removeIfIsGrey(Ink_Object *obj)
+	{
+		IGC_GreyList::iterator iter;
+		if (IS_GREY(obj)) {
+			if ((iter = igc_grey_list.find(obj)) != igc_grey_list.end())
+				igc_grey_list.erase(iter);
+		}
+		return;
+	}
 
 	inline void setMaxTrace(Ink_SizeType c)
 	{

@@ -101,11 +101,11 @@ Ink_Object *InkNative_Function_RangeCall(Ink_InterpreteEngine *engine, Ink_Conte
 			&& range_val[i]->getValue()->type == INK_ARRAY) {
 			tmp_arr_val = as<Ink_Array>(range_val[i]->getValue())->value;
 			tmp = arrayValueToObjects(tmp_arr_val);
-			ret->value.push_back(new Ink_HashTable(base->call(engine, context, tmp_arr_val.size(), tmp)));
+			ret->value.push_back(new Ink_HashTable(base->call(engine, context, tmp_arr_val.size(), tmp), ret));
 			free(tmp);
 		} else {
 			InkWarn_Incorrect_Range_Type(engine);
-			ret->value.push_back(new Ink_HashTable(NULL_OBJ));
+			ret->value.push_back(new Ink_HashTable(NULL_OBJ, ret));
 		}
 	}
 	engine->removePardonObject(ret);
@@ -151,19 +151,21 @@ Ink_Object *InkNative_ExpList_ToArray(Ink_InterpreteEngine *engine, Ink_ContextC
 {
 	Ink_ExpListObject *tmp;
 	Ink_ExpressionList tmp_exp;
-	Ink_ArrayValue ret_val;
 	Ink_ExpressionList::size_type i;
+	Ink_Array *ret;
 
 	ASSUME_BASE_TYPE(engine, INK_EXPLIST);
 
 	tmp = as<Ink_ExpListObject>(base);
+	ret = new Ink_Array(engine);
+
 	for (i = 0; i < tmp->exp_list.size(); i++) {
 		tmp_exp = Ink_ExpressionList();
 		tmp_exp.push_back(tmp->exp_list[i]);
-		ret_val.push_back(new Ink_HashTable("", new Ink_ExpListObject(engine, tmp_exp)));
+		ret->value.push_back(new Ink_HashTable(new Ink_ExpListObject(engine, tmp_exp), ret));
 	}
 
-	return new Ink_Array(engine, ret_val);
+	return ret;
 }
 
 Ink_Object *InkNative_ExpList_Insert(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)

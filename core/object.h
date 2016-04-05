@@ -40,7 +40,7 @@ public:
 	Ink_Object(Ink_InterpreteEngine *engine)
 	: engine(engine)
 	{
-		mark = 0;
+		mark = IGC_Mark_White;
 		type = INK_OBJECT;
 		hash_table = NULL;
 		address = NULL;
@@ -55,11 +55,7 @@ public:
 		// initMethod();
 	}
 
-	inline void setBase(Ink_Object *obj)
-	{
-		base_p = obj;
-		return;
-	}
+	void setBase(Ink_Object *obj);
 
 	inline Ink_Object *getBase()
 	{
@@ -81,16 +77,7 @@ public:
 
 	void initProto(Ink_InterpreteEngine *engine);
 
-	inline void setProto(Ink_Object *proto)
-	{
-		// setSlot_c("prototype", proto);
-		if (proto_hash) {
-			proto_hash->setValue(proto);
-		} else {
-			proto_hash = new Ink_HashTable("prototype", proto);
-		}
-		return;
-	}
+	void setProto(Ink_Object *proto);
 
 	inline Ink_HashTable *getProtoHash(bool set_bondee = true)
 	{
@@ -606,8 +593,8 @@ public:
 	}
 	void Ink_ArrayMethodInit(Ink_InterpreteEngine *engine);
 	
-	Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val);
-	Ink_ArrayValue cloneDeepArrayValue(Ink_InterpreteEngine *engine, Ink_ArrayValue val);
+	static Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val, Ink_Object *parent);
+	static Ink_ArrayValue cloneDeepArrayValue(Ink_InterpreteEngine *engine, Ink_ArrayValue val, Ink_Object *parent);
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
 	virtual Ink_Object *cloneDeep(Ink_InterpreteEngine *engine);

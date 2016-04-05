@@ -48,7 +48,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 
 	for (i = hash_table; i; i = i->next) {
 		if (!strcmp(i->key, key)) {
-			if (i->setter || i->getter) {
+			if (i->getSetter() || i->getGetter()) {
 				if (is_from_proto) *is_from_proto = false;
 				return i;
 			} else if(i->getValue() || i->bonding) {
@@ -108,15 +108,18 @@ Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_c
 	} else {
 		if (if_alloc_key) {
 			string *key_p = new string(key);
-			slot = new Ink_HashTable(key_p->c_str(), value, key_p);
+			slot = new Ink_HashTable(key_p->c_str(), value, this, key_p);
 		} else {
-			slot = new Ink_HashTable(key, value);
+			slot = new Ink_HashTable(key, value, this);
 		}
 		if (hash_table)
 			last->next = slot;
 		else
 			hash_table = slot;
 	}
+
+	if (IS_WHITE(value) && IS_BLACK(this))
+		SET_GREY(this);
 
 	return slot;
 }
@@ -139,9 +142,9 @@ Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_InterpreteEngine *engine
 	} else {
 		if (if_alloc_key) {
 			string *key_p = new string(key);
-			slot = new Ink_HashTable(key_p->c_str(), engine, value, key_p);
+			slot = new Ink_HashTable(key_p->c_str(), engine, value, this, key_p);
 		} else {
-			slot = new Ink_HashTable(key, engine, value);
+			slot = new Ink_HashTable(key, engine, value, this);
 		}
 		if (hash_table)
 			last->next = slot;

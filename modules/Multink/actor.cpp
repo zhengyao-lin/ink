@@ -267,7 +267,7 @@ void *Ink_ActorFunction_sub(void *arg)
 		var_arg = new Ink_Array(tmp->engine);
 		for (; argi < tmp->argc; argi++) {
 			/* push arguments in to VA array */
-			var_arg->value.push_back(new Ink_HashTable("", tmp->argv[argi]));
+			var_arg->value.push_back(new Ink_HashTable(tmp->argv[argi], var_arg));
 		}
 
 		/* set VA array */

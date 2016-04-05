@@ -121,9 +121,9 @@ void Ink_InterpreteEngine::printSlotInfo(FILE *fp, Ink_Object *obj, string prefi
 	}
 	fprintf(fp, " {\n");
 	for (i = obj->hash_table; i; i = i->next) {
-		getter_setter_info = i->getter ?
-							 string(" [ has getter") + (i->setter ? " and setter ]" : " ]") :
-							 (i->setter ? " [ has setter ]" : "");
+		getter_setter_info = i->getGetter() ?
+							 string(" [ has getter") + (i->getSetter() ? " and setter ]" : " ]") :
+							 (i->getSetter() ? " [ has setter ]" : "");
 
 		fprintf(fp, "%s" DBG_TAB "\'%s\':%s ", prefix.c_str(),
 				(i->key && strlen(i->key) ? i->key : "anonymous"), getter_setter_info.c_str());

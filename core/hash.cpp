@@ -1,13 +1,16 @@
 #include "hash.h"
 #include "object.h"
 #include "constant.h"
+#include "interface/engine.h"
 
 namespace ink {
 
 using namespace std;
 
-Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, string *k_p)
+Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, Ink_Object *p, string *k_p)
 {
+	Ink_InterpreteEngine *engine;
+	
 	initValue();
 
 	value = val;
@@ -18,8 +21,16 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, string *k_p)
 	bonding = NULL;
 	bondee = NULL;
 
+	parent = p;
+
 	setter = NULL;
 	getter = NULL;
+
+	if (IS_WHITE(val) && IS_BLACK(p)) {
+		engine = p->engine;
+		SET_GREY(p);
+	}
+
 	if (val) {
 		val->setDebugName(k);
 		type = HASH_OBJ;
@@ -28,7 +39,7 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, string *k_p)
 	}
 }
 
-Ink_HashTable::Ink_HashTable(const char *k, Ink_InterpreteEngine *engine, Ink_Constant *val, string *k_p)
+Ink_HashTable::Ink_HashTable(const char *k, Ink_InterpreteEngine *engine, Ink_Constant *val, Ink_Object *p, string *k_p)
 {
 	const_value.value = val;
 	const_value.engine = engine;
@@ -40,6 +51,8 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_InterpreteEngine *engine, Ink_Co
 	bonding = NULL;
 	bondee = NULL;
 
+	parent = p;
+
 	setter = NULL;
 	getter = NULL;
 
@@ -50,8 +63,10 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_InterpreteEngine *engine, Ink_Co
 	}
 }
 
-Ink_HashTable::Ink_HashTable(Ink_Object *val)
+Ink_HashTable::Ink_HashTable(Ink_Object *val, Ink_Object *p)
 {
+	Ink_InterpreteEngine *engine;
+
 	initValue();
 
 	value = val;
@@ -62,8 +77,16 @@ Ink_HashTable::Ink_HashTable(Ink_Object *val)
 	bonding = NULL;
 	bondee = NULL;
 
+	parent = p;
+
 	setter = NULL;
 	getter = NULL;
+
+	if (IS_WHITE(val) && IS_BLACK(p)) {
+		engine = p->engine;
+		SET_GREY(p);
+	}
+
 	if (val) {
 		val->setDebugName(key);
 		type = HASH_OBJ;
@@ -93,11 +116,18 @@ Ink_Object *Ink_HashTable::getValue()
 
 Ink_Object *Ink_HashTable::setValue(Ink_Object *val)
 {
+	Ink_InterpreteEngine *engine;
+	Ink_Object *p;
+
 	if (type != HASH_CONST) {
 		value = val;
 		if (val) {
 			val->setDebugName(key);
 			type = HASH_OBJ;
+			if (IS_WHITE(val) && IS_BLACK(p = getParent())) {
+				engine = p->engine;
+				SET_GREY(p);
+			}
 		}
 	} else {
 		if (val) {
@@ -153,6 +183,46 @@ void Ink_HashTable::setConstant()
 	type = HASH_CONST;
 
 	return;
+}
+
+void Ink_HashTable::setSetter(Ink_Object *obj)
+{
+	Ink_InterpreteEngine *engine;
+	Ink_Object *p;
+
+	setter = obj;
+
+	if (IS_WHITE(obj) && IS_BLACK(p = parent)) {
+		engine = p->engine;
+		SET_GREY(parent);
+	}
+
+	return;
+}
+
+Ink_Object *Ink_HashTable::getSetter()
+{
+	return setter;
+}
+
+void Ink_HashTable::setGetter(Ink_Object *obj)
+{
+	Ink_InterpreteEngine *engine;
+	Ink_Object *p;
+
+	getter = obj;
+	
+	if (IS_WHITE(obj) && IS_BLACK(p = parent)) {
+		engine = p->engine;
+		SET_GREY(parent);
+	}
+
+	return;
+}
+
+Ink_Object *Ink_HashTable::getGetter()
+{
+	return getter;
 }
 
 Ink_HashTable::~Ink_HashTable()

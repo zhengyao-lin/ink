@@ -56,7 +56,7 @@ public:
 	void deleteObject(IGC_CollectUnit *unit);
 	void disposeChainWithoutDelete(IGC_CollectUnit *chain);
 
-	void doCollect();
+	void doCollect(bool delete_all = false);
 	void collectGarbage(bool delete_all = false);
 	void checkGC();
 	void link(IGC_CollectEngine *engine);

@@ -141,7 +141,7 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 	gc_engine->checkGC();
 	if (block) {
 		args[0] = new Ink_String(engine, string(CHILD_NAME));
-		ret->value.push_back(new Ink_HashTable(ret_tmp = block->call(engine, context, base, 1, args)));
+		ret->value.push_back(new Ink_HashTable(ret_tmp = block->call(engine, context, base, 1, args), ret));
 		if (engine->getSignal() != INTER_NONE) {
 			switch (engine->getSignal()) {
 				case INTER_RETURN:
@@ -166,7 +166,7 @@ Ink_Object *InkNative_Direct_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 			}
 		}
 	} else {
-		ret->value.push_back(new Ink_HashTable(new Ink_String(engine, string(CHILD_NAME))));
+		ret->value.push_back(new Ink_HashTable(new Ink_String(engine, string(CHILD_NAME)), ret));
 	}
 
 

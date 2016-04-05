@@ -310,7 +310,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine, Ink_ContextCh
 			var_arg = new Ink_Array(engine);
 			for (; argi < argc; argi++) {
 				/* push arguments in to VA array */
-				var_arg->value.push_back(new Ink_HashTable("", argv[argi]));
+				var_arg->value.push_back(new Ink_HashTable(argv[argi], var_arg));
 			}
 
 			/* set VA array */

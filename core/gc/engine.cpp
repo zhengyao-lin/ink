@@ -41,20 +41,21 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 {
 	Ink_HashTable *i;
 
-	if (obj && obj->mark != CURRENT_MARK_PERIOD) obj->mark = CURRENT_MARK_PERIOD;
-	else {
+	if (!obj || IS_BLACK(obj)) {
 		return;
 	}
+
+	SET_BLACK(obj);
 
 	doMark(engine, obj->getBase());
 
 	if (obj->proto_hash && !obj->proto_hash->isConstant()) {
 		doMark(engine, obj->proto_hash->getValue());
-		if (obj->proto_hash->setter) {
-			doMark(engine, obj->proto_hash->setter);
+		if (obj->proto_hash->getSetter()) {
+			doMark(engine, obj->proto_hash->getSetter());
 		}
-		if (obj->proto_hash->getter) {
-			doMark(engine, obj->proto_hash->getter);
+		if (obj->proto_hash->getGetter()) {
+			doMark(engine, obj->proto_hash->getGetter());
 		}
 		if (obj->proto_hash->bonding) {
 			engine->addGCBonding(obj->proto_hash, obj->proto_hash->bonding);
@@ -64,10 +65,10 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 	for (i = obj->hash_table; i; i = i->next) {
 		if (!i->isConstant()) {
 			doMark(engine, i->getValue());
-			if (i->setter)
-				doMark(engine, i->setter);
-			if (i->getter)
-				doMark(engine, i->getter);
+			if (i->getSetter())
+				doMark(engine, i->getSetter());
+			if (i->getGetter())
+				doMark(engine, i->getGetter());
 			if (i->bonding) {
 				engine->addGCBonding(i, i->bonding);
 			}
@@ -101,7 +102,7 @@ void IGC_CollectEngine::disposeChainWithoutDelete(IGC_CollectUnit *chain)
 	return;
 }
 
-void IGC_CollectEngine::doCollect()
+void IGC_CollectEngine::doCollect(bool delete_all)
 {
 	IGC_CollectUnit *i, *tmp,
 					*last = NULL,
@@ -110,7 +111,7 @@ void IGC_CollectEngine::doCollect()
 	for (i = head = object_chain; i;) {
 		tmp = i;
 		i = i->next;
-		if (tmp->obj->mark != CURRENT_MARK_PERIOD) {
+		if (delete_all || IS_WHITE(tmp->obj)) {
 			// if (tmp == object_chain) object_chain = i;
 			if (tmp == head) {
 				head = tmp->next;
@@ -147,6 +148,8 @@ void IGC_CollectEngine::link(IGC_CollectEngine *engine)
 void IGC_CollectEngine::collectGarbage(bool delete_all)
 {
 	Ink_PardonList::iterator pardon_iter;
+	IGC_GreyList::iterator grey_iter;
+	IGC_GreyList grey_list;
 	vector<DBG_TypeMapping *>::iterator type_iter;
 
 	if (!delete_all) {
@@ -155,17 +158,25 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 			 pardon_iter != engine->igc_pardon_list.end(); pardon_iter++) {
 			doMark(*pardon_iter);
 		}
+
 		for (type_iter = engine->dbg_type_mapping.begin();
 			 type_iter != engine->dbg_type_mapping.end(); type_iter++) {
 			doMark((*type_iter)->proto);
 		}
+
+		grey_list = engine->getGreyList();
+		for (grey_iter = grey_list.begin();
+			 grey_iter != grey_list.end(); grey_iter++) {
+			doMark(*grey_iter);
+		}
+
 		doMark(engine->getInterruptValue());
 		doMark(engine->getGlobalReturnValue());
 	}
-	doCollect();
+	doCollect(delete_all);
 	// printf("\nreduced: %ld in %ld\n", origin - CURRENT_OBJECT_COUNT, origin);
 	// printf("GC time duration: %lf\n", (double)(clock() - st) / CLOCKS_PER_SEC);
-	CURRENT_MARK_PERIOD++;
+	// CURRENT_MARK_PERIOD++;
 
 	engine->initGCCollect();
 

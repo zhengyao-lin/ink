@@ -346,17 +346,18 @@ Ink_Object *Ink_AssignmentExpression::eval(Ink_InterpreteEngine *engine, Ink_Con
 
 		return ret;
 	} else if (lval_ret->address) {
-		if (lval_ret->address->setter) { /* if has setter, call it */
+		if (lval_ret->address->getSetter()) { /* if has setter, call it */
 			tmp = (Ink_Object **)malloc(sizeof(Ink_Object *));
 			tmp[0] = rval_ret;
-			// lval_ret->address->setter->setSlot_c("base", lval_ret);
-			ret = lval_ret->address->setter->call(engine, context_chain, lval_ret, 1, tmp);
+			// lval_ret->address->getSetter()->setSlot_c("base", lval_ret);
+			ret = lval_ret->address->getSetter()->call(engine, context_chain, lval_ret, 1, tmp);
 			// engine->setSignal(INTER_NONE);
 			free(tmp);
 			CATCH_SIGNAL_RET;
 			return ret;
 		} else {
 			/* no setter, directly assign */
+
 			lval_ret->address->setValue(rval_ret);
 		}
 		return is_return_lval ? lval_ret : rval_ret;
@@ -417,25 +418,22 @@ Ink_Object *Ink_ListExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextCh
 	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
 
-	Ink_ArrayValue val = Ink_ArrayValue();
 	Ink_ArrayValue::size_type i;
 	Ink_Object *list_method;
 	Ink_Object **argv = NULL;
-	Ink_Object *ret = NULL;
+	Ink_Array *arr_obj = new Ink_Array(engine);
+	Ink_Object *ret = arr_obj;
 
 	for (i = 0; i < elem_list.size(); i++) {
 		if (elem_list[i])
-			val.push_back(new Ink_HashTable(elem_list[i]->eval(engine, context_chain)));
+			arr_obj->value.push_back(new Ink_HashTable(elem_list[i]->eval(engine, context_chain), arr_obj));
 		else
-			val.push_back(new Ink_HashTable(UNDEFINED));
+			arr_obj->value.push_back(new Ink_HashTable(UNDEFINED, arr_obj));
 		if (INTER_SIGNAL_RECEIVED) {
 			RESTORE_LINE_NUM;
-			Ink_Array::disposeArrayValue(val);
 			return engine->getInterruptValue();
 		}
 	}
-
-	ret = new Ink_Array(engine, val);
 
 	list_method = Ink_IdentifierExpression::getContextSlot(engine, context_chain, "[]", Ink_EvalFlag(), false);
 	if (list_method->type == INK_FUNCTION) {
@@ -513,9 +511,9 @@ Ink_Object *Ink_HashExpression::getSlot(Ink_InterpreteEngine *engine, Ink_Contex
 	ret->setDebugName(id);
 
 	/* call getter if has one */
-	if (!flags.is_left_value && hash && hash->getter) {
-		// hash->getter->setSlot_c("base", hash->getValue());
-		ret = hash->getter->call(engine, context_chain, base, 0, NULL);
+	if (!flags.is_left_value && hash && hash->getGetter()) {
+		// hash->getGetter()->setSlot_c("base", hash->getValue());
+		ret = hash->getGetter()->call(engine, context_chain, base, 0, NULL);
 		// /* trap all interrupt signal */
 		// engine->setSignal(INTER_NONE);
 		if (INTER_SIGNAL_RECEIVED) {
@@ -758,8 +756,8 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 	ret->setDebugName(name);
 
 	/* if it's not a left value reference(which will call setter in assign exp) and has getter, call it */
-	if (!flags.is_left_value && hash && hash->getter) {
-		ret = hash->getter->call(engine, context_chain, base_context, 0, NULL);
+	if (!flags.is_left_value && hash && hash->getGetter()) {
+		ret = hash->getGetter()->call(engine, context_chain, base_context, 0, NULL);
 
 		// /* trap all interrupt signal */
 		// engine->setSignal(INTER_NONE);
@@ -782,20 +780,19 @@ Ink_Object *Ink_ArrayLiteral::eval(Ink_InterpreteEngine *engine, Ink_ContextChai
 	const char *file_name_back;
 	Ink_LineNoType line_num_back;
 	SET_LINE_NUM;
-	Ink_ArrayValue val = Ink_ArrayValue();
 	Ink_ArrayValue::size_type i;
+	Ink_Array *ret = new Ink_Array(engine);
 
 	for (i = 0; i < elem_list.size(); i++) {
-		val.push_back(new Ink_HashTable("", elem_list[i]->eval(engine, context_chain)));
+		ret->value.push_back(new Ink_HashTable(elem_list[i]->eval(engine, context_chain), ret));
 		if (INTER_SIGNAL_RECEIVED) {
 			RESTORE_LINE_NUM;
-			Ink_Array::disposeArrayValue(val);
 			return engine->getInterruptValue();
 		}
 	}
 
 	RESTORE_LINE_NUM;
-	return new Ink_Array(engine, val);
+	return ret;
 }
 
 Ink_Object *Ink_NullExpression::eval(Ink_InterpreteEngine *engine, Ink_ContextChain *context_chain, Ink_EvalFlag flags)

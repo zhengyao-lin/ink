@@ -20,47 +20,33 @@ bool isTrue(Ink_Object *cond)
 	return cond && cond->isTrue();
 }
 
-Ink_ArrayValue cloneArrayValue(Ink_ArrayValue val)
-{
-	Ink_ArrayValue ret;
-	Ink_ArrayValue::size_type i;
-	for (i = 0; i < val.size(); i++) {
-		if (val[i])
-			ret.push_back(new Ink_HashTable("", val[i]->getValue()));
-		else
-			ret.push_back(NULL);
-	}
-	return ret;
-}
-
 static Ink_Object *Ink_ArrayConstructor(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
 	Ink_ContextObject *local = context->getLocal();
-	Ink_Object *ret;
+	Ink_Array *ret;
 
 	if (argc) {
 		if (argv[0]->type == INK_NUMERIC && (argc == 1 || argc == 2)) {
 			if (argc == 1) {
 				ret = new Ink_Array(engine, Ink_ArrayValue((Ink_SizeType)getInt(as<Ink_Numeric>(argv[0])->getValue()), NULL));
 			} else {
-				Ink_ArrayValue val = Ink_ArrayValue((Ink_SizeType)getInt(as<Ink_Numeric>(argv[0])->getValue()), NULL);
-				Ink_ArrayValue::iterator val_iter;
-				for (val_iter = val.begin();
-					 val_iter != val.end();
-					 val_iter++) {
-					*val_iter = new Ink_HashTable(argv[1]);
+				Ink_ArrayValue::size_type i;
+				ret = new Ink_Array(engine, Ink_ArrayValue((Ink_SizeType)getInt(as<Ink_Numeric>(argv[0])->getValue()), NULL));
+
+				for (i = 0; i < ret->value.size(); i++) {
+					ret->value[i] = new Ink_HashTable(argv[1], ret);
 				}
-				ret = new Ink_Array(engine, val);
 			}
 		} else if (argv[0]->type == INK_ARRAY && argc == 1) {
-			ret = new Ink_Array(engine, cloneArrayValue(as<Ink_Array>(argv[0])->value));
+			ret = new Ink_Array(engine);
+			ret->value = Ink_Array::cloneArrayValue(as<Ink_Array>(argv[0])->value, ret);
 		} else {
-			Ink_ArrayValue val = Ink_ArrayValue();
 			Ink_ArrayValue::size_type i;
+			ret = new Ink_Array(engine);
+
 			for (i = 0; i < argc; i++) {
-				val.push_back(new Ink_HashTable("", argv[i]));
+				ret->value.push_back(new Ink_HashTable(argv[i], ret));
 			}
-			ret = new Ink_Array(engine, val);
 		}
 	} else {
 		ret = new Ink_Array(engine);
@@ -614,8 +600,8 @@ void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *contex
 	Ink_Object *engine_obj = new Ink_Object(engine);
 
 	Ink_HashTable *errmode_hash = engine_obj->setSlot_c("errmode", new Ink_String(engine, ""));
-	errmode_hash->getter = new Ink_FunctionObject(engine, Ink_GetErrorMode);
-	errmode_hash->setter = new Ink_FunctionObject(engine, Ink_SetErrorMode);
+	errmode_hash->setGetter(new Ink_FunctionObject(engine, Ink_GetErrorMode));
+	errmode_hash->setSetter(new Ink_FunctionObject(engine, Ink_SetErrorMode));
 	global->setSlot_c("engine", engine_obj);
 
 	Ink_Object *array_cons = new Ink_FunctionObject(engine, Ink_ArrayConstructor);

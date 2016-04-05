@@ -232,6 +232,7 @@ JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
 	InkJSON_TokenStack::size_type i = start_index, j;
 	Ink_ArrayValue arr_val;
 	string *tmp_str;
+	Ink_Array *arr_obj;
 
 	switch (token_stack[i].token) {
 		case JT_LBRACE: {
@@ -269,9 +270,9 @@ JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
 			return JSON_ParserReturnVal(NULL, i);
 		}
 		case JT_LBRACKET: {
-			arr_val = Ink_ArrayValue();
+			arr_obj = new Ink_Array(engine);
 			if (token_stack[i + 1].token == JT_RBRACKET) {
-				return JSON_ParserReturnVal(new Ink_Array(engine, arr_val), i + 1);
+				return JSON_ParserReturnVal(arr_obj, i + 1);
 			}
 			for (j = i + 1;
 				 j + 1 < token_stack.size();) {
@@ -279,24 +280,21 @@ JSON_parser(Ink_InterpreteEngine *engine, InkJSON_TokenStack token_stack,
 				j = tmp_ret.end_index;
 
 				if (tmp_ret.ret) {
-					arr_val.push_back(new Ink_HashTable(tmp_ret.ret));
+					arr_obj->value.push_back(new Ink_HashTable(tmp_ret.ret, arr_obj));
 					if (token_stack[tmp_ret.end_index + 1].token == JT_RBRACKET) {
-						return JSON_ParserReturnVal(new Ink_Array(engine, arr_val), j + 1);
+						return JSON_ParserReturnVal(arr_obj, j + 1);
 					} else if (token_stack[tmp_ret.end_index + 1].token == JT_COMMA) {
 						j += 2;
 						continue;
 					} else {
 						fprintf(stderr, "Unexpected %s, expecting comma or bracket\n",
 								token_name_map[token_stack[j + 1].token].name);
-						cleanArrayHashTable(arr_val);
 						return JSON_ParserReturnVal(NULL, j);
 					}
 				} else {
-					cleanArrayHashTable(arr_val);
 					return JSON_ParserReturnVal(NULL, j);
 				}
 			}
-			cleanArrayHashTable(arr_val);
 			fprintf(stderr, "Unexpected ending, expecting bracket\n");
 			return JSON_ParserReturnVal(NULL, i);
 		}

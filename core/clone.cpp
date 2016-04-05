@@ -130,21 +130,21 @@ Ink_Object *Ink_String::cloneDeep(Ink_InterpreteEngine *engine)
 	return new_obj;
 }
 
-Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val)
+Ink_ArrayValue Ink_Array::cloneArrayValue(Ink_ArrayValue val, Ink_Object *parent)
 {
 	Ink_ArrayValue ret = Ink_ArrayValue();
 	Ink_ArrayValue::size_type i;
 
 	for (i = 0; i < val.size(); i++) {
 		if (val[i])
-			ret.push_back(new Ink_HashTable("", val[i]->getValue()));
+			ret.push_back(new Ink_HashTable(val[i]->getValue(), parent));
 		else ret.push_back(NULL);
 	}
 
 	return ret;
 }
 
-Ink_ArrayValue Ink_Array::cloneDeepArrayValue(Ink_InterpreteEngine *engine, Ink_ArrayValue val)
+Ink_ArrayValue Ink_Array::cloneDeepArrayValue(Ink_InterpreteEngine *engine, Ink_ArrayValue val, Ink_Object *parent)
 {
 	Ink_ArrayValue ret = Ink_ArrayValue();
 	Ink_ArrayValue::size_type i;
@@ -152,7 +152,7 @@ Ink_ArrayValue Ink_Array::cloneDeepArrayValue(Ink_InterpreteEngine *engine, Ink_
 	for (i = 0; i < val.size(); i++) {
 		if (val[i]
 			&& !engine->cloneDeepHasTraced(val[i]->getValue())) {
-			ret.push_back(new Ink_HashTable("", val[i]->getValue()->cloneDeep(engine)));
+			ret.push_back(new Ink_HashTable(val[i]->getValue()->cloneDeep(engine), parent));
 		}
 		else ret.push_back(NULL);
 	}
@@ -162,8 +162,9 @@ Ink_ArrayValue Ink_Array::cloneDeepArrayValue(Ink_InterpreteEngine *engine, Ink_
 
 Ink_Object *Ink_Array::clone(Ink_InterpreteEngine *engine)
 {
-	Ink_Object *new_obj = new Ink_Array(engine, cloneArrayValue(value));
+	Ink_Array *new_obj = new Ink_Array(engine);
 
+	new_obj->value = cloneArrayValue(value, new_obj);
 	cloneHashTable(this, new_obj);
 
 	return new_obj;
@@ -172,8 +173,9 @@ Ink_Object *Ink_Array::clone(Ink_InterpreteEngine *engine)
 Ink_Object *Ink_Array::cloneDeep(Ink_InterpreteEngine *engine)
 {
 	engine->addDeepCloneTrace(this);
-	Ink_Object *new_obj = new Ink_Array(engine, cloneDeepArrayValue(engine, value));
+	Ink_Array *new_obj = new Ink_Array(engine);
 
+	new_obj->value = cloneDeepArrayValue(engine, value, new_obj);
 	cloneDeepHashTable(engine, this, new_obj);
 
 	return new_obj;

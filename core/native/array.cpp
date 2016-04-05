@@ -33,20 +33,21 @@ Ink_Object *InkNative_Array_Link(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	Ink_ArrayValue base_val = as<Ink_Array>(base)->value;
 	Ink_ArrayValue linkee = as<Ink_Array>(argv[0])->value;
 	Ink_ArrayValue ret_val = Ink_ArrayValue(size = base_val.size() + linkee.size(), NULL);
+	Ink_Array *ret = new Ink_Array(engine, ret_val);
 
 	for (i = 0; i < size; i++) {
 		if (i < base_val.size()) {
 			if (base_val[i]) {
-				ret_val[i] = new Ink_HashTable(base_val[i]->getValue());
+				ret->value[i] = new Ink_HashTable(base_val[i]->getValue(), ret);
 			}
 		} else {
 			if (linkee[i - base_val.size()]) {
-				ret_val[i] = new Ink_HashTable(linkee[i - base_val.size()]->getValue());
+				ret->value[i] = new Ink_HashTable(linkee[i - base_val.size()]->getValue(), ret);
 			}
 		}
 	}
 
-	return new Ink_Array(engine, ret_val);
+	return ret;
 }
 
 Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -71,7 +72,7 @@ Ink_Object *InkNative_Array_Index(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 	index = getRealIndex(as<Ink_Numeric>(argv[0])->getValue(), obj->value.size());
 	if (index < obj->value.size()) {
-		if (!obj->value[index]) obj->value[index] = new Ink_HashTable(UNDEFINED);
+		if (!obj->value[index]) obj->value[index] = new Ink_HashTable(UNDEFINED, obj);
 		hash = Ink_Object::traceHashBond(obj->value[index]);
 		ret = hash->getValue();
 		ret->address = hash;
@@ -92,7 +93,7 @@ Ink_Object *InkNative_Array_Push(Ink_InterpreteEngine *engine, Ink_ContextChain 
 
 	if (argc) {
 		Ink_Array *obj = as<Ink_Array>(base);
-		obj->value.push_back(new Ink_HashTable(argv[0]));
+		obj->value.push_back(new Ink_HashTable(argv[0], obj));
 		return argv[0];
 	}
 
@@ -140,7 +141,7 @@ Ink_Object *InkNative_Array_Each(Ink_InterpreteEngine *engine, Ink_ContextChain 
 		gc_engine->checkGC();
 
 		args[0] = base_arr->value[i] ? base_arr->value[i]->getValue() : UNDEFINED;
-		ret->value.push_back(new Ink_HashTable(argv[0]->call(engine, context, base, 1, args)));
+		ret->value.push_back(new Ink_HashTable(argv[0]->call(engine, context, base, 1, args), ret));
 		if (engine->getSignal() != INTER_NONE) {
 			switch (engine->getSignal()) {
 				case INTER_RETURN:
@@ -207,7 +208,7 @@ Ink_Object *InkNative_Array_Zip(Ink_InterpreteEngine *engine, Ink_ContextChain *
 				  ? zipee->value[i]->getValue() : UNDEFINED;
 
 		if (block) {
-			ret->value.push_back(new Ink_HashTable(argv[1]->call(engine, context, base, 2, args)));
+			ret->value.push_back(new Ink_HashTable(argv[1]->call(engine, context, base, 2, args), ret));
 			if (engine->getSignal() != INTER_NONE) {
 				switch (engine->getSignal()) {
 					case INTER_RETURN:
@@ -229,9 +230,9 @@ Ink_Object *InkNative_Array_Zip(Ink_InterpreteEngine *engine, Ink_ContextChain *
 				}
 			}
 		} else {
-			ret->value.push_back(new Ink_HashTable(tmp = new Ink_Array(engine)));
-			tmp->value.push_back(new Ink_HashTable(args[0]));
-			tmp->value.push_back(new Ink_HashTable(args[1]));
+			ret->value.push_back(new Ink_HashTable(tmp = new Ink_Array(engine), ret));
+			tmp->value.push_back(new Ink_HashTable(args[0], tmp));
+			tmp->value.push_back(new Ink_HashTable(args[1], tmp));
 		}
 	}
 	free(args);
@@ -251,7 +252,7 @@ Ink_Object *InkNative_Array_Last(Ink_InterpreteEngine *engine, Ink_ContextChain 
 	Ink_HashTable *ret_hash = tmp[tmp.size() - 1];
 
 	if (!ret_hash) {
-		ret_hash = tmp[tmp.size() - 1] = new Ink_HashTable(ret = UNDEFINED);
+		ret_hash = tmp[tmp.size() - 1] = new Ink_HashTable(ret = UNDEFINED, base);
 	} else {
 		ret = ret_hash->getValue();
 	}
@@ -357,21 +358,22 @@ Ink_Object *InkNative_Array_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain
 		return NULL_OBJ;
 	}
 
-	Ink_ArrayValue ret_val = Ink_ArrayValue();
+	Ink_Array *ret = new Ink_Array(engine);
+
 	if (range > 0) {
 		for (i = start; i <= end; i += range) {
 			if (base_val[i]) {
-				ret_val.push_back(new Ink_HashTable(base_val[i]->getValue()));
+				ret->value.push_back(new Ink_HashTable(base_val[i]->getValue(), ret));
 			} else {
-				ret_val.push_back(NULL);
+				ret->value.push_back(NULL);
 			}
 		}
 	} else {
 		for (i = end; i >= start;) {
 			if (base_val[i]) {
-				ret_val.push_back(new Ink_HashTable(base_val[i]->getValue()));
+				ret->value.push_back(new Ink_HashTable(base_val[i]->getValue(), ret));
 			} else {
-				ret_val.push_back(NULL);
+				ret->value.push_back(NULL);
 			}
 
 			if ((Ink_UInt64)-range > i) {
@@ -381,7 +383,7 @@ Ink_Object *InkNative_Array_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain
 		}
 	}
 
-	return new Ink_Array(engine, ret_val);
+	return ret;
 }
 
 Ink_Object *InkNative_Array_Rebuild(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)

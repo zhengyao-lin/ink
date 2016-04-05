@@ -132,7 +132,7 @@ Ink_Object *InkNative_Object_SetGetter(Ink_InterpreteEngine *engine, Ink_Context
 		hash = base->setSlot(tmp.c_str(), NULL);
 	}
 
-	hash->getter = argc > 1 ? argv[1] : NULL;
+	hash->setGetter(argc > 1 ? argv[1] : NULL);
 
 	return NULL_OBJ;
 }
@@ -151,7 +151,7 @@ Ink_Object *InkNative_Object_SetSetter(Ink_InterpreteEngine *engine, Ink_Context
 		hash = base->setSlot(tmp.c_str(), NULL);
 	}
 
-	hash->setter = argc > 1 ? argv[1] : NULL;
+	hash->setSetter(argc > 1 ? argv[1] : NULL);
 
 	return NULL_OBJ;
 }
@@ -181,7 +181,7 @@ Ink_Object *InkNative_Object_Each(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 		args[0] = new Ink_String(engine, string(hash->key));
 		args[1] = hash->getValue() ? hash->getValue() : UNDEFINED;
-		ret->value.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, base, 2, args)));
+		ret->value.push_back(new Ink_HashTable(ret_tmp = argv[0]->call(engine, context, base, 2, args), ret));
 		if (engine->getSignal() != INTER_NONE) {
 			switch (engine->getSignal()) {
 				case INTER_RETURN:

@@ -137,24 +137,24 @@ Ink_Object *InkNative_String_Split(Ink_InterpreteEngine *engine, Ink_ContextChai
 
 	wstring base_str = as<Ink_String>(base)->getWValue();
 	wstring split = as<Ink_String>(argv[0])->getWValue();
-	Ink_ArrayValue ret_val = Ink_ArrayValue();
+	Ink_Array *ret = new Ink_Array(engine);
 	wstring tmp;
 
 	for (i = 0, last = 0; i < base_str.size(); i++) {
 		if (base_str.substr(i, split.length()) == split) {
-			ret_val.push_back(new Ink_HashTable(new Ink_String(engine, tmp = (i > last
+			ret->value.push_back(new Ink_HashTable(new Ink_String(engine, tmp = (i > last
 																	   ? base_str.substr(last, i - last)
-																	   : L""))));
+																	   : L"")), ret));
 			last = i + split.length();
 			i += split.length() - 1;
 		}
 	}
 
-	ret_val.push_back(new Ink_HashTable(new Ink_String(engine, i > last
-															   ? base_str.substr(last, i - last)
-															   : L"")));
+	ret->value.push_back(new Ink_HashTable(new Ink_String(engine, i > last
+														  ? base_str.substr(last, i - last)
+														  : L""), ret));
 
-	return new Ink_Array(engine, ret_val);
+	return ret;
 }
 
 Ink_Object *InkNative_String_Slice(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
@@ -288,12 +288,13 @@ Ink_Object *InkNative_String_ToArray(Ink_InterpreteEngine *engine, Ink_ContextCh
 	wstring::size_type len = base_val.length();
 	Ink_SizeType i;
 	Ink_ArrayValue ret_val = Ink_ArrayValue(len, NULL);
+	Ink_Array *ret = new Ink_Array(engine, ret_val);
 
 	for (i = 0; i < len; i++) {
-		ret_val[i] = new Ink_HashTable(new Ink_Numeric(engine, base_val[i]));
+		ret->value[i] = new Ink_HashTable(new Ink_Numeric(engine, base_val[i]), ret);
 	}
 
-	return new Ink_Array(engine, ret_val);
+	return ret;
 }
 
 Ink_Object *InkNative_String_ToString(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
