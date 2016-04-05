@@ -103,6 +103,23 @@ let PolyNom = fn (coefs...) { // A() = sigma(i = 0 to n - 1)(ai * x ^ i)
 	}
 }
 
+let newton_solve = fn (poly, prec, init, max_try) {
+	let poly_d = poly.derive()
+	let x = init - (poly(init) / poly_d(init))
+	let i = 0
+
+	while ((poly(x) - 0).abs() > prec) {
+		x = x - (poly(x) / poly_d(x))
+		i++
+		if (max_try && i > max_try) {
+			x = "no solution"
+			break
+		}
+	}
+
+	x
+}
+
 poly1 = new PolyNom(1, 2, 3)
 poly2 = new PolyNom(1, 2, 4, 5, 6, 7, 8, 9, 10)
 poly3 = new PolyNom(9, -10, 7, 6)
@@ -122,3 +139,7 @@ p(poly5(12))
 p((new PolyNom(0, 1, 2, 3)).grad_at(30))
 
 p((new PolyNom(0, 1, 4, 5, 7)).area_in(1, 10))
+
+p(newton_solve(new PolyNom(1, 5, 4), 0.000001, 0, 50))
+p(newton_solve(new PolyNom(1, 5, 6), 0.000001, 0, 50))
+p(newton_solve(new PolyNom(1, 5, 7), 0.000001, 0, 50))
