@@ -64,8 +64,6 @@ public:
 
 	static inline Ink_HashTable *traceHashBond(Ink_HashTable *begin, bool set_bondee = true)
 	{
-		// return begin;
-#if 1
 		Ink_HashTable *ret = NULL;
 
 		if (!begin) return NULL;
@@ -75,7 +73,6 @@ public:
 			ret->setBondee(begin);
 
 		return ret;
-#endif
 	}
 
 	void initProto(Ink_InterpreteEngine *engine);
