@@ -163,13 +163,17 @@ typedef std::vector<Ink_Expression *> Ink_ExpressionList;
 typedef std::vector<Ink_Argument *> Ink_ArgumentList;
 
 typedef Ink_UInt32 Ink_ArgcType;
-// typedef Ink_SInt32 IGC_MarkType;
+typedef Ink_SInt32 IGC_MarkType;
 
+#define MARK_WHITE (0)
+
+/*
 enum IGC_MarkType {
 	IGC_Mark_White,
 	IGC_Mark_Grey,
 	IGC_Mark_Black
 };
+*/
 
 typedef Ink_UInt64 IGC_ObjectCountType;
 typedef Ink_SInt64 Ink_LineNoType;

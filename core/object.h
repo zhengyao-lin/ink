@@ -40,7 +40,7 @@ public:
 	Ink_Object(Ink_InterpreteEngine *engine)
 	: engine(engine)
 	{
-		mark = IGC_Mark_White;
+		mark = MARK_WHITE; // IGC_Mark_White;
 		type = INK_OBJECT;
 		hash_table = NULL;
 		address = NULL;
@@ -64,6 +64,8 @@ public:
 
 	static inline Ink_HashTable *traceHashBond(Ink_HashTable *begin, bool set_bondee = true)
 	{
+		// return begin;
+#if 1
 		Ink_HashTable *ret = NULL;
 
 		if (!begin) return NULL;
@@ -73,6 +75,7 @@ public:
 			ret->bondee = begin;
 
 		return ret;
+#endif
 	}
 
 	void initProto(Ink_InterpreteEngine *engine);
@@ -212,9 +215,9 @@ public:
 };
 
 class Ink_ContextObject: public Ink_Object {
-public:
 	Ink_Object *ret_val;
 
+public:
 	const char *debug_file_name;
 	Ink_LineNoType debug_lineno;
 	Ink_Object *debug_creater;
@@ -274,6 +277,12 @@ public:
 	inline Ink_Object *getCreater()
 	{
 		return debug_creater;
+	}
+
+	Ink_Object *setReturnVal(Ink_Object *obj);
+	inline Ink_Object *getReturnVal()
+	{
+		return ret_val;
 	}
 };
 

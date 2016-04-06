@@ -26,9 +26,11 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, Ink_Object *p, stri
 	setter = NULL;
 	getter = NULL;
 
-	if (IS_WHITE(val) && IS_BLACK(p)) {
+	if (p) {
 		engine = p->engine;
-		SET_GREY(p);
+		if (IS_WHITE(val) && IS_BLACK(p)) {
+			SET_GREY(p);
+		}
 	}
 
 	if (val) {
@@ -82,9 +84,11 @@ Ink_HashTable::Ink_HashTable(Ink_Object *val, Ink_Object *p)
 	setter = NULL;
 	getter = NULL;
 
-	if (IS_WHITE(val) && IS_BLACK(p)) {
+	if (p) {
 		engine = p->engine;
-		SET_GREY(p);
+		if (IS_WHITE(val) && IS_BLACK(p)) {
+			SET_GREY(p);
+		}
 	}
 
 	if (val) {
@@ -124,9 +128,11 @@ Ink_Object *Ink_HashTable::setValue(Ink_Object *val)
 		if (val) {
 			val->setDebugName(key);
 			type = HASH_OBJ;
-			if (IS_WHITE(val) && IS_BLACK(p = getParent())) {
+			if ((p = getParent()) != NULL) {
 				engine = p->engine;
-				SET_GREY(p);
+				if (IS_WHITE(val) && IS_BLACK(p)) {
+					SET_GREY(p);
+				}
 			}
 		}
 	} else {
@@ -192,9 +198,11 @@ void Ink_HashTable::setSetter(Ink_Object *obj)
 
 	setter = obj;
 
-	if (IS_WHITE(obj) && IS_BLACK(p = parent)) {
+	if ((p = getParent()) != NULL) {
 		engine = p->engine;
-		SET_GREY(parent);
+		if (IS_WHITE(obj) && IS_BLACK(p)) {
+			SET_GREY(p);
+		}
 	}
 
 	return;
@@ -212,9 +220,11 @@ void Ink_HashTable::setGetter(Ink_Object *obj)
 
 	getter = obj;
 	
-	if (IS_WHITE(obj) && IS_BLACK(p = parent)) {
+	if ((p = getParent()) != NULL) {
 		engine = p->engine;
-		SET_GREY(parent);
+		if (IS_WHITE(obj) && IS_BLACK(p = parent)) {
+			SET_GREY(parent);
+		}
 	}
 
 	return;

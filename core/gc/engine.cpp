@@ -203,6 +203,7 @@ void IGC_CollectEngine::checkGC()
 	if (oc >= t) { /* increase */
 		// tu *= pow(oc / t, 2);
 		t += upper((oc - t) / (double)tu) * tu;
+		CURRENT_MARK_PERIOD += 3;
 		// printf("t increase to: %ld\n", t);
 	} else {
 		// tu *= pow(oc / t, 2);

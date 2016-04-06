@@ -56,7 +56,7 @@ Ink_InterpreteEngine::Ink_InterpreteEngine()
 	Ink_ContextObject *global;
 
 	igc_collect_threshold = igc_collect_threshold_unit = IGC_COLLECT_THRESHOLD_UNIT;
-	// igc_mark_period = 1;
+	igc_mark_period = 0;
 	igc_global_ret_val = NULL;
 	igc_pardon_list = Ink_PardonList();
 	igc_grey_list = IGC_GreyList();

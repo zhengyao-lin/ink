@@ -21,13 +21,13 @@
 #include "../thread/thread.h"
 #include "../package/load.h"
 
-#define IS_WHITE(obj) ((obj) && (obj)->mark == IGC_Mark_White)
-#define IS_GREY(obj) ((obj) && (obj)->mark == IGC_Mark_Grey)
-#define IS_BLACK(obj) ((obj) && (obj)->mark == IGC_Mark_Black)
+#define IS_WHITE(obj) ((obj) && (obj)->mark != engine->curGrey() && (obj)->mark != engine->curBlack())
+#define IS_GREY(obj) ((obj) && (obj)->mark == engine->curGrey())
+#define IS_BLACK(obj) ((obj) && (obj)->mark == engine->curBlack())
 
-#define SET_WHITE(obj) (engine->removeIfIsGrey(obj), (obj)->mark = IGC_Mark_White)
-#define SET_GREY(obj) ((obj)->mark = IGC_Mark_Grey, engine->addGrey(obj))
-#define SET_BLACK(obj) (engine->removeIfIsGrey(obj), (obj)->mark = IGC_Mark_Black)
+#define SET_WHITE(obj) (engine->removeIfIsGrey(obj), (obj)->mark = MARK_WHITE)
+#define SET_GREY(obj) ((obj)->mark = engine->curGrey(), engine->addGrey(obj))
+#define SET_BLACK(obj) (engine->removeIfIsGrey(obj), (obj)->mark = engine->curBlack())
 
 extern FILE *yyin;
 int yyparse();
@@ -105,7 +105,7 @@ public:
 	IGC_ObjectCountType igc_collect_threshold_unit;
 
 	IGC_CollectEngine *current_gc_engine;
-	// IGC_MarkType igc_mark_period;
+	IGC_MarkType igc_mark_period;
 	IGC_BondingList igc_bonding_list;
 	Ink_Object *igc_global_ret_val;
 	Ink_PardonList igc_pardon_list;
@@ -154,6 +154,21 @@ public:
 	Ink_Constant *setConstant(wstring name, Ink_Object *obj);
 	void disposeConstant();
 
+	inline IGC_MarkType curWhite()
+	{
+		return igc_mark_period;
+	}
+
+	inline IGC_MarkType curGrey()
+	{
+		return igc_mark_period + 1;
+	}
+
+	inline IGC_MarkType curBlack()
+	{
+		return igc_mark_period + 2;
+	}
+
 	inline void addGrey(Ink_Object *obj)
 	{
 		igc_grey_list.insert(obj);
@@ -167,6 +182,7 @@ public:
 
 	inline void removeIfIsGrey(Ink_Object *obj)
 	{
+		Ink_InterpreteEngine *engine = this;
 		IGC_GreyList::iterator iter;
 		if (IS_GREY(obj)) {
 			if ((iter = igc_grey_list.find(obj)) != igc_grey_list.end())

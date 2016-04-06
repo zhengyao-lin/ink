@@ -72,8 +72,8 @@ void Ink_FunctionObject::triggerInterruptEvent(Ink_InterpreteEngine *engine, Ink
 	Ink_Object **tmp_argv = NULL;
 	Ink_InterruptSignal signal_backup = engine->getSignal();
 	Ink_Object *value_backup
-				= local->ret_val /* set return value of context object for GC to mark */
-				= engine->getInterruptValue();
+				= local->setReturnVal(engine->getInterruptValue());
+				/* set return value of context object for GC to mark */
 	string *tmp_str = NULL;
 	bool event_found = false;
 

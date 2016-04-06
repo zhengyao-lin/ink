@@ -42,4 +42,12 @@ void Ink_Object::setProto(Ink_Object *proto)
 	return;
 }
 
+Ink_Object *Ink_ContextObject::setReturnVal(Ink_Object *obj)
+{
+	ret_val = obj;
+	if (IS_WHITE(obj) && IS_BLACK(this))
+		SET_GREY(this);
+	return obj;
+}
+
 }
