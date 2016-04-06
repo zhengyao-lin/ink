@@ -235,12 +235,12 @@ Ink_Object *Ink_HashTable::getGetter()
 	return getter;
 }
 
-void Ink_HashTable::setBonding(Ink_InterpreteEngine *engine, Ink_HashTable *to)
+void Ink_HashTable::setBonding(Ink_InterpreteEngine *engine, Ink_HashTable *to, bool if_remove)
 {
 	bonding = to;
 	if (to)
 		engine->addGCBonding(this, to);
-	else
+	else if (if_remove)
 		engine->removeGCBonding(this);
 	return;
 }

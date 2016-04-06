@@ -97,7 +97,7 @@ public:
 		return;
 	}
 
-	void setBonding(Ink_InterpreteEngine *engine, Ink_HashTable *to);
+	void setBonding(Ink_InterpreteEngine *engine, Ink_HashTable *to, bool if_remove = true);
 	
 	inline Ink_HashTable *getBonding()
 	{
