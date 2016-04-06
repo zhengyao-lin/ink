@@ -14,7 +14,7 @@ Ink_Object *InkNative_Object_Bond(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 	if (argc && base->address && argv[0]->address) {
 		if (base->address == argv[0]->address) InkWarn_Self_Bonding(engine);
-		base->address->bonding = argv[0]->address;
+		base->address->setBonding(engine, argv[0]->address);
 		return argv[0];
 	}
 
@@ -25,10 +25,11 @@ Ink_Object *InkNative_Object_Bond(Ink_InterpreteEngine *engine, Ink_ContextChain
 
 Ink_Object *InkNative_Object_Debond(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
+	Ink_HashTable *tmp;
 
-	if (base->address && base->address->bondee) {
-		base->address->bondee->bonding = NULL;
-		return base->address->bondee->getValue();
+	if (base->address && (tmp = base->address->getBondee())) {
+		tmp->setBonding(engine, NULL);
+		return tmp->getValue();
 	}
 
 	return NULL_OBJ;

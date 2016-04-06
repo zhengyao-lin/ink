@@ -51,7 +51,7 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 			if (i->getSetter() || i->getGetter()) {
 				if (is_from_proto) *is_from_proto = false;
 				return i;
-			} else if(i->getValue() || i->bonding) {
+			} else if(i->getValue() || i->getBonding()) {
 				ret = traceHashBond(i);
 				if (is_from_proto) *is_from_proto = false;
 				return ret;

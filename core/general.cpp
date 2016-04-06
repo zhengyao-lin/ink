@@ -59,4 +59,10 @@ bool getBool(Ink_Object *obj)
 	return as<Ink_Numeric>(obj)->getValue().toBool();
 }
 
+bool operator == (std::pair<const ink::Ink_HashTable*, ink::Ink_HashTable*> op1,
+				  const Ink_HashTable *op2)
+{
+	return op1.first == op2;
+}
+
 }

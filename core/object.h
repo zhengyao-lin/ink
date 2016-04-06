@@ -70,9 +70,9 @@ public:
 
 		if (!begin) return NULL;
 
-		for (ret = begin; ret->bonding; ret = ret->bonding) ;
+		for (ret = begin; ret->getBonding(); ret = ret->getBonding()) ;
 		if (set_bondee)
-			ret->bondee = begin;
+			ret->setBondee(begin);
 
 		return ret;
 #endif

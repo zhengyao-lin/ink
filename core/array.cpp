@@ -28,9 +28,6 @@ void Ink_Array::doSelfMark(Ink_InterpreteEngine *engine, IGC_Marker marker)
 	for (i = 0; i < value.size(); i++) {
 		if (value[i]) {
 			marker(engine, value[i]->getValue());
-			if (value[i]->bonding) {
-				engine->addGCBonding(value[i], value[i]->bonding);
-			}
 		}
 	}
 	return;

@@ -235,6 +235,16 @@ Ink_Object *Ink_HashTable::getGetter()
 	return getter;
 }
 
+void Ink_HashTable::setBonding(Ink_InterpreteEngine *engine, Ink_HashTable *to)
+{
+	bonding = to;
+	if (to)
+		engine->addGCBonding(this, to);
+	else
+		engine->removeGCBonding(this);
+	return;
+}
+
 Ink_HashTable::~Ink_HashTable()
 {
 	// if (value) value->address = NULL;

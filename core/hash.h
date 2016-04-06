@@ -28,13 +28,13 @@ class Ink_HashTable {
 	Ink_Object *setter;
 	Ink_Object *getter;
 
+	Ink_HashTable *bonding;
+	Ink_HashTable *bondee;
+
 public:
 	const char *key;
 
 	Ink_HashTable *next;
-
-	Ink_HashTable *bonding;
-	Ink_HashTable *bondee;
 
 	Ink_Object *parent;
 
@@ -95,6 +95,24 @@ public:
 		type = HASH_UNDEFINED;
 		initValue();
 		return;
+	}
+
+	void setBonding(Ink_InterpreteEngine *engine, Ink_HashTable *to);
+	
+	inline Ink_HashTable *getBonding()
+	{
+		return bonding;
+	}
+
+	inline void setBondee(Ink_HashTable *from)
+	{
+		bondee = from;
+		return;
+	}
+
+	inline Ink_HashTable *getBondee()
+	{
+		return bondee;
 	}
 
 	~Ink_HashTable();

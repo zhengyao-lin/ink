@@ -57,9 +57,6 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 		if (obj->proto_hash->getGetter()) {
 			doMark(engine, obj->proto_hash->getGetter());
 		}
-		if (obj->proto_hash->bonding) {
-			engine->addGCBonding(obj->proto_hash, obj->proto_hash->bonding);
-		}
 	}
 
 	for (i = obj->hash_table; i; i = i->next) {
@@ -69,9 +66,6 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 				doMark(engine, i->getSetter());
 			if (i->getGetter())
 				doMark(engine, i->getGetter());
-			if (i->bonding) {
-				engine->addGCBonding(i, i->bonding);
-			}
 		}
 	}
 
@@ -178,7 +172,7 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 	// printf("GC time duration: %lf\n", (double)(clock() - st) / CLOCKS_PER_SEC);
 	// CURRENT_MARK_PERIOD++;
 
-	engine->initGCCollect();
+	// engine->initGCCollect();
 
 	return;
 }

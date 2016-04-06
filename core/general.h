@@ -2,6 +2,7 @@
 #define _CORE_GENERAL_H_
 
 #include <vector>
+#include <map>
 #include <string>
 #include <stdlib.h>
 #include "inttype.h"
@@ -274,8 +275,11 @@ enum Ink_ExceptionCode_tag {
 };
 
 typedef void (*IGC_Marker)(Ink_InterpreteEngine *engine, Ink_Object *obj);
-typedef std::pair<Ink_HashTable *, Ink_HashTable *> IGC_Bonding;
-typedef std::vector<IGC_Bonding> IGC_BondingList;
+// typedef std::pair<Ink_HashTable *, Ink_HashTable *> IGC_Bonding;
+typedef std::map<Ink_HashTable *, Ink_HashTable *> IGC_BondingMap;
+
+bool operator == (std::pair<const ink::Ink_HashTable*, ink::Ink_HashTable*> op1,
+				  const Ink_HashTable *op2);
 
 template <typename T1, typename T2, typename T3>
 class triple {
