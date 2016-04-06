@@ -220,7 +220,7 @@ static void DBG_SignalProc_INT(int sig)
 
 void DBG_initSignalProc()
 {
-	//csignal(SIGSEGV, DBG_SignalProc_SEGV);
+	signal(SIGSEGV, DBG_SignalProc_SEGV);
 	signal(SIGINT, DBG_SignalProc_INT);
 	return;
 }
