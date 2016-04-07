@@ -1852,3 +1852,12 @@ let str = ""
 }
 
 p(str)
+
+str_build = fn (start, count) {
+	count.times(start.char() + _).each(unicode(_)).build { |v1,v2| v1 + v2 }
+}
+
+p(str_build('a', 26))
+p(str_build('A', 26))
+p(str_build('0', 10))
+p(str_build('&', 10))

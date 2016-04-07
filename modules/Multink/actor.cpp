@@ -127,7 +127,7 @@ Ink_Object *InkNative_Actor_Receive(Ink_InterpreteEngine *engine, Ink_ContextCha
 		}
 	}
 
-	return msg;
+	return msg ? msg : NULL_OBJ;
 }
 
 Ink_Object *InkNative_Actor_JoinAll(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)

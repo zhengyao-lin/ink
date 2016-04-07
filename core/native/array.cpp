@@ -242,9 +242,36 @@ Ink_Object *InkNative_Array_Zip(Ink_InterpreteEngine *engine, Ink_ContextChain *
 	return ret;
 }
 
+Ink_Object *InkNative_Array_Build(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
+{
+	ASSUME_BASE_TYPE(engine, INK_ARRAY);
+
+	if (!checkArgument(engine, argc, argv, 1, INK_FUNCTION)) {
+		return NULL_OBJ;
+	}
+
+	Ink_Array *base_val = as<Ink_Array>(base);
+	Ink_ArrayValue::size_type i;
+	Ink_Object *ret = base_val->value.size() ? base_val->value[0]->getValue() : NULL;
+	Ink_Object *ret_back;
+	Ink_FunctionObject *build_fn = as<Ink_FunctionObject>(argv[0]);
+	Ink_Object **tmp_argv = (Ink_Object **)malloc(sizeof(Ink_Object *) * 2);
+
+	for (i = 1; i < base_val->value.size(); i++) {
+		tmp_argv[0] = ret;
+		tmp_argv[1] = base_val->value[i] ? base_val->value[i]->getValue() : UNDEFINED;
+		engine->addPardonObject(ret_back = ret);
+		ret = build_fn->call(engine, context, 2, tmp_argv);
+		engine->removePardonObject(ret_back);
+	}
+
+	free(tmp_argv);
+
+	return ret ? ret : NULL_OBJ;
+}
+
 Ink_Object *InkNative_Array_Last(Ink_InterpreteEngine *engine, Ink_ContextChain *context, Ink_Object *base, Ink_ArgcType argc, Ink_Object **argv, Ink_Object *this_p)
 {
-
 	ASSUME_BASE_TYPE(engine, INK_ARRAY);
 
 	Ink_ArrayValue tmp = as<Ink_Array>(base)->value;
@@ -429,6 +456,7 @@ void Ink_Array::Ink_ArrayMethodInit(Ink_InterpreteEngine *engine)
 	setSlot_c("size", new Ink_FunctionObject(engine, InkNative_Array_Size));
 	setSlot_c("each", new Ink_FunctionObject(engine, InkNative_Array_Each, true));
 	setSlot_c("zip", new Ink_FunctionObject(engine, InkNative_Array_Zip, true));
+	setSlot_c("build", new Ink_FunctionObject(engine, InkNative_Array_Build));
 	setSlot_c("last", new Ink_FunctionObject(engine, InkNative_Array_Last));
 	setSlot_c("remove", new Ink_FunctionObject(engine, InkNative_Array_Remove));
 	setSlot_c("slice", new Ink_FunctionObject(engine, InkNative_Array_Slice));
