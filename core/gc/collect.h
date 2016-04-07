@@ -5,6 +5,7 @@
 #include "../general.h"
 
 #define IGC_COLLECT_THRESHOLD_UNIT (128)
+#define IGC_PREMARK_MAX (10)
 
 namespace ink {
 
@@ -58,6 +59,7 @@ public:
 
 	void doCollect(bool delete_all = false);
 	void collectGarbage(bool delete_all = false);
+	void preMark(IGC_GreyList::size_type max_mark = IGC_PREMARK_MAX);
 	void checkGC();
 	void link(IGC_CollectEngine *engine);
 

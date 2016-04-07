@@ -118,7 +118,7 @@ Ink_HashTable *Ink_Object::setSlot(const char *key, Ink_Object *value, bool if_c
 			hash_table = slot;
 	}
 
-	if (IS_WHITE(value) && IS_BLACK(this))
+	if (IS_DISPOSABLE(value) && IS_IGNORED(this))
 		SET_GREY(this);
 
 	return slot;

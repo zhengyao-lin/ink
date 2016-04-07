@@ -28,7 +28,7 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, Ink_Object *p, stri
 
 	if (p) {
 		engine = p->engine;
-		if (IS_WHITE(val) && IS_BLACK(p)) {
+		if (IS_DISPOSABLE(val) && IS_IGNORED(p)) {
 			SET_GREY(p);
 		}
 	}
@@ -86,7 +86,7 @@ Ink_HashTable::Ink_HashTable(Ink_Object *val, Ink_Object *p)
 
 	if (p) {
 		engine = p->engine;
-		if (IS_WHITE(val) && IS_BLACK(p)) {
+		if (IS_DISPOSABLE(val) && IS_IGNORED(p)) {
 			SET_GREY(p);
 		}
 	}
@@ -130,7 +130,7 @@ Ink_Object *Ink_HashTable::setValue(Ink_Object *val)
 			type = HASH_OBJ;
 			if ((p = getParent()) != NULL) {
 				engine = p->engine;
-				if (IS_WHITE(val) && IS_BLACK(p)) {
+				if (IS_DISPOSABLE(val) && IS_IGNORED(p)) {
 					SET_GREY(p);
 				}
 			}
@@ -200,7 +200,7 @@ void Ink_HashTable::setSetter(Ink_Object *obj)
 
 	if ((p = getParent()) != NULL) {
 		engine = p->engine;
-		if (IS_WHITE(obj) && IS_BLACK(p)) {
+		if (IS_DISPOSABLE(obj) && IS_IGNORED(p)) {
 			SET_GREY(p);
 		}
 	}
@@ -222,7 +222,7 @@ void Ink_HashTable::setGetter(Ink_Object *obj)
 	
 	if ((p = getParent()) != NULL) {
 		engine = p->engine;
-		if (IS_WHITE(obj) && IS_BLACK(p = parent)) {
+		if (IS_DISPOSABLE(obj) && IS_IGNORED(p = parent)) {
 			SET_GREY(parent);
 		}
 	}

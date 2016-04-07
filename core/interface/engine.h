@@ -21,11 +21,16 @@
 #include "../thread/thread.h"
 #include "../package/load.h"
 
-#define IS_WHITE(obj) ((obj) && (obj)->mark != engine->curGrey() && (obj)->mark != engine->curBlack())
+#define IS_WHITE(obj) ((obj) && !IS_GREY(obj) && !IS_BLACK(obj))
+#define IS_BLUE(obj) ((obj) && (obj)->mark == MARK_BLUE)
 #define IS_GREY(obj) ((obj) && (obj)->mark == engine->curGrey())
 #define IS_BLACK(obj) ((obj) && (obj)->mark == engine->curBlack())
 
+#define IS_DISPOSABLE(obj) (IS_WHITE(obj))
+#define IS_IGNORED(obj) (IS_BLACK(obj))
+
 #define SET_WHITE(obj) (engine->removeIfIsGrey(obj), (obj)->mark = MARK_WHITE)
+#define SET_BLUE(obj) (engine->removeIfIsGrey(obj), (obj)->mark = MARK_BLUE)
 #define SET_GREY(obj) ((obj)->mark = engine->curGrey(), engine->addGrey(obj))
 #define SET_BLACK(obj) (engine->removeIfIsGrey(obj), (obj)->mark = engine->curBlack())
 
@@ -60,7 +65,6 @@ typedef void *Ink_CustomEngineCom;
 typedef map<Ink_ModuleID, Ink_CustomEngineCom> Ink_CustomEngineComMap;
 typedef vector<string *> Ink_CustomInterruptSignal;
 typedef vector<Ink_Object *> Ink_PardonList;
-typedef set<Ink_Object *> IGC_GreyList;
 typedef vector<InkCoro_Scheduler *> Ink_SchedulerStack;
 
 extern pthread_mutex_t ink_native_exp_list_lock;
@@ -154,19 +158,22 @@ public:
 	Ink_Constant *setConstant(wstring name, Ink_Object *obj);
 	void disposeConstant();
 
-	inline IGC_MarkType curWhite()
+	inline IGC_MarkType curGrey()
 	{
 		return igc_mark_period;
 	}
 
-	inline IGC_MarkType curGrey()
+	inline IGC_MarkType curBlack()
 	{
 		return igc_mark_period + 1;
 	}
 
-	inline IGC_MarkType curBlack()
+	inline void updateMarkPeriod()
 	{
-		return igc_mark_period + 2;
+		igc_mark_period += 2;
+		if (MARK_IN_RES(igc_mark_period, igc_mark_period + 1))
+			igc_mark_period = MARK_RES_LAST;
+		return;
 	}
 
 	inline void addGrey(Ink_Object *obj)

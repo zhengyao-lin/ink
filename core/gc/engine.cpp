@@ -9,7 +9,6 @@
 #define CURRENT_OBJECT_COUNT (object_count)
 #define CURRENT_COLLECT_THRESHOLD (collect_threshold)
 #define CURRENT_COLLECT_THRESHOLD_UNIT (engine->igc_collect_threshold_unit)
-#define CURRENT_MARK_PERIOD (engine->igc_mark_period)
 
 namespace ink {
 
@@ -41,9 +40,13 @@ void IGC_CollectEngine::doMark(Ink_InterpreteEngine *engine, Ink_Object *obj)
 {
 	Ink_HashTable *i;
 
-	if (!obj || IS_BLACK(obj)) {
+	if (!obj)
 		return;
-	}
+
+	if (IS_IGNORED(obj))
+		return;
+
+	// obj->incAge();
 
 	SET_BLACK(obj);
 
@@ -105,7 +108,7 @@ void IGC_CollectEngine::doCollect(bool delete_all)
 	for (i = head = object_chain; i;) {
 		tmp = i;
 		i = i->next;
-		if (delete_all || IS_WHITE(tmp->obj)) {
+		if (delete_all || IS_DISPOSABLE(tmp->obj)) {
 			// if (tmp == object_chain) object_chain = i;
 			if (tmp == head) {
 				head = tmp->next;
@@ -168,11 +171,28 @@ void IGC_CollectEngine::collectGarbage(bool delete_all)
 		doMark(engine->getGlobalReturnValue());
 	}
 	doCollect(delete_all);
+
 	// printf("\nreduced: %ld in %ld\n", origin - CURRENT_OBJECT_COUNT, origin);
 	// printf("GC time duration: %lf\n", (double)(clock() - st) / CLOCKS_PER_SEC);
 	// CURRENT_MARK_PERIOD++;
 
 	// engine->initGCCollect();
+
+	return;
+}
+
+void IGC_CollectEngine::preMark(IGC_GreyList::size_type max_mark)
+{
+	IGC_GreyList::iterator grey_iter;
+	IGC_GreyList grey_list;
+	IGC_GreyList::size_type i;
+
+	grey_list = engine->getGreyList();
+	// printf("grey count: %ld\n", grey_list.size());
+	for (i = 0, grey_iter = grey_list.begin();
+		 grey_iter != grey_list.end() && i <= max_mark; grey_iter++) {
+		doMark(*grey_iter);
+	}
 
 	return;
 }
@@ -197,7 +217,8 @@ void IGC_CollectEngine::checkGC()
 	if (oc >= t) { /* increase */
 		// tu *= pow(oc / t, 2);
 		t += upper((oc - t) / (double)tu) * tu;
-		CURRENT_MARK_PERIOD += 3;
+
+		engine->updateMarkPeriod();
 		// printf("t increase to: %ld\n", t);
 	} else {
 		// tu *= pow(oc / t, 2);
@@ -207,6 +228,8 @@ void IGC_CollectEngine::checkGC()
 	}
 
 #ifndef INK_DEBUG_FLAG
+	} else {
+		// preMark();
 	}
 #endif
 

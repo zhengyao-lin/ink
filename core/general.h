@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 #include <stdlib.h>
 #include "inttype.h"
@@ -166,17 +167,21 @@ typedef std::vector<Ink_Argument *> Ink_ArgumentList;
 typedef Ink_UInt32 Ink_ArgcType;
 typedef Ink_SInt32 IGC_MarkType;
 
+/* reserved mark */
 #define MARK_WHITE (0)
+#define MARK_BLUE (1)
+#define MARK_RES_LAST (MARK_BLUE + 1)
+#define MARK_IN_RES(from, to) (((from) >= MARK_WHITE && (from) <= MARK_BLUE)\
+							   || ((to) >= MARK_WHITE && (to) <= MARK_BLUE)\
+							   || ((from) < MARK_WHITE && (to) > MARK_BLUE))
 
-/*
-enum IGC_MarkType {
-	IGC_Mark_White,
-	IGC_Mark_Grey,
-	IGC_Mark_Black
-};
-*/
+#define IGC_OLD_OBJECT_AGE (20)
+#define IS_OVERAGE(obj) ((obj) && (obj)->age >= IGC_OLD_OBJECT_AGE)
 
+typedef set<Ink_Object *> IGC_GreyList;
 typedef Ink_UInt64 IGC_ObjectCountType;
+typedef Ink_UInt8 IGC_ObjectAge;
+
 typedef Ink_SInt64 Ink_LineNoType;
 // typedef double Ink_NumericValue;
 typedef std::vector<Ink_HashTable *> Ink_ArrayValue;

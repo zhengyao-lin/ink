@@ -25,6 +25,7 @@ void IGC_addObject(Ink_InterpreteEngine *current_engine, Ink_Object *obj);
 class Ink_Object {
 public:
 	IGC_MarkType mark;
+	// IGC_ObjectAge age;
 	Ink_TypeTag type;
 
 	Ink_HashTable *hash_table;
@@ -41,6 +42,7 @@ public:
 	: engine(engine)
 	{
 		mark = MARK_WHITE; // IGC_Mark_White;
+		// age = 0;
 		type = INK_OBJECT;
 		hash_table = NULL;
 		address = NULL;
@@ -54,6 +56,18 @@ public:
 			IGC_addObject(engine, this);
 		// initMethod();
 	}
+
+#if 0
+	inline IGC_ObjectAge ageInc()
+	{
+		return age++;
+	}
+
+	inline IGC_ObjectAge incAge()
+	{
+		return ++age;
+	}
+#endif
 
 	void setBase(Ink_Object *obj);
 
