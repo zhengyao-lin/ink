@@ -231,7 +231,7 @@ class Ink_ContextObject: public Ink_Object {
 public:
 	const char *debug_file_name;
 	Ink_LineNoType debug_lineno;
-	Ink_Object *debug_creater;
+	Ink_Object *debug_creator;
 
 	Ink_ContextObject(Ink_InterpreteEngine *engine)
 	: Ink_Object(engine)
@@ -241,7 +241,7 @@ public:
 
 		debug_file_name = NULL;
 		debug_lineno = -1;
-		debug_creater = NULL;
+		debug_creator = NULL;
 	}
 	Ink_ContextObject(Ink_InterpreteEngine *engine, Ink_HashTable *hash)
 	: Ink_Object(engine)
@@ -252,7 +252,7 @@ public:
 
 		debug_file_name = NULL;
 		debug_lineno = -1;
-		debug_creater = NULL;
+		debug_creator = NULL;
 	}
 
 	virtual Ink_Object *clone(Ink_InterpreteEngine *engine);
@@ -267,11 +267,11 @@ public:
 		return;
 	}
 
-	inline void setDebug(const char *file_name, Ink_LineNoType lineno, Ink_Object *creater)
+	inline void setDebug(const char *file_name, Ink_LineNoType lineno, Ink_Object *creator)
 	{
 		debug_file_name = file_name;
 		debug_lineno = lineno;
-		debug_creater = creater;
+		debug_creator = creator;
 		return;
 	}
 
@@ -285,9 +285,9 @@ public:
 		return debug_lineno;
 	}
 
-	inline Ink_Object *getCreater()
+	inline Ink_Object *getCreator()
 	{
-		return debug_creater;
+		return debug_creator;
 	}
 
 	Ink_Object *setReturnVal(Ink_Object *obj);

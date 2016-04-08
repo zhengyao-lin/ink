@@ -22,5 +22,5 @@ export GLOBAL_PLATFORM =
 export GLOBAL_PLATFORM_ARCH =
 
 export ARCH_PREFIX=
-export CC=$(ARCH_PREFIX)clang++
+export CC=$(ARCH_PREFIX)g++
 export LD=$(ARCH_PREFIX)ld

@@ -23,10 +23,10 @@ struct Ink_ContextChain_sub {
 		return context;
 	}
 
-	inline void setDebug(const char *file_name, Ink_LineNoType lineno, Ink_Object *creater)
+	inline void setDebug(const char *file_name, Ink_LineNoType lineno, Ink_Object *creator)
 	{
 		if (context) {
-			context->setDebug(file_name, lineno, creater);
+			context->setDebug(file_name, lineno, creator);
 		}
 		return;
 	}
@@ -41,9 +41,9 @@ struct Ink_ContextChain_sub {
 		return context ? context->getLineno() : -1;
 	}
 
-	inline Ink_Object *getCreater()
+	inline Ink_Object *getCreator()
 	{
-		return context ? context->getCreater() : NULL;
+		return context ? context->getCreator() : NULL;
 	}
 };
 

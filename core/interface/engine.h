@@ -69,6 +69,7 @@ typedef vector<InkCoro_Scheduler *> Ink_SchedulerStack;
 
 typedef map<Ink_Object *, Ink_Object *> Ink_CloneTraceMap;
 typedef set<Ink_Object *> Ink_ProtoTraceSet;
+typedef set<Ink_Object *> Ink_DebugTraceSet;
 
 extern pthread_mutex_t ink_native_exp_list_lock;
 extern Ink_ExpressionList ink_native_exp_list;
@@ -131,7 +132,7 @@ public:
 	bool dbg_print_detail;
 	Ink_SInt32 dbg_max_trace;
 	vector<DBG_TypeMapping *> dbg_type_mapping;
-	vector<Ink_Object *> dbg_traced_stack;
+	Ink_DebugTraceSet dbg_traced_set;
 
 	Ink_ProtocolMap protocol_map;
 
@@ -506,8 +507,14 @@ public:
 
 	inline void initPrintDebugInfo()
 	{
-		dbg_traced_stack = vector<Ink_Object *>();
+		dbg_traced_set = Ink_DebugTraceSet();
 		return;
+	}
+
+	inline bool /* return: has NOT been traced */
+	addDebugTrace(Ink_Object *obj)
+	{
+		return dbg_traced_set.insert(obj).second;
 	}
 	
 	void printSlotInfo(FILE *fp, Ink_Object *obj, string prefix = "");

@@ -154,12 +154,9 @@ void Ink_InterpreteEngine::printDebugInfo(FILE *fp, Ink_Object *obj, string pref
 {
 	const char *slot_name = NULL;
 
-	if (obj) {
-		if (find(dbg_traced_stack.begin(), dbg_traced_stack.end(), obj) != dbg_traced_stack.end()) {
-			fprintf(fp, "object@%p traced\n", (void *)obj);
-			return;
-		}
-		dbg_traced_stack.push_back(obj);
+	if (obj && !addDebugTrace(obj)) {
+		fprintf(fp, "object@%p traced\n", (void *)obj);
+		return;
 	}
 
 	if (obj) {
@@ -192,7 +189,7 @@ void Ink_InterpreteEngine::printTrace(FILE *fp, Ink_ContextChain *context, strin
 		}
 		fprintf(fp, DBG_TAB "%s: line %ld: ", i->getFileName(), i->getLineno());
 		initPrintDebugInfo();
-		printDebugInfo(false, fp, i->getCreater(), "", DBG_TAB);
+		printDebugInfo(false, fp, i->getCreator(), "", DBG_TAB);
 	}
 
 	return;
