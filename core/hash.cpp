@@ -13,7 +13,7 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, Ink_Object *p, stri
 	
 	initValue();
 
-	value = val;
+	u.value = val;
 	key = k;
 	key_p = k_p;
 
@@ -28,9 +28,7 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, Ink_Object *p, stri
 
 	if (p) {
 		engine = p->engine;
-		if (IS_DISPOSABLE(val) && IS_IGNORED(p)) {
-			SET_GREY(p);
-		}
+		IGC_CHECK_WRITE_BARRIER(p, val);
 	}
 
 	if (val) {
@@ -43,8 +41,8 @@ Ink_HashTable::Ink_HashTable(const char *k, Ink_Object *val, Ink_Object *p, stri
 
 Ink_HashTable::Ink_HashTable(const char *k, Ink_InterpreteEngine *engine, Ink_Constant *val, Ink_Object *p, string *k_p)
 {
-	const_value.value = val;
-	const_value.engine = engine;
+	u.const_value.value = val;
+	u.const_value.engine = engine;
 
 	key = k;
 	key_p = k_p;
@@ -71,7 +69,7 @@ Ink_HashTable::Ink_HashTable(Ink_Object *val, Ink_Object *p)
 
 	initValue();
 
-	value = val;
+	u.value = val;
 	key = "";
 	key_p = NULL;
 
@@ -86,9 +84,7 @@ Ink_HashTable::Ink_HashTable(Ink_Object *val, Ink_Object *p)
 
 	if (p) {
 		engine = p->engine;
-		if (IS_DISPOSABLE(val) && IS_IGNORED(p)) {
-			SET_GREY(p);
-		}
+		IGC_CHECK_WRITE_BARRIER(p, val);
 	}
 
 	if (val) {
@@ -109,11 +105,11 @@ Ink_HashTable *Ink_HashTable::getEnd()
 Ink_Object *Ink_HashTable::getValue()
 {
 	if (type != HASH_CONST)
-		return value;
+		return u.value;
 	else {
-		assert(const_value.engine || !const_value.value);
-		return const_value.value
-			   ? const_value.value->toObject(const_value.engine)
+		assert(u.const_value.engine || !u.const_value.value);
+		return u.const_value.value
+			   ? u.const_value.value->toObject(u.const_value.engine)
 			   : NULL;
 	}
 }
@@ -124,26 +120,24 @@ Ink_Object *Ink_HashTable::setValue(Ink_Object *val)
 	Ink_Object *p;
 
 	if (type != HASH_CONST) {
-		value = val;
+		u.value = val;
 		if (val) {
 			val->setDebugName(key);
 			type = HASH_OBJ;
 			if ((p = getParent()) != NULL) {
 				engine = p->engine;
-				if (IS_DISPOSABLE(val) && IS_IGNORED(p)) {
-					SET_GREY(p);
-				}
+				IGC_CHECK_WRITE_BARRIER(p, val);
 			}
 		}
 	} else {
 		if (val) {
-			if (const_value.value) {
-				InkWarn_Assign_Fixed(const_value.engine, key);
+			if (u.const_value.value) {
+				InkWarn_Assign_Fixed(u.const_value.engine, key);
 			} else {
 				cleanConst();
-				const_value.value = val->toConstant(val->engine);
-				const_value.engine = val->engine;
-				if (!const_value.value) {
+				u.const_value.value = val->toConstant(val->engine);
+				u.const_value.engine = val->engine;
+				if (!u.const_value.value) {
 					InkWarn_Failed_Get_Constant(val->engine, val->type);
 				}
 			}
@@ -164,8 +158,8 @@ Ink_Object *Ink_HashTable::setValue(Ink_InterpreteEngine *engine, Ink_Constant *
 	if (val) {
 		/* this function can only be called by native method, so no need to warn */
 		cleanConst();
-		const_value.value = val;
-		const_value.engine = engine;
+		u.const_value.value = val;
+		u.const_value.engine = engine;
 	} else {
 		setUndefined();
 	}
@@ -176,8 +170,8 @@ Ink_Object *Ink_HashTable::setValue(Ink_InterpreteEngine *engine, Ink_Constant *
 void Ink_HashTable::setConstant()
 {
 	if (type == HASH_OBJ) {
-		if (value) {
-			const_value.value = value->toConstant(const_value.engine = value->engine);
+		if (u.value) {
+			u.const_value.value = u.value->toConstant(u.const_value.engine = u.value->engine);
 		}
 	}
 	
@@ -200,9 +194,7 @@ void Ink_HashTable::setSetter(Ink_Object *obj)
 
 	if ((p = getParent()) != NULL) {
 		engine = p->engine;
-		if (IS_DISPOSABLE(obj) && IS_IGNORED(p)) {
-			SET_GREY(p);
-		}
+		IGC_CHECK_WRITE_BARRIER(p, obj);
 	}
 
 	return;
@@ -222,9 +214,7 @@ void Ink_HashTable::setGetter(Ink_Object *obj)
 	
 	if ((p = getParent()) != NULL) {
 		engine = p->engine;
-		if (IS_DISPOSABLE(obj) && IS_IGNORED(p = parent)) {
-			SET_GREY(parent);
-		}
+		IGC_CHECK_WRITE_BARRIER(p, obj);
 	}
 
 	return;
@@ -247,9 +237,9 @@ void Ink_HashTable::setBonding(Ink_InterpreteEngine *engine, Ink_HashTable *to, 
 
 Ink_HashTable::~Ink_HashTable()
 {
-	// if (value) value->address = NULL;
+	// if (u.value) u.value->address = NULL;
 	if (key_p) delete key_p;
-	if (isConstant()) delete const_value.value;
+	if (isConstant()) delete u.const_value.value;
 }
 
 }

@@ -197,7 +197,9 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine, Ink_ContextCh
 	Ink_Object *ret_val = NULL, *pa_ret = NULL;
 	Ink_Array *var_arg = NULL;
 	IGC_CollectEngine *gc_engine_backup = engine->getCurrentGC();
+#if 1
 	char *this_debug_name_back = getDebugName() ? strdup(getDebugName()) : NULL;
+#endif
 
 	bool force_return = false;
 	bool if_delete_argv = false;
@@ -205,6 +207,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine, Ink_ContextCh
 	/* if not inline function, set local context */
 	bool if_set_sp_ptr = !is_inline;
 
+#if 1
 	ret_val = triggerCallEvent(engine, context, argc, argv);
 	if (engine->getSignal() != INTER_NONE) {
 		/* interrupt event triggered */
@@ -233,6 +236,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine, Ink_ContextCh
 		free(this_debug_name_back);
 		return pa_ret;
 	}
+#endif
 
 	/* init GC engine */
 	IGC_CollectEngine *gc_engine = new IGC_CollectEngine(engine);
@@ -269,6 +273,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine, Ink_ContextCh
 			local->setSlot_c("this", this_p);
 	}
 
+#if 1
 	setDebugName(this_debug_name_back);
 	free(this_debug_name_back);
 
@@ -277,7 +282,7 @@ Ink_Object *Ink_FunctionObject::call(Ink_InterpreteEngine *engine, Ink_ContextCh
 		engine->addTrace(local)->setDebug(engine->current_file_name,
 										  engine->current_line_number, this);
 	}
-
+#endif
 	/* set local context */
 	// gc_engine->initContext(context);
 

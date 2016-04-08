@@ -126,7 +126,7 @@ public:
 	ThreadPool thread_pool;
 
 	bool dbg_print_detail;
-	Ink_SizeType dbg_max_trace;
+	Ink_SInt32 dbg_max_trace;
 	vector<DBG_TypeMapping *> dbg_type_mapping;
 	vector<Ink_Object *> dbg_traced_stack;
 
@@ -204,7 +204,7 @@ public:
 		return;
 	}
 
-	inline Ink_SizeType getMaxTrace()
+	inline Ink_SInt32 getMaxTrace()
 	{
 		return dbg_max_trace;
 	}

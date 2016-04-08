@@ -187,7 +187,7 @@ void Ink_InterpreteEngine::printTrace(FILE *fp, Ink_ContextChain *context, strin
 	fprintf(fp, "%srising from:\n", prefix.c_str());
 	for (i = context->getTail(); i; i = i->outer, c++) {
 		if (c >= getMaxTrace() && getMaxTrace() >= 0) {
-			fprintf(fp, DBG_TAB "... (set --max-trace=<value greater than %ld>)\n", getMaxTrace());
+			fprintf(fp, DBG_TAB "... (set --max-trace=<value greater than %d>)\n", getMaxTrace());
 			break;
 		}
 		fprintf(fp, DBG_TAB "%s: line %ld: ", i->getFileName(), i->getLineno());
@@ -197,6 +197,8 @@ void Ink_InterpreteEngine::printTrace(FILE *fp, Ink_ContextChain *context, strin
 
 	return;
 }
+
+#if 0
 
 static void DBG_SignalProc_SEGV(int sig)
 {
@@ -218,10 +220,14 @@ static void DBG_SignalProc_INT(int sig)
 	return;
 }
 
+#endif
+
 void DBG_initSignalProc()
 {
+#if 0
 	signal(SIGSEGV, DBG_SignalProc_SEGV);
 	signal(SIGINT, DBG_SignalProc_INT);
+#endif
 	return;
 }
 

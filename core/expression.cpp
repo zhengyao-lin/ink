@@ -744,6 +744,7 @@ Ink_Object *Ink_IdentifierExpression::getContextSlot(Ink_InterpreteEngine *engin
 			ret = UNDEFINED;
 		}
 	}
+	
 	ret->address = hash; /* set its address for assigning */
 
 #if 0

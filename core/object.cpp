@@ -11,19 +11,21 @@ using namespace std;
 void Ink_Object::initProto(Ink_InterpreteEngine *engine)
 {
 	Ink_Object *proto;
+	
 	if (engine && (proto = engine->getTypePrototype(type))) {
-		if (IS_DISPOSABLE(proto) && IS_IGNORED(this))
-			SET_GREY(this);
+		IGC_CHECK_WRITE_BARRIER(this, proto);
 		setProto(proto);
 	}
+
 	return;
 }
 
 void Ink_Object::setBase(Ink_Object *obj)
 {
 	base_p = obj;
-	if (IS_DISPOSABLE(obj) && IS_IGNORED(this))
-		SET_GREY(this);
+
+	IGC_CHECK_WRITE_BARRIER(this, obj);
+	
 	return;
 }
 
@@ -36,8 +38,7 @@ void Ink_Object::setProto(Ink_Object *proto)
 		proto_hash = new Ink_HashTable("prototype", proto, this);
 	}
 
-	if (IS_DISPOSABLE(proto) && IS_IGNORED(this))
-		SET_GREY(this);
+	IGC_CHECK_WRITE_BARRIER(this, proto);
 
 	return;
 }
@@ -45,8 +46,9 @@ void Ink_Object::setProto(Ink_Object *proto)
 Ink_Object *Ink_ContextObject::setReturnVal(Ink_Object *obj)
 {
 	ret_val = obj;
-	if (IS_DISPOSABLE(obj) && IS_IGNORED(this))
-		SET_GREY(this);
+	
+	IGC_CHECK_WRITE_BARRIER(this, obj);
+
 	return obj;
 }
 

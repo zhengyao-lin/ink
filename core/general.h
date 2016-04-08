@@ -168,6 +168,14 @@ typedef Ink_UInt32 Ink_ArgcType;
 typedef Ink_SInt32 IGC_MarkType;
 
 /* reserved mark */
+
+#define IGC_CHECK_WRITE_BARRIER(parent, child) do { \
+	if (IS_DISPOSABLE(child) && IS_IGNORED(parent)) { \
+		SET_GREY(parent); \
+	} \
+} while (0)
+
+#define MARK_WRITE_BARRIER_PARENT_GREY (1)
 #define MARK_WHITE (0)
 #define MARK_BLUE (1)
 #define MARK_RES_LAST (MARK_BLUE + 1)
@@ -180,7 +188,7 @@ typedef Ink_SInt32 IGC_MarkType;
 
 typedef set<Ink_Object *> IGC_GreyList;
 typedef Ink_UInt64 IGC_ObjectCountType;
-typedef Ink_UInt8 IGC_ObjectAge;
+typedef Ink_UInt64 IGC_ObjectAge;
 
 typedef Ink_SInt64 Ink_LineNoType;
 // typedef double Ink_NumericValue;

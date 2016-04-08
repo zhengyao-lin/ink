@@ -23,7 +23,7 @@ class Ink_HashTable {
 			Ink_Constant *value;
 			Ink_InterpreteEngine *engine;
 		} const_value;
-	};
+	} u;
 
 	Ink_Object *setter;
 	Ink_Object *getter;
@@ -76,15 +76,15 @@ public:
 
 	inline void initValue()
 	{
-		const_value.value = NULL;
-		const_value.engine = NULL;
+		u.const_value.value = NULL;
+		u.const_value.engine = NULL;
 		return;
 	}
 
 	inline void cleanConst()
 	{
 		if (type == HASH_CONST)
-			delete const_value.value;
+			delete u.const_value.value;
 		return;
 	}
 
