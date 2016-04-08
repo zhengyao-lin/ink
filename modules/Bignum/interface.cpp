@@ -25,10 +25,13 @@ Ink_Object *Ink_BigNumeric::clone(Ink_InterpreteEngine *engine)
 
 Ink_Object *Ink_BigNumeric::cloneDeep(Ink_InterpreteEngine *engine)
 {
-	engine->addDeepCloneTrace(this);
-	Ink_Object *new_obj = new Ink_BigNumeric(engine, value);
+	Ink_Object *new_obj;
 
-	cloneDeepHashTable(engine, this, new_obj);
+	if (!(new_obj = engine->cloneDeepHasTraced(this))) {
+		new_obj = new Ink_BigNumeric(engine, value);
+		engine->addDeepCloneTrace(this, new_obj);
+		cloneDeepHashTable(engine, this, new_obj);
+	}
 
 	return new_obj;
 }

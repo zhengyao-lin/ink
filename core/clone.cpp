@@ -28,8 +28,7 @@ void Ink_Object::cloneDeepHashTable(Ink_InterpreteEngine *engine, Ink_Object *sr
 	dest->setProto((tmp = src->getProto()) ? tmp->cloneDeep(engine) : NULL);
 	// dest->setBase((tmp = src->getBase()) ? tmp->cloneDeep(engine) : NULL);
 	for (i = src->hash_table; i; i = i->next) {
-		if (i->getValue()
-			&& !engine->cloneDeepHasTraced(i->getValue()))
+		if (i->getValue())
 			dest->setSlot(i->key, i->getValue()->cloneDeep(engine), false);
 	}
 
@@ -47,10 +46,13 @@ Ink_Object *Ink_Object::clone(Ink_InterpreteEngine *engine)
 
 Ink_Object *Ink_Object::cloneDeep(Ink_InterpreteEngine *engine)
 {
-	engine->addDeepCloneTrace(this);
-	Ink_Object *new_obj = new Ink_Object(engine);
+	Ink_Object *new_obj;
 
-	cloneDeepHashTable(engine, this, new_obj);
+	if (!(new_obj = engine->cloneDeepHasTraced(this))) {
+		new_obj = new Ink_Object(engine);
+		engine->addDeepCloneTrace(this, new_obj);
+		cloneDeepHashTable(engine, this, new_obj);
+	}
 
 	return new_obj;
 }
@@ -66,10 +68,13 @@ Ink_Object *Ink_ContextObject::clone(Ink_InterpreteEngine *engine)
 
 Ink_Object *Ink_ContextObject::cloneDeep(Ink_InterpreteEngine *engine)
 {
-	engine->addDeepCloneTrace(this);
-	Ink_Object *new_obj = new Ink_ContextObject(engine);
+	Ink_Object *new_obj;
 
-	cloneDeepHashTable(engine, this, new_obj);
+	if (!(new_obj = engine->cloneDeepHasTraced(this))) {
+		new_obj = new Ink_ContextObject(engine);
+		engine->addDeepCloneTrace(this, new_obj);
+		cloneDeepHashTable(engine, this, new_obj);
+	}
 
 	return new_obj;
 }
@@ -85,9 +90,13 @@ Ink_Object *Ink_ExpListObject::clone(Ink_InterpreteEngine *engine)
 
 Ink_Object *Ink_ExpListObject::cloneDeep(Ink_InterpreteEngine *engine)
 {
-	Ink_Object *new_obj = new Ink_ExpListObject(engine, exp_list);
+	Ink_Object *new_obj;
 
-	cloneDeepHashTable(engine, this, new_obj);
+	if (!(new_obj = engine->cloneDeepHasTraced(this))) {
+		new_obj = new Ink_ExpListObject(engine, exp_list);
+		engine->addDeepCloneTrace(this, new_obj);
+		cloneDeepHashTable(engine, this, new_obj);
+	}
 
 	return new_obj;
 }
@@ -103,10 +112,13 @@ Ink_Object *Ink_Numeric::clone(Ink_InterpreteEngine *engine)
 
 Ink_Object *Ink_Numeric::cloneDeep(Ink_InterpreteEngine *engine)
 {
-	engine->addDeepCloneTrace(this);
-	Ink_Object *new_obj = new Ink_Numeric(engine, value);
+	Ink_Object *new_obj;
 
-	cloneDeepHashTable(engine, this, new_obj);
+	if (!(new_obj = engine->cloneDeepHasTraced(this))) {
+		new_obj = new Ink_Numeric(engine, value);
+		engine->addDeepCloneTrace(this, new_obj);
+		cloneDeepHashTable(engine, this, new_obj);
+	}
 
 	return new_obj;
 }
@@ -122,10 +134,13 @@ Ink_Object *Ink_String::clone(Ink_InterpreteEngine *engine)
 
 Ink_Object *Ink_String::cloneDeep(Ink_InterpreteEngine *engine)
 {
-	Ink_Object *new_obj = new Ink_String(engine, getValue());
+	Ink_Object *new_obj;
 
-	engine->addDeepCloneTrace(this);
-	cloneDeepHashTable(engine, this, new_obj);
+	if (!(new_obj = engine->cloneDeepHasTraced(this))) {
+		new_obj = new Ink_String(engine, getValue());
+		engine->addDeepCloneTrace(this, new_obj);
+		cloneDeepHashTable(engine, this, new_obj);
+	}
 
 	return new_obj;
 }
@@ -150,10 +165,8 @@ Ink_ArrayValue Ink_Array::cloneDeepArrayValue(Ink_InterpreteEngine *engine, Ink_
 	Ink_ArrayValue::size_type i;
 
 	for (i = 0; i < val.size(); i++) {
-		if (val[i]
-			&& !engine->cloneDeepHasTraced(val[i]->getValue())) {
+		if (val[i] && val[i]->getValue())
 			ret.push_back(new Ink_HashTable(val[i]->getValue()->cloneDeep(engine), parent));
-		}
 		else ret.push_back(NULL);
 	}
 
@@ -172,11 +185,15 @@ Ink_Object *Ink_Array::clone(Ink_InterpreteEngine *engine)
 
 Ink_Object *Ink_Array::cloneDeep(Ink_InterpreteEngine *engine)
 {
-	engine->addDeepCloneTrace(this);
-	Ink_Array *new_obj = new Ink_Array(engine);
+	Ink_Array *new_obj;
+	Ink_Object *tmp;
 
-	new_obj->value = cloneDeepArrayValue(engine, value, new_obj);
-	cloneDeepHashTable(engine, this, new_obj);
+	if (!(tmp = engine->cloneDeepHasTraced(this))) {
+		new_obj = new Ink_Array(engine);
+		engine->addDeepCloneTrace(this, new_obj);
+		new_obj->value = cloneDeepArrayValue(engine, value, new_obj);
+		cloneDeepHashTable(engine, this, new_obj);
+	} else return tmp;
 
 	return new_obj;
 }

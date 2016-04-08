@@ -375,26 +375,31 @@ Ink_Object *Ink_ActorFunction::clone(Ink_InterpreteEngine *engine)
 
 Ink_Object *Ink_ActorFunction::cloneDeep(Ink_InterpreteEngine *engine)
 {
-	engine->addDeepCloneTrace(this);
-	Ink_FunctionObject *new_obj = new Ink_ActorFunction(engine);
-	
-	new_obj->is_native = is_native;
-	new_obj->is_inline = is_inline;
-	new_obj->is_ref = is_ref;
-	new_obj->native = native;
+	Ink_FunctionObject *new_obj;
+	Ink_Object *tmp;
 
-	new_obj->param = param;
-	new_obj->exp_list = exp_list;
-	if (closure_context) {
-		new_obj->closure_context = closure_context->copyDeepContextChain(engine);
-	}
-	new_obj->attr = attr;
-	new_obj->pa_argc = pa_argc;
-	new_obj->pa_argv = copyDeepArgv(engine, pa_argc, pa_argv);
-	new_obj->pa_info_this_p = pa_info_this_p ? pa_info_this_p->cloneDeep(engine) : NULL;
-	new_obj->pa_info_if_return_this = pa_info_if_return_this;
+	if (!(tmp = engine->cloneDeepHasTraced(this))) {
+		new_obj = new Ink_ActorFunction(engine);
+		engine->addDeepCloneTrace(this, new_obj);
+		
+		new_obj->is_native = is_native;
+		new_obj->is_inline = is_inline;
+		new_obj->is_ref = is_ref;
+		new_obj->native = native;
 
-	cloneDeepHashTable(engine, this, new_obj);
+		new_obj->param = param;
+		new_obj->exp_list = exp_list;
+		if (closure_context) {
+			new_obj->closure_context = closure_context->copyDeepContextChain(engine);
+		}
+		new_obj->attr = attr;
+		new_obj->pa_argc = pa_argc;
+		new_obj->pa_argv = copyDeepArgv(engine, pa_argc, pa_argv);
+		new_obj->pa_info_this_p = pa_info_this_p ? pa_info_this_p->cloneDeep(engine) : NULL;
+		new_obj->pa_info_if_return_this = pa_info_if_return_this;
+
+		cloneDeepHashTable(engine, this, new_obj);
+	} else return tmp;
 
 	return new_obj;
 }

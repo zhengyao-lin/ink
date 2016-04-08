@@ -129,17 +129,10 @@ Ink_ContextChain *Ink_ContextChain::copyDeepContextChain(Ink_InterpreteEngine *e
 	Ink_ContextChain *new_chain;
 
 	if (head) {
-		if (!engine->cloneDeepHasTraced(head->getContext())) {
-			new_chain = new Ink_ContextChain(as<Ink_ContextObject>(head->getContext()->cloneDeep(engine)));
-		} else {
-			new_chain = new Ink_ContextChain(NULL);
-		}
+		new_chain = new Ink_ContextChain(as<Ink_ContextObject>(head->getContext()->cloneDeep(engine)));
 
 		for (i = head->inner; i; i = i->inner) {
-			if (!engine->cloneDeepHasTraced(i->getContext()))
-				new_chain->addContext(as<Ink_ContextObject>(i->getContext()->cloneDeep(engine)));
-			else
-				new_chain->addContext(NULL);
+			new_chain->addContext(as<Ink_ContextObject>(i->getContext()->cloneDeep(engine)));
 		}
 	} else {
 		new_chain = new Ink_ContextChain();

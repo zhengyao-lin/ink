@@ -67,6 +67,9 @@ typedef vector<string *> Ink_CustomInterruptSignal;
 typedef vector<Ink_Object *> Ink_PardonList;
 typedef vector<InkCoro_Scheduler *> Ink_SchedulerStack;
 
+typedef map<Ink_Object *, Ink_Object *> Ink_CloneTraceMap;
+typedef set<Ink_Object *> Ink_ProtoTraceSet;
+
 extern pthread_mutex_t ink_native_exp_list_lock;
 extern Ink_ExpressionList ink_native_exp_list;
 void Ink_GlobalMethodInit(Ink_InterpreteEngine *engine, Ink_ContextChain *context);
@@ -138,8 +141,8 @@ public:
 	pthread_mutex_t watcher_lock;
 	Ink_ActorWatcherList watcher_list;
 
-	vector<Ink_Object *> deep_clone_traced_stack;
-	vector<Ink_Object *> prototype_traced_stack;
+	Ink_CloneTraceMap deep_clone_traced_map;
+	Ink_ProtoTraceSet prototype_traced_set;
 
 	Ink_CustomInterruptSignal custom_interrupt_signal;
 
@@ -410,40 +413,32 @@ public:
 
 	inline void initPrototypeSearch()
 	{
-		prototype_traced_stack = vector<Ink_Object *>();
+		prototype_traced_set = Ink_ProtoTraceSet();
 		return;
 	}
 
-	inline bool prototypeHasTraced(Ink_Object *obj)
+	inline bool /* return: if has NOT been traced */
+	addPrototypeTrace(Ink_Object *obj)
 	{
-		return find(prototype_traced_stack.begin(),
-					prototype_traced_stack.end(), obj)
-			   != prototype_traced_stack.end();
-	}
-
-	inline void addPrototypeTrace(Ink_Object *obj)
-	{
-		prototype_traced_stack.push_back(obj);
-		return;
+		return prototype_traced_set.insert(obj).second;
 	}
 
 	inline void initDeepClone()
 	{
-		deep_clone_traced_stack = vector<Ink_Object *>();
+		deep_clone_traced_map = Ink_CloneTraceMap();
 		return;
 	}
 
-	inline bool cloneDeepHasTraced(Ink_Object *obj)
+	inline Ink_Object *cloneDeepHasTraced(Ink_Object *obj)
 	{
-		return find(deep_clone_traced_stack.begin(),
-					deep_clone_traced_stack.end(), obj)
-			   != deep_clone_traced_stack.end();
+		Ink_CloneTraceMap::iterator iter;
+		return ((iter = deep_clone_traced_map.find(obj))
+				!= deep_clone_traced_map.end()) ? iter->second : NULL;
 	}
 
-	inline void addDeepCloneTrace(Ink_Object *obj)
+	inline bool addDeepCloneTrace(Ink_Object *obj, Ink_Object *new_obj)
 	{
-		deep_clone_traced_stack.push_back(obj);
-		return;
+		return deep_clone_traced_map.insert(Ink_CloneTraceMap::value_type(obj, new_obj)).second;
 	}
 
 	Ink_Object *receiveMessage();

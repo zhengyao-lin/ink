@@ -65,12 +65,11 @@ Ink_HashTable *Ink_Object::getSlotMapping(Ink_InterpreteEngine *engine, const ch
 	}
 
 	if (engine && proto && proto->type != INK_UNDEFINED) {
-		if (engine->prototypeHasTraced(this)) {
+		if (!engine->addPrototypeTrace(this)) {
 			InkWarn_Circular_Prototype_Reference(engine);
 			engine->initPrototypeSearch();
 			return NULL;
 		}
-		engine->addPrototypeTrace(this);
 
 		ret = proto->getSlotMapping(engine, key);
 		
