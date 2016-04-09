@@ -1003,7 +1003,7 @@ try_actor = fn () {
 let i = 1;
 while (0) {
 	p(i++)
-	try_actor();
+	try_actor()
 }
 
 try_arg = actor (arg1, argv...) {
@@ -1485,6 +1485,8 @@ test_func();
 
 exit
 
+delete @exit
+
 p("not end!!");
 
 TypeA = fn () {
@@ -1509,11 +1511,14 @@ ExArray = fn () {
 tmp = new ExArray();
 
 act = actor () {
+	import blueprint
+
 	f1 = fn () {
 		p("1");
 		yield null
 		p("8");
 	}
+
 	f2 = fn () {
 		p("2");
 		if (1) {
@@ -1550,8 +1555,10 @@ act = actor () {
 	cocall(f1, [], f2, [], f3, []);
 }
 
-//act("ha")
-//join_all();
+# act("ha")
+# join_all();
+
+# exit
 
 a = fn (argv...) {
 	p("true body")
