@@ -185,7 +185,7 @@ func2 = fn () {
 func2();
 p(abcd);
 */
-
+p("just push")
 
 func = fn () {
 	let a;
